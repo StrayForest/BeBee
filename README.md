@@ -2,103 +2,147 @@
 
 BeBee is a cozy 2D pollination-and-restoration game about a tiny bee bringing a barren planet back to life.
 
-The product direction deliberately uses proven interaction patterns from accessible resource/progression games such as Cow Bay, Cow Castle, Olly the Paw, My Little Universe, Dreamdale and open-source incremental-game references, while keeping BeBee's theme, mechanics, art, content and code original.
-
 ## Core fantasy
 
-You are a small bee. You fly through compact meadows, pollinate flower patches, earn honey, upgrade the bee, unlock harder flowers, buy seeds and redesign restored meadows. The long-term objective is visible and simple: make the whole planet bloom.
+You are a small bee. You fly through compact meadows, pollinate flowers, earn Honey, improve the bee, unlock harder ecological challenges, buy seeds and influence what the recovering world becomes. The long-term goal is simple: make the whole planet bloom.
 
 ## Product principles
 
-1. **One obvious loop:** pollinate -> earn honey -> upgrade -> unlock -> customize -> restore.
-2. **Movement should feel good before content is added.** No feature may compensate for weak movement/feedback.
-3. **Very low cognitive load.** The player should understand the next useful action without reading a manual.
-4. **Visible restoration.** Every meaningful action changes the world visually.
-5. **Customization is progression, not decoration-only.** Seeds let players decide what restored land becomes.
-6. **No mandatory combat in the core game.** Difficulty comes from flower requirements, terrain and efficiency.
-7. **No hard energy timer in MVP.** Session pacing comes from goals, unlocks and spatial progression rather than waiting.
-8. **HTML5 first, mobile-ready.** Desktop and touch controls are first-class from the start.
-9. **Data-driven content.** Flower types, zones, upgrades, seed recipes and rewards live in data definitions rather than scattered game logic.
-10. **Ship a vertical slice early.** One polished region is more valuable than ten unfinished systems.
-11. **Research before implementation.** Significant features begin with competitor/reference research and current official developer documentation, not immediate coding.
-12. **Look at the rendered result.** Player-facing changes require screenshots/video, inspection and comparison with the selected references before merge.
+1. **One readable loop:** pollinate -> earn Honey -> improve/unlock -> plant/shape -> restore.
+2. **Movement and the core pollination verb must feel good before content is scaled.**
+3. **Very low cognitive load.** The next useful action should usually be understandable from the world.
+4. **Visible restoration.** Meaningful progress changes the environment, not only a meter.
+5. **Customization is progression/ownership, not a disconnected decoration screen.**
+6. **Aesthetic choices must not create an unrecoverable grind or campaign soft-lock.**
+7. **No mandatory combat or hard energy timer in the vertical slice.**
+8. **HTML5 first, touch-compatible from the start.**
+9. **Data-driven content and versioned persistent state.**
+10. **Validate one polished vertical slice before mass-producing regions.**
+11. **Research before implementation.** Study relevant shipped solutions and current official developer documentation first.
+12. **Look at the real rendered result.** Screenshots/video and comparison evidence are part of player-facing definition of done.
 
-## Technology decision
+## Technology
 
 - Engine: **Defold**
-- Language: **Lua**
-- Primary launch target: **HTML5**
-- Secondary targets: Android / iOS after the browser vertical slice is validated
-- Rendering: 2D top-down / slight 3/4 presentation
-- Save: versioned local save in MVP; cloud/account layer only if product metrics justify it
-- Analytics: event abstraction from day one; provider selected before public beta
+- Gameplay language: **Lua**
+- Runtime target: **HTML5-first**
+- Secondary targets: mobile/native only after browser validation
+- Storage: versioned domain state behind a storage abstraction
+- Platform integrations: adapters, never gameplay dependencies
 
-Defold is selected because BeBee is a small, interaction-heavy 2D title targeting web and mobile, and the engine has a small runtime, direct HTML5/mobile support and a workflow well suited to a data-driven Lua game.
+## Decision model
+
+The project deliberately distinguishes facts from hypotheses.
+
+Read [`DECISIONS.md`](DECISIONS.md) before relying on a design choice.
+
+Statuses:
+
+- `LOCKED` — safe to implement/depend on;
+- `VALIDATED` — supported by evidence, still tunable;
+- `HYPOTHESIS` — must be researched/prototyped before dependent complexity;
+- `OPEN` — intentionally undecided;
+- `DEPRECATED` — no longer authoritative.
+
+When older documentation conflicts with `DECISIONS.md`, the decision registry wins.
 
 ## Mandatory development method
 
-For meaningful features, the repository uses this order:
-
 ```text
-problem definition
- -> shipped-game reference research
- -> official developer documentation
+problem
+ -> decision status check
+ -> shipped reference research
+ -> current official developer docs
  -> implementation brief + acceptance criteria
- -> implementation
+ -> smallest complete implementation/prototype
  -> tests + HTML5 build
- -> screenshots/video of actual BeBee build
- -> visual/interaction comparison against references
+ -> screenshots/video of the actual build
+ -> reference/quality scorecard
  -> iteration
  -> PR evidence
  -> merge
 ```
 
-A coding agent must not jump directly from a ticket to code. Full rules live in [`docs/10-development-workflow.md`](docs/10-development-workflow.md), and substantial work should use [`docs/templates/feature-research.md`](docs/templates/feature-research.md).
+Player-facing work is not accepted merely because code runs. See [`docs/10-development-workflow.md`](docs/10-development-workflow.md) and [`docs/13-visual-qa-scorecard.md`](docs/13-visual-qa-scorecard.md).
 
-Competitor references are used to learn proven interaction, information hierarchy, controls, feedback and pacing. They are not permission to copy proprietary assets, code, maps, text or pixel-identical UI.
+## Documentation map
 
-## Documentation
+### Always-read
 
-- [`docs/00-product-vision.md`](docs/00-product-vision.md) — product vision, audience, pillars and scope
-- [`docs/01-game-design.md`](docs/01-game-design.md) — moment-to-moment gameplay and complete game loop
-- [`docs/02-progression-economy.md`](docs/02-progression-economy.md) — honey economy, upgrades, flowers, seeds and balancing model
-- [`docs/03-ux-ui-controls.md`](docs/03-ux-ui-controls.md) — HUD, menus, controls, onboarding and interaction rules
-- [`docs/04-world-content.md`](docs/04-world-content.md) — planet structure, biomes, meadow templates and customization
-- [`docs/05-technical-architecture.md`](docs/05-technical-architecture.md) — Defold architecture, modules, state, saves and performance budgets
-- [`docs/06-production-roadmap.md`](docs/06-production-roadmap.md) — milestones and ticket IDs from empty repository to production
-- [`docs/07-qa-analytics-release.md`](docs/07-qa-analytics-release.md) — tests, telemetry, release gates and live-quality rules
-- [`docs/08-reference-analysis.md`](docs/08-reference-analysis.md) — competitor/open-source research and reuse boundaries
-- [`docs/09-art-direction.md`](docs/09-art-direction.md) — bee, flowers, restoration visuals, UI skin, animation and audio direction
-- [`docs/10-development-workflow.md`](docs/10-development-workflow.md) — mandatory research-first implementation and visual comparison process
-- [`docs/templates/feature-research.md`](docs/templates/feature-research.md) — reusable evidence/decision template for substantial features
-- [`AGENTS.md`](AGENTS.md) — implementation contract for Codex/AI-assisted development
-- [`THIRD_PARTY.md`](THIRD_PARTY.md) — mandatory dependency/asset license ledger
+- [`README.md`](README.md)
+- [`AGENTS.md`](AGENTS.md)
+- [`DECISIONS.md`](DECISIONS.md)
 
-## MVP definition
+### Product/design
 
-The MVP is not “the whole planet.” It is one polished region proving the complete loop:
+- [`docs/00-product-vision.md`](docs/00-product-vision.md)
+- [`docs/01-game-design.md`](docs/01-game-design.md)
+- [`docs/02-progression-economy.md`](docs/02-progression-economy.md)
+- [`docs/03-ux-ui-controls.md`](docs/03-ux-ui-controls.md)
+- [`docs/04-world-content.md`](docs/04-world-content.md)
+- [`docs/09-art-direction.md`](docs/09-art-direction.md)
 
-- controllable bee;
-- 3 flower difficulties;
-- 6 meadows in the vertical-slice region;
-- pollination feedback;
-- honey currency;
-- 3 upgrade tracks;
-- 4+ seed types;
-- meadow replanting/customization;
-- region/planet restoration progress;
-- save/load;
+### Engineering/production
+
+- [`docs/05-technical-architecture.md`](docs/05-technical-architecture.md)
+- [`docs/06-production-roadmap.md`](docs/06-production-roadmap.md)
+- [`docs/07-qa-analytics-release.md`](docs/07-qa-analytics-release.md)
+- [`docs/12-platform-storage.md`](docs/12-platform-storage.md)
+- [`docs/13-visual-qa-scorecard.md`](docs/13-visual-qa-scorecard.md)
+
+### Research/process
+
+- [`docs/08-reference-analysis.md`](docs/08-reference-analysis.md)
+- [`docs/10-development-workflow.md`](docs/10-development-workflow.md)
+- [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md)
+- [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
+- [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
+
+### Legal
+
+- [`THIRD_PARTY.md`](THIRD_PARTY.md)
+
+## Current product hypotheses that must not be mistaken for locked design
+
+Before normal production, P-1 must validate:
+
+- the best repeatable pollination input model (auto / hold / movement-through);
+- how seed choice participates in restoration;
+- whether `Yield` deserves to remain an upgrade track;
+- first-region economy/no-grind paths;
+- primary web distribution target;
+- reproducible visual style and screenshot QA pipeline.
+
+See [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md).
+
+## Vertical-slice target
+
+The intended slice still aims to prove:
+
+- controllable expressive bee;
+- several flower difficulty tiers;
+- one compact authored region;
+- satisfying pollination/bloom feedback;
+- Honey economy;
+- meaningful bee improvement;
+- seeds that let players influence the recovering meadow;
+- visible meadow/planet restoration;
+- save/reload;
 - desktop + touch controls;
-- sound, particles and basic accessibility;
-- analytics events;
-- production HTML5 build.
+- sound/VFX/accessibility basics;
+- analytics abstraction;
+- production-quality HTML5 build.
 
-If that slice is not fun, understandable and visually satisfying, content production stops until the loop is fixed.
+Exact interaction, stat and pacing values are validated through P-1/P2 rather than treated as immutable because they appeared in an early GDD.
 
-## Non-goals for the first release
+## Non-goals for the vertical slice
 
-No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, equipment inventory, loot rarity treadmill, mandatory daily quests, backend account system or live-service battle pass.
+No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, equipment loot treadmill, mandatory daily quests, backend account system, premium currency or battle pass.
 
 ## Current status
 
-**Phase 0 — product blueprint complete.** The next implementation step is `P0 / BB-001`: create the Defold project bootstrap and a reproducible HTML5 build, then follow `docs/06-production-roadmap.md` in order. Every substantial implementation task must also follow `docs/10-development-workflow.md`.
+**P-1 — Blueprint Hardening.**
+
+The repository is not yet declaring the original blueprint “complete.” The immediate work is to convert the highest-impact assumptions into validated decisions, remove remaining contradictions, select the primary web target, specify deterministic visual QA/storage behavior and prove the core interaction/economy before normal production begins.
+
+After P-1 exit criteria pass, continue with P0/BB-001 and the production roadmap.

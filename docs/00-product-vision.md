@@ -6,241 +6,243 @@
 
 ## One-sentence pitch
 
-A cozy 2D progression game where a tiny bee pollinates increasingly difficult flower meadows, earns honey, improves itself, replants restored land with chosen flowers, and gradually turns an empty planet into a living garden.
+A cozy 2D progression game where a tiny bee pollinates increasingly challenging flower spaces, earns Honey, improves its abilities, chooses what grows in recovering meadows and gradually turns a dormant planet into a living garden.
 
 ## Player fantasy
 
-The player should feel three things repeatedly:
+The player should repeatedly feel:
 
-1. **I am useful.** The bee makes dead/empty land bloom.
-2. **I am getting stronger.** Previously slow or inaccessible flowers become easy.
-3. **This world is becoming mine.** The restored planet reflects the player's seed choices.
+1. **I am useful.** My actions make damaged land visibly recover.
+2. **I am becoming more capable.** Flowers/areas that once felt difficult become easy or accessible.
+3. **This world is becoming mine.** The recovering planet reflects my flower choices, not only a fixed authored checklist.
 
-The fantasy is not “farm spreadsheet management.” It is “I fly around and make the planet beautiful.”
+The fantasy is not spreadsheet farming. It is:
+
+> I fly around, make things bloom and leave the world more alive and more personal than I found it.
 
 ## Audience
 
 Primary:
 
-- casual players who like Cow Bay, Olly the Paw, My Little Universe, Dreamdale, Forager-like gathering loops and cozy restoration;
-- players comfortable with short 5–20 minute sessions;
-- desktop browser and mobile users;
-- broad age suitability; no dependence on reading-heavy narrative.
+- casual players who enjoy simple gather/upgrade/restore loops;
+- desktop browser and mobile players;
+- players comfortable with short sessions and low reading load;
+- broad age suitability.
 
 Secondary:
 
-- completionists who want 100% planet restoration;
-- decorators/customizers who care which flowers cover each meadow;
-- efficiency players who enjoy optimizing upgrades and routes.
+- completionists pursuing 100% planet restoration;
+- decorators/customizers who care which flowers dominate a meadow;
+- efficiency players who enjoy route/upgrade choices.
 
 ## Product pillars
 
 ### P1 — Immediate readability
 
-Within the first 20 seconds, a player must understand:
+A new player should quickly understand:
 
-- “I am the bee.”
-- “Those flowers need pollination.”
-- “Doing that gives honey.”
-- “Honey lets me become better.”
-- “Better bee = harder/new meadows.”
+- I control the bee;
+- flowers are the main world interaction;
+- successful pollination/restoration gives Honey/progress;
+- Honey improves capability and/or flower expression;
+- stronger capability opens harder opportunities;
+- the long-term goal is to make the planet bloom.
 
-No opening lore dump and no tutorial window longer than one short sentence.
+No opening lore dump or tutorial-page stack.
 
 ### P2 — Satisfying transformation
 
-Every meadow starts visually incomplete: sparse buds, muted soil, closed flowers, low insect life. Pollination transforms it in stages. Completion creates a strong final “bloom” moment: color, petals, particles, ambience and small fauna return.
+Every important meadow begins visually incomplete and changes in authored stages.
 
-Progress must be visible in the world without opening a menu.
+Progress should be visible in the world through:
 
-### P3 — Simple power progression
+- flower state;
+- richer ground/vegetation;
+- ambient insects/pollen;
+- landmark recovery;
+- stronger ambience/music;
+- the player's own planted choices where the validated seed flow allows it.
 
-The bee improves along a small number of understandable axes. MVP uses three permanent tracks:
+A completed restoration must look meaningfully different with the HUD hidden.
 
-- **Flight** — movement speed;
-- **Buzz** — pollination power / time to complete flower nodes;
-- **Yield** — honey earned from completed pollination.
+### P3 — Simple, felt progression
 
-A fourth stat, **Reach** (pollination interaction radius), is reserved for later only if playtests show it improves feel rather than trivializes movement.
+The bee improves along a small number of understandable axes.
+
+Current status:
+
+- **Flight** — strong candidate;
+- **Buzz** — strong candidate;
+- **Yield** — hypothesis pending economy validation.
+
+Do not preserve an upgrade just because the original mockup had three cards.
 
 ### P4 — Player-authored restoration
 
-Native flowers define each meadow's initial challenge, but after restoration the player can buy seeds and redesign that meadow.
+This pillar is corrected after the blueprint audit.
 
-Customization has three rules:
+Seeds/customization should not be only a post-completion decoration feature. The player should influence what the recovering world becomes **during the restoration journey** in a way that remains clear and progression-safe.
 
-- it is easy to understand;
-- changing flowers is reversible;
-- the player never permanently ruins progression by choosing “wrong” seeds.
+Exact flow is validated in `BB-P004` from several models (native-first, player-shaped, hybrid).
 
-### P5 — One planet, obvious long-term goal
+Locked rules:
 
-The main meta-goal is a planet restoration percentage from 0% to 100%.
+- flower choices are understandable;
+- choices are reversible where promised;
+- customization never erases campaign progress;
+- spending Honey on aesthetics does not create an unrecoverable progression grind.
 
-The planet is divided into regions; regions contain compact meadows. Each completed meadow fills the regional and planetary restoration meter. New regions introduce harder flowers, new seed families and visual biomes.
+### P5 — One planet, obvious macro goal
+
+The global objective is a visible restoration journey from dormant toward 100% bloom.
+
+Regions contain compact authored meadows. Later regions introduce new visual identities and flower challenges without multiplying currencies/systems unnecessarily.
 
 ## Core loop
 
+The exact pollination input remains a hypothesis until P-1, but the product loop is:
+
 ```text
-Explore meadow
-  -> pollinate available flowers
-  -> complete patch
-  -> receive honey
-  -> spend honey on bee upgrades and/or seeds
-  -> access harder patches
-  -> restore meadow
-  -> choose/replant flower composition
-  -> unlock next meadow/region
-  -> increase planet restoration %
+Explore/move
+ -> pollinate through the validated core verb
+ -> bloom/restore
+ -> earn Honey and visible world progress
+ -> improve the bee and/or unlock flower expression
+ -> shape recovering plots/meadows with seed choices
+ -> access harder/new restoration work
+ -> increase planet restoration
 ```
 
-This loop is intentionally closer to proven casual gather/upgrade/unlock structures than to a farming simulator.
+## Session outcomes
 
-## Session loop
+A normal short session should usually produce at least one visible change:
 
-A normal short session should provide at least one of these outcomes:
+- complete meaningful flower/restoration work;
+- buy a felt improvement;
+- open a new path/meadow;
+- plant/change a flower choice;
+- reach a restoration stage;
+- discover a new flower identity;
+- complete a region milestone.
 
-- finish a patch;
-- buy an upgrade;
-- unlock a meadow;
-- plant a new flower combination;
-- finish a region milestone;
-- discover a new flower species.
-
-The player should rarely leave a session with “nothing changed.”
+The player should rarely leave feeling that nothing changed.
 
 ## Emotional curve
 
-1. **Curiosity:** gray/sparse world, obvious nearby daisies.
-2. **Pleasure:** first flowers open rapidly and honey pops toward the HUD.
-3. **Agency:** first upgrade makes movement/pollination visibly better.
-4. **Aspiration:** player sees lilies or another high-tier flower that is currently inefficient/locked.
-5. **Mastery:** upgrade makes that formerly difficult patch manageable.
-6. **Ownership:** player replants the finished meadow with preferred seeds.
-7. **Scale:** camera/map reveals that this is one small part of a whole planet.
-
-## Tone and art direction
-
-- soft, rounded silhouettes;
-- friendly saturated colors against initially muted terrain;
-- readable shapes rather than detailed realism;
-- expressive bee animation: wing speed, squash/stretch, tiny turn lean, happy completion reaction;
-- flowers should be recognizable by silhouette and color family;
-- no visual clutter around interactable patches;
-- restoration should visibly increase biodiversity: butterflies, ladybugs, ambient pollen motes and richer grass appear progressively.
-
-The game should look “toy-like and alive,” not like a UI-heavy management game.
+1. **Curiosity** — dormant world and an obvious nearby opportunity.
+2. **Pleasure** — first bloom and immediate reward/world response.
+3. **Agency** — capability and/or seed choice changes what the player can do or see.
+4. **Aspiration** — desirable harder flower/space visible ahead.
+5. **Mastery** — improvement makes the former obstacle manageable.
+6. **Ownership** — player-selected flowers become part of the recovering landscape.
+7. **Scale** — local progress contributes to a planet-sized transformation.
 
 ## Difficulty philosophy
 
-Difficulty is **efficiency friction**, not punishment.
+Difficulty is primarily **efficiency/aspiration friction**, not punishment.
 
-A harder flower can require more pollination work and/or a minimum Buzz tier. The game should not kill the bee, destroy currency or force retries in MVP.
+Use:
 
-Failure states are not required for engagement. The tension comes from seeing desirable content slightly ahead of current power.
+- harder flower work;
+- soft capability recommendations;
+- occasional clear hard gates when they create a good future goal;
+- navigation variation.
 
-## Currency philosophy
+Do not use:
 
-MVP has **one economy currency: honey**.
+- random failure chance;
+- death/currency loss;
+- resource theft/durability;
+- long idle waiting bars as the main challenge.
 
-Honey pays for:
+## Economy philosophy
 
-- permanent bee upgrades;
-- seeds;
-- selected meadow unlocks/bridges if needed for pacing.
+Vertical slice: **one core currency — Honey**.
 
-Do not introduce coins, gems, pollen tokens or tickets during MVP unless metrics demonstrate a concrete need.
+Default Honey sinks:
 
-## What we deliberately borrow as patterns
+- validated bee improvements;
+- validated seed/flower-expression unlocks.
 
-From Cow Bay / other 7Spot games:
+World progression should default to restoration/capability/objective gates rather than charging Honey directly, so choosing flowers cannot punish access to the campaign.
 
-- immediate resource interaction;
-- short objective chains;
-- unlockable compact areas;
-- visible progression from basic to more complex tasks;
-- readable single-screen objectives;
-- broad desktop/mobile accessibility.
+## Reference philosophy
 
-From My Little Universe / Dreamdale:
+We learn from shipped games such as Cow Bay, Cow Castle, Olly the Paw, My Little Universe, Dreamdale and other problem-specific references.
 
-- show future gated content near current play;
-- improve gathering efficiency with permanent upgrades;
-- spatial progression through unlockable world chunks;
-- world restoration/construction as a visual reward.
+Useful broad patterns include:
 
-From Forager-like loops:
+- fast first meaningful action;
+- layered complexity;
+- visible future goals;
+- clear permanent improvement;
+- shallow task-specific menus;
+- spatial/world transformation as progression;
+- browser/mobile accessibility.
 
-- gathering should naturally feed expansion;
-- the map itself communicates progress;
-- a small set of systems can recombine into long-term goals.
+But exact interaction, HUD placement, timing and economy are not copied or treated as validated merely because a competitor uses them.
 
-From open incremental samples:
-
-- data-driven upgrade definitions;
-- modular resource node logic;
-- clear separation of player state, resources, rewards and spawning.
-
-## What we explicitly do not copy
+## What we do not copy
 
 - proprietary source code;
-- exact maps;
-- Cow Bay characters, UI art, text, quest wording, sounds or sprites;
+- exact maps/levels;
+- competitor characters/art/icons;
+- dialogue/quest wording;
+- sounds/music;
+- distinctive pixel-identical UI composition;
 - competitor economy values;
-- pixel-perfect screen layouts;
-- forced ad cadence or monetization patterns before gameplay is proven.
+- extracted assets/files.
 
-We use observed interaction conventions because they are familiar, but BeBee must have original content and implementation.
+BeBee must have original content and implementation.
 
-## MVP scope
+## Vertical-slice intent
 
-### Included
+The slice should prove, not merely contain:
 
-- 1 biome/region;
-- 6 meadows;
-- 3 native difficulty tiers;
-- 4 seed species;
-- 3 permanent upgrade tracks;
-- 1 hive upgrade screen;
-- region map/progress screen;
-- save/load;
-- sound and VFX pass;
-- keyboard + touch controls;
-- basic settings/accessibility;
-- analytics event layer;
-- production HTML5 build.
+- expressive bee movement;
+- a validated repeatable pollination verb;
+- satisfying bloom/reward feedback;
+- Honey economy with meaningful, non-trap choices;
+- capability progression;
+- a seed/restoration ownership flow;
+- one strong meadow transformation;
+- one compact coherent region;
+- safe save/reload;
+- desktop/touch usability;
+- production-quality HTML5 behavior on the selected primary target.
 
-### Excluded
+## Explicit non-goals for the vertical slice
 
-- multiplayer;
-- combat;
+- multiplayer/PvP;
+- mandatory combat;
 - complex crafting;
-- NPC worker automation;
-- social systems;
 - backend account system;
 - premium currency;
-- battle pass;
+- hard energy timer;
 - daily streak pressure;
-- procedural world generation;
-- user-generated arbitrary terrain editing.
+- battle pass;
+- procedural infinite world;
+- heavy worker/automation simulation.
 
-## Product success criteria for the vertical slice
+## Success criteria before mass content
 
-Before producing the rest of the planet, the slice must demonstrate:
+Evidence must show:
 
-- first-time players can identify what to do without external instruction;
-- pollination feels satisfying for repeated actions;
-- an upgrade produces an obvious improvement;
-- players understand why a harder patch should be revisited later;
-- seed customization is discoverable and reversible;
-- the meadow restoration before/after difference is emotionally noticeable;
-- the game performs smoothly in target desktop and representative mobile browsers;
-- save/load survives refresh/relaunch without progression loss.
+- new players understand the core verb without external explanation;
+- the verb remains pleasant after repetition;
+- movement/camera feel good;
+- improvement is felt, not only displayed numerically;
+- harder flowers create aspiration rather than boredom;
+- seed choice feels like ownership during restoration;
+- seed spending does not create grind/soft-locks;
+- before/after restoration is emotionally legible;
+- saves survive target browser lifecycle tests;
+- target performance/load/portal requirements pass.
 
-## North-star design question
+## North-star question
 
 For every proposed feature ask:
 
-> Does this make flying, blooming, upgrading, choosing flowers or restoring the planet more satisfying?
+> Does this make flying, pollinating, blooming, improving, choosing flowers or restoring the planet more satisfying and understandable?
 
-If not, it probably does not belong in the first release.
+If not, it probably does not belong in the vertical slice.

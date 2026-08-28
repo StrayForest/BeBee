@@ -1,453 +1,313 @@
 # 01 — Game Design Specification
 
-## 1. Moment-to-moment gameplay
+## 1. Authority and status
 
-BeBee is a top-down 2D movement game. The player directly controls a bee moving through compact meadows. Flower patches are world objects with a clear pollination state.
+Canonical decision status lives in `DECISIONS.md`.
 
-The core verb is **pollinate**.
+This document describes the intended gameplay model, but any item marked `HYPOTHESIS` must be validated before dependent production complexity is built.
 
-The player should spend most active playtime doing one of four things:
+## 2. Player fantasy
 
-1. moving toward a visible objective;
-2. pollinating a patch;
-3. collecting the resulting honey feedback;
-4. choosing an upgrade/seed/unlock.
+The player controls a small expressive bee that makes damaged/dormant spaces bloom, earns Honey, improves its capabilities and influences which flowers become part of the recovering world.
 
-Menus are support surfaces, not the game itself.
+The game is not a farming spreadsheet. The primary fantasy is:
 
----
+> I fly around, make things bloom, become more capable and leave the planet visibly more beautiful and more mine.
 
-## 2. Controls
+## 3. Core loop
 
-### Desktop
+```text
+move/explore
+ -> interact with a flower patch through the validated pollination verb
+ -> make visible progress
+ -> bloom/complete
+ -> receive Honey
+ -> improve capability and/or unlock flower expression
+ -> access/restore more of the meadow
+ -> plant/shape parts of the recovering world
+ -> increase region/planet restoration
+```
 
-- `WASD` / arrow keys — move.
-- Mouse movement does not steer the bee.
-- `E` / Space — optional explicit interact fallback where needed.
-- `Esc` — pause/settings.
-- Mouse/touch click on HUD elements only; world interaction should not require precision clicking during normal movement.
+Honey is the only core MVP currency.
 
-### Mobile
+## 4. Core interaction — HYPOTHESIS until P-1 validation
 
-- Floating virtual joystick on lower-left.
-- Pollination is automatic when the player deliberately enters an active patch radius and remains near flowers.
-- UI buttons occupy lower-right/top edges without overlapping joystick travel.
+The original blueprint assumed proximity auto-pollination. That remains a candidate, not a locked rule.
 
-### Why auto-pollination
+`BB-P003` must compare at least:
 
-Cow Bay succeeds with extremely direct interaction, but BeBee's fantasy is movement through flowers. Requiring repeated taps on individual blossoms would turn flying into cursor work. BeBee therefore keeps the competitor principle (“one obvious action”) while adapting it to the bee: movement itself initiates pollination.
+### A — Proximity auto-pollination
 
----
+Enter/stay near a patch and progress begins automatically.
 
-## 3. Bee movement
+Strengths to test:
 
-### Feel target
+- one-control simplicity;
+- strong mobile accessibility;
+- low interaction friction.
 
-Movement must feel smooth, light and slightly elastic rather than grid-based.
+Risks:
 
-Required behavior:
+- can become “move, wait, move, wait”;
+- weak sense of agency if timing/position does not matter.
 
-- acceleration to target velocity rather than instant teleport-like velocity changes;
-- short deceleration when input is released;
-- subtle body lean into movement direction;
-- wing animation rate responds to movement state;
-- tiny squash/pop on patch completion;
-- no collision snagging on decorative flowers;
-- collision only against meaningful terrain boundaries/obstacles.
+### B — Hold-to-pollinate
 
-### Initial tuning values
+Near a patch, hold one semantic interaction action while moving/hovering.
 
-These are starting values, not sacred balance:
+Strengths:
 
-- base speed: `180 world units/s`;
-- acceleration time to ~90% speed: `0.12–0.18 s`;
-- deceleration time: `0.08–0.15 s`;
-- camera follow smoothing: `0.12–0.20 s`;
-- pollination activation grace after entering radius: `0.10 s`;
+- stronger ownership over action start/stop;
+- explicit feedback relationship.
 
-Movement speed upgrades should be felt immediately but should not make steering frustrating.
+Risks:
 
----
+- extra input may add unnecessary friction;
+- touch UI can become cluttered.
 
-## 4. Flower patch model
+### C — Movement-through / sweep pollination
 
-The atomic progression object is a **FlowerPatch**, not an individual decorative flower.
+Pollination comes from flying through/around the flower area rather than waiting in one point.
 
-A patch contains multiple visible flower sprites but has one gameplay progress meter.
+Strengths:
 
-### Patch states
+- makes flying itself the verb;
+- potentially more expressive and active.
+
+Risks:
+
+- harder to explain/control;
+- collision/coverage tuning may be fiddly on touch.
+
+The winner becomes `VALIDATED` in `DECISIONS.md` before the permanent FlowerPatch interaction is locked.
+
+## 5. Controls
+
+### Locked principle
+
+Gameplay consumes semantic actions, not raw device checks.
+
+Desktop baseline:
+
+- `WASD` / arrows — movement;
+- semantic `interact` only if the validated core verb needs it;
+- `Esc` / semantic back — pause/settings.
+
+Touch baseline:
+
+- movement scheme chosen after P-1/P1 research;
+- virtual joystick is a strong candidate, not an immutable UI decision;
+- the pollination action must not require precision tapping on individual flower sprites.
+
+## 6. Bee movement
+
+Movement should be smooth, light and responsive rather than grid-based.
+
+Required qualities:
+
+- acceleration/deceleration rather than harsh velocity switching unless testing proves otherwise;
+- readable facing/lean;
+- wing animation linked to movement state;
+- no snagging on decorative flowers;
+- collision only against meaningful obstacles;
+- camera does not routinely steal control for objective guidance.
+
+Initial tuning values may be prototyped, but exact speed/acceleration/camera numbers are not source-of-truth balance until validated in P1.
+
+## 7. FlowerPatch domain model
+
+The gameplay progression object is a logical **FlowerPatch**, not every decorative flower.
+
+Minimum domain states:
 
 ```text
 LOCKED
-  -> AVAILABLE
-  -> POLLINATING
-  -> BLOOMED
-  -> CUSTOMIZABLE
+AVAILABLE
+ACTIVE
+COMPLETED
 ```
 
-Optional presentation sub-state:
+Optional presentation substates may include `CELEBRATING`, `PLANTED_BUDS`, `REPLAY_READY`, etc., but persistent campaign state must remain simpler than visual state.
+
+Minimum data:
+
+- stable `patch_id`;
+- native/campaign flower identity where relevant;
+- difficulty/requirements;
+- pollination work target;
+- Honey reward;
+- unlock rule;
+- restoration contribution;
+- planted/customization state stored separately when applicable.
+
+## 8. Difficulty
+
+Difficulty is efficiency/aspiration, not punishment.
+
+Use a mix of:
+
+- normal intended-tier patches;
+- soft gates that are possible but noticeably inefficient;
+- occasional explicit hard gates where the requirement creates a clear future goal.
+
+No hidden failure chance, death penalty or currency loss in the vertical slice.
+
+Harder flowers should communicate difficulty through silhouette/state/feedback as well as numbers.
+
+## 9. Pollination timing
+
+A patch should resolve in seconds, not become a long idle bar.
+
+The exact target duration depends on the validated interaction model. The old 2–10 second ranges are design starting points only.
+
+Rules:
+
+- feedback begins quickly after a valid interaction starts;
+- repeated intended-tier interactions must not feel like waiting;
+- progress/reset behavior is selected to support the chosen verb;
+- no random failure.
+
+If a prototype relies on stationary waiting for long periods, reject or redesign it rather than compensating with more effects.
+
+## 10. Honey reward
+
+Honey is awarded at meaningful completion boundaries.
+
+Domain rules:
+
+- reward is non-negative;
+- a campaign completion cannot double-reward accidentally;
+- reward presentation is connected visibly to the source action;
+- control is not blocked while reward animation finishes.
+
+Exact reward values live in `02-progression-economy.md` / data, not here.
+
+## 11. Bee improvement
+
+### Strong candidates
+
+- **Flight** — movement/travel feel;
+- **Buzz** — pollination capability / flower access.
+
+### HYPOTHESIS
+
+- **Yield** — Honey multiplier.
+
+Yield must pass economy/payback validation before shipping. If it becomes mathematically mandatory or consistently unattractive, remove or redesign it. Do not preserve three upgrade tracks for visual symmetry.
+
+Upgrade UI shape/card count follows the validated upgrade set.
+
+## 12. Meadow restoration
+
+A meadow changes visually as required restoration work is completed.
+
+Typical authored stages:
 
 ```text
-BLOOMED -> CELEBRATING -> CUSTOMIZABLE
+DORMANT -> WAKING -> GROWING -> RESTORED
 ```
 
-### Patch data
+Progress should be understandable from the world without opening a menu.
 
-Each patch has at minimum:
+Restoration may add:
 
-- `patch_id`
-- `native_flower_id`
-- `difficulty_tier`
-- `pollination_required`
-- `base_honey_reward`
-- `unlock_rule`
-- `seed_slots`
-- `visual_stage_count`
-- `completion_flags`
+- richer ground/grass;
+- flower bloom density;
+- ambient pollen/insects;
+- landmark recovery;
+- music/ambience layers.
 
-### Interaction
+The before/after difference must remain obvious with the HUD hidden.
 
-When the bee is inside the active patch radius:
+## 13. Seeds and customization — corrected direction
 
-1. the patch gets a soft outline/glow;
-2. pollination progress begins automatically;
-3. small pollen particles travel between bee and flowers;
-4. flowers open progressively rather than all at once;
-5. a compact progress ring/bar appears near the patch, not in the center of the screen;
-6. on completion, all remaining buds bloom in a short celebration;
-7. honey droplets/icons stream toward the honey HUD counter;
-8. regional restoration visuals update.
+The previous GDD treated customization mostly as something unlocked only after full meadow completion. That is no longer authoritative.
 
-Leaving the patch pauses progress; progress does **not** reset.
+Locked principle:
 
-This lets players move naturally and avoids punishing accidental exits.
+> Seed choice must contribute to player ownership during the restoration journey while remaining safe for campaign progression.
 
----
+`BB-P004` compares:
 
-## 5. Pollination formula
+1. native restoration first, customize later;
+2. owned seeds can be planted during restoration;
+3. hybrid native objectives + player-shaped plots.
 
-The simulation should use a transparent data-driven relationship:
+Campaign-native completion and current planted visual species must be separate state concepts so planting cannot erase progression.
 
-```text
-progress_per_second = base_pollination_rate * buzz_multiplier * situational_multiplier
-```
+Replanting should be reversible where promised. Aesthetic choices must not create a soft-lock.
 
-For MVP:
+## 14. World gates
 
-- `base_pollination_rate = 1.0`
-- `buzz_multiplier` comes from permanent Buzz level.
-- `situational_multiplier = 1.0` unless a future flower/biome modifier is explicitly introduced.
+Default campaign gates use:
 
-Completion time:
+- meadow/restoration completion;
+- explicit objective completion;
+- Buzz/progression requirements.
 
-```text
-seconds_to_complete = pollination_required / progress_per_second
-```
+Honey-payment world gates are not part of the default MVP model after the audit because spending Honey on seeds must not punish world access.
 
-Do not create hidden random failure chance.
+Any future Honey gate requires new research/economy evidence and a decision update.
 
-### Difficulty target
+## 15. Objectives/onboarding
 
-A patch at the player's intended tier should generally take:
+Use minimal contextual guidance.
 
-- early game: 2–5 seconds;
-- mid progression: 3–7 seconds;
-- high-tier showcase patch: up to ~10 seconds before upgrades;
+Principles:
 
-Longer stationary holds become boring. Difficulty should come from a sequence/route of patches and power gating, not 30-second progress bars.
+- teach in gameplay;
+- one obvious current objective is usually enough;
+- remove instruction as soon as behavior is demonstrated;
+- prefer world cues/edge guidance over camera hijacking;
+- avoid modal tutorial page stacks.
 
----
+The title/entry flow remains adaptable to the primary portal selected in P-1. Do not architecturally require an unnecessary `Title -> Play` click.
 
-## 6. Flower difficulty
+## 16. Planet goal
 
-Difficulty tier controls two things:
+The macro goal is visual and sentence-simple:
 
-1. how much pollination work is required;
-2. the recommended/minimum Buzz level.
+> Make the planet bloom.
 
-MVP example:
+Regions contain compact authored meadows. Completing meaningful restoration increases visible regional/planet progress. Later regions introduce new visual identities and flower challenges without introducing a new currency each time.
 
-| Tier | Example | Player message | Intended behavior |
-|---|---|---|---|
-| 1 | Daisy / Clover | no warning | fast and welcoming |
-| 2 | Lavender / Tulip | “Buzz 2 recommended” | possible but slower at low level |
-| 3 | Lily | “Buzz 3 required” | hard gate for progression clarity |
+## 17. No-frustration invariants
 
-Use a mix of **soft gates** and **hard gates**:
+- no negative Honey;
+- no progression erased by planting a different flower;
+- no mandatory replay farming in the intended campaign path;
+- requirements explain what is missing;
+- no forced camera guidance during normal play;
+- no death/currency-loss loop in the vertical slice;
+- upgrade/customization decisions do not create irreversible trap states.
 
-- soft gate: player can pollinate, but inefficiently;
-- hard gate: patch remains closed with a clear upgrade requirement.
+## 18. Vertical-slice proposal
 
-Do not use only hard gates; seeing progress on a difficult flower creates aspiration.
+Proposed first region remains six meadows:
 
----
+1. First Patch;
+2. Clover Bend;
+3. Lavender Bank;
+4. Creek Garden;
+5. Tulip Rise;
+6. Lily Clearing.
 
-## 7. Honey reward
+This structure is a `HYPOTHESIS` until P-1/P2 pacing evidence supports it.
 
-Honey is awarded at meaningful completion boundaries, not every simulation tick.
+Exact flower roster and canonical region order live in `04-world-content.md` and `DECISIONS.md`.
 
-Default:
+## 19. Product validation questions
 
-```text
-honey_reward = round(base_honey_reward * yield_multiplier * optional_combo_bonus)
-```
+Before scaling content, answer with evidence:
 
-Feedback sequence:
+- Is flying itself pleasant?
+- Is the chosen pollination verb pleasant after many repetitions?
+- Does feedback start fast enough?
+- Does a harder flower create aspiration rather than waiting?
+- Does upgrading visibly change experience?
+- Do seeds feel like ownership during restoration?
+- Can customization spending ever create grind?
+- Is the world transformation strong enough without UI?
+- Can a new player state the long-term goal?
 
-1. flowers bloom;
-2. honey reward number appears near the patch;
-3. honey droplets arc toward HUD;
-4. HUD number counts upward quickly;
-5. if the amount enables an affordable upgrade, the hive/upgrade affordance subtly pulses once.
-
-Never block control while reward animation finishes.
-
----
-
-## 8. Upgrade interaction
-
-The Hive is the home/upgrade location for MVP.
-
-Entering its interaction radius reveals a single clear button/affordance: **Improve Bee**.
-
-Upgrade screen contains three large cards:
-
-- Flight;
-- Buzz;
-- Yield.
-
-Each card shows:
-
-- icon;
-- current level;
-- one-line effect;
-- next numeric improvement;
-- honey cost;
-- buy button/state.
-
-No skill tree in MVP.
-
-When an upgrade is bought:
-
-- honey counter animates down;
-- bee gives a short reaction;
-- stat card animates once;
-- if an upgrade unlocks a hard-gated flower, show a concise “Lilies are now pollinatable” toast.
-
----
-
-## 9. Meadow restoration
-
-A meadow contains several patches and has a restoration meter.
-
-Example six-patch MVP meadow:
-
-```text
-0/6  sparse grass, muted ambience
-2/6  greener grass, first ambient insects
-4/6  richer ground cover, stronger music layer
-6/6  full bloom event + seed customization unlocked
-```
-
-The exact visual changes should be authored rather than purely percentage-based so the transformation is readable.
-
-Completing every required native patch marks the meadow **Restored**.
-
----
-
-## 10. Seed customization
-
-After a meadow is restored, its patches become customizable.
-
-### Core rule
-
-A player can replace a restored patch's native flower with an owned seed type.
-
-Flow:
-
-1. approach restored patch;
-2. interaction says `Plant` / shows current flower;
-3. seed selector opens as a small bottom sheet/panel;
-4. choose an owned/unlocked seed;
-5. short planting transition (soil swirl / seed pop);
-6. patch becomes buds of the chosen species;
-7. bee pollinates it once to establish the new bloom;
-8. meadow permanently displays that flower until changed again.
-
-### Seed slots and combinations
-
-MVP should support composition without arbitrary tile editing.
-
-Each customizable patch has:
-
-- **Primary flower** — main visual species;
-- optional **Accent flower** slot introduced after the vertical slice if performance/readability is good.
-
-Region-level flower diversity bonuses may be added later, but customization must not punish aesthetics. If bonuses exist, they should be small and visible.
-
-### Replant cost
-
-The player buys seed unlocks/seed packets with honey. Replanting should either be free after permanent species unlock or consume a cheap packet. Vertical-slice recommendation: **permanent seed unlock + free replanting** so experimentation is encouraged.
-
----
-
-## 11. Objectives
-
-BeBee uses a lightweight objective strip rather than a traditional quest log.
-
-Examples:
-
-- `Pollinate 3 daisy patches · 1/3`
-- `Improve Buzz to level 2`
-- `Restore Sunny Meadow · 4/6`
-- `Plant your first lavender patch`
-
-Only one primary objective is pinned at a time. Optional secondary objectives can exist later.
-
-Objectives guide the player through the loop but should mostly reward actions the player already wants to perform.
-
----
-
-## 12. Unlocking space
-
-New space should be visible before it is available whenever possible.
-
-A blocked path can use:
-
-- thick unbloomed vines;
-- sleepy giant bud;
-- dry bridge roots;
-- fog/pollen cloud;
-
-Unlock requirements should be simple:
-
-- restore X patches;
-- reach Buzz level Y;
-- pay a modest honey amount;
-
-Avoid compound requirements such as “17 daisies + 4 seeds + level 6 + 300 honey.”
-
-Unlock animation must physically change the world and reveal the new route.
-
----
-
-## 13. World map and planet goal
-
-The local game is continuous meadow exploration. The meta view is a simple planet/region map.
-
-Map displays:
-
-- current region;
-- restored regions;
-- next region silhouette;
-- overall planet bloom percentage;
-- flower species discovered.
-
-The map is not an open-world teleport menu during the first minutes. It becomes available after the player restores the tutorial meadow.
-
----
-
-## 14. Tutorial sequence
-
-Target: teach the complete premise in ~3 minutes without a tutorial modal stack.
-
-### Beat 1 — Move
-
-- Bee starts beside a visibly pulsing daisy patch.
-- Small prompt: `Fly to the flowers`.
-- Input hints appear contextually.
-
-### Beat 2 — Pollinate
-
-- Entering patch starts automatic progress.
-- Prompt disappears immediately after activation.
-- Patch blooms and awards first honey.
-
-### Beat 3 — Repeat
-
-- Two nearby patches become highlighted one after another.
-- No new text unless player is inactive.
-
-### Beat 4 — Upgrade
-
-- Hive pulses.
-- Objective: `Improve your Buzz`.
-- Player has exactly enough honey for first upgrade.
-
-### Beat 5 — Aspirational flower
-
-- A higher-tier flower sits near the path.
-- Before upgrade it is inefficient/locked; after upgrade it becomes practical.
-
-### Beat 6 — Restore
-
-- Final patch completes the meadow.
-- Strong bloom celebration.
-
-### Beat 7 — Choose
-
-- Player receives/unlocks a second seed species and replants one restored patch.
-
-### Beat 8 — Reveal planet
-
-- Map view reveals many gray regions and shows first progress percentage.
-- Objective becomes `Make the planet bloom`.
-
----
-
-## 15. Feedback stack
-
-Every pollination completion should combine at least three feedback channels:
-
-- animation;
-- particles;
-- audio;
-
-Optional mobile haptic: one light pulse on patch completion, stronger pulse on meadow restoration.
-
-Do not spam screen shake. The bee is small and cozy; feedback should feel crisp, not explosive.
-
----
-
-## 16. No-frustration rules
-
-- Patch progress never decays while the player is away.
-- Replanting is reversible.
-- Permanent upgrades cannot be misallocated because there are only beneficial linear tracks.
-- No currency is lost on quit/death because MVP has no death.
-- If the player lacks requirements, the UI says exactly what is missing.
-- Objective guidance uses arrows/world highlights; do not forcibly pan the camera away from the bee.
-- A player can always return to the hive/map without traversing an unnecessarily long empty route.
-
----
-
-## 17. Vertical-slice content
-
-One region, six meadows:
-
-1. **First Patch** — daisies, tutorial.
-2. **Clover Bend** — introduces route choice and seed unlock.
-3. **Lavender Bank** — first soft difficulty gate.
-4. **Creek Garden** — movement around water/bridge geometry.
-5. **Tulip Rise** — combines tier 1/2 patches and stronger economy decision.
-6. **Lily Clearing** — first hard Buzz gate and region finale.
-
-A region should be completable in roughly 25–45 minutes during balancing, then adjusted using playtest data.
-
----
-
-## 18. Future systems that are compatible but not required
-
-Only after vertical-slice validation:
-
-- friendly helper insects;
-- bee cosmetics;
-- regional weather;
-- special flower combos;
-- rare decorative seeds;
-- light idle/offline hive production;
-- seasonal regions;
-- optional challenge meadows;
-- local collections/flower journal.
-
-None of these should be implemented before the core loop proves fun.
+If the answer is unclear, prototype/test instead of writing more downstream systems.

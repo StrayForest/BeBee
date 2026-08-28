@@ -1,28 +1,59 @@
 # 06 — Production Roadmap
 
-## 1. Delivery strategy
+## 1. Delivery rule
 
-The repository starts from zero. The correct path is not “build the full planet.” We ship increasingly complete playable slices, each of which is testable and releasable internally.
+Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-Milestone rule:
+The roadmap now starts with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development.
 
-> Do not start the next milestone because the calendar says so. Start it because the current milestone's exit criteria are met.
+## 2. Milestones
+
+| Milestone | Goal | Main evidence |
+|---|---|---|
+| P-1 | Validate blueprint assumptions | research, prototypes, economy model, platform decision |
+| P0 | Foundation | reproducible HTML5 build + CI + QA hooks |
+| P1 | Movement | bee feels good to control |
+| P2 | Pollination loop | validated core verb is satisfying and complete |
+| P3 | Progression | Honey buys meaningful, non-dominant upgrades |
+| P4 | First restoration | one meadow visibly changes from dormant to alive |
+| P5 | Seed ownership | seed choice participates in restoration safely |
+| P6 | Vertical slice | one polished region, shippable quality |
+| P7 | Production expansion | additional regions reuse proven systems |
+| P8 | Release candidate | portal integration, QA, legal, telemetry, launch |
 
 ---
 
-## 2. Milestone overview
+# P-1 — Blueprint Hardening
 
-| Milestone | Goal | Player-visible result |
-|---|---|---|
-| P0 | Foundation | project boots reliably on HTML5 |
-| P1 | Movement | bee feels good to control |
-| P2 | Pollination loop | one patch can be completed for honey |
-| P3 | Progression | honey buys meaningful upgrades |
-| P4 | First meadow | complete restoration loop works |
-| P5 | Customization | player replants restored patches |
-| P6 | Vertical slice | one complete region, polished |
-| P7 | Production expansion | more regions/content using proven pipeline |
-| P8 | Release candidate | analytics, QA, distribution, launch readiness |
+Detailed requirements: `docs/11-blueprint-hardening.md`.
+
+## Required tasks
+
+- `BB-P001` documentation consistency + decision registry;
+- `BB-P002` retroactive problem-specific competitor benchmark;
+- `BB-P003` pollination A/B/C micro-prototypes;
+- `BB-P004` seed/restoration flow prototypes;
+- `BB-P005` deterministic economy simulation;
+- `BB-P006` primary web distribution decision;
+- `BB-P007` visual style bible;
+- `BB-P008` deterministic visual QA design;
+- `BB-P009` HTML5 storage specification;
+- `BB-P010` agent context/decision model;
+- `BB-P011` reusable repository-local agent skills;
+- `BB-P012` quality-gate enforcement design.
+
+## Exit criteria
+
+- core pollination interaction is `VALIDATED`;
+- seed/restoration model is `VALIDATED`;
+- upgrade set is either validated or intentionally smaller;
+- first-region economy has a no-grind path under multiple purchase orders;
+- primary web target is selected;
+- visual QA/style constraints are specified;
+- storage/platform risks are specified;
+- unresolved assumptions are explicitly `HYPOTHESIS`/`OPEN`, not disguised as facts.
+
+Do **not** build dependent production systems around unresolved P-1 hypotheses.
 
 ---
 
@@ -30,53 +61,70 @@ Milestone rule:
 
 ## Goal
 
-Create a minimal, deterministic Defold project and CI path before gameplay complexity.
+Create a deterministic Defold project, CI path and evidence pipeline.
 
-## Tasks
+### BB-001 — Defold bootstrap
 
-### BB-001 — Defold project bootstrap
+- `game.project`;
+- bootstrap collection/controller;
+- development/release configurations;
+- reproducible HTML5 bundle;
+- exact Defold version/pinning strategy documented.
 
-- create `game.project`;
-- bootstrap/main collection;
-- basic app lifecycle controller;
-- development and release build configuration;
-- confirm HTML5 bundle launches.
-
-### BB-002 — Repository standards
+### BB-002 — Repository/tooling standards
 
 - `.gitignore`;
-- `THIRD_PARTY.md`;
-- contribution/PR template if useful;
 - formatting/lint conventions;
-- stable folder structure from architecture document.
+- dependency/license process;
+- stable source layout;
+- commands documented.
 
-### BB-003 — Input abstraction
+### BB-003 — Input and proxy-focus proof
 
-- semantic actions;
-- keyboard directional movement input;
-- touch abstraction placeholder;
-- input focus rules.
+- semantic movement/actions;
+- keyboard path;
+- touch abstraction;
+- explicit input-focus ownership;
+- if collection proxies are retained, prove input propagation and modal consumption with a small test scene.
 
-### BB-004 — Test harness
+### BB-004 — Test/data harness
 
-- pure Lua test runner or selected lightweight test dependency;
-- first example unit test;
-- CI command that fails on test failure.
+- unit test runner;
+- data validator;
+- first deterministic tests;
+- CI failure on test/data errors.
 
-### BB-005 — Build CI
+### BB-005 — HTML5 CI
 
-At minimum:
+- build on PR;
+- unit/data validation;
+- retain playable artifact;
+- browser console smoke check where practical.
 
-- validate repository/data;
-- run unit tests;
-- produce/check HTML5 build.
+### BB-006 — Visual QA harness foundation
+
+- deterministic development state injection/router;
+- local serve command;
+- automated screenshot tooling design implemented far enough to capture a known test state;
+- desktop/mobile artifact capture.
+
+### BB-007 — Storage adapter proof
+
+- storage interface;
+- local Defold adapter;
+- protected corrupt-load path;
+- primary/backup concept;
+- serialized size diagnostic;
+- browser save/reload smoke test.
 
 ## Exit criteria
 
-- fresh clone can build with documented command;
-- HTML5 build opens with no errors;
-- CI runs on pull requests;
-- no gameplay implementation is required yet.
+- fresh clone builds reproducibly;
+- CI produces a playable HTML5 artifact;
+- test/data validation runs;
+- one deterministic screenshot can be produced automatically;
+- storage smoke test passes;
+- input focus/proxy ownership is understood rather than assumed.
 
 ---
 
@@ -84,46 +132,29 @@ At minimum:
 
 ## Goal
 
-Make an empty field enjoyable to fly around.
+Make an empty test field enjoyable to fly through before resource content is added.
 
-## Tasks
+### Work
 
-### BB-010 — Bee controller
+- normalized controller with acceleration/deceleration;
+- camera follow/bounds;
+- collision only where meaningful;
+- bee idle/fly/turn presentation;
+- selected desktop/touch input scheme;
+- reduced-motion behavior;
+- deterministic movement QA state.
 
-- normalized input vector;
-- movement speed;
-- acceleration/deceleration;
-- collision against simple blockers.
+## Validation
 
-### BB-011 — Camera
-
-- follow smoothing;
-- meadow bounds;
-- aspect ratio checks;
-- reduced-motion-compatible behavior.
-
-### BB-012 — Bee presentation
-
-Temporary art is acceptable, but behavior must support:
-
-- idle/fly states;
-- facing/turn lean;
-- wing animation;
-- simple completion reaction hook.
-
-### BB-013 — Touch joystick
-
-- floating joystick;
-- deadzone;
-- same movement vector contract as keyboard;
-- portrait + landscape test.
+Research comparable movement/camera solutions first. Capture motion evidence, not screenshots only.
 
 ## Exit criteria
 
-- keyboard and touch movement feel consistent;
-- no collision snagging in test arena;
-- 5-minute movement playtest does not reveal camera nausea or obvious control frustration;
-- target framerate stable in empty arena.
+- 5-minute movement test exposes no obvious control/camera frustration;
+- keyboard/touch produce consistent intent;
+- no collision snagging;
+- representative target frame pacing is stable;
+- movement visual-QA comparison is `PASS` or approved deviation.
 
 ---
 
@@ -131,70 +162,55 @@ Temporary art is acceptable, but behavior must support:
 
 ## Goal
 
-Prove the game's central verb before building menus/content.
+Implement the **P-1 validated pollination interaction**, not the old auto-pollination assumption by default.
 
-## Tasks
+### BB-020 — Flower definition model
 
-### BB-020 — Flower data model
-
-- flower definitions;
 - stable IDs;
-- difficulty/buzz requirements;
-- reward data validation.
+- requirement/reward data;
+- validation.
 
-### BB-021 — FlowerPatch state machine
+### BB-021 — FlowerPatch state model
 
-Implement:
+Minimum domain states:
 
 ```text
-AVAILABLE -> POLLINATING -> BLOOMED
+LOCKED / AVAILABLE / ACTIVE / COMPLETED
 ```
 
-with pause-on-exit and no progress reset.
+Presentation substates may exist without contaminating persistent progression.
 
-### BB-022 — Pollination trigger
+### BB-022 — Validated pollination interaction
 
-- forgiving radius;
-- automatic activation;
-- enter/exit feedback;
-- no per-flower collider spam.
+Implement the P-1 winner (proximity, hold, sweep or approved hybrid) with forgiving bounds and clear start/stop feedback.
 
-### BB-023 — Bloom feedback
+### BB-023 — Bloom feedback stack
 
-- staged opening;
-- pollen particles;
-- completion burst;
-- SFX hook;
-- bee reaction.
+- visible progress;
+- staged flower opening;
+- pollen/VFX;
+- audio hook;
+- completion reaction;
+- reward attribution.
 
-### BB-024 — Honey economy transaction
+### BB-024 — Honey transaction
 
-- reward formula;
-- honey state;
-- transaction validation;
-- honey HUD.
+- one currency;
+- non-negative invariant;
+- single-reward completion;
+- HUD feedback.
 
 ### BB-025 — Save v1
 
-Persist:
-
-- honey;
-- completed patch IDs;
-- base player progression state.
+Persist minimal progression through the storage abstraction.
 
 ## Exit criteria
 
-A player can:
+A player can fly, understand how to pollinate without explanation, complete a patch, receive Honey, reload safely and see preserved state.
 
-1. load the game;
-2. fly to one flower patch;
-3. pollinate it;
-4. see it bloom;
-5. receive honey;
-6. refresh/relaunch;
-7. see the completed state and honey preserved.
+### Human gate
 
-This is the first true playable build.
+P2 requires designated human review of the actual build, motion evidence and reference scorecard before P3 complexity begins.
 
 ---
 
@@ -202,45 +218,37 @@ This is the first true playable build.
 
 ## Goal
 
-Create the reward-to-power loop.
+Create a reward-to-power loop with meaningful choices and no mathematically compulsory filler stat.
 
-## Tasks
+### BB-030 — Validated upgrade set
 
-### BB-030 — Upgrade data
+- Flight and Buzz remain primary candidates;
+- Yield ships only if `BB-P005` validates it;
+- do not force three tracks merely to fill a screen.
 
-Flight, Buzz, Yield definitions and costs.
+### BB-031 — Hive/progression interaction
 
-### BB-031 — Hive interaction
+Research the relevant competitor upgrade interaction, then implement one-action purchasing with clear current/next effect and input isolation.
 
-- world-space affordance;
-- open/close upgrade UI;
-- no accidental movement input behind panel.
+### BB-032 — Progression UI
 
-### BB-032 — Upgrade screen
+Number/layout of cards follows the validated upgrade set, not the original fixed three-card assumption.
 
-- three cards;
-- current/next values;
-- affordability states;
-- purchase feedback.
+### BB-033 — Flower gates
 
-### BB-033 — Buzz gates
+Use soft/hard Buzz/progression gates only where they create aspiration and remain explicit.
 
-- soft gate modifier;
-- hard gate state;
-- explicit requirement UI;
-- unlock toast after relevant upgrade.
+### BB-034 — Economy regression simulation
 
-### BB-034 — Progression persistence
-
-Persist upgrade levels and gate-relevant state with migration tests.
+CI/dev command re-runs key no-grind scenarios when values change.
 
 ## Exit criteria
 
-- first honey can buy Buzz 2;
-- effect is immediately measurable and visible;
-- Lily-like hard gate communicates exactly why it is locked;
-- reload retains upgrades;
-- no negative honey transaction is possible.
+- each shipped stat has an obvious experiential/economic purpose;
+- no upgrade is consistently mandatory or consistently ignored in simulation/playtest;
+- no negative Honey;
+- customization spending cannot create a progression dead-end;
+- reload preserves progression.
 
 ---
 
@@ -248,100 +256,56 @@ Persist upgrade levels and gate-relevant state with migration tests.
 
 ## Goal
 
-Prove the visual “dead -> alive” promise.
+Prove the central visual promise: a weak/dormant space becomes alive because of the player's actions.
 
-## Tasks
+### Work
 
-### BB-040 — Meadow model
-
-- required patch IDs;
-- completion calculation;
-- stable meadow ID;
-- restoration stage state.
-
-### BB-041 — Tutorial meadow layout
-
-- 3–4 patches;
-- Hive placement;
-- visible future flower;
-- route/landmark readability.
-
-### BB-042 — Restoration stages
-
-Implement authored visual stages:
-
-- dormant;
-- waking;
-- growing;
-- restored.
-
-### BB-043 — Objective strip
-
-- contextual tutorial objective;
-- patch count;
-- upgrade objective;
-- no quest log complexity.
-
-### BB-044 — Meadow completion event
-
-- celebration;
-- milestone honey reward if used;
-- unlock next path;
-- analytics hook.
+- stable Meadow model;
+- authored dormant/waking/growing/restored stages;
+- compact tutorial layout;
+- minimal objective guidance;
+- restoration celebration;
+- deterministic before/mid/after QA states;
+- save/reload across restoration stages.
 
 ## Exit criteria
 
-- complete meadow can be understood without developer explanation;
-- before/after screenshot difference is strong;
-- no tutorial modal stack;
-- first meadow completes in target onboarding window;
-- state survives save/reload at every restoration stage.
+- new player understands the meadow without external explanation;
+- before/after difference is strong with HUD hidden;
+- no modal tutorial stack is required;
+- restoration state is save-safe;
+- reference/visual scorecard passes.
+
+### Human gate
+
+P4 requires designated human approval of the restoration transformation before more meadows are authored.
 
 ---
 
-# P5 — Seed Customization
+# P5 — Seed Ownership During Restoration
 
 ## Goal
 
-Turn restoration from a linear checklist into player ownership.
+Implement the **P-1 validated seed/restoration model** so player flower choice contributes to ownership, rather than existing only as post-completion decoration.
 
-## Tasks
+### Work
 
-### BB-050 — Seed definitions/unlocks
-
-- seed IDs;
-- permanent unlock cost;
-- availability rules;
-- first seed grant.
-
-### BB-051 — Restored patch customization state
-
-Separate campaign-native completion from current planted species.
-
-### BB-052 — Seed selector UI
-
-- responsive bottom sheet/panel;
-- locked/unlocked/planted states;
-- one-action plant flow.
-
-### BB-053 — Replant transition
-
-- soil/seed feedback;
-- bud state;
-- one pollination pass establishes new flower;
-- persistent visual selection.
-
-### BB-054 — Save migration
-
-Persist planted species independently from native patch identity.
+- seed definitions/unlocks;
+- separate campaign-native state from planted visual species;
+- validated placement/plant flow;
+- reversible replanting;
+- one pollination/establishment loop if validated;
+- persistence/migration;
+- economy regression scenarios with cosmetic-heavy spending.
 
 ## Exit criteria
 
-- player can change a restored patch between at least three species;
-- replant is reversible;
-- campaign progression cannot be broken by planting another species;
+- player can explain native challenge vs chosen flowers;
+- seed choice is visible in the recovering world;
+- choices are reversible where promised;
+- campaign progress cannot be broken by aesthetics;
 - customization survives reload;
-- player understands the feature without opening documentation.
+- the flow remains low-friction on desktop and touch.
 
 ---
 
@@ -349,11 +313,9 @@ Persist planted species independently from native patch identity.
 
 ## Goal
 
-Produce one small game that feels shippable, not a collection of prototypes.
+Ship one small game that feels coherent rather than a collection of systems.
 
-## Content
-
-Six meadows from the world document:
+### Proposed content (still subject to validation)
 
 1. First Patch;
 2. Clover Bend;
@@ -362,220 +324,92 @@ Six meadows from the world document:
 5. Tulip Rise;
 6. Lily Clearing.
 
-## Tasks
+### Work
 
-### BB-060 — Region navigation
-
-- transitions/continuous layout decision;
-- meadow boundaries;
-- path unlocks;
-- region progress state.
-
-### BB-061 — Full first-region flower set
-
-Daisy, Clover, Lavender, Tulip, Lily.
-
-### BB-062 — Planet/region map
-
-- region progress;
-- planet bloom percentage;
-- next region silhouette.
-
-### BB-063 — Audio pass
-
-- movement ambience;
-- pollination;
-- bloom;
-- honey;
-- upgrades;
-- restoration;
-- music state/layer.
-
-### BB-064 — Art/polish pass
-
-- consistent bee;
-- flower silhouettes;
-- terrain/landmarks;
-- VFX;
-- UI skin;
-- no placeholder art in player-facing review build.
-
-### BB-065 — Accessibility/settings
-
-- music/SFX;
-- reduced motion;
-- text scale;
-- haptics where available.
-
-### BB-066 — Analytics implementation
-
-Instrument core funnel/economy events.
-
-### BB-067 — Vertical-slice balance pass
-
-Tune using playtests and telemetry rather than intuition only.
+- region navigation;
+- validated flower set;
+- planet/region progress presentation;
+- production bee/terrain/flowers/UI/VFX;
+- audio pass;
+- accessibility/settings;
+- analytics adapter/events;
+- balance/telemetry pass;
+- portal-specific device/aspect/download checks for selected primary target.
 
 ## Exit criteria
 
-- first region plays start-to-finish;
-- no blocker/softlock;
-- new player can complete without external help;
-- meaningful choices among upgrades exist;
-- seed system is used by playtesters;
-- stable save across the whole region;
-- responsive browser/mobile layouts pass;
-- performance budgets pass;
-- no placeholder critical UX/audio/art.
+- first region completes from clean save with no blocker;
+- onboarding works without external help;
+- economy does not require unintended replay grind;
+- seed system is actually used in tests;
+- stable save/migrations;
+- deterministic visual QA artifacts cover critical surfaces;
+- target portal/device requirements pass;
+- no placeholder critical player-facing art/audio/UI;
+- performance/load budgets pass.
 
-**Do not start mass content production until P6 passes.**
+### Human gate
+
+P6 requires designated human approval before mass content production.
 
 ---
 
 # P7 — Production Expansion
 
-## Goal
+Scale proven content/system patterns only.
 
-Scale only the systems proven in P6.
+Rules:
 
-## Workstreams
+- new regions should be mostly authored content/data;
+- every new system still follows research-first workflow;
+- if each region requires core architecture rewrites, stop and repair architecture;
+- canonical proposed region order lives in `DECISIONS.md` / `04-world-content.md`.
 
-- Regions 2–6;
-- additional flowers;
-- new landmarks/environment sets;
-- seed collection expansion;
-- optional Accent flower system if validated;
-- optional replay/regrowth mechanic if validated;
-- localization;
-- content balancing.
-
-### Production rule
-
-New regions should mostly be **content**, not new engine architecture.
-
-If every new region requires core-system rewrites, stop production and fix architecture.
+Potential cut-first items remain: accent species, helper insects, replay economy, advanced fast travel, cosmetics/live content.
 
 ---
 
 # P8 — Release Candidate
 
-## Goal
+## Important correction
 
-Turn a complete game into a production product.
+The **primary distribution target is selected in P-1**, not here. P8 integrates and certifies it.
 
-## Tasks
+### Work
 
-### BB-080 — Distribution integration
-
-Select target(s):
-
-- direct HTML5 hosting;
-- Poki/CrazyGames or another portal if accepted;
-- Android/iOS after browser validation.
-
-Platform SDK lives behind adapter.
-
-### BB-081 — Privacy/legal
-
-- privacy policy;
-- analytics disclosure/consent as required;
-- third-party license review;
-- store/portal metadata.
-
-### BB-082 — Release performance pass
-
-- startup/load profiling;
-- memory/entity stability;
-- dense restored meadows;
-- mobile browser/device checks.
-
-### BB-083 — Save resilience
-
-- migration from every public beta save version;
-- corrupt primary backup restore;
-- reset flow requires explicit confirmation.
-
-### BB-084 — Full QA matrix
-
-- clean install;
-- returning save;
-- all region gates;
-- all seed combinations within supported model;
-- all upgrade levels;
-- all aspect ratios;
-- input transitions;
-- pause/resume/background behavior.
-
-### BB-085 — Release telemetry dashboard
-
-Track:
-
-- first-session funnel;
-- meadow completion;
-- upgrade distribution;
-- seed usage;
-- session length;
-- crash/error indicators where available;
-- performance telemetry where practical.
+- final selected portal SDK/adapter integration;
+- gameplay lifecycle events;
+- privacy/consent/legal/license review;
+- final bundle/startup profiling;
+- complete save migration/recovery matrix;
+- browser/device QA;
+- production telemetry dashboard;
+- store/portal metadata and capture set;
+- verify no debug QA state injection is exposed unsafely in release.
 
 ## Release gates
 
-Production release requires:
-
 - no known progression blocker;
-- no known reproducible save-loss bug;
-- complete game reachable from a clean save;
-- release build has no debug-only secrets/tools exposed;
+- no reproducible save-loss bug;
+- complete required journey reachable from clean save;
+- selected portal requirements satisfied;
 - analytics/privacy behavior approved;
-- license inventory complete;
-- distribution build loads reliably;
-- player-visible performance is acceptable on representative low/mid devices.
+- third-party inventory complete;
+- stable player-visible performance/load behavior;
+- production build contains no secrets or unsafe dev tools.
 
 ---
 
-## 3. Prioritization framework
-
-When choosing between tasks:
+## Prioritization
 
 1. progression blocker;
 2. save/data loss;
-3. control/feel defect;
-4. comprehension/UX defect;
-5. performance defect;
+3. control/core-verb feel;
+4. comprehension/UX;
+5. performance/load;
 6. core-loop polish;
 7. content;
 8. optional meta systems;
 9. monetization extras.
 
-Never prioritize a new flower skin over a broken save or confusing pollination interaction.
-
----
-
-## 4. Scope kill list
-
-If schedule/scope becomes unstable, cut in this order before compromising core quality:
-
-1. Accent species within one patch;
-2. replay/regrowth economy;
-3. ambient helper insects;
-4. cosmetics;
-5. advanced map fast travel;
-6. extra regions beyond the minimum satisfying campaign;
-7. seasonal/live content.
-
-Do **not** cut:
-
-- movement quality;
-- pollination feedback;
-- save reliability;
-- upgrade clarity;
-- restoration transformation;
-- seed customization core;
-- first-session onboarding.
-
----
-
-## 5. Definition of “working product”
-
-BeBee is a working product when a player can arrive with no instructions, understand the fantasy, complete a meaningful restoration journey, personalize the planet, leave and return without losing progress, and run the release build reliably on the target platform.
-
-A repository full of systems does not satisfy this definition.
+A repository full of systems is not a working product. A working BeBee is one where a new player can understand the fantasy, enjoy the core verb, visibly restore and personalize the world, leave and return safely, and run the release build reliably on the chosen target.
