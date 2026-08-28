@@ -2,14 +2,14 @@
   "schema_version": 1,
   "ticket": "BB-P017-BOOTSTRAP-CLEANUP",
   "change_class": "process",
-  "problem": "The one-time pull_request bootstrap workflow used to land the trusted-base migration must not remain alongside the permanent trusted pull_request_target workflow because duplicate required job names are ambiguous and the candidate-controlled bootstrap would weaken the trust boundary.",
+  "problem": "The one-time pull_request bootstrap workflow used to land the trusted-base migration must not remain alongside the permanent trusted pull_request_target workflow, and the permanent governance gate must not require maintaining a second human GitHub account.",
   "decision": {
     "status_before": "OPEN",
     "status_after": "LOCKED",
-    "provenance_type": "TECH_CONSTRAINT",
+    "provenance_type": "OWNER_CONSTRAINT",
     "evidence_strength": "HIGH",
-    "selected_alternative": "remove-bootstrap",
-    "rationale": "Keep exactly one authoritative required evidence workflow: the base/default-branch trusted pull_request_target workflow."
+    "selected_alternative": "trusted-autonomous",
+    "rationale": "Keep exactly one base-authoritative required evidence workflow while preserving autonomous development: governance changes require machine-readable evidence and previous-base validation, not a second reviewer."
   },
   "official_docs": [
     {
@@ -21,14 +21,14 @@
   "official_docs_exception": "",
   "alternatives": [
     {
-      "id": "leave-bootstrap",
+      "id": "second-human-required",
       "disposition": "rejected",
-      "reason": "Leaves a candidate-controlled workflow with the same required job name as the trusted workflow."
+      "reason": "Conflicts with the owner's intended solo-agent workflow and creates an operational dependency unrelated to evidence quality."
     },
     {
-      "id": "remove-bootstrap",
+      "id": "trusted-autonomous",
       "disposition": "selected",
-      "reason": "Leaves only the trusted base-authoritative required workflow."
+      "reason": "Retains trusted-base policy, adversarial tests, evidence manifests and fail-closed classification without requiring another GitHub identity."
     }
   ],
   "acceptance_criteria": [
@@ -38,24 +38,28 @@
       "evidence": "PR diff deletes the bootstrap workflow."
     },
     {
-      "criterion": "The permanent .github/workflows/pr-evidence-trusted.yml remains unchanged and is the only workflow providing the required validation job.",
+      "criterion": "The permanent trusted workflow remains base-authoritative and does not execute candidate policy code.",
       "status": "pass",
-      "evidence": "PR changes only the bootstrap workflow and this governance manifest."
+      "evidence": "pr-evidence-trusted.yml keeps separate trusted/candidate checkouts and executes validators from trusted/."
+    },
+    {
+      "criterion": "Governance and milestone progress no longer depends on a second human GitHub account.",
+      "status": "pass",
+      "evidence": "Trust-boundary policy, decisions and PR template remove mandatory independent-human review."
     }
   ],
   "verification": {
-    "automated": ["Permanent trusted workflow must evaluate this cleanup PR from main."],
+    "automated": ["Permanent trusted workflow evaluates the candidate using policy from main; candidate policy tests cover autonomous milestone/governance behavior."],
     "manual": ["Direct deletion from protected main was attempted and correctly rejected by the repository ruleset."],
     "runtime_errors": "No game runtime change.",
     "save_data_impact": "none"
   },
   "governance": {
-    "trust_boundary_change": "Removes the temporary candidate-controlled bootstrap workflow, leaving only the base-authoritative trusted workflow.",
-    "bypass_analysis": "Avoids duplicate required job names and removes the remaining candidate-controlled workflow path after bootstrap.",
-    "rollback": "Restore the deleted bootstrap workflow only if a documented migration emergency requires it; doing so is itself governance-critical.",
-    "human_review_required": true
+    "trust_boundary_change": "Removes the temporary candidate-controlled bootstrap workflow and removes the second-human dependency while preserving base-authoritative policy execution.",
+    "bypass_analysis": "The candidate still cannot make its own validator authoritative; governance changes require same-PR evidence and are tested by previous trusted policy. Reference diversity, diff classification and official-doc parsing checks remain enforced.",
+    "rollback": "Revert this PR to restore the previous mandatory-review rule or bootstrap workflow if the owner intentionally chooses that operating model later."
   },
   "known_limitations": [
-    "Merge requires an APPROVED exact-head GitHub review from a non-author, non-bot human under R-016."
+    "Repository ruleset strict/up-to-date enforcement remains a separate GitHub settings action tracked in issue #4."
   ]
 }
