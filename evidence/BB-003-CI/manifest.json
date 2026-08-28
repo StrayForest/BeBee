@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-003-CI",
+  "change_class": "process",
+  "problem": "The exact-head Defold runtime workflow can prove that a bundle renders, but it has no dependency-free way to inject real browser keyboard/touch events and assert collection-proxy input routing or modal consumption for BB-003.",
+  "decision": {
+    "ids": ["R-016", "T-011"],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "optional-probe-hook",
+    "rationale": "Add a standard-library Chromium DevTools probe to the existing exact-head runtime-evidence workflow, but execute it only when the scoped input-proxy proof resource exists. This keeps ordinary bootstrap heads valid while making the future BB-003 head fail on routing/consumption regressions."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-product reference research is not applicable to a CI/governance support change; the behavior under test is defined by browser and Defold technical contracts.",
+    "selected_references": [],
+    "reference_exception": "No player-facing design is selected or evaluated in this support PR.",
+    "anti_pattern": {
+      "source": "https://defold.com/manuals/collection-proxy/",
+      "observation": "Assuming proxy-world input propagation without exercising the proxy owner's focus path would leave the BB-003 risk unproven.",
+      "lesson": "The runtime gate must inject actual browser input and observe delivery/consumption across the engine-managed focus stacks."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/collection-proxy/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "A collection proxy loads a separate game world, and the game object containing the proxy must participate in input focus for input to propagate into that world."
+    },
+    {
+      "source": "https://defold.com/ref/stable/go-lua/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Input focus is stack ordered; an on_input callback may return true to consume an action and stop further propagation."
+    },
+    {
+      "source": "https://chromedevtools.github.io/devtools-protocol/tot/Input/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Chromium DevTools exposes dispatchKeyEvent and dispatchTouchEvent for deterministic browser input injection."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "optional-probe-hook",
+      "disposition": "selected",
+      "reason": "Reuses the existing exact-head HTML5 server/browser environment, adds no package dependency, and stays inert until a scoped runtime proof resource is present."
+    },
+    {
+      "id": "manual-only-proof",
+      "disposition": "rejected",
+      "reason": "Manual keyboard/touch checks would not be repeatable at an exact PR head and would not reliably catch focus-stack regressions."
+    },
+    {
+      "id": "add-browser-automation-package",
+      "disposition": "rejected",
+      "reason": "Selenium/Playwright/Puppeteer would add dependency and provenance surface when Chromium CDP can be driven with the Python standard library already present on the runner."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "The existing development/release HTML5 build and screenshot artifact path remains intact.",
+      "status": "pass",
+      "evidence": ".github/workflows/defold-runtime-evidence.yml retains both pinned bundle commands, Chromium screenshot capture and artifact upload."
+    },
+    {
+      "criterion": "A BB-003 input-proxy resource causes the exact-head workflow to execute the browser input smoke and fail if that script fails.",
+      "status": "pass",
+      "evidence": "The workflow gates tools/defold/chromium_input_proxy_smoke.py behind existence of app/input_probe.collectionproxy and runs it under set -euo pipefail."
+    },
+    {
+      "criterion": "Heads without the BB-003 proof resource remain valid and record the smoke as not applicable.",
+      "status": "pass",
+      "evidence": "The workflow writes a machine-readable not_applicable input-proxy-smoke.json when app/input_probe.collectionproxy is absent."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Pull-request exact-head Defold runtime workflow exercises the changed workflow because tools/defold/chromium_input_proxy_smoke.py is in its path filter.",
+      "Trusted-base PR evidence and trust-boundary validators classify the workflow change as process/governance work with this same-PR manifest."
+    ],
+    "manual": [],
+    "runtime_errors": "No gameplay/runtime behavior is changed by this support PR; exact-head CI must remain green before merge.",
+    "save_data_impact": "none"
+  },
+  "governance": {
+    "trust_boundary_change": "Extends only the non-authoritative Defold runtime-evidence workflow with an optional exact-head browser-input probe. It does not modify the trusted PR evidence workflow, trusted-base policy scripts, ruleset requirements, permissions, checkout credentials, or merge authority.",
+    "bypass_analysis": "The probe is optional only when its scoped marker resource is absent. A BB-003 runtime PR that adds app/input_probe.collectionproxy triggers the existing app/** path and the probe branch. Mixing a workflow edit with high-risk app/game.project changes is independently rejected by trusted-base classification, so a candidate cannot weaken this hook inside the same technical BB-003 PR without failing policy.",
+    "rollback": "Revert .github/workflows/defold-runtime-evidence.yml and remove tools/defold/chromium_input_proxy_smoke.py; the previous build/screenshot evidence path and trusted PR evidence gate remain available and unchanged."
+  },
+  "known_limitations": [
+    "This support PR does not itself contain the input-proxy test scene, so the probe records not_applicable until BB-003 adds the scoped resource."
+  ]
+}
