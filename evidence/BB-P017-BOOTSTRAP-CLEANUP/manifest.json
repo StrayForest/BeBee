@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P017-BOOTSTRAP-CLEANUP",
+  "change_class": "process",
+  "problem": "The one-time pull_request bootstrap workflow used to land the trusted-base migration must not remain alongside the permanent trusted pull_request_target workflow because duplicate required job names are ambiguous and the candidate-controlled bootstrap would weaken the trust boundary.",
+  "decision": {
+    "status_before": "OPEN",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "remove-bootstrap",
+    "rationale": "Keep exactly one authoritative required evidence workflow: the base/default-branch trusted pull_request_target workflow."
+  },
+  "official_docs": [
+    {
+      "source": "https://docs.github.com/en/enterprise-cloud@latest/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "GitHub recommends unique job names across workflows when those names are used as required status checks because duplicate names can create ambiguous results."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "leave-bootstrap",
+      "disposition": "rejected",
+      "reason": "Leaves a candidate-controlled workflow with the same required job name as the trusted workflow."
+    },
+    {
+      "id": "remove-bootstrap",
+      "disposition": "selected",
+      "reason": "Leaves only the trusted base-authoritative required workflow."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "The temporary .github/workflows/pr-evidence.yml bootstrap workflow is deleted.",
+      "status": "pass",
+      "evidence": "PR diff deletes the bootstrap workflow."
+    },
+    {
+      "criterion": "The permanent .github/workflows/pr-evidence-trusted.yml remains unchanged and is the only workflow providing the required validation job.",
+      "status": "pass",
+      "evidence": "PR changes only the bootstrap workflow and this governance manifest."
+    }
+  ],
+  "verification": {
+    "automated": ["Permanent trusted workflow must evaluate this cleanup PR from main."],
+    "manual": ["Direct deletion from protected main was attempted and correctly rejected by the repository ruleset."],
+    "runtime_errors": "No game runtime change.",
+    "save_data_impact": "none"
+  },
+  "governance": {
+    "trust_boundary_change": "Removes the temporary candidate-controlled bootstrap workflow, leaving only the base-authoritative trusted workflow.",
+    "bypass_analysis": "Avoids duplicate required job names and removes the remaining candidate-controlled workflow path after bootstrap.",
+    "rollback": "Restore the deleted bootstrap workflow only if a documented migration emergency requires it; doing so is itself governance-critical.",
+    "human_review_required": true
+  },
+  "known_limitations": [
+    "Merge requires an APPROVED exact-head GitHub review from a non-author, non-bot human under R-016."
+  ]
+}
