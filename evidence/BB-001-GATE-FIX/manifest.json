@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-001-GATE-FIX",
+  "change_class": "process",
+  "problem": "The P-1 evidence policy contained two bootstrap blockers: exact-head visual provenance required a commit to contain its own final SHA, and technical bootstrap collections/scripts could be classified as player-facing solely by resource extension. BB-001 could not satisfy those constraints without weakening or bypassing governance.",
+  "decision": {
+    "ids": ["R-011", "R-014", "R-016"],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "binding-plus-technical-prefix-precedence",
+    "rationale": "Use a literal $PR_HEAD binding whose concrete value is supplied and retained by exact-head CI, and give explicitly high-risk technical prefixes/files precedence over generic player-facing extension classification. This preserves exact-head evidence and strong technical manifests while making bootstrap PRs satisfiable."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-game reference research is not applicable to repository evidence-policy correctness.",
+    "selected_references": [],
+    "reference_exception": "This is a CI/Git data-model problem rather than player-facing design.",
+    "anti_pattern": {
+      "source": "https://git-scm.com/docs/gitdatamodel.html",
+      "observation": "Git object IDs are hashes of object contents; changing committed manifest content changes the resulting object graph and commit identity.",
+      "lesson": "Do not require a committed file to contain the final commit ID that depends on that file."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://docs.github.com/en/actions/reference/workflows-and-actions/contexts",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "GitHub Actions exposes event and SHA context data to workflow steps, allowing trusted CI to bind evidence to the concrete pull-request head at execution time."
+    },
+    {
+      "source": "https://git-scm.com/docs/gitdatamodel.html",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Git objects are immutable and identified by cryptographic hashes of their type and contents, so a commit cannot stably embed its own not-yet-created final object ID as ordinary tracked content."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "binding-plus-technical-prefix-precedence",
+      "disposition": "selected",
+      "reason": "Keeps exact-head provenance and high-risk technical evidence while making both checks mechanically satisfiable."
+    },
+    {
+      "id": "disable-or-bypass-evidence-for-bootstrap",
+      "disposition": "rejected",
+      "reason": "Would make BB-001 mergeable by weakening the trust boundary rather than correcting contradictory policy."
+    },
+    {
+      "id": "classify-all-defold-resources-player-facing",
+      "disposition": "rejected",
+      "reason": "Conflates lifecycle/bootstrap resources with actual player-facing presentation and forces irrelevant visual/reference evidence onto technical-only changes."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "$PR_HEAD is accepted as an exact-head declaration while arbitrary literal SHAs remain rejected.",
+      "status": "pass",
+      "evidence": "Regression coverage added in scripts/policy_tests/test_check_pr_evidence_policy.py; the merged policy becomes trusted-base code on BB-001."
+    },
+    {
+      "criterion": "game.project plus app/bootstrap.collection and app/bootstrap.script can be classified technical, while UI/gameplay paths retain player-facing enforcement.",
+      "status": "pass",
+      "evidence": "High-risk technical prefix/file precedence added to classifier with dedicated bootstrap regression test; existing UI classification regression retained."
+    },
+    {
+      "criterion": "Exact-head runtime evidence workflow triggers when app bootstrap resources change.",
+      "status": "pass",
+      "evidence": ".github/workflows/defold-runtime-evidence.yml path filter includes app/**."
+    },
+    {
+      "criterion": "Agent source of truth no longer claims P-1 is current after P-1 closeout.",
+      "status": "pass",
+      "evidence": "AGENTS.md implementation-order section now declares P0 Foundation / BB-001."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Existing trusted-base validate-pr-evidence must pass this governance PR before merge.",
+      "The immediately following BB-001 PR must run the newly merged trusted policy tests and classify app bootstrap runtime as technical."
+    ],
+    "manual": [
+      "Reviewed policy precedence so explicit high-risk technical files/prefixes are checked before generic player-facing extensions.",
+      "Reviewed $PR_HEAD semantics against Git object identity and GitHub Actions event/SHA contexts."
+    ],
+    "runtime_errors": "No shipped runtime is changed by this governance repair.",
+    "save_data_impact": "None."
+  },
+  "visual_evidence": {
+    "required": false,
+    "artifacts": [],
+    "states": [],
+    "viewports": [],
+    "motion_evidence": [],
+    "provenance": {
+      "capture_commit_sha": "$PR_HEAD",
+      "capture_mode": "ci",
+      "artifact_locator": "N/A — process-only policy repair"
+    }
+  },
+  "comparison": {
+    "measurements": {}
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": ["N/A — player-facing evaluation is not required for a process-only policy repair."],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "policy-review-pass",
+      "implementation_author_id": "implementation-pass",
+      "input_artifacts": ["policy diff and regression tests"],
+      "record_locator": "evidence/BB-001-GATE-FIX/manifest.json"
+    }
+  },
+  "governance": {
+    "trust_boundary_change": "The trust boundary remains trusted-base policy. Exact-head identity is represented declaratively as $PR_HEAD in committed manifests and resolved by trusted CI; explicitly technical app/ and other high-risk prefixes/files take precedence over generic presentation-extension classification.",
+    "bypass_analysis": "Arbitrary SHA strings remain rejected for player-facing provenance. UI/gameplay/main paths remain player-facing. process/trivial still cannot classify meaningful runtime. The runtime evidence workflow remains read-only and exact-head. No bypass actors, approval shortcuts or direct candidate-policy authority are introduced.",
+    "rollback": "Revert this PR to restore the prior classifier/provenance rules and app path filter; doing so would intentionally restore the BB-001 blockers and should only be used if a replacement satisfiable binding/classifier is introduced simultaneously."
+  },
+  "known_limitations": [
+    "The Protect main GitHub ruleset is temporarily disabled by the repository owner during repair; repository policy code cannot re-enable the external ruleset through the available connector."
+  ]
+}

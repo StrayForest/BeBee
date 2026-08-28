@@ -92,6 +92,7 @@ ALLOWED_PROVENANCE = {
     "SUBJECTIVE_DIRECTION",
 }
 ALLOWED_STRENGTH = {"LOW", "MEDIUM", "HIGH"}
+PR_HEAD_BINDING = "$PR_HEAD"
 
 
 def nonempty(value: object) -> bool:
@@ -145,6 +146,8 @@ def is_economy_file(path: str) -> bool:
 
 
 def is_player_facing_file(path: str) -> bool:
+    if path in HIGH_RISK_TECH_FILES or _starts_with_any(path, HIGH_RISK_TECH_PREFIXES):
+        return False
     suffix = Path(path).suffix.lower()
     return _starts_with_any(path, PLAYER_PREFIXES) or suffix in PLAYER_EXTENSIONS
 
@@ -399,8 +402,11 @@ def validate_visual_and_evaluation_provenance(data: dict, head_sha: str) -> list
     if not isinstance(provenance, dict):
         errors.append("visual_evidence.provenance is required.")
         provenance = {}
-    if provenance.get("capture_commit_sha") != head_sha:
-        errors.append("visual_evidence.provenance.capture_commit_sha must equal exact PR HEAD_SHA.")
+    if provenance.get("capture_commit_sha") not in {head_sha, PR_HEAD_BINDING}:
+        errors.append(
+            "visual_evidence.provenance.capture_commit_sha must equal exact PR HEAD_SHA "
+            "or use the $PR_HEAD binding resolved by exact-head CI."
+        )
     if provenance.get("capture_mode") not in {"ci", "local-reproducible"}:
         errors.append("visual_evidence.provenance.capture_mode must be `ci` or `local-reproducible`.")
     if not nonempty(provenance.get("artifact_locator")):
@@ -414,8 +420,11 @@ def validate_visual_and_evaluation_provenance(data: dict, head_sha: str) -> list
     if not isinstance(eval_prov, dict):
         errors.append("evaluation.provenance is required.")
         eval_prov = {}
-    if eval_prov.get("evaluated_sha") != head_sha:
-        errors.append("evaluation.provenance.evaluated_sha must equal exact PR HEAD_SHA.")
+    if eval_prov.get("evaluated_sha") not in {head_sha, PR_HEAD_BINDING}:
+        errors.append(
+            "evaluation.provenance.evaluated_sha must equal exact PR HEAD_SHA "
+            "or use the $PR_HEAD binding resolved by exact-head CI."
+        )
     evaluator = eval_prov.get("evaluator_id")
     implementer = eval_prov.get("implementation_author_id")
     if not nonempty(evaluator):

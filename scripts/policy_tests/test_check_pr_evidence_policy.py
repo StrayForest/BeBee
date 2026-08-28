@@ -149,6 +149,13 @@ class DiffClassificationTests(unittest.TestCase):
             [],
         )
 
+    def test_app_bootstrap_runtime_can_be_technical(self):
+        changed = {"game.project", "app/bootstrap.collection", "app/bootstrap.script"}
+        required = policy.required_policy(changed)
+        self.assertTrue(required["high_risk_technical"])
+        self.assertFalse(required["player"])
+        self.assertEqual(policy.validate_change_class("technical", changed), [])
+
 
 class AcceptanceTests(unittest.TestCase):
     def test_unchecked_acceptance_fails(self):
@@ -176,6 +183,11 @@ class ProvenanceTests(unittest.TestCase):
         data = manifest_payload("player-facing", head_sha="wrong")
         errors = policy.validate_visual_and_evaluation_provenance(data, "actual")
         self.assertTrue(any("capture_commit_sha" in error for error in errors))
+
+    def test_pr_head_binding_is_accepted(self):
+        data = manifest_payload("player-facing", head_sha=policy.PR_HEAD_BINDING)
+        errors = policy.validate_visual_and_evaluation_provenance(data, "actual")
+        self.assertEqual(errors, [])
 
     def test_same_implementer_and_evaluator_fails(self):
         data = manifest_payload("player-facing")
