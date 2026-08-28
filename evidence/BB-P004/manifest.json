@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P004",
+  "change_class": "process",
+  "problem": "BeBee must let seed choice contribute to ownership before a meadow is fully restored without allowing aesthetic choices to obscure or damage authored native campaign progression.",
+  "decision": {
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "EXPERIMENT_RESULT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "hybrid",
+    "rationale": "The deterministic A/B/C model holds campaign safety constant and exposes the structural trade-off. Native-first provides zero ownership actions before restoration. Player-shaped provides early ownership but allows an incomplete native campaign plot to display a chosen species different from its authored native identity. Hybrid provides early ownership through dedicated player-shaped plots while keeping incomplete native plots visually/semantically authored, and replanting after completion preserves campaign state."
+  },
+  "research": {
+    "candidate_pool": [
+      {"name":"Garden Life: A Cozy Simulator","product_id":"garden-life","source":"https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/","relevance":"Restoration tasks and freely chosen planting coexist during the same journey."},
+      {"name":"Wildmender","product_id":"wildmender","source":"https://www.wildmender.com/","relevance":"Player planting is directly part of restoring a barren world."},
+      {"name":"Cloud Gardens","product_id":"cloud-gardens","source":"https://store.steampowered.com/app/1372320/Cloud_Gardens","relevance":"Campaign progression conditions coexist with player-shaped vegetation."},
+      {"name":"Terra Nil","product_id":"terra-nil","source":"https://www.terranil.com/","relevance":"Authored ecological restoration goals provide a materially different, low-expression model."},
+      {"name":"Grow: Song of the Evertree","product_id":"grow-song-of-the-evertree","source":"https://store.steampowered.com/app/1380420/Grow_Song_of_the_Evertree/","relevance":"Player-generated world identity is tied to rejuvenation rather than only post-completion decoration."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {"name":"Garden Life restoration plus free planting","product_id":"garden-life","source":"https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/","platform_version_date":"Steam page checked 2026-08-28","selection_reason":"Closest reference for authored restoration tasks and player planting coexisting.","observed_behavior":"The product description combines restoring an abandoned community garden through tasks with unlocked seeds and free plant placement.","inference":"BeBee can expose player planting before completion without importing Garden Life's management depth.","measurements":{}},
+      {"name":"Wildmender player-shaped restoration","product_id":"wildmender","source":"https://www.wildmender.com/","platform_version_date":"official site checked 2026-08-28","selection_reason":"Strong reference where planting choices are themselves part of recovery.","observed_behavior":"The official site describes restoring a deserted world by collecting plants, planting seeds, shaping terrain and growing an oasis into the player's garden.","inference":"Ownership can arrive early, but BeBee should keep the interaction much simpler.","measurements":{}},
+      {"name":"Cloud Gardens campaign plus expression","product_id":"cloud-gardens","source":"https://store.steampowered.com/app/1372320/Cloud_Gardens","platform_version_date":"Steam page checked 2026-08-28","selection_reason":"Useful hybrid reference where expression coexists with progression conditions.","observed_behavior":"The store page describes planting seeds to overgrow scenes while campaign stages retain progression conditions.","inference":"Player expression and authored completion can coexist if their roles remain legible.","measurements":{}}
+    ],
+    "reference_exception": "",
+    "anti_pattern": {"source":"https://www.terranil.com/","observation":"Terra Nil emphasizes satisfying authored ecological transformation targets rather than preserving a personal flower composition.","lesson":"BeBee should not sacrifice readable native/ecological identity merely to maximize customization freedom."}
+  },
+  "official_docs": [
+    {"source":"https://www.w3.org/TR/pointerevents3/","date_checked":"2026-08-28","verified_constraint":"The disposable browser lab uses standard DOM/pointer-compatible interaction boundaries; this product-topology experiment does not select production Defold input behavior."}
+  ],
+  "official_docs_exception": "Production planting/input implementation is intentionally not selected by this P-1 model and must be re-verified against current Defold input/GUI documentation in P5.",
+  "alternatives": [
+    {"id":"native_first","disposition":"rejected","reason":"Progression-safe and simple, but the scripted model provides zero ownership actions before full native restoration, conflicting with D-005."},
+    {"id":"player_shaped","disposition":"rejected","reason":"Provides immediate ownership, but an incomplete native campaign plot may display a chosen species different from its authored native identity, creating dual semantics on one active campaign object."},
+    {"id":"hybrid","disposition":"selected","reason":"Provides an immediate player-owned planting opportunity through dedicated plots while keeping incomplete native campaign plots authored; after restoration, replanting remains safe because campaign and planted state are independent."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"All three variants restore from the same native campaign state and replanting cannot erase completion.","status":"pass","evidence":"prototypes/seed-restoration/model.test.mjs and experiment.mjs assert restorationComplete and campaign_preserved_after_replant for every mode."},
+    {"criterion":"The selected model provides ownership before full restoration.","status":"pass","evidence":"evidence/BB-P004/model-run-2026-08-28.json records Hybrid first_ownership_action=1 and ownership_actions_before_restore=1; Native-first records 0 pre-restoration ownership actions."},
+    {"criterion":"The selected model avoids conflicting chosen/native identity on incomplete campaign plots.","status":"pass","evidence":"The model run records Hybrid initial_native_plot_plantable=false and native_visual_can_diverge_before_completion=false; Player-shaped records both as true."},
+    {"criterion":"The decision scope does not falsely claim human comprehension or final UI validation.","status":"pass","evidence":"docs/research/BB-P004-seed-restoration-result.md explicitly keeps visual communication, plot count, placement and input open for P5 runtime/player validation."},
+    {"criterion":"A separate evaluation records the winner's main downside rather than confirmation-only reasoning.","status":"pass","evidence":"The result record identifies two plot-role comprehension as the main Hybrid risk and issues PASS WITH DEVIATION."}
+  ],
+  "verification": {
+    "automated": ["node prototypes/seed-restoration/model.test.mjs -> passed locally", "node prototypes/seed-restoration/experiment.test.mjs -> passed locally", "node prototypes/seed-restoration/experiment.mjs -> deterministic JSON matching evidence/BB-P004/model-run-2026-08-28.json structural values"],
+    "manual": ["Separate evaluator pass compared the original problem, reference observations, locked no-soft-lock/low-cognitive-load principles and deterministic A/B/C output."],
+    "runtime_errors": "none observed in Node model execution",
+    "save_data_impact": "none; product decision/prototype evidence only. Production persistence is not implemented yet."
+  },
+  "experiment_results": {
+    "report": "evidence/BB-P004/model-run-2026-08-28.json",
+    "winner": "hybrid",
+    "evaluation_verdict": "PASS WITH DEVIATION",
+    "validated_scope": "native campaign plots remain authored during restoration; dedicated player-shaped plots allow early seed ownership; campaign/native identity is independent from planted species; completed native plots may become replantable",
+    "not_validated": ["human comprehension of plot roles","final visual language","number/placement of player-shaped plots","seed prices/unlocks","production planting input","final save schema"]
+  },
+  "governance": {
+    "trust_boundary_change": "Updates authoritative D-005 from an exact-flow hypothesis to a validated Hybrid topology based on direct deterministic comparison; CI policy and merge authority are unchanged.",
+    "bypass_analysis": "The change does not claim runtime/player-facing implementation. Evidence explicitly preserves the human-comprehension limitation and does not use structural safety as proof of final UX quality.",
+    "rollback": "If P5 runtime/player evidence shows that dedicated player-shaped plots cannot be communicated without excessive UI, revert D-005 exact topology to HYPOTHESIS and reopen B/C or a new variant using the retained model and result record."
+  },
+  "known_limitations": [
+    "This is a deterministic structural experiment, not a human comprehension playtest; evidence strength is MEDIUM.",
+    "The disposable browser/model prototype does not validate production Defold input, visuals, plot placement or seed economy.",
+    "The selected Hybrid topology still requires P5 runtime evidence that two plot roles are legible with minimal UI."
+  ]
+}
