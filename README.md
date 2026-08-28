@@ -97,6 +97,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/03-ux-ui-controls.md`](docs/03-ux-ui-controls.md)
 - [`docs/04-world-content.md`](docs/04-world-content.md)
 - [`docs/09-art-direction.md`](docs/09-art-direction.md)
+- [`docs/17-visual-style-bible.md`](docs/17-visual-style-bible.md) — measurable V-001 visual baseline
 
 ### Engineering/production
 
@@ -106,6 +107,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/12-platform-storage.md`](docs/12-platform-storage.md)
 - [`docs/13-visual-qa-scorecard.md`](docs/13-visual-qa-scorecard.md)
 - [`config/web-targets.json`](config/web-targets.json)
+- [`config/visual-style.json`](config/visual-style.json) — canonical numeric style tokens
 
 ### Research/process
 
@@ -129,9 +131,9 @@ Before normal production, P-1 still needs product evidence for:
 - how seed choice participates in restoration;
 - whether `Yield` deserves to remain an upgrade track;
 - first-region pacing/no-grind behavior beyond the current deterministic arithmetic simulation;
-- reproducible visual style and screenshot QA pipeline.
+- runtime proof that the validated V-001 style/crop rules survive the deterministic Defold HTML5 capture pipeline.
 
-The objective-evidence hardening in `BB-P013`–`BB-P017` is already in place. `BB-P006` has validated Poki as the primary external target, with CrazyGames as fallback; see [`docs/research/BB-P006-primary-web-target.md`](docs/research/BB-P006-primary-web-target.md).
+The objective-evidence hardening in `BB-P013`–`BB-P017` is already in place. `BB-P006` has validated Poki as the primary external target, with CrazyGames as fallback; see [`docs/research/BB-P006-primary-web-target.md`](docs/research/BB-P006-primary-web-target.md). `BB-P007` now defines the measurable visual baseline in [`docs/17-visual-style-bible.md`](docs/17-visual-style-bible.md) and [`config/visual-style.json`](config/visual-style.json); BB-P008/P0 must prove it against retained runtime captures.
 
 See [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md) for the remaining P-1 exit criteria.
 
@@ -163,6 +165,6 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 **P-1 — Blueprint Hardening.**
 
-The repository now has enforceable evidence governance, a protected autonomous merge path, disposable BB-P003/BB-P004 product experiment harnesses, a deterministic BB-P005 economy simulator, and a validated primary web target. Remaining P-1 work is to collect/compare the core interaction and seed-flow evidence, settle the upgrade set, and establish reproducible visual style/capture constraints before normal production begins.
+The repository now has enforceable evidence governance, a protected autonomous merge path, disposable BB-P003/BB-P004 product experiment harnesses, a deterministic BB-P005 economy simulator, a validated primary web target, and a BB-P007 measurable visual style contract with deterministic original blocking-frame generation. Remaining P-1 work is to collect/compare the core interaction and seed-flow evidence, settle the upgrade set, and complete deterministic runtime visual-capture proof before normal production begins.
 
 After P-1 exit criteria pass, continue with P0/BB-001 and the production roadmap.
