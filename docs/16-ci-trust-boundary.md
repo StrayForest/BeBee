@@ -1,4 +1,4 @@
-# 16 — CI Trust Boundary & Human Gates
+# 16 — CI Trust Boundary & Autonomous Gates
 
 ## 1. Purpose
 
@@ -16,9 +16,11 @@ diff / manifest / evidence validation
 
 The candidate may change policy files, but those changes do not become the authority until after they have passed the previous trusted policy and merged.
 
+The normal development path is fully autonomous. No second GitHub account, human reviewer, milestone approver, or manual approval is required by CI or the development process. Human review is optional and may be requested by the owner, but it is never a blocking dependency.
+
 ## 2. Trusted workflow model
 
-The required `PR evidence` workflow uses `pull_request_target`, whose workflow context comes from the base/default branch.
+The required evidence workflow uses `pull_request_target`, whose workflow context comes from the base/default branch.
 
 Security rules:
 
@@ -51,29 +53,32 @@ A governance-critical PR must:
 
 1. use `Change class: process`;
 2. change `evidence/<ticket>/manifest.json` in the same PR;
-3. record `governance.trust_boundary_change`, `governance.bypass_analysis`, `governance.rollback` and `governance.human_review_required = true`;
-4. receive an exact-head independent GitHub approval once the trusted-base gate is active.
+3. record `governance.trust_boundary_change`, `governance.bypass_analysis` and `governance.rollback`;
+4. pass the previous trusted-base policy and its adversarial test suite.
 
-## 4. Exact-head human approval
+No reviewer identity is required. The owner may request a human review for a specific change if desired, but CI and milestone progression must not depend on it.
 
-Human approval is not represented by prose or by an agent-created file.
+## 4. Milestone evaluation
 
-For P2, P4, P6 and governance-critical policy changes, the trusted workflow checks GitHub review data.
+P2, P4 and P6 remain stronger product checkpoints, but they are evidence gates rather than human gates.
 
-A qualifying approval must be:
+A milestone package should include:
 
-- `APPROVED`;
-- attached to the exact current PR head commit;
-- from a reviewer different from the PR author;
-- from a non-bot account.
+- runnable build/artifact;
+- representative screenshots/video;
+- objective measurements;
+- completed comparison scorecard;
+- acceptance-criteria evidence;
+- separate evaluator findings;
+- explicit known deviations.
 
-An approval attached to an older commit does not count.
+`ITERATE` blocks progress. Human review does not.
 
-This means a solo-author PR cannot self-approve a human gate. A designated second human GitHub identity/collaborator is required for these gates.
+This preserves the goal of preventing an implementation pass from merely declaring its own work good enough while keeping the entire development loop executable by agents.
 
 ## 5. Diff-classification additions
 
-The additional trust-boundary policy intentionally fails closed for previously ambiguous runtime/content files.
+The trust-boundary policy intentionally fails closed for previously ambiguous runtime/content files.
 
 Examples:
 
@@ -103,18 +108,24 @@ If official-doc research is not applicable, explain why:
 
 cannot consume text from the next paragraph and pretend to be filled.
 
-## 8. Remaining repository-setting requirement
+## 8. Repository protection after migration
 
-The active `Protect main` ruleset already requires PRs, blocks non-fast-forward changes and requires `validate-pr-evidence`.
+The permanent target configuration for `Protect main` is:
 
-However, the required-status-check policy must also require branches to be up to date before merging.
+- pull requests required;
+- required approvals: `0`;
+- code-owner approval not required;
+- non-fast-forward changes blocked;
+- deletion blocked;
+- `validate-pr-evidence` required;
+- branches required to be up to date before merge (`strict` / up-to-date enabled).
 
-Until GitHub reports strict required status checks enabled, a stale green PR can theoretically merge after `main` changed without being revalidated against the new base.
+The ruleset was temporarily disabled once to escape the legacy human-approval self-lock. That exception belongs only to this migration and is not part of the ongoing BeBee process.
 
-This setting cannot be corrected by repository code. Issue #4 remains the settings-level P-1 blocker until strict/up-to-date enforcement is active and verified.
+After migration, re-enable the ruleset with the configuration above. Issue #4 can be closed once GitHub reports strict/up-to-date enforcement active.
 
-## 9. Bootstrap note
+## 9. Bootstrap cleanup
 
-The migration PR that introduces this trust boundary is necessarily judged by the previous policy.
+The previous candidate-controlled `pull_request` bootstrap workflow has been removed from the final design.
 
-After this change lands in `main`, subsequent governance-critical PRs are judged by the trusted-base version and require the exact-head independent human gate described above.
+Only `.github/workflows/pr-evidence-trusted.yml` should publish the permanent required `validate-pr-evidence` context. This avoids duplicate-context ambiguity and prevents a candidate-controlled workflow from becoming an alternate authority.

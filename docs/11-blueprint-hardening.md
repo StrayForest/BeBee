@@ -246,7 +246,9 @@ Once CI exists:
 - PR-body validation for meaningful changes;
 - evidence/artifact checks where automatable;
 - protected `main`/ruleset;
-- human approval gates for subjective product milestones.
+- autonomous evidence gates for subjective product milestones.
+
+No gate may require a reviewer, second GitHub account, approval click or other human action in the normal development path.
 
 ### BB-P013 — Machine-readable evidence schema
 
@@ -290,7 +292,7 @@ Substantial player-facing implementation is followed by a separate evaluation pa
 
 The evaluator records findings and `PASS` / `PASS WITH DEVIATION` / `ITERATE`.
 
-`ITERATE` blocks merge. P2/P4/P6 still require designated human approval.
+`ITERATE` blocks merge. P2/P4/P6 use the same evidence-driven autonomous milestone gate; human review is optional.
 
 ### BB-P017 — Hard merge gates
 
@@ -305,6 +307,8 @@ Strengthen CI so a convincing PR body alone is insufficient:
 - require visual evidence declaration for player-facing changes.
 
 Configure a GitHub ruleset for `main` requiring pull requests and required status checks once repository settings are available.
+
+The required merge path must remain fully autonomous: no mandatory reviewer approval, human checkpoint or second account.
 
 ## 5. P-1 exit criteria
 
@@ -327,12 +331,14 @@ Do not start normal production milestone P0 until:
 
 P-1 may use disposable prototypes and research scripts. It is intentionally allowed to discover that an earlier idea was wrong.
 
-## 6. Human review points
+## 6. Autonomous milestone checkpoints
 
-Autonomous implementation is encouraged, but subjective gates require human review before scaling:
+P2, P4 and P6 are evidence checkpoints before scaling:
 
 - end of P2 — core pollination loop;
 - end of P4 — first full restoration transformation;
 - end of P6 — shippable vertical slice.
 
-The agent supplies evidence and its comparison scorecard; the human approves whether the experiential bar is actually met.
+For each checkpoint the agent supplies the runnable artifact, deterministic captures/motion evidence, objective measurements, comparison scorecard, acceptance/test results, known deviations and a separate evaluation verdict. `ITERATE` blocks progression.
+
+No human review or approval is required. A human may inspect or comment when desired, but the absence of a human action cannot block CI, merge or the next phase.

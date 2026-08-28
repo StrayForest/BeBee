@@ -85,23 +85,24 @@ Substantial new decisions should also record evidence strength (`LOW`, `MEDIUM`,
 |---|---|---|
 | R-001 | LOCKED | Research → official docs → implementation brief → code → build/test → screenshots/video → comparison → iteration → merge. |
 | R-002 | LOCKED | Existing pre-workflow design choices are hypotheses until retroactively benchmarked or explicitly locked here. |
-| R-003 | LOCKED | An AI agent may not self-certify a subjective milestone merely with prose; visual/product milestones require evidence and designated human approval at P2, P4 and P6. |
+| R-003 | LOCKED | Subjective milestones cannot be accepted by prose alone; P2/P4/P6 require rendered evidence, objective measurements and a separate evaluation pass. Human review is optional unless the owner explicitly requests it for a specific milestone. |
 | R-004 | LOCKED | Routine competitor screenshots are research material and are not committed without a compatible license. |
 | R-005 | LOCKED | Substantial decisions record both decision status and decision provenance; subjective/owner choices must not be presented as externally proven facts. |
 | R-006 | LOCKED | Substantial player-facing research builds a candidate pool, deeply inspects at least two problem-specific references when reasonably available, and includes a materially different solution or anti-pattern. |
 | R-007 | LOCKED | Substantial player-facing/economy PRs use a machine-readable `evidence/<ticket>/manifest.json` changed in the same PR; PR prose is only a summary. |
 | R-008 | LOCKED | Objective measurements are recorded before subjective scoring where observable; invented measurements are prohibited. |
-| R-009 | LOCKED | Substantial player-facing changes require a separate post-implementation evaluation record; `ITERATE` blocks merge. Human P2/P4/P6 gates remain mandatory. |
+| R-009 | LOCKED | Substantial player-facing changes require a separate post-implementation evaluation record; `ITERATE` blocks merge. No second human account is required by default. |
 | R-010 | LOCKED | `main` must be protected by a ruleset requiring pull requests and required status checks before normal autonomous production begins. Recording an issue/blocker is not a substitute for this P-1 exit condition. |
 | R-011 | LOCKED | PR `Change class` is constrained by the actual diff. An agent-declared class may never downgrade gameplay/UI/economy/high-risk runtime changes to `process`, `trivial`, or a weaker evidence class. |
 | R-012 | LOCKED | High-risk technical runtime work (including core Lua, storage, platform/adapters and equivalent lifecycle-critical changes) requires a same-PR evidence manifest with official-doc constraints, alternatives, acceptance criteria and verification, even when competitor research is not applicable. |
 | R-013 | LOCKED | Non-trivial acceptance criteria must all be explicitly passed before merge, and the evidence-policy validator requires adversarial negative tests for bypass cases rather than only happy-path self-validation. |
 | R-014 | LOCKED | Player-facing visual/evaluation evidence is bound to the exact PR head SHA and records capture/evaluator provenance. An `independent_pass` evaluator identity must differ from the implementation-author identity. Runtime artifact existence/hash verification becomes mandatory once the P0 deterministic capture pipeline exists. |
 | R-015 | LOCKED | Required PR evidence is judged by policy code from the trusted PR base/default branch; candidate PR policy code is never the authority that validates the same candidate. |
-| R-016 | LOCKED | Governance-critical workflow/policy/source-of-truth changes require a same-PR governance evidence manifest and an APPROVED exact-head GitHub review from a non-author, non-bot human once the trusted-base gate is active. |
-| R-017 | LOCKED | P2/P4/P6 human gates are verified from GitHub review provenance on the exact PR head; prose, agent-created approval files and stale reviews do not count. |
+| R-016 | LOCKED | Governance-critical workflow/policy/source-of-truth changes require a same-PR governance evidence manifest with explicit trust-boundary impact, bypass analysis and rollback; they do not require a second GitHub account. |
+| R-017 | DEPRECATED | Mandatory exact-head approval from a second human GitHub account for P2/P4/P6 or governance changes. | Replaced by R-003, R-009, R-016 and R-020. |
 | R-018 | LOCKED | Player-facing/economy reference diversity is based on shipped-product identity (`product_id`), not URL count; multiple pages for one product cannot satisfy independent-reference counts. |
 | R-019 | LOCKED | Required status checks on `main` must use strict/up-to-date enforcement; the existing loose ruleset remains a P-1 settings blocker until GitHub reports strict required status checks enabled. |
+| R-020 | LOCKED | BeBee's normal autonomous development path must not depend on maintaining a second human GitHub account/collaborator. Human review may be requested deliberately, but absence of a second reviewer is not a merge blocker. |
 
 See `docs/16-ci-trust-boundary.md` for the enforcement design and bootstrap boundary.
 

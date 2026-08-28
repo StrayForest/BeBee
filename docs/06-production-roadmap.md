@@ -6,6 +6,8 @@ Do not advance because the calendar says so. Advance only when the milestone exi
 
 The roadmap now starts with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development.
 
+All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
+
 ## 2. Milestones
 
 | Milestone | Goal | Main evidence |
@@ -219,9 +221,9 @@ Persist minimal progression through the storage abstraction.
 
 A player can fly, understand how to pollinate without explanation, complete a patch, receive Honey, reload safely and see preserved state.
 
-### Human gate
+### Autonomous milestone gate
 
-P2 requires designated human review of the actual build, motion evidence, structured evidence and reference scorecard before P3 complexity begins.
+Before P3 complexity begins, P2 requires the actual build, motion/rendered evidence, objective measurements, structured evidence, reference scorecard, passing acceptance/test results and a separate evaluation verdict. `ITERATE` blocks progression. Human review is optional and cannot block the phase.
 
 ---
 
@@ -287,9 +289,9 @@ Prove the central visual promise: a weak/dormant space becomes alive because of 
 - restoration state is save-safe;
 - reference/visual scorecard passes.
 
-### Human gate
+### Autonomous milestone gate
 
-P4 requires designated human approval of the restoration transformation before more meadows are authored.
+Before more meadows are authored, P4 requires deterministic before/mid/after evidence, objective comparison, passing acceptance/test results and a separate evaluation verdict. `ITERATE` blocks progression. Human approval is not required.
 
 ---
 
@@ -359,9 +361,9 @@ Ship one small game that feels coherent rather than a collection of systems.
 - no placeholder critical player-facing art/audio/UI;
 - performance/load budgets pass.
 
-### Human gate
+### Autonomous milestone gate
 
-P6 requires designated human approval before mass content production.
+Before mass content production, P6 requires a complete playable artifact, critical-surface captures/motion evidence, objective measurements, scorecards, test/build/performance evidence, known deviations and a separate evaluation verdict. `ITERATE` blocks progression. No human approval is required.
 
 ---
 

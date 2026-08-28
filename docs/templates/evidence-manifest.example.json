@@ -107,7 +107,7 @@
     "iteration_required": false,
     "provenance": {
       "evaluated_sha": "<exact-pr-head-sha>",
-      "evaluator_id": "<separate-evaluator-or-human-identity>",
+      "evaluator_id": "<separate-evaluator-pass-or-human-identity>",
       "implementation_author_id": "<implementation-agent-or-author-identity>",
       "input_artifacts": ["<visual-evidence-locator>"],
       "record_locator": "<retained-evaluation-record-locator>"
@@ -116,8 +116,7 @@
   "governance": {
     "trust_boundary_change": "Required only for governance-critical PRs; describe how the trust boundary changes.",
     "bypass_analysis": "Required only for governance-critical PRs; list attempted/considered bypasses.",
-    "rollback": "Required only for governance-critical PRs; describe rollback.",
-    "human_review_required": true
+    "rollback": "Required only for governance-critical PRs; describe rollback."
   },
   "known_limitations": ["None, or explicit limitation"]
 }

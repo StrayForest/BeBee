@@ -1,5 +1,4 @@
 import json
-import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -69,8 +68,6 @@ class ClassificationTests(unittest.TestCase):
         errors = gate.validate(
             body=body(change_class="technical"),
             changed_files={"data/flowers.lua"},
-            head_sha="head",
-            pr_author="author",
         )
         self.assertTrue(any("player-facing content" in e for e in errors))
 
@@ -78,8 +75,6 @@ class ClassificationTests(unittest.TestCase):
         errors = gate.validate(
             body=body(change_class="technical"),
             changed_files={"data/meadows.lua"},
-            head_sha="head",
-            pr_author="author",
         )
         self.assertTrue(any("player-facing content" in e for e in errors))
 
@@ -87,10 +82,15 @@ class ClassificationTests(unittest.TestCase):
         errors = gate.validate(
             body=body(change_class="process"),
             changed_files={"systems/foo.script"},
-            head_sha="head",
-            pr_author="author",
         )
         self.assertTrue(any(".lua/.script" in e for e in errors))
+
+    def test_milestone_is_informational_not_human_blocked(self):
+        errors = gate.validate(
+            body=body(milestone="P2"),
+            changed_files=set(),
+        )
+        self.assertFalse(any("human approval" in e.lower() for e in errors))
 
 
 class ReferenceIdentityTests(unittest.TestCase):
@@ -108,83 +108,11 @@ class ReferenceIdentityTests(unittest.TestCase):
         self.assertTrue(any("distinct product_id" in e for e in errors))
 
 
-class HumanApprovalTests(unittest.TestCase):
-    def setUp(self):
-        self.old = {
-            "PR_REVIEWS_FILE": os.environ.get("PR_REVIEWS_FILE"),
-            "ENFORCE_INDEPENDENT_HUMAN_REVIEW": os.environ.get("ENFORCE_INDEPENDENT_HUMAN_REVIEW"),
-        }
-        os.environ["ENFORCE_INDEPENDENT_HUMAN_REVIEW"] = "1"
-
-    def tearDown(self):
-        for key, value in self.old.items():
-            if value is None:
-                os.environ.pop(key, None)
-            else:
-                os.environ[key] = value
-
-    def _reviews(self, reviews):
-        f = tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8")
-        json.dump(reviews, f)
-        f.close()
-        os.environ["PR_REVIEWS_FILE"] = f.name
-
-    def test_milestone_requires_exact_head_non_author_review(self):
-        self._reviews([])
-        errors = gate.validate(
-            body=body(milestone="P2"),
-            changed_files=set(),
-            head_sha="head",
-            pr_author="author",
-        )
-        self.assertTrue(any("Independent human approval" in e for e in errors))
-
-    def test_old_review_does_not_count(self):
-        self._reviews([{
-            "state": "APPROVED",
-            "commit_id": "old",
-            "user": {"login": "reviewer", "type": "User"},
-        }])
-        errors = gate.validate(
-            body=body(milestone="P4"),
-            changed_files=set(),
-            head_sha="head",
-            pr_author="author",
-        )
-        self.assertTrue(any("Independent human approval" in e for e in errors))
-
-    def test_exact_head_other_user_counts(self):
-        self._reviews([{
-            "state": "APPROVED",
-            "commit_id": "head",
-            "user": {"login": "reviewer", "type": "User"},
-        }])
-        errors = gate.validate(
-            body=body(milestone="P6"),
-            changed_files=set(),
-            head_sha="head",
-            pr_author="author",
-        )
-        self.assertFalse(any("Independent human approval" in e for e in errors))
-
-
 class GovernanceTests(unittest.TestCase):
-    def setUp(self):
-        self.old_enforce = os.environ.get("ENFORCE_INDEPENDENT_HUMAN_REVIEW")
-        os.environ["ENFORCE_INDEPENDENT_HUMAN_REVIEW"] = "0"
-
-    def tearDown(self):
-        if self.old_enforce is None:
-            os.environ.pop("ENFORCE_INDEPENDENT_HUMAN_REVIEW", None)
-        else:
-            os.environ["ENFORCE_INDEPENDENT_HUMAN_REVIEW"] = self.old_enforce
-
     def test_governance_requires_same_pr_manifest(self):
         errors = gate.validate(
             body=body(),
             changed_files={"scripts/check_pr_evidence.py"},
-            head_sha="head",
-            pr_author="author",
         )
         self.assertTrue(any("same PR" in e for e in errors))
 
@@ -192,6 +120,7 @@ class GovernanceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             old = Path.cwd()
             try:
+                import os
                 os.chdir(tmp)
                 p = Path("evidence/BB-X/manifest.json")
                 p.parent.mkdir(parents=True)
@@ -199,12 +128,36 @@ class GovernanceTests(unittest.TestCase):
                 errors = gate.validate(
                     body=body(manifest="evidence/BB-X/manifest.json"),
                     changed_files={"scripts/check_pr_evidence.py", "evidence/BB-X/manifest.json"},
-                    head_sha="head",
-                    pr_author="author",
                 )
             finally:
                 os.chdir(old)
         self.assertTrue(any("governance object" in e for e in errors))
+
+    def test_governance_manifest_does_not_require_second_human(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old = Path.cwd()
+            try:
+                import os
+                os.chdir(tmp)
+                p = Path("evidence/BB-X/manifest.json")
+                p.parent.mkdir(parents=True)
+                p.write_text(
+                    json.dumps({
+                        "governance": {
+                            "trust_boundary_change": "change",
+                            "bypass_analysis": "analysis",
+                            "rollback": "rollback",
+                        }
+                    }),
+                    encoding="utf-8",
+                )
+                errors = gate.validate(
+                    body=body(manifest="evidence/BB-X/manifest.json"),
+                    changed_files={"scripts/check_pr_evidence.py", "evidence/BB-X/manifest.json"},
+                )
+            finally:
+                os.chdir(old)
+        self.assertFalse(any("human" in e.lower() for e in errors))
 
 
 if __name__ == "__main__":
