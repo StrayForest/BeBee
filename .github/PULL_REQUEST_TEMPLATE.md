@@ -7,6 +7,8 @@
 - Intended observable outcome:
 - Out of scope:
 
+> The declared change class is not authoritative by itself. CI compares it with the actual PR diff. Player-facing/economy files cannot be downgraded to `technical`, `process` or `trivial`, and high-risk technical runtime changes require a same-PR evidence manifest.
+
 ## Decision status / provenance
 
 Relevant `DECISIONS.md` IDs:
@@ -28,6 +30,8 @@ For substantial player-facing/economy work, the machine-readable manifest is aut
 - Selected deep references:
 - Materially different solution / anti-pattern:
 - Candidate-pool exception if fewer than five reasonable candidates exist:
+
+Candidate and selected-reference source URLs must be distinct; repeating the same source to satisfy a count is not valid evidence.
 
 ### Comparable shipped references
 
@@ -59,6 +63,8 @@ List current official Defold/platform/library/tool docs consulted.
 
 If official-doc research is not applicable, explain why:
 
+For high-risk technical runtime work, official-document constraints, alternatives, acceptance criteria and verification must also be recorded in the same-PR evidence manifest. Competitor research may be explicitly N/A where it does not apply.
+
 ## Alternatives / BeBee decision
 
 - Alternatives considered:
@@ -80,6 +86,8 @@ If official-doc research is not applicable, explain why:
 - Performance/load:
 
 ## Acceptance criteria
+
+All non-trivial criteria must be checked before merge. Do not leave an unmet criterion unchecked and still mark the PR ready.
 
 - [ ]
 - [ ]
@@ -119,6 +127,14 @@ Required for player-facing changes. Follow `docs/13-visual-qa-scorecard.md`.
 - [ ] video/frame sequence attached for motion/timing when relevant
 
 Evidence links/artifacts:
+
+For structured player-facing evidence, record exact-head provenance in the manifest:
+
+- `visual_evidence.provenance.capture_commit_sha` = exact PR head SHA
+- `visual_evidence.provenance.capture_mode` = `ci` or `local-reproducible`
+- `visual_evidence.provenance.artifact_locator` = retained evidence locator
+
+Once P0 deterministic capture exists, CI artifact existence/hash verification replaces declaration-only artifact trust.
 
 ### Objective measurements first
 
@@ -164,6 +180,16 @@ Required for substantial player-facing work after rendered evidence exists.
 - Findings:
 - Evaluator verdict: `PASS` / `PASS WITH DEVIATION` / `ITERATE` / `N/A — <reason>`
 - [ ] implementation iterated after evaluator findings where required
+
+For `independent_pass`, the manifest must bind the evaluation to the exact PR head and identify a separate evaluator:
+
+- `evaluation.provenance.evaluated_sha`
+- `evaluation.provenance.evaluator_id`
+- `evaluation.provenance.implementation_author_id`
+- `evaluation.provenance.input_artifacts`
+- `evaluation.provenance.record_locator`
+
+`evaluator_id` must differ from `implementation_author_id` for `independent_pass`.
 
 ## Human milestone gate
 

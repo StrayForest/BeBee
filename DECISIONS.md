@@ -92,7 +92,11 @@ Substantial new decisions should also record evidence strength (`LOW`, `MEDIUM`,
 | R-007 | LOCKED | Substantial player-facing/economy PRs use a machine-readable `evidence/<ticket>/manifest.json` changed in the same PR; PR prose is only a summary. |
 | R-008 | LOCKED | Objective measurements are recorded before subjective scoring where observable; invented measurements are prohibited. |
 | R-009 | LOCKED | Substantial player-facing changes require a separate post-implementation evaluation record; `ITERATE` blocks merge. Human P2/P4/P6 gates remain mandatory. |
-| R-010 | LOCKED | `main` should be protected by a ruleset requiring pull requests and required status checks; direct push is not the normal workflow. |
+| R-010 | LOCKED | `main` must be protected by a ruleset requiring pull requests and required status checks before normal autonomous production begins. Recording an issue/blocker is not a substitute for this P-1 exit condition. |
+| R-011 | LOCKED | PR `Change class` is constrained by the actual diff. An agent-declared class may never downgrade gameplay/UI/economy/high-risk runtime changes to `process`, `trivial`, or a weaker evidence class. |
+| R-012 | LOCKED | High-risk technical runtime work (including core Lua, storage, platform/adapters and equivalent lifecycle-critical changes) requires a same-PR evidence manifest with official-doc constraints, alternatives, acceptance criteria and verification, even when competitor research is not applicable. |
+| R-013 | LOCKED | Non-trivial acceptance criteria must all be explicitly passed before merge, and the evidence-policy validator requires adversarial negative tests for bypass cases rather than only happy-path self-validation. |
+| R-014 | LOCKED | Player-facing visual/evaluation evidence is bound to the exact PR head SHA and records capture/evaluator provenance. An `independent_pass` evaluator identity must differ from the implementation-author identity. Runtime artifact existence/hash verification becomes mandatory once the P0 deterministic capture pipeline exists. |
 
 ## Change rule
 
