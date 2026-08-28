@@ -12,6 +12,11 @@
     "selected_alternative": "extend-existing-html5-ci",
     "rationale": "Reuse the already pinned Playwright/Chromium and exact-source development/release bundles in HTML5 CI, execute the BB-007 storage smoke against the same server, and retain a dedicated storage artifact without granting candidate code trusted governance authority."
   },
+  "governance": {
+    "trust_boundary_change": "The candidate modifies only the read-only pull_request/push HTML5 evidence workflow. It does not modify the trusted pull_request_target policy workflow, branch rules, permissions, secrets, bypass actors or merge authority.",
+    "bypass_analysis": "No bypass is introduced. Candidate code still cannot mutate repository state or redefine the trusted evidence-policy authority; merge remains gated by validate-pr-evidence from the base-controlled pull_request_target workflow.",
+    "rollback": "Revert the single HTML5 workflow commit that invokes/uploads storage_html5_smoke.py. Runtime BB-007 storage code and the existing trusted governance workflow remain independently intact."
+  },
   "research": {
     "candidate_pool": [],
     "candidate_pool_exception": "This process change executes an already-implemented and validated BB-P009 test contract; no new player-facing design choice is made.",
