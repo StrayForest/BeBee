@@ -9,8 +9,8 @@
 - Out of scope:
 
 > CI does not trust the declared class alone. Runtime/data paths are classified from the actual diff.
-> Governance-critical files require a same-PR evidence manifest and, once the trusted-base gate is active,
-> an APPROVED review on the exact PR head from a non-author, non-bot reviewer.
+> Governance-critical files require a same-PR evidence manifest and are judged by policy from the trusted base branch.
+> A second GitHub reviewer is not required by default.
 
 ## Decision status / provenance
 
@@ -93,7 +93,6 @@ For governance-critical changes, the manifest must also contain:
 governance.trust_boundary_change
 governance.bypass_analysis
 governance.rollback
-governance.human_review_required = true
 ```
 
 ## Acceptance criteria
@@ -182,16 +181,13 @@ Required for substantial player-facing work after rendered evidence exists.
 - Evaluator verdict: `PASS` / `PASS WITH DEVIATION` / `ITERATE` / `N/A — <reason>`
 - [ ] implementation iterated after evaluator findings where required
 
-## Human milestone gate
+## Milestone checkpoint
 
 - Milestone declared above: `none` / `P2` / `P4` / `P6`
-- [ ] not a P2/P4/P6 subjective milestone gate
-- [ ] exact-head human approval supplied where required
+- Evidence package complete for the declared milestone: `yes` / `no` / `N/A`
+- Optional owner/human review requested: `yes` / `no`
 
-For P2/P4/P6, CI requires an `APPROVED` GitHub review whose `commit_id` equals the exact PR HEAD,
-from a reviewer who is neither the PR author nor a bot. A stale approval does not count.
-
-Governance-critical policy changes use the same exact-head independent-review rule.
+P2/P4/P6 are stronger evidence checkpoints, but CI does not require a second GitHub account. `ITERATE`, missing evidence, or failed acceptance criteria still blocks progress.
 
 ## License / provenance
 
