@@ -1,0 +1,55 @@
+{
+  "decision_candidate": {
+    "selected_upgrade_tracks": ["flight", "buzz"],
+    "excluded_vertical_slice_tracks": ["yield"],
+    "selection": "flight_buzz_only"
+  },
+  "no_yield_exhaustive_purchase_priorities": {
+    "purchase_ids": ["buzz_2", "buzz_3", "flight_2", "flight_3", "seed_daisy", "seed_clover", "seed_lavender"],
+    "orders_tested": 5040,
+    "passed": 5040,
+    "failed": 0,
+    "minimum_final_balance": 271,
+    "maximum_final_balance": 271,
+    "total_replay_actions": 0,
+    "failures": []
+  },
+  "yield_candidate_comparison": {
+    "candidate_cost": 40,
+    "candidate_multiplier": 1.15,
+    "break_even_after_availability": "M06",
+    "future_base_honey_to_break_even": 266.67,
+    "future_base_honey_after_availability": 345,
+    "no_yield_final_balance": 382,
+    "yield_early_final_balance": 393,
+    "yield_mid_final_balance": 381,
+    "yield_late_final_balance": 367,
+    "yield_early_net_advantage": 11,
+    "yield_mid_net_advantage": -1,
+    "yield_late_net_advantage": -15,
+    "sensitivity": [
+      {"multiplier": 1.1, "final_balance": 377, "break_even_after_availability": null, "future_base_honey_to_break_even": 400.0},
+      {"multiplier": 1.15, "final_balance": 393, "break_even_after_availability": "M06", "future_base_honey_to_break_even": 266.67},
+      {"multiplier": 1.2, "final_balance": 411, "break_even_after_availability": "M06", "future_base_honey_to_break_even": 200.0}
+    ]
+  },
+  "hard_assertions": {
+    "flight_buzz_seed_orders_all_progress": true,
+    "flight_buzz_seed_orders_need_no_replay": true,
+    "flight_buzz_seed_orders_stay_non_negative": true,
+    "yield_is_not_required_for_region_completion": true,
+    "yield_candidate_breaks_even_only_at_or_after_m06": true
+  },
+  "hard_failures": [],
+  "validated_scope": [
+    "Flight and Buzz are the vertical-slice upgrade tracks.",
+    "Yield is excluded from the vertical slice unless reopened by new evidence.",
+    "The current first-region candidate is arithmetically no-grind across all 5040 full purchase-priority orders after removing Yield."
+  ],
+  "not_validated": [
+    "Exact Honey rewards/costs.",
+    "Real-time minutes between purchases.",
+    "Final Flight/Buzz effect curves.",
+    "Human preference for upgrade cadence."
+  ]
+}
