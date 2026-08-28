@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-003",
+  "change_class": "technical",
+  "problem": "BeBee had no production input binding and no runtime proof that input reaches a collection-proxy world, that modal UI can consume it before gameplay and lower main-world listeners, or that focus returns correctly after the modal closes.",
+  "decision": {
+    "ids": ["T-010", "T-011"],
+    "status_before": "HYPOTHESIS",
+    "status_after": "HYPOTHESIS",
+    "provenance_type": "EXPERIMENT_RESULT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "native-proxy-focus-stack",
+    "rationale": "Use Defold's documented input stacks directly: a lower main-world sentinel acquires focus first, the main-world collection-proxy owner acquires above it, proxied gameplay acquires focus in its own world, and a modal listener acquires later focus and returns true while open. Exact-head Chromium events prove propagation into the proxy world, cross-stack consumption, and restoration. T-010 remains a hypothesis because this ticket does not prove the proxy memory/lifecycle budget."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Comparable shipped-product research is not applicable to an engine input-routing proof; the observable behavior is defined by Defold runtime contracts.",
+    "selected_references": [],
+    "reference_exception": "No player-facing touch layout or movement feel is selected in BB-003.",
+    "anti_pattern": {
+      "source": "https://defold.com/manuals/collection-proxy/",
+      "observation": "A proxy-loaded world does not receive input merely because its listeners acquire focus; the proxy owner must also participate in the main input stack.",
+      "lesson": "Do not replace the missing owner-focus proof with assumptions or a custom forwarding layer."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/collection-proxy/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Objects in a collection loaded through a collection proxy receive input only when the game object containing the proxy participates in input focus routing."
+    },
+    {
+      "source": "https://defold.com/manuals/input/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Each proxy-loaded world has its own input stack; listeners there are processed before dispatch continues down the main stack, and returning true consumes the action across that nested traversal."
+    },
+    {
+      "source": "https://defold.com/manuals/input-mouse-and-touch/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Single-touch input is available through the mouse-button-one binding path, allowing one semantic pointer action for mouse and single touch in this P0 proof."
+    },
+    {
+      "source": "https://chromedevtools.github.io/devtools-protocol/tot/Input/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Chromium CDP can dispatch deterministic keyboard and touch events into the actual HTML5 build used by CI; the probe holds states across animation frames so Defold samples pressed/released edges."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "native-proxy-focus-stack",
+      "disposition": "selected",
+      "reason": "Matches Defold's native lifecycle and input semantics and can be tested end-to-end in the HTML5 target without inventing a second routing system."
+    },
+    {
+      "id": "custom-main-world-forwarder",
+      "disposition": "rejected",
+      "reason": "Forwarding raw input as custom messages would duplicate engine focus semantics and could conceal the exact proxy propagation risk BB-003 exists to prove."
+    },
+    {
+      "id": "defer-proxy-proof",
+      "disposition": "rejected",
+      "reason": "Deferring the proof would allow region/screen architecture to scale on an untested assumption explicitly called out by T-010 and T-011."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Movement and primary actions are represented by semantic action IDs with keyboard aliases rather than gameplay consuming raw keys.",
+      "status": "pass",
+      "evidence": "app/game.input_binding maps W/Up, S/Down, A/Left, D/Right and Space/Enter into shared semantic actions consumed through app/input_semantics.lua."
+    },
+    {
+      "criterion": "HTML5 mouse and single touch share an explicit pointer abstraction without prematurely selecting final touch movement UX.",
+      "status": "pass",
+      "evidence": "MOUSE_BUTTON_1 maps to pointer_primary; Defold's documented single-touch mapping and exact-head Chromium touch dispatch exercise that semantic path."
+    },
+    {
+      "criterion": "Input propagates from the main-world proxy owner into the loaded gameplay world and then continues to a lower main-world listener when unconsumed.",
+      "status": "pass",
+      "evidence": "The exact-head runtime smoke establishes sentinel focus below proxy-owner focus and requires one W event to produce both proxied gameplay and lower-main-stack sentinel move_up markers."
+    },
+    {
+      "criterion": "An open modal consumes relevant input before gameplay and lower listeners on the main-world stack, then releasing it restores normal delivery.",
+      "status": "pass",
+      "evidence": "The exact-head runtime smoke opens the modal with Esc, requires modal-only W delivery, forbids gameplay/sentinel leakage, closes the modal, then requires gameplay/sentinel W delivery again."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Defold runtime evidence builds development and release HTML5 bundles from the exact PR head.",
+      "tools/defold/chromium_input_proxy_smoke.py dispatches actual Chromium key/touch events, holds their state across animation frames, and writes runtime-evidence/input-proxy-smoke.json; any missing/forbidden marker fails the job.",
+      "Repository standards and trusted-base PR evidence gates run independently on the candidate diff."
+    ],
+    "manual": [],
+    "runtime_errors": "The exact-head browser smoke fails if CDP reports runtime exceptions or if expected focus/input markers are missing.",
+    "save_data_impact": "none"
+  },
+  "known_limitations": [
+    "BB-003 proves input ownership/propagation and modal consumption, not collection-proxy memory cost or the complete region/screen lifecycle policy; T-010 therefore remains HYPOTHESIS.",
+    "The final touch movement control and its geometry remain a P1 player-facing decision; BB-003 only proves the shared pointer/touch abstraction."
+  ]
+}

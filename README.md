@@ -126,6 +126,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/research/BB-P017-ruleset-closeout.md`](docs/research/BB-P017-ruleset-closeout.md) — P-1 exit / strict ruleset verification
 - [`docs/research/BB-001-defold-bootstrap.md`](docs/research/BB-001-defold-bootstrap.md) — P0 runtime/bootstrap evidence
 - [`docs/research/BB-002-repository-tooling.md`](docs/research/BB-002-repository-tooling.md) — P0 repository/tooling evidence and alternatives
+- [`docs/research/BB-003-input-proxy-focus.md`](docs/research/BB-003-input-proxy-focus.md) — P0 semantic input, proxy-focus and modal-consumption proof
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -180,10 +181,12 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 ## Current status
 
-**P0 — Foundation is in progress. `BB-001 — Defold bootstrap` and `BB-002 — Repository/tooling standards` are complete.**
+**P0 — Foundation is in progress. `BB-001 — Defold bootstrap`, `BB-002 — Repository/tooling standards` and `BB-003 — Input and proxy-focus proof` are complete.**
 
 BB-001 establishes a minimal `app/` bootstrap, explicit development/release settings and a reproducible editor-independent HTML5 path. The toolchain is pinned to Defold **1.13.1**, OpenJDK **25**, `wasm-web` and the published Bob SHA-256. Exact-head CI successfully built both development and release bundles and rendered the bootstrap in Chromium before merge.
 
 BB-002 adds Defold-aware generated-file rules, explicit text/Lua conventions, canonical production resource roots, machine-readable dependency/license inventory, a dependency-free repository validator and PR/main CI enforcement. It does not claim semantic input, proxy lifecycle, storage, gameplay, UI, test/data harness or deterministic gameplay QA.
 
-**Next production task: `P0 / BB-003 — Input and proxy-focus proof`.**
+BB-003 replaces the empty binding with device-independent semantic actions, proves keyboard and HTML5 single-touch/pointer paths, explicitly owns collection-proxy input focus, and retains an exact-head Chromium proof that unconsumed actions traverse the proxy world while an open modal consumes them before proxied gameplay and lower main-world listeners. `T-010` remains a hypothesis because proxy memory/full lifecycle are still unproven, and final touch movement UX remains a later player-facing decision.
+
+**Next production task: `P0 / BB-004 — Test/data harness`.**

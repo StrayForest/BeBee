@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-003 — Input and proxy-focus proof**.
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-004 — Test/data harness**.
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -76,7 +76,7 @@ Do **not** build dependent production systems around downstream hypotheses that 
 
 # P0 — Foundation
 
-**Status: IN PROGRESS — BB-001 and BB-002 complete; BB-003 next.**
+**Status: IN PROGRESS — BB-001, BB-002 and BB-003 complete; BB-004 next.**
 
 ## Goal
 
@@ -112,13 +112,20 @@ Delivered:
 
 BB-002 does not implement or claim semantic input/proxy focus, test/data harness, full HTML5 PR artifact CI, deterministic gameplay capture or storage; those remain BB-003 through BB-007.
 
-### BB-003 — Input and proxy-focus proof
+### BB-003 — Input and proxy-focus proof — COMPLETE
 
-- semantic movement/actions;
-- keyboard path;
-- touch abstraction;
-- explicit input-focus ownership;
-- if collection proxies are retained, prove input propagation and modal consumption with a small test scene.
+Delivered:
+
+- semantic movement/action IDs instead of raw device keys in gameplay-facing code;
+- W/arrow keyboard aliases and Space/Enter primary-action aliases;
+- one HTML5 mouse/single-touch `pointer_primary` abstraction without prematurely choosing final touch movement UX;
+- explicit main-world collection-proxy input ownership;
+- a lower main-world sentinel plus proxied gameplay/modal listeners that expose the actual nested Defold input-stack behavior;
+- modal focus acquisition, cross-stack consumption, release and restoration proof;
+- frame-synchronized dependency-free Chromium CDP input injection retained in exact-head runtime evidence;
+- `T-011` runtime behavior proven while `T-010` correctly remains `HYPOTHESIS` because proxy memory and complete region/screen lifecycle are not covered by this ticket.
+
+The first fully successful behavioral runtime proof was GitHub Actions run `33205217201` on head `797271f19251529dfed5970d8b189ca0a1aa34bb`; the final merge head must repeat development/release builds, browser input/proxy smoke and repository/trusted evidence gates successfully. Detailed reasoning and scope boundaries are retained in `docs/research/BB-003-input-proxy-focus.md` and `evidence/BB-003/manifest.json`.
 
 ### BB-004 — Test/data harness
 
@@ -382,7 +389,7 @@ Ship one small game that feels coherent rather than a collection of systems.
 - no placeholder critical player-facing art/audio/UI;
 - performance/load budgets pass.
 
-### Autonomous milestone gate
+### autonomous milestone gate
 
 Before mass content production, P6 requires a complete playable artifact, critical-surface captures/motion evidence, objective measurements, scorecards, test/build/performance evidence, known deviations and a separate evaluation verdict. `ITERATE` blocks progression. No human approval is required.
 

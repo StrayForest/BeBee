@@ -1,3 +1,29 @@
 function init(self)
-    print("BeBee bootstrap ready")
+    self.proxy_ready = false
+    self.owner_focused = false
+    msg.post("/sentinel#controller", "acquire_sentinel_focus")
+    msg.post("#input_probe", "load")
+end
+
+function final(self)
+    if self.owner_focused then
+        msg.post(".", "release_input_focus")
+    end
+    if self.proxy_ready then
+        msg.post("#input_probe", "disable")
+        msg.post("#input_probe", "unload")
+    end
+end
+
+function on_message(self, message_id, message, sender)
+    if message_id == hash("sentinel_focus_ready") and not self.owner_focused then
+        self.owner_focused = true
+        msg.post(".", "acquire_input_focus")
+        print("BEBEE_INPUT owner_focus acquired")
+    elseif message_id == hash("proxy_loaded") then
+        msg.post(sender, "init")
+        msg.post(sender, "enable")
+        self.proxy_ready = true
+        print("BEBEE_INPUT proxy_loaded owner_focus=1")
+    end
 end

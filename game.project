@@ -6,7 +6,7 @@ version = 0.0.1
 main_collection = /app/bootstrap.collectionc
 
 [input]
-game_binding = /app/empty.input_bindingc
+game_binding = /app/game.input_bindingc
 use_accelerometer = 0
 
 [display]
