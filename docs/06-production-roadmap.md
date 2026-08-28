@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-004 — Test/data harness**.
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-005 — HTML5 CI**.
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -76,7 +76,7 @@ Do **not** build dependent production systems around downstream hypotheses that 
 
 # P0 — Foundation
 
-**Status: IN PROGRESS — BB-001, BB-002 and BB-003 complete; BB-004 next.**
+**Status: IN PROGRESS — BB-001 through BB-004 complete; BB-005 next.**
 
 ## Goal
 
@@ -127,12 +127,19 @@ Delivered:
 
 The first fully successful behavioral runtime proof was GitHub Actions run `33205217201` on head `797271f19251529dfed5970d8b189ca0a1aa34bb`; the final merge head must repeat development/release builds, browser input/proxy smoke and repository/trusted evidence gates successfully. Detailed reasoning and scope boundaries are retained in `docs/research/BB-003-input-proxy-focus.md` and `evidence/BB-003/manifest.json`.
 
-### BB-004 — Test/data harness
+### BB-004 — Test/data harness — COMPLETE
 
-- unit test runner;
-- data validator;
-- first deterministic tests;
-- CI failure on test/data errors.
+Delivered:
+
+- dependency-free deterministic Lua test runner with aggregate case reporting;
+- dedicated Defold headless bootstrap selected only through `tests/test.settings`;
+- canonical `data/catalog.lua` entry point and deterministic stable-ID/reference validator;
+- eleven initial deterministic cases covering merged input semantics plus positive/adversarial data validation;
+- editor-independent `bash scripts/test.sh` command using the repository-pinned Defold/Bob/Java toolchain;
+- timeout, complete log retention, one required structured `suite_end` event and non-zero failure propagation;
+- PR/main `Test and data` workflow with read-only contents permission and retained diagnostic artifacts.
+
+The exact stacked candidate `7c3aefb8112fd1385ddeeec760b3aa27b32548e2` produced `BB-004 tests: PASS (11/11)` and retained `summary.json`, the engine log and Bob build report. The first CI execution also correctly exposed the missing Ubuntu `libopenal.so.1` runtime dependency; CI now installs `libopenal1` rather than masking the failure. Detailed scope and alternatives are retained in `docs/research/BB-004-test-data-harness.md` and `evidence/BB-004-HARNESS/manifest.json`. BB-005 owns the broader playable HTML5 PR artifact contract.
 
 ### BB-005 — HTML5 CI
 
@@ -317,7 +324,7 @@ Prove the central visual promise: a weak/dormant space becomes alive because of 
 - restoration state is save-safe;
 - reference/visual scorecard passes.
 
-### Autonomous milestone gate
+### autonomous milestone gate
 
 Before more meadows are authored, P4 requires deterministic before/mid/after evidence, objective comparison, passing acceptance/test results and a separate evaluation verdict. `ITERATE` blocks progression. Human approval is not required.
 
