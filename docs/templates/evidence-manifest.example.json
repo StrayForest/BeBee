@@ -96,7 +96,12 @@
     "artifacts": ["artifact-name-or-PR-link"],
     "states": ["idle", "active", "complete", "locked"],
     "viewports": ["1440x900", "390x844"],
-    "motion_evidence": ["video-or-frame-sequence-artifact"]
+    "motion_evidence": ["video-or-frame-sequence-artifact"],
+    "provenance": {
+      "capture_commit_sha": "<exact-pr-head-sha>",
+      "capture_mode": "ci",
+      "artifact_locator": "<retained-actions-artifact-or-reproducible-local-evidence-locator>"
+    }
   },
   "comparison": {
     "measurements": {
@@ -116,7 +121,14 @@
     "review_input": ["problem", "acceptance criteria", "reference observations", "rendered evidence", "measurements"],
     "findings": ["Finding with severity or 'none'"],
     "verdict": "PASS",
-    "iteration_required": false
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "<exact-pr-head-sha>",
+      "evaluator_id": "<separate-evaluator-or-human-identity>",
+      "implementation_author_id": "<implementation-agent-or-author-identity>",
+      "input_artifacts": ["<visual-evidence-locator>"],
+      "record_locator": "<retained-evaluation-record-locator>"
+    }
   },
   "known_limitations": ["None, or explicit limitation"]
 }
