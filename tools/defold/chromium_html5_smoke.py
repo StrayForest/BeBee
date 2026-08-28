@@ -2,8 +2,8 @@
 """Smoke-test a served BeBee HTML5 bundle through Chromium DevTools.
 
 The script is dependency-free. It verifies that the page reaches a usable canvas,
-loads a WebAssembly engine with the expected MIME type, and produces no browser
-console errors, runtime exceptions, or non-cancelled network failures.
+loads a WebAssembly engine with the expected MIME type, and produces no actionable
+HTTP/network failures, browser console errors, or runtime exceptions.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ class SmokeDevTools:
         self.next_id = 1
         self.page_loaded = False
         self.console: list[str] = []
-        self.console_errors: list[str] = []
+        self.console_errors: list[dict[str, object]] = []
         self.runtime_exceptions: list[str] = []
         self.network_requests: dict[str, str] = {}
         self.network_responses: list[dict[str, object]] = []
@@ -51,7 +51,15 @@ class SmokeDevTools:
             if line:
                 self.console.append(line)
                 if params.get("type") in {"error", "assert"}:
-                    self.console_errors.append(line)
+                    self.console_errors.append(
+                        {
+                            "origin": "runtime-console",
+                            "source": "javascript",
+                            "url": "",
+                            "type": params.get("type"),
+                            "text": line,
+                        }
+                    )
             return
 
         if method == "Log.entryAdded":
@@ -60,7 +68,15 @@ class SmokeDevTools:
             if text:
                 self.console.append(text)
                 if entry.get("level") == "error":
-                    self.console_errors.append(text)
+                    self.console_errors.append(
+                        {
+                            "origin": "log",
+                            "source": str(entry.get("source") or ""),
+                            "url": str(entry.get("url") or ""),
+                            "level": "error",
+                            "text": text,
+                        }
+                    )
             return
 
         if method == "Runtime.exceptionThrown":
@@ -191,16 +207,67 @@ def wait_for_canvas(cdp: SmokeDevTools, timeout: float) -> dict[str, object]:
     raise RuntimeError(f"HTML5 canvas did not become ready: {last!r}")
 
 
+def is_favicon_url(url: object) -> bool:
+    parsed = urlparse(str(url or ""))
+    return parsed.path == "/favicon.ico"
+
+
 def is_ignored_network_failure(item: dict[str, object]) -> bool:
     if item.get("canceled"):
         return True
     url = str(item.get("url") or "")
     if not url:
         return False
-    parsed = urlparse(url)
-    if parsed.path.endswith("/favicon.ico"):
+    if is_favicon_url(url):
         return True
-    return parsed.scheme not in {"http", "https"}
+    return urlparse(url).scheme not in {"http", "https"}
+
+
+def http_error_responses(cdp: SmokeDevTools) -> list[dict[str, object]]:
+    errors = []
+    for item in cdp.network_responses:
+        try:
+            status = int(float(item.get("status") or 0))
+        except (TypeError, ValueError):
+            status = 0
+        if status >= 400:
+            errors.append(item)
+    return errors
+
+
+def is_ignored_http_error(item: dict[str, object]) -> bool:
+    try:
+        status = int(float(item.get("status") or 0))
+    except (TypeError, ValueError):
+        return False
+    return status == 404 and is_favicon_url(item.get("url"))
+
+
+def is_ignored_console_error(
+    item: dict[str, object],
+    *,
+    ignored_http_errors: list[dict[str, object]],
+    actionable_http_errors: list[dict[str, object]],
+) -> bool:
+    if str(item.get("source") or "") != "network":
+        return False
+
+    url = str(item.get("url") or "")
+    text = str(item.get("text") or "")
+    if is_favicon_url(url) and "404" in text:
+        return True
+
+    # Chromium may omit the URL from the Log.entryAdded object for its generic
+    # resource-load message. Only suppress that generic line when Network domain
+    # independently proves the sole HTTP error is the browser-requested favicon.
+    return (
+        not url
+        and "Failed to load resource" in text
+        and "404" in text
+        and bool(ignored_http_errors)
+        and not actionable_http_errors
+        and all(is_ignored_http_error(error) for error in ignored_http_errors)
+    )
 
 
 def wasm_responses(cdp: SmokeDevTools) -> list[dict[str, object]]:
@@ -210,6 +277,42 @@ def wasm_responses(cdp: SmokeDevTools) -> list[dict[str, object]]:
         if ".wasm" in path:
             responses.append(item)
     return responses
+
+
+def collect_diagnostics(cdp: SmokeDevTools, observed: dict[str, object]) -> tuple[
+    list[dict[str, object]],
+    list[dict[str, object]],
+    list[dict[str, object]],
+]:
+    all_http_errors = http_error_responses(cdp)
+    ignored_http_errors = [item for item in all_http_errors if is_ignored_http_error(item)]
+    actionable_http_errors = [
+        item for item in all_http_errors if not is_ignored_http_error(item)
+    ]
+    actionable_console_errors = [
+        item
+        for item in cdp.console_errors
+        if not is_ignored_console_error(
+            item,
+            ignored_http_errors=ignored_http_errors,
+            actionable_http_errors=actionable_http_errors,
+        )
+    ]
+    ignored_console_errors = [
+        item for item in cdp.console_errors if item not in actionable_console_errors
+    ]
+
+    observed["http_errors"] = actionable_http_errors
+    observed["ignored_http_errors"] = ignored_http_errors
+    observed["network_failures"] = [
+        item for item in cdp.network_failures if not is_ignored_network_failure(item)
+    ]
+    observed["console_errors"] = actionable_console_errors
+    observed["ignored_console_errors"] = ignored_console_errors
+    observed["runtime_exceptions"] = cdp.runtime_exceptions
+    observed["console_tail"] = cdp.console[-100:]
+    observed["wasm_responses"] = wasm_responses(cdp)
+    return actionable_http_errors, actionable_console_errors, ignored_http_errors
 
 
 def main() -> int:
@@ -287,21 +390,24 @@ def main() -> int:
                 )
             observed["checks"].append("wasm_200_application_wasm")
 
-            actionable_failures = [
-                item for item in cdp.network_failures if not is_ignored_network_failure(item)
-            ]
-            observed["network_failures"] = actionable_failures
-            observed["console_errors"] = cdp.console_errors
-            observed["runtime_exceptions"] = cdp.runtime_exceptions
-            observed["console_tail"] = cdp.console[-100:]
+            actionable_http_errors, actionable_console_errors, _ = collect_diagnostics(
+                cdp, observed
+            )
+            actionable_failures = list(observed["network_failures"])
+
+            if actionable_http_errors:
+                raise RuntimeError(f"HTTP error responses observed: {actionable_http_errors!r}")
+            observed["checks"].append("no_actionable_http_errors")
 
             if actionable_failures:
                 raise RuntimeError(f"Network loading failures observed: {actionable_failures!r}")
             observed["checks"].append("no_network_loading_failures")
 
-            if cdp.console_errors:
-                raise RuntimeError(f"Browser console errors observed: {cdp.console_errors!r}")
-            observed["checks"].append("no_console_errors")
+            if actionable_console_errors:
+                raise RuntimeError(
+                    f"Browser console errors observed: {actionable_console_errors!r}"
+                )
+            observed["checks"].append("no_actionable_console_errors")
 
             if cdp.runtime_exceptions:
                 raise RuntimeError(f"Runtime exceptions observed: {cdp.runtime_exceptions!r}")
@@ -313,15 +419,7 @@ def main() -> int:
             return 0
         except Exception as exc:
             if cdp is not None:
-                observed["network_failures"] = [
-                    item
-                    for item in cdp.network_failures
-                    if not is_ignored_network_failure(item)
-                ]
-                observed["console_errors"] = cdp.console_errors
-                observed["runtime_exceptions"] = cdp.runtime_exceptions
-                observed["console_tail"] = cdp.console[-100:]
-                observed["wasm_responses"] = wasm_responses(cdp)
+                collect_diagnostics(cdp, observed)
             observed["error"] = str(exc)
             output.write_text(json.dumps(observed, indent=2) + "\n", encoding="utf-8")
             print(f"BB-005 HTML5 browser smoke failed: {exc}")
