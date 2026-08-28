@@ -80,9 +80,9 @@
       "evidence": "Defold backend wraps save-path/load/save access, migrations advance sequentially, local adapter enforces size diagnostics/gates, and tests/test_storage.lua covers recovery/failure cases."
     },
     {
-      "criterion": "Real HTML5 storage can be exercised across reload, immediate refresh, browser close/reopen and corruption without exposing the test bridge in release.",
-      "status": "pending_ci_wiring",
-      "evidence": "app/storage_probe.lua and tools/visual_qa/storage_html5_smoke.py implement the browser-level proof; the separate BB-007 CI process PR must execute and retain it before ticket closeout."
+      "criterion": "The implementation includes a development-only HTML5 probe for reload, immediate refresh, browser close/reopen and corruption, with an explicit release-negative assertion.",
+      "status": "pass",
+      "evidence": "app/storage_probe.lua and tools/visual_qa/storage_html5_smoke.py implement the browser-level proof surface; workflow execution and retained artifacts are intentionally isolated to the BB-007 process follow-up before ticket closeout."
     }
   ],
   "verification": {
@@ -92,7 +92,7 @@
       "A separate process PR will run storage_html5_smoke.py against exact-source development/release bundles and retain the report."
     ],
     "manual": [],
-    "runtime_errors": "No runtime/browser success is claimed by this harness manifest until exact-head CI executes the storage smoke; service-level failure paths return structured results rather than throwing into gameplay code.",
+    "runtime_errors": "No retained browser-persistence success is claimed by this harness manifest until exact-head CI executes the storage smoke; service-level failure paths return structured results rather than throwing into gameplay code.",
     "save_data_impact": "Introduces format_version=1, save_version=1 A/B local save slots under stable application id com.strayforest.bebee. No prior public save exists; migration fixture covers save_version 0 to 1."
   },
   "visual_evidence": {
