@@ -10,6 +10,8 @@ The governing rule is:
 
 This document turns the research-first workflow into a stricter evidence model.
 
+The normal development path must remain fully autonomous. Human review may be requested, but no reviewer, approval, second GitHub account or manual checkpoint is required for CI, merge, milestone completion or phase progression.
+
 ---
 
 ## 2. Two separate dimensions: status and provenance
@@ -149,7 +151,7 @@ Subjective 1–5 ratings may remain, but they require a note and should not repl
 
 ## 8. Independent evaluation pass
 
-The implementation author must not be the only authority that a player-facing feature is good enough.
+The implementation authoring pass must not be the only authority that a player-facing feature is good enough.
 
 For substantial player-facing work, perform a separate evaluation pass after implementation and capture.
 
@@ -170,13 +172,13 @@ The evaluation records:
 - severity;
 - comparison outcome;
 - required iteration if any;
-- evaluator mode (`independent_pass` or designated human review).
+- evaluator mode (`independent_pass` or optional owner/human review).
 
 `ITERATE` blocks merge.
 
-This separation does not prove perfect independence when the same underlying model performs both passes, but it reduces post-hoc self-justification and creates a review boundary that can later be assigned to another agent/model/human without changing the workflow.
+This separation does not prove perfect independence when the same underlying model performs both passes, but it reduces post-hoc self-justification and creates a review boundary that can later be assigned to another agent/model or a human without changing the workflow.
 
-Human approval at P2, P4 and P6 remains mandatory.
+P2, P4 and P6 require the complete evidence package and separate evaluation pass. They do not require human approval.
 
 ---
 
@@ -200,13 +202,15 @@ As runtime tooling appears, add required checks for HTML5 build, tests, determin
 
 GitHub `main` should be protected by a ruleset requiring pull requests and required status checks. Direct push should not be the normal path.
 
+All required checks must be machine-executable. A required GitHub review, approval click, second account or other human action is prohibited from the normal merge path.
+
 ---
 
 ## 10. Evidence is not proof of quality by itself
 
 Structured evidence prevents omission and makes reasoning auditable. It does not guarantee that observations are true or that a score is correct.
 
-Therefore BeBee uses multiple layers:
+Therefore BeBee uses multiple autonomous layers:
 
 ```text
 source-of-truth decisions
@@ -216,10 +220,12 @@ source-of-truth decisions
 + automated tests
 + rendered evidence
 + separate evaluation pass
-+ human milestone gates
++ deterministic milestone evidence gates
 ```
 
 No single layer replaces the others.
+
+Human review can be requested as additional advice, but it is never a required layer by default.
 
 ---
 
