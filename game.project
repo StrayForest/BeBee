@@ -19,3 +19,6 @@ scale_mode = stretch
 wasm_streaming = 1
 show_fullscreen_button = 0
 show_made_with_defold = 0
+
+[bebee]
+storage_application_id = com.strayforest.bebee
