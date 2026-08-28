@@ -136,7 +136,23 @@ def verify_bob_version(bob: Path, expected_version: str) -> str:
     return output
 
 
-def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
+def validate_build_commit_sha(value: str) -> str:
+    normalized = value.strip().lower()
+    if normalized == "unknown":
+        return normalized
+    if not re.fullmatch(r"[0-9a-f]{40}", normalized):
+        raise RuntimeError(
+            "build commit SHA must be a 40-character hexadecimal Git SHA or 'unknown'"
+        )
+    return normalized
+
+
+def build(
+    mode: str,
+    bob: Path,
+    toolchain: dict[str, object],
+    build_commit_sha: str,
+) -> Path:
     mode_config = MODES[mode]
     settings = Path(mode_config["settings"])
     if not settings.is_file():
@@ -159,7 +175,16 @@ def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
     # refuses to bundle into it directly. Bundle into an external temporary
     # directory first, then copy the completed artifact into our stable CI path.
     with tempfile.TemporaryDirectory(prefix=f"bebee-{mode}-bundle-") as temp_dir:
-        staged_bundle_output = Path(temp_dir)
+        staged_bundle_output = Path(temp_dir) / "bundle"
+        staged_bundle_output.mkdir(parents=True, exist_ok=True)
+        provenance_settings = Path(temp_dir) / "build-provenance.settings"
+        provenance_settings.write_text(
+            "[bebee]\n" f"build_commit_sha = {build_commit_sha}\n",
+            encoding="utf-8",
+        )
+
+        # Bob applies --settings files left-to-right. Keep authored mode settings
+        # stable and apply the exact source SHA as the final ephemeral override.
         command = [
             "java",
             "-jar",
@@ -168,6 +193,8 @@ def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
             str(ROOT),
             "--settings",
             str(settings),
+            "--settings",
+            str(provenance_settings),
             "--platform",
             str(toolchain["platform"]),
             "--architectures",
@@ -210,6 +237,7 @@ def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
         "architectures": toolchain["architectures"],
         "variant": mode_config["variant"],
         "settings": str(settings.relative_to(ROOT)),
+        "build_commit_sha": build_commit_sha,
         "bundle": str(bundle_dir.relative_to(ROOT)),
     }
     (report_output.parent / f"{mode}-toolchain.json").write_text(
@@ -227,12 +255,18 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help="Optional local bob.jar path. It must match the pinned SHA-256.",
     )
+    parser.add_argument(
+        "--build-commit-sha",
+        default=os.environ.get("BEBEE_BUILD_COMMIT_SHA", "unknown"),
+        help="Exact Git source SHA embedded into runtime QA provenance.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     toolchain = load_toolchain()
+    build_commit_sha = validate_build_commit_sha(args.build_commit_sha)
 
     required_java = int(toolchain["java_major"])
     actual_java = java_major()
@@ -249,7 +283,7 @@ def main() -> int:
 
     version_output = verify_bob_version(bob, str(toolchain["defold_version"]))
     print(version_output, flush=True)
-    bundle_dir = build(args.mode, bob, toolchain)
+    bundle_dir = build(args.mode, bob, toolchain, build_commit_sha)
     print(f"HTML5 bundle ready: {bundle_dir}", flush=True)
     return 0
 
