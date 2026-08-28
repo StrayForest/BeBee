@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-002 — Repository/tooling standards**.
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-003 — Input and proxy-focus proof**.
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -76,7 +76,7 @@ Do **not** build dependent production systems around downstream hypotheses that 
 
 # P0 — Foundation
 
-**Status: IN PROGRESS — BB-001 complete; BB-002 next.**
+**Status: IN PROGRESS — BB-001 and BB-002 complete; BB-003 next.**
 
 ## Goal
 
@@ -95,13 +95,22 @@ Delivered:
 
 The first fully successful runtime proof was GitHub Actions run `33201017563` on head `46d48bd265458b14e7b5d0a5673800ab39d50a3c`; the final merge head must repeat the same checks successfully. BB-001 intentionally leaves semantic input, collection-proxy focus/lifecycle, storage, test/data harness and deterministic gameplay QA to their scoped follow-up tasks.
 
-### BB-002 — Repository/tooling standards
+### BB-002 — Repository/tooling standards — COMPLETE
 
-- `.gitignore`;
-- formatting/lint conventions;
-- dependency/license process;
-- stable source layout;
-- commands documented.
+Delivered:
+
+- Defold-aware `.gitignore` covering editor/build state plus BeBee generated roots;
+- `.editorconfig` and project-root `.luacheckrc` conventions;
+- machine-readable `config/repository-standards.json` source/text/command contract;
+- stable production runtime roots with misplaced Defold resources rejected by validation;
+- machine-readable `config/dependencies.json` plus synchronized `THIRD_PARTY.md` license process;
+- explicit Defold 1.13.1 engine/Bob provenance instead of treating the toolchain as no third-party technology;
+- bidirectional validation between `game.project` Defold-library URLs and the dependency ledger;
+- dependency-free `scripts/check_repository_standards.py` gate;
+- exact-source PR/main `Repository standards` CI workflow;
+- repository drift found by the new gate was repaired rather than grandfathered.
+
+BB-002 does not implement or claim semantic input/proxy focus, test/data harness, full HTML5 PR artifact CI, deterministic gameplay capture or storage; those remain BB-003 through BB-007.
 
 ### BB-003 — Input and proxy-focus proof
 
