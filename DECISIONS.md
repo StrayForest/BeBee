@@ -97,6 +97,13 @@ Substantial new decisions should also record evidence strength (`LOW`, `MEDIUM`,
 | R-012 | LOCKED | High-risk technical runtime work (including core Lua, storage, platform/adapters and equivalent lifecycle-critical changes) requires a same-PR evidence manifest with official-doc constraints, alternatives, acceptance criteria and verification, even when competitor research is not applicable. |
 | R-013 | LOCKED | Non-trivial acceptance criteria must all be explicitly passed before merge, and the evidence-policy validator requires adversarial negative tests for bypass cases rather than only happy-path self-validation. |
 | R-014 | LOCKED | Player-facing visual/evaluation evidence is bound to the exact PR head SHA and records capture/evaluator provenance. An `independent_pass` evaluator identity must differ from the implementation-author identity. Runtime artifact existence/hash verification becomes mandatory once the P0 deterministic capture pipeline exists. |
+| R-015 | LOCKED | Required PR evidence is judged by policy code from the trusted PR base/default branch; candidate PR policy code is never the authority that validates the same candidate. |
+| R-016 | LOCKED | Governance-critical workflow/policy/source-of-truth changes require a same-PR governance evidence manifest and an APPROVED exact-head GitHub review from a non-author, non-bot human once the trusted-base gate is active. |
+| R-017 | LOCKED | P2/P4/P6 human gates are verified from GitHub review provenance on the exact PR head; prose, agent-created approval files and stale reviews do not count. |
+| R-018 | LOCKED | Player-facing/economy reference diversity is based on shipped-product identity (`product_id`), not URL count; multiple pages for one product cannot satisfy independent-reference counts. |
+| R-019 | LOCKED | Required status checks on `main` must use strict/up-to-date enforcement; the existing loose ruleset remains a P-1 settings blocker until GitHub reports strict required status checks enabled. |
+
+See `docs/16-ci-trust-boundary.md` for the enforcement design and bootstrap boundary.
 
 ## Change rule
 
