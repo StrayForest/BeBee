@@ -1,39 +1,56 @@
 ## Problem / outcome
 
 - Ticket:
+- Change class: `player-facing` / `economy` / `technical` / `process` / `trivial`
+- Evidence manifest: `evidence/<ticket>/manifest.json` or `N/A — <reason>`
 - Player/system problem:
 - Intended observable outcome:
 - Out of scope:
 
-## Decision status
+## Decision status / provenance
 
 Relevant `DECISIONS.md` IDs:
 
 - Decision(s):
 - Status before PR:
 - Status after PR:
+- Provenance type: `OWNER_CONSTRAINT` / `REFERENCE_PATTERN` / `TECH_CONSTRAINT` / `EXPERIMENT_RESULT` / `SIMULATION_RESULT` / `TELEMETRY_RESULT` / `PLAYTEST_RESULT` / `SUBJECTIVE_DIRECTION` / `N/A — <reason>`
+- Evidence strength: `LOW` / `MEDIUM` / `HIGH` / `N/A — <reason>`
 - [ ] `DECISIONS.md` updated if a status/LOCKED decision changed
 
 ## Research gate
 
+### Reference candidate pool
+
+For substantial player-facing/economy work, the machine-readable manifest is authoritative. Summarize the search here.
+
+- Candidate count:
+- Selected deep references:
+- Materially different solution / anti-pattern:
+- Candidate-pool exception if fewer than five reasonable candidates exist:
+
 ### Comparable shipped references
 
-For player-facing work, list at least two relevant problem-specific references when reasonably available.
+For player-facing/economy work, list at least two relevant problem-specific references when reasonably available.
 
 - Reference 1:
   - source/platform/date:
+  - why selected:
   - directly observed pattern:
+  - inference (separate from observation):
   - measurable notes:
 - Reference 2:
   - source/platform/date:
+  - why selected:
   - directly observed pattern:
+  - inference (separate from observation):
   - measurable notes:
 
 If reference research is not applicable, explain why:
 
 ### Official technical documentation
 
-List current official Defold/platform/library docs consulted.
+List current official Defold/platform/library/tool docs consulted.
 
 - Official doc 1:
 - Official doc 2:
@@ -42,8 +59,11 @@ List current official Defold/platform/library docs consulted.
 
 If official-doc research is not applicable, explain why:
 
-## BeBee decision
+## Alternatives / BeBee decision
 
+- Alternatives considered:
+- Selected alternative:
+- Rejected alternative(s) and why:
 - Pattern adopted:
 - Intentional deviations:
 - Why this fits BeBee:
@@ -100,6 +120,18 @@ Required for player-facing changes. Follow `docs/13-visual-qa-scorecard.md`.
 
 Evidence links/artifacts:
 
+### Objective measurements first
+
+Record applicable measured/observed values before subjective scores.
+
+- actions/taps/clicks to result:
+- feedback latency:
+- completion/stationary wait time:
+- persistent HUD count:
+- instruction lines:
+- playfield obstruction / modal depth:
+- touch-control count / target size:
+
 ### Comparison scorecard
 
 | Criterion | Reference A | Reference B | BeBee | Finding |
@@ -107,11 +139,11 @@ Evidence links/artifacts:
 | Actions to result | | | | |
 | Time to first feedback | | | | |
 | Persistent HUD count | | | | |
-| Objective clarity (1–5) | | | | |
-| State readability (1–5) | | | | |
-| Feedback quality (1–5) | | | | |
-| Mobile comfort (1–5) | | | | |
-| Original BeBee expression (1–5) | n/a | n/a | | |
+| Objective clarity (1–5 + note) | | | | |
+| State readability (1–5 + note) | | | | |
+| Feedback quality (1–5 + note) | | | | |
+| Mobile comfort (1–5 + note) | | | | |
+| Original BeBee expression (1–5 + note) | n/a | n/a | | |
 
 Comparison conclusion:
 
@@ -122,6 +154,16 @@ Comparison conclusion:
 Deviation/iteration notes:
 
 If visual QA is not applicable, explain why:
+
+## Independent evaluation
+
+Required for substantial player-facing work after rendered evidence exists.
+
+- Evaluation mode: `independent_pass` / `human` / `N/A — <reason>`
+- Review inputs: problem + acceptance criteria + reference observations + BeBee rendered evidence + measurements
+- Findings:
+- Evaluator verdict: `PASS` / `PASS WITH DEVIATION` / `ITERATE` / `N/A — <reason>`
+- [ ] implementation iterated after evaluator findings where required
 
 ## Human milestone gate
 
