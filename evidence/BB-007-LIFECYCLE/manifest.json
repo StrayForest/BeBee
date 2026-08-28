@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-007-LIFECYCLE",
+  "change_class": "technical",
+  "problem": "The first real HTML5 storage candidate proved that Defold's accepted local write can still be pending in its asynchronous MEM-to-IndexedDB sync when an immediate refresh occurs. The prior smoke incorrectly required that pending generation to be durable, and unlink-only delete/measurement cleanup did not explicitly request Defold's persistence sync.",
+  "decision": {
+    "ids": ["BB-P009"],
+    "status_before": "VALIDATED",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "bounded-pending-window-plus-unlink-sync",
+    "rationale": "Keep BB-P009's explicit accepted_local_pending_browser_persistence semantics. Rapid refresh/close must yield either the pending latest generation or explicit recovery to the last previously confirmed persistent generation; false clean-start/corruption/older rollback fails. Explicitly request Defold's coalesced HTML5 persistence sync after unlink-only operations because they do not pass through the FS.close hook."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "This is a technical correction driven by exact browser evidence and Defold engine behavior, not a player-facing design choice.",
+    "selected_references": [],
+    "reference_exception": "No shipped-game comparison is relevant to the engine filesystem lifecycle boundary.",
+    "anti_pattern": {
+      "source": "https://github.com/defold/defold/pull/9828",
+      "observation": "Defold's HTML5 persistence is an asynchronous FS.syncfs operation initiated from its patched FS.close. Treating the Lua write return as browser durability creates a test/product promise the engine does not make.",
+      "lesson": "Preserve a previously confirmed generation, expose pending durability honestly, and validate bounded recovery in the navigation race."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/file-access/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Defold HTML5 saves use the browser virtual filesystem backed by IndexedDB; sys.load can raise on corrupt or unsupported data."
+    },
+    {
+      "source": "https://defold.com/manuals/html5/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "HTML5 persistent filesystem synchronization can lag the immediate file operation, so lifecycle handling cannot equate sys.save success with browser-durable completion."
+    },
+    {
+      "source": "https://github.com/defold/defold/pull/9828",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Defold documents in its engine fix that HTML5 FS.close triggers its own asynchronous FS.syncfs path; the generated 1.13.1 dmloader used by BeBee contains the same FS.close -> Module.persistentSync -> FS.syncfs(false) mechanism."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "bounded-pending-window-plus-unlink-sync",
+      "disposition": "selected",
+      "reason": "Matches the documented durability value, proves recovery integrity under a real navigation race, and closes the unlink persistence gap without claiming a nonexistent synchronous browser durability guarantee."
+    },
+    {
+      "id": "require-latest-pending-generation-after-immediate-refresh",
+      "disposition": "rejected",
+      "reason": "Contradicts accepted_local_pending_browser_persistence and the observed asynchronous Defold FS.syncfs lifecycle."
+    },
+    {
+      "id": "add-artificial-delay-before-immediate-refresh",
+      "disposition": "rejected",
+      "reason": "Would hide the exact rapid lifecycle window the P0 test is intended to exercise."
+    },
+    {
+      "id": "switch-html5-storage-to-localstorage",
+      "disposition": "rejected",
+      "reason": "Would replace the validated Defold sys.save/sys.load adapter and introduce a second serialization/storage model merely to manufacture synchronous durability."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Rapid refresh and rapid close tests do not relabel accepted_local_pending_browser_persistence as durable.",
+      "status": "pass",
+      "evidence": "tools/visual_qa/storage_html5_smoke.py races navigation immediately after pending save and accepts only latest generation or explicit recovery to the previously confirmed persistent generation."
+    },
+    {
+      "criterion": "Normal settled reload and quick-checkpoint persistence still require the newest generation.",
+      "status": "pass",
+      "evidence": "The smoke retains strict marker checks after the configured settle window for normal_save_reload and multiple_quick_progression_checkpoints."
+    },
+    {
+      "criterion": "HTML5 unlink-only delete and measurement cleanup request Defold's coalesced persistent filesystem sync.",
+      "status": "pass",
+      "evidence": "adapters/storage/defold_backend.lua calls Module.persistentSync through the development/runtime HTML5 bridge after successful os.remove operations; save continues relying on Defold's existing FS.close hook."
+    },
+    {
+      "criterion": "BB-P009 states the rapid-window acceptance invariant and the stable application id concretely.",
+      "status": "pass",
+      "evidence": "config/storage-contract.json records com.strayforest.bebee, Defold's async sync mechanism, rapid_window_acceptance and explicit test expectations."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Repository standards and Test/data must pass on the exact PR head.",
+      "Existing HTML5 CI must build/smoke the updated Defold backend on the exact PR head.",
+      "A fresh separate process PR must execute storage_html5_smoke.py and retain a passing exact-head storage-report.json before BB-007/P0 closeout."
+    ],
+    "manual": [],
+    "runtime_errors": "The first candidate failure is retained as evidence rather than suppressed. The corrected rapid-window smoke still fails on clean-start, corrupt/unknown state, rollback older than the confirmed baseline, browser errors, release bridge exposure, failed settled persistence or failed persistent delete.",
+    "save_data_impact": "No envelope or payload version change. Stable application id remains com.strayforest.bebee. Delete persistence behavior is strengthened on HTML5; pending-save durability semantics are clarified, not weakened."
+  },
+  "visual_evidence": {
+    "required": false,
+    "artifacts": [],
+    "states": [],
+    "viewports": [],
+    "motion_evidence": [],
+    "provenance": {
+      "capture_commit_sha": "not_applicable",
+      "capture_mode": "not_applicable",
+      "artifact_locator": "not_applicable"
+    }
+  },
+  "known_limitations": [
+    "A just-accepted HTML5 generation can still be lost if navigation wins the asynchronous IndexedDB race; the product must not present that pending result as durable confirmation.",
+    "Poki/private-incognito and storage-unavailable behavior remain BB-P009 P0_P8 and are validated separately from direct-web P0 exit.",
+    "Module.persistentSync is Defold loader behavior rather than a public Lua API, so the exact-browser CI smoke is the compatibility guard for future Defold upgrades."
+  ]
+}
