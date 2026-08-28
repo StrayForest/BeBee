@@ -41,10 +41,12 @@ Defold is selected because BeBee is a small, interaction-heavy 2D title targetin
 - [`docs/03-ux-ui-controls.md`](docs/03-ux-ui-controls.md) — HUD, menus, controls, onboarding and interaction rules
 - [`docs/04-world-content.md`](docs/04-world-content.md) — planet structure, biomes, meadow templates and customization
 - [`docs/05-technical-architecture.md`](docs/05-technical-architecture.md) — Defold architecture, modules, state, saves and performance budgets
-- [`docs/06-production-roadmap.md`](docs/06-production-roadmap.md) — milestones from empty repository to production
+- [`docs/06-production-roadmap.md`](docs/06-production-roadmap.md) — milestones and ticket IDs from empty repository to production
 - [`docs/07-qa-analytics-release.md`](docs/07-qa-analytics-release.md) — tests, telemetry, release gates and live-quality rules
-- [`docs/08-reference-analysis.md`](docs/08-reference-analysis.md) — what we learn from competitors/open references and what we must not copy
-- [`AGENTS.md`](AGENTS.md) — implementation rules for Codex/AI-assisted development
+- [`docs/08-reference-analysis.md`](docs/08-reference-analysis.md) — competitor/open-source research and reuse boundaries
+- [`docs/09-art-direction.md`](docs/09-art-direction.md) — bee, flowers, restoration visuals, UI skin, animation and audio direction
+- [`AGENTS.md`](AGENTS.md) — implementation contract for Codex/AI-assisted development
+- [`THIRD_PARTY.md`](THIRD_PARTY.md) — mandatory dependency/asset license ledger
 
 ## MVP definition
 
@@ -52,13 +54,13 @@ The MVP is not “the whole planet.” It is one polished region proving the com
 
 - controllable bee;
 - 3 flower difficulties;
-- 6 meadow patches;
+- 6 meadows in the vertical-slice region;
 - pollination feedback;
 - honey currency;
 - 3 upgrade tracks;
-- 4 seed types;
+- 4+ seed types;
 - meadow replanting/customization;
-- region restoration meter;
+- region/planet restoration progress;
 - save/load;
 - desktop + touch controls;
 - sound, particles and basic accessibility;
@@ -73,4 +75,4 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 ## Current status
 
-**Phase 0 — product blueprint.** Repository initialized and game specification is being written before implementation begins.
+**Phase 0 — product blueprint complete.** The next implementation step is `P0 / BB-001`: create the Defold project bootstrap and a reproducible HTML5 build, then follow `docs/06-production-roadmap.md` in order.
