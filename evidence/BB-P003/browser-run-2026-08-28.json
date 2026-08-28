@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P003",
+  "run_date": "2026-08-28",
+  "prototype_source": "prototypes/pollination",
+  "browser": {
+    "engine": "Chromium",
+    "executable": "/usr/bin/chromium",
+    "automation": "Python Playwright",
+    "browser_errors": []
+  },
+  "method": {
+    "desktop_viewport": "1280x900",
+    "touch_layout_viewport": "640x820",
+    "movement_control": "real keyboard Arrow key events; bee position observed from rendered canvas by color-component detection; no direct mutation of module state",
+    "completion_rule": "all three fixed prototype patches completed in each mode",
+    "touch_check": "Playwright BrowserContext with has_touch=true/is_mobile=true; layout/control visibility and bounding boxes measured",
+    "limitations": [
+      "The scripted pilot is not a human comfort playtest.",
+      "Completion time includes navigation from the fixed start position and controller correction overhead, so small timing differences should not be overinterpreted.",
+      "The local environment blocks Chromium navigation to localhost/file URLs; the exact prototype source was reconstructed into one equivalent inline HTML document with unchanged interaction code for browser execution."
+    ]
+  },
+  "desktop_results": {
+    "auto": {
+      "first_feedback_ms": 1646,
+      "completion_seconds": 16.0,
+      "stationary_inside_seconds": 6.1,
+      "stationary_share_percent": 38.1,
+      "pollinate_presses": 0,
+      "movement_distance_px": 1083,
+      "completed_patches": 3
+    },
+    "hold": {
+      "first_feedback_ms": 2020,
+      "completion_seconds": 15.1,
+      "stationary_inside_seconds": 5.0,
+      "stationary_share_percent": 33.1,
+      "pollinate_presses": 3,
+      "movement_distance_px": 1127,
+      "completed_patches": 3
+    },
+    "sweep": {
+      "first_feedback_ms": 1654,
+      "completion_seconds": 13.7,
+      "stationary_inside_seconds": 0.0,
+      "stationary_share_percent": 0.0,
+      "pollinate_presses": 0,
+      "movement_distance_px": 1436,
+      "completed_patches": 3
+    }
+  },
+  "derived_observations": {
+    "sweep_distance_increase_vs_auto_percent": 32.6,
+    "auto_stationary_share_percent": 38.1,
+    "hold_stationary_share_percent": 33.1,
+    "sweep_stationary_share_percent": 0.0,
+    "intrinsic_progress_rules": {
+      "auto": "0.34 progress/second while inside; standing still continues",
+      "hold": "0.52 progress/second while inside and interaction is held",
+      "sweep": "movement distance / 245 while inside; standing still gives zero"
+    }
+  },
+  "touch_layout": {
+    "canvas_css_box": {"width": 614, "height": 383.75},
+    "movement_stick": {"width": 120, "height": 120, "visible_in": ["auto", "hold", "sweep"], "canvas_area_percent": 6.11},
+    "hold_pollinate_button": {"width": 108, "height": 108, "visible_in": ["hold"], "canvas_area_percent": 4.95},
+    "total_control_overlay_area_percent": {"auto": 6.11, "hold": 11.06, "sweep": 6.11},
+    "browser_errors": []
+  },
+  "capture_hashes": {
+    "note": "Rendered PNGs were inspected during the run. P0 exact-build artifact retention does not exist yet, so hashes document local-run provenance but are not claimed as CI-retained evidence.",
+    "compressed_reference_webp": {
+      "auto_complete": "c470c77daa4a4df157a6e7dee9bbc114dce94d63b68922b6a480ae4d6079e220",
+      "hold_complete": "6c08527e1d4758d2600bacf0234849b8bf864155a3a3de06b2f653c47b97c03c",
+      "sweep_complete": "db0fad318892011afb495521779e9046087eec55d4984aab8fd8c264837c6b5e",
+      "hold_touch_layout": "bea3fb9afaa044e35a3acfaf03ec5aa119e8d0c54102fd2ea713857219ff5b1e"
+    }
+  }
+}
