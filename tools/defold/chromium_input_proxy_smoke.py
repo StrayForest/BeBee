@@ -205,40 +205,29 @@ def devtools_target(port: int, timeout: float = 10) -> dict:
     raise RuntimeError(f"Chromium DevTools endpoint did not become ready: {last_error}")
 
 
-def dispatch_key(
-    cdp: DevTools,
-    *,
-    key: str,
-    code: str,
-    virtual_key: int,
-    key_identifier: str | None = None,
-    raw_key_down: bool = False,
-) -> None:
+def dispatch_key(cdp: DevTools, *, key: str, code: str, virtual_key: int) -> None:
     common = {
         "key": key,
         "code": code,
         "windowsVirtualKeyCode": virtual_key,
         "nativeVirtualKeyCode": virtual_key,
     }
-    if key_identifier is not None:
-        common["keyIdentifier"] = key_identifier
-    down_type = "rawKeyDown" if raw_key_down else "keyDown"
-    cdp.call("Input.dispatchKeyEvent", {"type": down_type, **common})
+    cdp.call("Input.dispatchKeyEvent", {"type": "keyDown", **common})
     cdp.call("Input.dispatchKeyEvent", {"type": "keyUp", **common})
     cdp.drain()
 
 
 def dispatch_escape(cdp: DevTools) -> None:
-    # Chromium's own DevTools protocol tests use rawKeyDown with virtual key 27
-    # for Escape; U+001B is the corresponding keyIdentifier.
-    dispatch_key(
-        cdp,
-        key="Escape",
-        code="Escape",
-        virtual_key=27,
-        key_identifier="U+001B",
-        raw_key_down=True,
-    )
+    # Match Chromium's own DevTools protocol browsertest exactly. Supplying
+    # key/code/keyIdentifier here changes the synthesized event shape; Chromium
+    # can derive the Escape DOM event from virtual key 27 itself.
+    common = {
+        "windowsVirtualKeyCode": 27,
+        "nativeVirtualKeyCode": 27,
+    }
+    cdp.call("Input.dispatchKeyEvent", {"type": "rawKeyDown", **common})
+    cdp.call("Input.dispatchKeyEvent", {"type": "keyUp", **common})
+    cdp.drain()
 
 
 def dispatch_touch(cdp: DevTools, x: float, y: float) -> None:
