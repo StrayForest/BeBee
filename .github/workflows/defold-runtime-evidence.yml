@@ -1,0 +1,91 @@
+name: Defold runtime evidence
+
+on:
+  pull_request:
+    paths:
+      - game.project
+      - "main/**"
+      - "config/defold/**"
+      - "tools/defold/**"
+
+permissions:
+  contents: read
+
+jobs:
+  html5-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Set up OpenJDK 25
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: ""
+
+      - name: Build pinned development and release HTML5 bundles
+        run: |
+          set -euo pipefail
+          java -version
+          python3 tools/defold/bundle_html5.py --mode development
+          python3 tools/defold/bundle_html5.py --mode release
+
+      - name: Capture bootstrap frame from exact head
+        run: |
+          set -euo pipefail
+          mkdir -p runtime-evidence
+          printf '%s\n' "${{ github.event.pull_request.head.sha }}" > runtime-evidence/head-sha.txt
+
+          bundle_dir="build/html5/development/BeBee"
+          test -f "${bundle_dir}/index.html"
+
+          python3 -m http.server 8000 --bind 127.0.0.1 --directory "${bundle_dir}" >runtime-evidence/http-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "${server_pid}" 2>/dev/null || true' EXIT
+
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1:8000/ >/dev/null; then
+              break
+            fi
+            if [ "${attempt}" -eq 30 ]; then
+              cat runtime-evidence/http-server.log
+              exit 1
+            fi
+            sleep 1
+          done
+
+          browser="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "${browser}" ]; then
+            echo "No Chromium-compatible browser found on runner" >&2
+            exit 1
+          fi
+
+          "${browser}" \
+            --headless=new \
+            --no-sandbox \
+            --disable-gpu \
+            --window-size=1280,720 \
+            --virtual-time-budget=5000 \
+            --screenshot=runtime-evidence/bootstrap-1280x720.png \
+            http://127.0.0.1:8000/
+
+          test -s runtime-evidence/bootstrap-1280x720.png
+          find build/html5 -type f -print0 | sort -z | xargs -0 sha256sum > runtime-evidence/html5-files.sha256
+          sha256sum runtime-evidence/bootstrap-1280x720.png > runtime-evidence/bootstrap-1280x720.sha256
+
+      - name: Upload exact-head runtime evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: defold-runtime-${{ github.event.pull_request.head.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            build/html5/development/BeBee
+            build/html5/release/BeBee
+            runtime-evidence
