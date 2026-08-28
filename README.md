@@ -107,6 +107,9 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/12-platform-storage.md`](docs/12-platform-storage.md)
 - [`docs/13-visual-qa-scorecard.md`](docs/13-visual-qa-scorecard.md)
 - [`docs/18-deterministic-visual-qa.md`](docs/18-deterministic-visual-qa.md)
+- [`docs/19-repository-tooling-standards.md`](docs/19-repository-tooling-standards.md) — canonical repository/source/dependency/command contract
+- [`config/repository-standards.json`](config/repository-standards.json) — machine-readable source and repository rules
+- [`config/dependencies.json`](config/dependencies.json) — machine-readable third-party dependency/license inventory
 - [`config/web-targets.json`](config/web-targets.json)
 - [`config/visual-style.json`](config/visual-style.json) — canonical numeric style tokens
 - [`config/visual-qa.json`](config/visual-qa.json) — deterministic QA-state/capture contract
@@ -122,6 +125,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/16-ci-trust-boundary.md`](docs/16-ci-trust-boundary.md)
 - [`docs/research/BB-P017-ruleset-closeout.md`](docs/research/BB-P017-ruleset-closeout.md) — P-1 exit / strict ruleset verification
 - [`docs/research/BB-001-defold-bootstrap.md`](docs/research/BB-001-defold-bootstrap.md) — P0 runtime/bootstrap evidence
+- [`docs/research/BB-002-repository-tooling.md`](docs/research/BB-002-repository-tooling.md) — P0 repository/tooling evidence and alternatives
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -176,10 +180,10 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 ## Current status
 
-**P0 — Foundation is in progress. `BB-001 — Defold bootstrap` is complete.**
+**P0 — Foundation is in progress. `BB-001 — Defold bootstrap` and `BB-002 — Repository/tooling standards` are complete.**
 
 BB-001 establishes a minimal `app/` bootstrap, explicit development/release settings and a reproducible editor-independent HTML5 path. The toolchain is pinned to Defold **1.13.1**, OpenJDK **25**, `wasm-web` and the published Bob SHA-256. Exact-head CI successfully built both development and release bundles and rendered the bootstrap in Chromium before merge.
 
-BB-001 deliberately does not claim input semantics, collection-proxy lifecycle, storage, gameplay, UI or deterministic gameplay QA; those remain later P0 tasks.
+BB-002 adds Defold-aware generated-file rules, explicit text/Lua conventions, canonical production resource roots, machine-readable dependency/license inventory, a dependency-free repository validator and PR/main CI enforcement. It does not claim semantic input, proxy lifecycle, storage, gameplay, UI, test/data harness or deterministic gameplay QA.
 
-**Next production task: `P0 / BB-002 — Repository/tooling standards`.**
+**Next production task: `P0 / BB-003 — Input and proxy-focus proof`.**
