@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap now starts with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development.
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is now complete; the current production handoff is **P0 / BB-001 — Defold bootstrap**.
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -27,7 +27,9 @@ All milestone and merge gates are autonomous by default. No human review, approv
 
 # P-1 — Blueprint Hardening
 
-Detailed requirements: `docs/11-blueprint-hardening.md`.
+**Status: COMPLETE — exit criteria PASS.**
+
+Detailed closeout: `docs/11-blueprint-hardening.md` and `docs/research/BB-P017-ruleset-closeout.md`.
 
 ## Required tasks
 
@@ -53,8 +55,8 @@ Detailed requirements: `docs/11-blueprint-hardening.md`.
 
 - core pollination interaction is `VALIDATED`;
 - seed/restoration model is `VALIDATED`;
-- upgrade set is either validated or intentionally smaller;
-- first-region economy has a no-grind path under multiple purchase orders;
+- upgrade set is validated and intentionally limited to Flight + Buzz;
+- first-region economy has a no-grind path under exhaustive retained-sink purchase ordering;
 - primary web target is selected;
 - visual QA/style constraints are specified;
 - storage/platform risks are specified;
@@ -64,13 +66,17 @@ Detailed requirements: `docs/11-blueprint-hardening.md`.
 - reference selection includes a search-space/counterexample discipline rather than confirmation-only examples;
 - substantial player-facing work has a separate evaluation pass;
 - PR evidence CI validates structured evidence, not headings alone;
-- `main` is protected by required PR/status checks before normal autonomous production, or a repository-settings blocker is explicitly recorded.
+- `main` is protected by required PR/status checks with strict/up-to-date enforcement.
 
-Do **not** build dependent production systems around unresolved P-1 hypotheses.
+All criteria above pass. The repository ruleset closeout is retained in `evidence/BB-P017-RULESET-CLOSEOUT/`.
+
+Do **not** build dependent production systems around downstream hypotheses that P-1 deliberately left for runtime validation.
 
 ---
 
 # P0 — Foundation
+
+**Status: NEXT — ready to begin.**
 
 ## Goal
 
@@ -195,7 +201,7 @@ Presentation substates may exist without contaminating persistent progression.
 
 ### BB-022 — Validated pollination interaction
 
-Implement the P-1 winner (proximity, hold, sweep or approved hybrid) with forgiving bounds and clear start/stop feedback.
+Implement movement-through/sweep with forgiving bounds and clear start/stop feedback. Exact work target and incidental fly-through behavior are tuned here from the validated P-1 interaction pattern.
 
 ### BB-023 — Bloom feedback stack
 
@@ -235,9 +241,10 @@ Create a reward-to-power loop with meaningful choices and no mathematically comp
 
 ### BB-030 — Validated upgrade set
 
-- Flight and Buzz remain primary candidates;
-- Yield ships only if `BB-P005` validates it;
-- do not force three tracks merely to fill a screen.
+- implement **Flight + Buzz** as the validated vertical-slice upgrade tracks (`D-007`);
+- Yield is excluded from the vertical slice unless a new player problem and new evidence explicitly reopen the decision;
+- do not add a replacement third track merely to fill a screen;
+- tune final effect curves and costs against production movement/pollination feel.
 
 ### BB-031 — Hive/progression interaction
 
@@ -245,7 +252,7 @@ Research the relevant competitor upgrade interaction, then implement one-action 
 
 ### BB-032 — Progression UI
 
-Number/layout of cards follows the validated upgrade set, not the original fixed three-card assumption.
+Number/layout of cards follows the validated two-track set, not the original fixed three-card assumption.
 
 ### BB-033 — Flower gates
 
@@ -299,7 +306,7 @@ Before more meadows are authored, P4 requires deterministic before/mid/after evi
 
 ## Goal
 
-Implement the **P-1 validated seed/restoration model** so player flower choice contributes to ownership, rather than existing only as post-completion decoration.
+Implement the **P-1 validated Hybrid seed/restoration model** so player flower choice contributes to ownership, rather than existing only as post-completion decoration.
 
 ### Work
 
@@ -309,7 +316,7 @@ Implement the **P-1 validated seed/restoration model** so player flower choice c
 - reversible replanting;
 - one pollination/establishment loop if validated;
 - persistence/migration;
-- economy regression scenarios with cosmetic-heavy spending.
+- economy regression scenarios with customization-heavy spending.
 
 ## Exit criteria
 
