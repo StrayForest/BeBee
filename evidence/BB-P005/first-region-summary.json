@@ -1,0 +1,53 @@
+{
+  "candidate_status": "HYPOTHESIS",
+  "hard_assertions": {
+    "all_exhaustive_upgrade_priorities_progress": true,
+    "customization_heavy_passes": true,
+    "named_paths_no_negative_balance": true,
+    "named_paths_no_replay": true,
+    "named_paths_pass_required_gates": true
+  },
+  "hard_failures": [],
+  "exhaustive_upgrade_orders": {
+    "failed": 0,
+    "minimum_final_balance": 337,
+    "orders_tested": 120,
+    "passed": 120
+  },
+  "strategy_summary": {
+    "balanced": {"passed": true, "balance": 311, "earned": 515, "spent": 204, "purchases": ["buzz_2", "flight_2", "seed_daisy", "flight_3", "buzz_3"], "pending_desired": [], "replay_actions": 0},
+    "buzz_first": {"passed": true, "balance": 326, "earned": 515, "spent": 189, "purchases": ["buzz_2", "flight_2", "flight_3", "buzz_3"], "pending_desired": [], "replay_actions": 0},
+    "customization_heavy": {"passed": true, "balance": 327, "earned": 515, "spent": 188, "purchases": ["seed_daisy", "flight_2", "buzz_2", "seed_clover", "seed_lavender", "buzz_3"], "pending_desired": [], "replay_actions": 0},
+    "flight_first": {"passed": true, "balance": 326, "earned": 515, "spent": 189, "purchases": ["flight_2", "buzz_2", "flight_3", "buzz_3"], "pending_desired": [], "replay_actions": 0},
+    "minimal_progression": {"passed": true, "balance": 412, "earned": 515, "spent": 103, "purchases": ["buzz_2", "buzz_3"], "pending_desired": [], "replay_actions": 0},
+    "no_yield": {"passed": true, "balance": 382, "earned": 515, "spent": 133, "purchases": ["buzz_2", "flight_2", "buzz_3"], "pending_desired": [], "replay_actions": 0},
+    "poor_but_valid": {"passed": true, "balance": 270, "earned": 554, "spent": 284, "purchases": ["seed_daisy", "flight_2", "seed_clover", "buzz_2", "flight_3", "yield_2", "seed_lavender", "buzz_3"], "pending_desired": [], "replay_actions": 0},
+    "yield_early": {"passed": true, "balance": 393, "earned": 566, "spent": 173, "purchases": ["buzz_2", "flight_2", "yield_2", "buzz_3"], "pending_desired": [], "replay_actions": 0},
+    "yield_mid": {"passed": true, "balance": 381, "earned": 554, "spent": 173, "purchases": ["buzz_2", "flight_2", "yield_2", "buzz_3"], "pending_desired": [], "replay_actions": 0},
+    "yield_late": {"passed": true, "balance": 367, "earned": 540, "spent": 173, "purchases": ["buzz_2", "flight_2", "buzz_3", "yield_2"], "pending_desired": [], "replay_actions": 0}
+  },
+  "yield_payback": {
+    "available_after": "M03",
+    "break_even_after_availability": "M06",
+    "cost": 40,
+    "future_base_honey_after_availability": 345,
+    "future_base_honey_to_break_even": 266.67,
+    "incremental_multiplier": 0.15,
+    "purchase_id": "yield_2",
+    "total_region_base_honey": 515
+  },
+  "yield_sensitivity": [
+    {"multiplier": 1.1, "final_balance": 377, "break_even_after_availability": null, "future_base_honey_to_break_even": 400.0},
+    {"multiplier": 1.15, "final_balance": 393, "break_even_after_availability": "M06", "future_base_honey_to_break_even": 266.67},
+    {"multiplier": 1.2, "final_balance": 411, "break_even_after_availability": "M06", "future_base_honey_to_break_even": 200.0}
+  ],
+  "initial_failed_candidate_finding": {
+    "description": "Before availability staging, 12 of 120 upgrade-priority permutations soft-locked at M03 after early optional spending.",
+    "correction": "Stage Flight 3 and Yield after M03 and Buzz 3 after M04; keep the early optional-spend envelope low enough that Buzz 2 remains affordable before M03."
+  },
+  "interpretation": [
+    "Numbers remain HYPOTHESIS until seed flow and pollination pacing are validated.",
+    "A passing arithmetic path does not prove a fun pacing curve.",
+    "Yield dominance must be reviewed using payback plus playtest opportunity cost, not balance alone."
+  ]
+}
