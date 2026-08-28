@@ -15,8 +15,9 @@ production HTML5 CI contract for P0:
 - the release bundle is retained as a dedicated playable GitHub Actions artifact;
 - the release bundle is served over HTTP and exercised in headless Chromium;
 - browser smoke requires a usable non-zero canvas, WebAssembly availability, a
-  successful `.wasm` response with `application/wasm`, no non-cancelled resource
-  load failures, no error-level browser console entries and no runtime exceptions;
+  successful `.wasm` response with `application/wasm`, no actionable HTTP/network
+  failures, no actionable error-level browser console entries and no runtime
+  exceptions;
 - the already-proven BB-003 keyboard/touch/proxy-focus smoke remains active against
   the development bundle;
 - build reports, browser logs, smoke JSON, screenshot, exact head SHA and release
@@ -117,10 +118,17 @@ The smoke passes only when all of these are true:
 4. WebAssembly is available;
 5. at least one `.wasm` request completes with HTTP 200 and MIME
    `application/wasm`;
-6. no actionable network load failure is observed (cancelled requests and favicon
-   noise are ignored);
-7. no error/assert browser console event is observed;
-8. no JavaScript runtime exception is observed.
+6. no actionable HTTP 4xx/5xx response is observed;
+7. no actionable network load failure is observed;
+8. no actionable error/assert browser console event is observed;
+9. no JavaScript runtime exception is observed.
+
+Cancelled requests and non-HTTP browser-internal failures are non-actionable. A
+404 for Chromium's automatic `/favicon.ico` request is also non-actionable, but
+only when Network-domain evidence independently identifies that exact URL/status.
+Every other HTTP 4xx/5xx remains a hard failure. This avoids hiding a missing game
+archive, JavaScript loader, WebAssembly engine or other bundle resource behind a
+generic browser console message.
 
 The smoke writes machine-readable JSON even on failure so CI does not lose the
 reason for rejection.
@@ -144,6 +152,46 @@ workflow on every PR and `main` update. BB-005 deliberately does not run that sa
 headless bundle a second time inside the browser job. The P0 PR contract is the
 conjunction of the dedicated `Test and data` signal and `HTML5 CI` signal.
 
+## First CI failure and correction
+
+The first BB-005 run, `33212975885` on exact head
+`d3f1ddbfd96a9992bdfc343a395a9c89f70207ac`, proved that both development and
+release bundles built, but the browser smoke failed on an error-level Chromium log.
+The retained HTTP server log showed the sole failing request was the browser's
+automatic `/favicon.ico` request:
+
+- release page: HTTP 200;
+- `dmloader.js`: HTTP 200;
+- archive manifest/data: HTTP 200;
+- `BeBee.wasm`: HTTP 200 with `application/wasm`;
+- canvas: 1280×577;
+- runtime exceptions: none;
+- network loading failures: none;
+- `/favicon.ico`: HTTP 404.
+
+The failure was not silenced generically. The smoke was changed to retain structured
+HTTP/console diagnostics and ignore only a Network-domain-proven favicon 404 while
+continuing to fail every other HTTP 4xx/5xx.
+
+## Passing candidate proof
+
+The revised exact candidate
+`3c50ca49d1b9fee8e39bac744e7d340e3f419963` passed:
+
+- `Repository standards` run `33213154277`;
+- `Test and data` run `33213154235`;
+- `HTML5 CI` run `33213154271`.
+
+The passing HTML5 run retained:
+
+- playable artifact `9702369697`, digest
+  `sha256:9ec8d981882d0d930a99999c9cac2e1611290776b4ce128ef5254a748d4bd20a`;
+- evidence artifact `9702370265`, digest
+  `sha256:128f95bdaca553a8d068248322beee8ebd700b7971d267fd1c6e06f9d5f886d7`.
+
+Both artifacts are bound to the exact candidate SHA above. The final PR head after
+closeout documentation must repeat the same gates before merge.
+
 ## Decision impact
 
 No `DECISIONS.md` status changes.
@@ -153,16 +201,14 @@ Relevant locked process/technical constraints remain `T-002`, `R-001`, `R-015` a
 
 Provenance: `TECH_CONSTRAINT`.
 Evidence strength: `HIGH` for the CI/artifact architecture because it follows the
-current Defold HTML5/Bob serving requirements and GitHub exact-head/artifact model.
-The browser smoke's exact runtime behavior must still be proven by candidate CI
-before BB-005 is marked complete.
+current Defold HTML5/Bob serving requirements and GitHub exact-head/artifact model
+and has now been exercised by exact-head candidate CI.
 
 ## Closeout gate
 
-BB-005 is complete only after an exact candidate head proves:
+BB-005 is complete only after the final PR head repeats:
 
-- `HTML5 CI` passes development/release builds and both browser smokes;
-- `Test and data` passes the deterministic 11-case suite;
-- a dedicated playable release artifact and HTML5 evidence artifact exist;
-- repository standards and trusted-base evidence/trust-boundary validation pass;
-- the final merge head repeats all required checks successfully.
+- successful `HTML5 CI` development/release builds and both browser smokes;
+- successful `Test and data` deterministic 11-case suite;
+- successful repository standards and trusted-base evidence/trust-boundary checks;
+- creation of the dedicated playable release artifact and HTML5 evidence artifact.
