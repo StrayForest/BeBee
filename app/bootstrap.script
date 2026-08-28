@@ -1,14 +1,14 @@
-local input = require "app.input_semantics"
-
 function init(self)
     self.proxy_ready = false
-    msg.post(".", "acquire_input_focus")
+    self.owner_focused = false
+    msg.post("/sentinel#controller", "acquire_sentinel_focus")
     msg.post("#input_probe", "load")
-    print("BEBEE_INPUT owner_focus acquired")
 end
 
 function final(self)
-    msg.post(".", "release_input_focus")
+    if self.owner_focused then
+        msg.post(".", "release_input_focus")
+    end
     if self.proxy_ready then
         msg.post("#input_probe", "disable")
         msg.post("#input_probe", "unload")
@@ -16,18 +16,14 @@ function final(self)
 end
 
 function on_message(self, message_id, message, sender)
-    if message_id == hash("proxy_loaded") then
+    if message_id == hash("sentinel_focus_ready") and not self.owner_focused then
+        self.owner_focused = true
+        msg.post(".", "acquire_input_focus")
+        print("BEBEE_INPUT owner_focus acquired")
+    elseif message_id == hash("proxy_loaded") then
         msg.post(sender, "init")
         msg.post(sender, "enable")
         self.proxy_ready = true
         print("BEBEE_INPUT proxy_loaded owner_focus=1")
     end
-end
-
-function on_input(self, action_id, action)
-    local action_name = input.name(action_id)
-    if action_name and action.pressed then
-        print("BEBEE_INPUT owner " .. action_name .. " pressed")
-    end
-    return false
 end
