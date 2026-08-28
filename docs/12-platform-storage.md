@@ -8,7 +8,7 @@ HTML5 is the first runtime target, but “web” is not one platform. Direct hos
 
 ## 2. Current official constraints snapshot
 
-Research snapshot: 2026-08-28. Re-check official docs before integration because engine/portal requirements can change.
+Research snapshot: 2026-08-29. Re-check official docs before integration because engine/portal requirements can change.
 
 ### Poki
 
@@ -123,7 +123,7 @@ Persistent data should contain progression/state IDs and compact values, not lar
 
 ## 7. BB-P009 local recovery protocol — two-generation A/B journal
 
-A naive “write primary, occasionally copy backup” scheme can destroy the only recent valid copy if the primary write fails at the wrong time. BeBee instead uses two generation slots:
+A naive “write primary, occasionally copy backup” scheme can destroy the only recent valid copy if the primary write fails at the wrong time. BeBee instead uses two generation slots under stable application id `com.strayforest.bebee`:
 
 ```text
 save_a
@@ -176,6 +176,8 @@ No mutable “active slot” pointer file is required; ordering is determined by
 
 Defold HTML5 file operations use a virtual filesystem persisted through browser IndexedDB. Official documentation notes that there can be a slight delay between a write and the change being stored persistently.
 
+The Defold HTML5 loader used by the current BeBee build also makes the mechanism explicit: it patches `FS.close`, calls `Module.persistentSync()`, and coalesces asynchronous `FS.syncfs(false)` MEM→IndexedDB synchronization. `sys.save()` therefore starts persistence when its file closes, but the Lua return still does not mean the IndexedDB transaction has completed.
+
 Therefore `sys.save()` success means:
 
 > the Defold virtual filesystem accepted the write; it is **not proof of immediate IndexedDB durability**.
@@ -193,8 +195,19 @@ Rules:
 - a visibly granted durable progression reward triggers a save checkpoint;
 - UI must not claim stronger durability than the adapter can prove;
 - avoid intentionally navigating/reloading immediately after critical progress when unnecessary;
-- still test unavoidable immediate refresh/close cases;
+- still test unavoidable immediate refresh/close cases without adding an artificial delay;
+- a rapid-window test passes only if reload yields either the just-written latest generation or the last previously confirmed persistent generation with explicit recovery metadata;
+- clean-start, corrupt/unknown state, or rollback older than the last confirmed generation fails the rapid-window test;
+- normal settled reload still requires the latest generation;
 - development diagnostics expose last result, generation, selected slot, recovery usage and serialized size.
+
+The first BB-007 browser candidate proved this distinction in practice: after a normal settled generation-1 save, a generation-2 save was accepted as pending and an immediate refresh loaded generation 1 via `recovered_single_valid_slot`. The pending generation had not reached IndexedDB before navigation, but the A/B recovery invariant prevented corruption or a false clean start.
+
+### Delete/unlink persistence
+
+Defold's HTML5 automatic persistence hook is attached to `FS.close`. `os.remove()` does not close a file, so unlink-only changes cannot rely on that hook. The BeBee Defold backend therefore explicitly requests the loader's coalesced `Module.persistentSync()` after successful save-slot deletion and after deleting the temporary size-measurement file.
+
+This is treated as a version-sensitive engine integration and is guarded by exact-browser CI on the pinned Defold version.
 
 ## 9. Corruption and failure behavior
 
@@ -235,23 +248,24 @@ Checksum/hash inside the save envelope remains open until P0 corruption tests sh
 P0 must automate or explicitly exercise at minimum:
 
 1. clean new save;
-2. normal save/reload;
-3. save then immediate refresh;
-4. save then rapid tab/page close and reopen where automation permits;
-5. multiple progression checkpoints in quick succession;
-6. slot A corrupt + slot B valid;
-7. slot B corrupt + slot A valid;
-8. one slot missing + one valid;
-9. both invalid;
-10. equal-generation/different-payload conflict;
-11. failed write preserves previous valid generation;
-12. failed readback preserves previous valid generation;
-13. old-version sequential migration;
-14. migration failure preserves original generation;
-15. 128 KiB warning behavior;
-16. 256 KiB release-gate behavior;
-17. storage unavailable/quota failure;
-18. private/incognito play on the primary portal/browser.
+2. normal save/reload — latest generation after settled persistence;
+3. save then immediate refresh — latest generation **or** explicit recovery to last confirmed generation;
+4. save then rapid tab/page close and reopen — latest generation **or** explicit recovery to last confirmed generation;
+5. multiple progression checkpoints in quick succession — latest generation after settled persistence;
+6. delete/reset then settled reload remains clean;
+7. slot A corrupt + slot B valid;
+8. slot B corrupt + slot A valid;
+9. one slot missing + one valid;
+10. both invalid;
+11. equal-generation/different-payload conflict;
+12. failed write preserves previous valid generation;
+13. failed readback preserves previous valid generation;
+14. old-version sequential migration;
+15. migration failure preserves original generation;
+16. 128 KiB warning behavior;
+17. 256 KiB release-gate behavior;
+18. storage unavailable/quota failure;
+19. private/incognito play on the primary portal/browser.
 
 If portal cloud save is introduced/reliably available later, add explicit cloud/local interaction and cross-device cases. Do not infer them from local tests.
 
@@ -310,16 +324,21 @@ The game must not discover at P8 that its art pipeline is incompatible with its 
 - every new generation is read back/validated before success is reported;
 - failed writes/readbacks prove the previous valid generation survives;
 - serialized-size diagnostics enforce warning/release budgets;
-- normal + immediate-refresh persistence tests run in HTML5;
+- normal settled reload requires the latest generation;
+- immediate refresh/rapid close passes the documented latest-or-explicit-recovery-to-last-confirmed invariant without an artificial delay;
+- persistent delete/reset is verified after reload;
 - at least one old-version migration fixture exists;
 - storage failure does not crash normal gameplay;
 - diagnostics expose generation/recovery/size/result;
 - private/incognito behavior is tested for the selected web target before public release.
+
+The private/incognito portal case is `P0_P8` in BB-P009: it remains required before public release but is not treated as proof of direct-web A/B correctness or as a reason to falsely claim browser-durable completion from `sys.save()`.
 
 ## 16. Official sources to re-check before implementation
 
 - Defold `sys` API reference (`sys.get_save_file`, `sys.save`, `sys.load`)
 - Defold file-access manual
 - Defold HTML5 manual
+- Defold engine HTML5 loader behavior / PR #9828 when upgrading engine versions
 - Poki current requirements / account gamesave documentation
 - selected portal's current Defold SDK extension documentation

@@ -11,6 +11,29 @@ local function empty_table(value)
     return type(value) == "table" and next(value) == nil
 end
 
+local function request_html5_persistence_sync()
+    if html5 == nil or html5.run == nil then
+        return { requested = false, status = "not_html5" }
+    end
+
+    local ok, result = pcall(html5.run, [[
+        (() => {
+            if (typeof Module === "undefined") return "module_unavailable";
+            if (Module.persistentStorage !== true) return "persistent_storage_unavailable";
+            if (typeof Module.persistentSync !== "function") return "persistent_sync_unavailable";
+            Module.persistentSync();
+            return Module._syncInProgress === true ? "requested_in_progress" : "requested";
+        })()
+    ]])
+    if not ok then
+        return { requested = false, status = "sync_request_error", error = tostring(result) }
+    end
+    return {
+        requested = result == "requested" or result == "requested_in_progress",
+        status = tostring(result),
+    }
+end
+
 function M.new(options)
     options = options or {}
     local application_id = options.application_id
@@ -65,6 +88,9 @@ function M.new(options)
                 path = path,
             }
         end
+        -- Defold HTML5 patches FS.close to call Module.persistentSync(), so
+        -- sys.save already starts MEM->IndexedDB synchronization. The adapter
+        -- intentionally still reports browser durability as pending.
         return { ok = true, path = path }
     end
 
@@ -86,7 +112,26 @@ function M.new(options)
                 path = path,
             }
         end
-        return { ok = true, missing = false, path = path }
+        -- Unlike sys.save, os.remove() does not close a file and therefore does
+        -- not hit Defold's HTML5 FS.close persistence hook. Explicitly request
+        -- the same coalesced sync after a successful unlink so a reset cannot
+        -- silently resurrect deleted slots on a later reload.
+        local sync = request_html5_persistence_sync()
+        return {
+            ok = true,
+            missing = false,
+            path = path,
+            persistence_sync_requested = sync.requested,
+            persistence_sync_status = sync.status,
+        }
+    end
+
+    local function remove_measure_file(path)
+        local ok, removed = pcall(os.remove, path)
+        if ok and removed then
+            return request_html5_persistence_sync()
+        end
+        return { requested = false, status = "measure_cleanup_not_removed" }
     end
 
     function backend.measure(value)
@@ -97,7 +142,7 @@ function M.new(options)
 
         local save_ok, save_result = pcall(sys.save, path, value)
         if not save_ok or save_result == false then
-            pcall(os.remove, path)
+            remove_measure_file(path)
             return {
                 ok = false,
                 code = "serialize_error",
@@ -108,7 +153,7 @@ function M.new(options)
 
         local file, open_error = io.open(path, "rb")
         if not file then
-            pcall(os.remove, path)
+            remove_measure_file(path)
             return {
                 ok = false,
                 code = "measure_read_error",
@@ -118,7 +163,7 @@ function M.new(options)
         end
         local size, seek_error = file:seek("end")
         file:close()
-        pcall(os.remove, path)
+        local cleanup_sync = remove_measure_file(path)
         if type(size) ~= "number" then
             return {
                 ok = false,
@@ -127,7 +172,13 @@ function M.new(options)
                 path = path,
             }
         end
-        return { ok = true, bytes = size, path = path }
+        return {
+            ok = true,
+            bytes = size,
+            path = path,
+            cleanup_sync_requested = cleanup_sync.requested,
+            cleanup_sync_status = cleanup_sync.status,
+        }
     end
 
     function backend.debug_write_raw(slot, bytes)

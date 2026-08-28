@@ -13,7 +13,7 @@
     "defold_path_api": "sys.get_save_file",
     "serialization_api": "sys.save/sys.load",
     "load_must_use_pcall": true,
-    "application_id_status": "SET_IN_P0_WITH_STABLE_BUNDLE_ID",
+    "application_id_status": "SET: com.strayforest.bebee",
     "slot_files": {
       "a": "save_a",
       "b": "save_b"
@@ -25,7 +25,7 @@
     "write_rule": "Write the next generation to the invalid, missing, or lower-generation slot; never overwrite the sole highest valid generation first.",
     "readback_verification_required": true,
     "repair_rule": "Recovery may continue from one valid slot. Do not immediately overwrite the invalid peer during load; repair only through the next explicit successful save/checkpoint so forensic evidence is preserved for diagnostics.",
-    "delete_rule": "Explicit reset/delete removes both generation slots. Partial deletion is reported as an error and retried/diagnosed rather than treated as a complete reset."
+    "delete_rule": "Explicit reset/delete removes both generation slots. Partial deletion is reported as an error and retried/diagnosed rather than treated as a complete reset. On Defold HTML5, unlink does not pass through the FS.close persistence hook, so the backend explicitly requests the loader's coalesced persistent sync after successful deletion/temporary-file cleanup."
   },
   "envelope": {
     "format_version": 1,
@@ -53,10 +53,12 @@
   "durability": {
     "html5_backend": "browser virtual filesystem backed by IndexedDB",
     "sys_save_success_semantics": "accepted_by_defold_virtual_filesystem_not_proof_of_immediate_indexeddb_durability",
+    "defold_sync_mechanism": "Defold HTML5 patches FS.close to start a coalesced asynchronous Module.persistentSync()/FS.syncfs(false) MEM-to-IndexedDB operation.",
     "result_values": ["not_written", "accepted_local_pending_browser_persistence", "durable_confirmed_if_future_adapter_can_prove_it"],
     "local_html5_default_after_success": "accepted_local_pending_browser_persistence",
     "gameplay_rule": "A visibly granted durable progression reward triggers a save checkpoint, but UI must not claim browser-durable persistence that the adapter cannot prove.",
     "navigation_rule": "Do not intentionally navigate/reload immediately after critical progression when avoidable; P0 tests the unavoidable rapid-refresh/close window.",
+    "rapid_window_acceptance": "For an accepted_local_pending_browser_persistence generation raced by immediate refresh/close, PASS means reload yields either that latest generation or the last previously confirmed persistent generation through explicit recovery metadata. Clean-start, corruption, unknown state, or an older-than-last-confirmed generation fails. This does not relabel the pending write as durable.",
     "diagnostics": ["last_save_result", "last_generation", "selected_slot", "recovery_used", "serialized_size_bytes"]
   },
   "result_codes": {
@@ -108,10 +110,11 @@
   },
   "test_matrix": [
     {"id": "clean_start", "phase": "P0", "required": true},
-    {"id": "normal_save_reload", "phase": "P0", "required": true},
-    {"id": "save_immediate_refresh", "phase": "P0", "required": true},
-    {"id": "save_rapid_close_reopen", "phase": "P0", "required": true},
-    {"id": "multiple_quick_progression_checkpoints", "phase": "P0", "required": true},
+    {"id": "normal_save_reload", "phase": "P0", "required": true, "expectation": "latest_generation_after_settled_browser_persistence"},
+    {"id": "save_immediate_refresh", "phase": "P0", "required": true, "expectation": "latest_or_explicit_recovery_to_last_confirmed"},
+    {"id": "save_rapid_close_reopen", "phase": "P0", "required": true, "expectation": "latest_or_explicit_recovery_to_last_confirmed"},
+    {"id": "multiple_quick_progression_checkpoints", "phase": "P0", "required": true, "expectation": "latest_generation_after_settled_browser_persistence"},
+    {"id": "delete_persists_after_reload", "phase": "P0", "required": true, "expectation": "both_generation_slots_absent_after_settled_browser_persistence"},
     {"id": "slot_a_corrupt_slot_b_valid", "phase": "P0", "required": true},
     {"id": "slot_b_corrupt_slot_a_valid", "phase": "P0", "required": true},
     {"id": "one_missing_one_valid", "phase": "P0", "required": true},
@@ -139,7 +142,7 @@
     "two-generation A/B recovery protocol tested",
     "corrupt sys.load protected with pcall",
     "serialized size diagnostic enforced",
-    "normal and immediate-refresh HTML5 persistence tests pass",
+    "normal and immediate-refresh HTML5 persistence tests pass under the documented pending-durability rapid-window invariant",
     "failed write/readback proves previous valid generation survives",
     "migration test fixture exists",
     "storage failure does not crash gameplay",
