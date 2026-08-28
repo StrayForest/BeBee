@@ -152,6 +152,10 @@ def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
     bundle_output.mkdir(parents=True, exist_ok=True)
     report_output.parent.mkdir(parents=True, exist_ok=True)
 
+    build_output_arg = str(build_output.relative_to(ROOT))
+    bundle_output_arg = str(bundle_output.relative_to(ROOT))
+    report_output_arg = str(report_output.relative_to(ROOT))
+
     command = [
         "java",
         "-jar",
@@ -168,11 +172,11 @@ def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
         str(mode_config["variant"]),
         "--archive",
         "--output",
-        str(build_output),
+        build_output_arg,
         "--bundle-output",
-        str(bundle_output),
+        bundle_output_arg,
         "--build-report-json",
-        str(report_output),
+        report_output_arg,
         "resolve",
         "build",
         "bundle",
