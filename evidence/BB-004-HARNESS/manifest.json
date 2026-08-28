@@ -65,7 +65,7 @@
     {
       "criterion": "A dedicated non-production Defold test bootstrap executes deterministic Lua suites without changing the production bootstrap.",
       "status": "pass",
-      "evidence": "tests/test.settings overrides only main_collection to tests/test_bootstrap.collectionc; game.project remains unchanged."
+      "evidence": "tests/test.settings overrides only main_collection to app/test_bootstrap.collectionc; game.project and app/bootstrap.collection remain unchanged and do not reference the test bootstrap."
     },
     {
       "criterion": "The data validator rejects duplicate/malformed stable IDs and broken authored cross-references with deterministic diagnostics.",
@@ -94,6 +94,7 @@
   },
   "known_limitations": [
     "The foundation validates catalog structure/references only; domain-specific flower/economy constraints are added with the content systems that own them.",
+    "The Defold test bootstrap collection/game-object descriptors live under app/ so the repository's existing lifecycle-resource classifier treats them as high-risk technical; production game.project/bootstrap do not reference them, and tests/test.settings is the only bootstrap selector.",
     "CI workflow wiring is intentionally a separate process PR so the trusted base classification policy is not weakened or bypassed."
   ]
 }
