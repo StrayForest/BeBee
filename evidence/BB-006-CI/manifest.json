@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-006-CI",
+  "change_class": "process",
+  "problem": "The merged BB-006 runtime/capture harness is not yet executed automatically, so P0 still lacks retained exact-head desktop/mobile visual evidence and cannot prove that release builds hide the QA bridge.",
+  "decision": {
+    "ids": ["T-012", "R-001", "R-014", "R-015", "R-016"],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "extend-html5-ci",
+    "rationale": "Extend the existing unprivileged exact-source HTML5 CI job so the already-built development/release bundles are served by the canonical QA server, captured with pinned Playwright Chromium and retained as a separate visual-qa artifact. Keep the trusted pull_request_target evidence authority unchanged."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-product research is not applicable to CI/governance wiring.",
+    "selected_references": [],
+    "reference_exception": "This process change has no player-facing behavior or quality decision.",
+    "anti_pattern": {
+      "source": "https://docs.github.com/en/actions/reference/events-that-trigger-workflows",
+      "observation": "Executing candidate runtime/browser tooling from the privileged trusted workflow would expand the pull_request_target trust boundary.",
+      "lesson": "Keep Playwright and candidate runtime execution under the existing read-only pull_request/push HTML5 workflow."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://docs.github.com/en/actions/reference/events-that-trigger-workflows",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Candidate-source test/build execution belongs under pull_request/push while pull_request_target has a distinct privileged security model."
+    },
+    {
+      "source": "https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/store-and-share-data-from-a-workflow",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Generated capture/report files can be retained as named workflow artifacts with explicit retention."
+    },
+    {
+      "source": "https://playwright.dev/python/docs/browsers",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Playwright supports installing Chromium and its required operating-system dependencies through the CLI for CI execution."
+    },
+    {
+      "source": "https://playwright.dev/python/docs/library",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "The pinned Python Playwright package and installed Chromium provide the browser automation runtime used by the merged capture runner."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "extend-html5-ci",
+      "disposition": "selected",
+      "reason": "Reuses the exact-source Bob bundles and browser smoke already produced by HTML5 CI, avoiding duplicate builds and keeping one P0 browser artifact contract."
+    },
+    {
+      "id": "new-visual-qa-workflow",
+      "disposition": "rejected",
+      "reason": "A second workflow would rebuild the same HTML5 source, increase drift risk and split browser evidence across independent source executions."
+    },
+    {
+      "id": "trusted-evidence-runtime-execution",
+      "disposition": "rejected",
+      "reason": "The privileged trusted-base governance workflow must validate candidate metadata/policy, not execute candidate runtime or browser code."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Every successful HTML5 CI run executes the merged foundation_probe against desktop_reference and mobile_landscape using pinned Playwright Chromium.",
+      "status": "pass",
+      "evidence": ".github/workflows/defold-runtime-evidence.yml installs tools/visual_qa/requirements.txt plus Playwright Chromium and invokes capture_visual_qa.py for exactly the two BB-006 foundation viewports."
+    },
+    {
+      "criterion": "The visual capture runs against the same exact-source development/release bundles already built by HTML5 CI and uses the canonical local HTTP server.",
+      "status": "pass",
+      "evidence": "The workflow builds once, starts scripts/serve_html5.py over build/html5, then runs BB-005 release/input smoke and BB-006 capture before any artifact upload."
+    },
+    {
+      "criterion": "A successful run retains the machine-readable report, console log and required desktop/mobile PNGs in a dedicated exact-SHA artifact.",
+      "status": "pass",
+      "evidence": "The workflow requires both PNGs and capture-report.json to be non-empty and uploads artifacts/visual-qa/<sha> as visual-qa-<sha> with 14-day retention."
+    },
+    {
+      "criterion": "Trusted PR evidence authority remains separate and unchanged.",
+      "status": "pass",
+      "evidence": "Only the candidate-source HTML5 workflow plus this governance evidence are changed initially; pr-evidence-trusted.yml and policy scripts are not modified."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "The candidate HTML5 CI run must prove two exact repeated captures per viewport, bridge state/seed/build SHA matching, zero page/console errors and release QA absence before closeout.",
+      "Repository standards and Test and data remain independent exact-source checks, while validate-pr-evidence continues to execute trusted-base policy."
+    ],
+    "manual": [],
+    "runtime_errors": "No runtime-success claim is made until the candidate workflow executes; failures in Playwright install, server startup, readiness, provenance, screenshot stability, release isolation or artifact existence fail HTML5 CI rather than being ignored.",
+    "save_data_impact": "none"
+  },
+  "governance": {
+    "trust_boundary_change": "The existing unprivileged pull_request/push HTML5 CI job gains installation/execution of candidate Playwright visual-QA tooling and a new retained visual artifact. The privileged pull_request_target trusted evidence workflow, ruleset authority and policy code are unchanged.",
+    "bypass_analysis": "Candidate branches can edit their own visual capture code/workflow, so the visual artifact is runtime evidence rather than governance authority. Trusted-base validate-pr-evidence continues to classify the candidate diff and require the governance manifest independently. Playwright execution receives only read-only repository contents permission and no secrets/write token.",
+    "rollback": "Remove the Playwright install/capture/upload additions from .github/workflows/defold-runtime-evidence.yml. The merged runtime harness and existing BB-005 playable HTML5 CI remain usable locally; no production gameplay/save state or trusted ruleset depends on the visual artifact step."
+  },
+  "known_limitations": [
+    "BB-006 captures the infrastructure-only foundation_probe; player-facing state fixtures are added by the milestones that own those systems.",
+    "Motion capture and selective visual-regression thresholds remain later BB-P008 scope.",
+    "The visual artifact is retained for CI diagnosis/evidence, not permanent release hosting."
+  ]
+}
