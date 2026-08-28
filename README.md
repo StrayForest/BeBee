@@ -25,9 +25,9 @@ You are a small bee. You fly through compact meadows, pollinate flowers, earn Ho
 
 ## Technology
 
-- Engine: **Defold**
+- Engine: **Defold 1.13.1**, pinned for production bootstrap in `tools/defold/toolchain.json`
 - Gameplay language: **Lua**
-- Runtime target: **HTML5-first**
+- Runtime target: **HTML5-first** (`wasm-web`)
 - Primary external validation/distribution target: **Poki** (`P-001 VALIDATED`)
 - Secondary/fallback portal: **CrazyGames**
 - Owned development/QA target: **direct web**
@@ -111,6 +111,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`config/visual-style.json`](config/visual-style.json) — canonical numeric style tokens
 - [`config/visual-qa.json`](config/visual-qa.json) — deterministic QA-state/capture contract
 - [`config/storage-contract.json`](config/storage-contract.json) — HTML5 persistence/recovery contract
+- [`tools/defold/toolchain.json`](tools/defold/toolchain.json) — pinned Defold/Bob/Java/HTML5 build contract
 
 ### Research/process
 
@@ -120,6 +121,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/15-agent-evidence-governance.md`](docs/15-agent-evidence-governance.md)
 - [`docs/16-ci-trust-boundary.md`](docs/16-ci-trust-boundary.md)
 - [`docs/research/BB-P017-ruleset-closeout.md`](docs/research/BB-P017-ruleset-closeout.md) — P-1 exit / strict ruleset verification
+- [`docs/research/BB-001-defold-bootstrap.md`](docs/research/BB-001-defold-bootstrap.md) — P0 runtime/bootstrap evidence
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -146,7 +148,7 @@ Still open/tunable before downstream milestones lock production values:
 
 The objective-evidence hardening in `BB-P013`–`BB-P017` is in place. `BB-P006` validated Poki as the primary external target, `BB-P007` defined V-001, `BB-P008` defined the deterministic visual-QA runtime contract, and `BB-P009` defined the HTML5 A/B generation storage/recovery contract.
 
-Repository enforcement is also verified: active ruleset `Protect main` requires pull requests and `validate-pr-evidence`, uses strict/up-to-date checks, requires zero approvals, and has no bypass actors. See [`docs/research/BB-P017-ruleset-closeout.md`](docs/research/BB-P017-ruleset-closeout.md) and [`evidence/BB-P017-RULESET-CLOSEOUT/ruleset-snapshot.json`](evidence/BB-P017-RULESET-CLOSEOUT/ruleset-snapshot.json).
+At P-1 closeout, repository enforcement was verified through ruleset `Protect main`: pull requests plus `validate-pr-evidence`, strict/up-to-date checks, zero approvals and no bypass actors. The retained closeout evidence is [`docs/research/BB-P017-ruleset-closeout.md`](docs/research/BB-P017-ruleset-closeout.md) and [`evidence/BB-P017-RULESET-CLOSEOUT/ruleset-snapshot.json`](evidence/BB-P017-RULESET-CLOSEOUT/ruleset-snapshot.json). If enforcement is temporarily disabled for repository maintenance, it must be restored before normal protected development continues.
 
 ## Vertical-slice target
 
@@ -174,10 +176,10 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 ## Current status
 
-**P0 — Foundation is ready to begin. P-1 Blueprint Hardening is complete.**
+**P0 — Foundation is in progress. `BB-001 — Defold bootstrap` is complete.**
 
-P-1 now has validated movement-owned pollination (`D-006`), validated Hybrid seed/restoration topology (`D-005`), validated two-track Flight + Buzz upgrade set (`D-007`), a deterministic no-grind first-region economy envelope, a primary web target, measurable visual/QA contracts, an HTML5 storage/recovery contract, trusted-base evidence governance, and verified strict `main` enforcement (`R-019`).
+BB-001 establishes a minimal `app/` bootstrap, explicit development/release settings and a reproducible editor-independent HTML5 path. The toolchain is pinned to Defold **1.13.1**, OpenJDK **25**, `wasm-web` and the published Bob SHA-256. Exact-head CI successfully built both development and release bundles and rendered the bootstrap in Chromium before merge.
 
-P-1 completion does not claim that runtime tuning is finished. Exact gameplay pacing, Honey values, Flight/Buzz effects, rendered seed-flow comprehension and production visual/storage behavior remain explicit P0–P5 work.
+BB-001 deliberately does not claim input semantics, collection-proxy lifecycle, storage, gameplay, UI or deterministic gameplay QA; those remain later P0 tasks.
 
-**Next production task: `P0 / BB-001 — Defold bootstrap`.**
+**Next production task: `P0 / BB-002 — Repository/tooling standards`.**
