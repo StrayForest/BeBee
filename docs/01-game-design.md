@@ -30,56 +30,32 @@ move/explore
 
 Honey is the only core MVP currency.
 
-## 4. Core interaction — HYPOTHESIS until P-1 validation
+## 4. Core interaction — VALIDATED movement-through / sweep
 
-The original blueprint assumed proximity auto-pollination. That remains a candidate, not a locked rule.
+`BB-P003` compared three controlled variants: proximity auto-pollination, hold-to-pollinate and movement-through/sweep. The result is recorded in `docs/research/BB-P003-pollination-result.md` and `evidence/BB-P003/browser-run-2026-08-28.json`.
 
-`BB-P003` must compare at least:
+The validated default rule is:
 
-### A — Proximity auto-pollination
+> Qualifying movement while the bee is inside a pollinatable flower patch advances pollination. Standing still does not progress the patch, and the default control scheme does not require a separate high-frequency pollination button.
 
-Enter/stay near a patch and progress begins automatically.
+Why this won:
 
-Strengths to test:
+- proximity Auto reproduced the predicted stationary `move -> wait -> move` behavior;
+- Hold restored explicit intent but still allowed stationary completion and added a second touch control;
+- Sweep kept movement as the action that creates progress, reached zero stationary progress in the controlled browser run and required no second pollination action.
 
-- one-control simplicity;
-- strong mobile accessibility;
-- low interaction friction.
+This validates the **interaction pattern**, not the disposable prototype's exact `245 px` work constant.
 
-Risks:
+Production P2 must tune:
 
-- can become “move, wait, move, wait”;
-- weak sense of agency if timing/position does not matter.
+- movement/work target in production world units;
+- forgiving patch bounds/falloff;
+- minimum qualifying movement if needed;
+- incidental fly-through progress;
+- flower difficulty multipliers;
+- accessibility alternatives.
 
-### B — Hold-to-pollinate
-
-Near a patch, hold one semantic interaction action while moving/hovering.
-
-Strengths:
-
-- stronger ownership over action start/stop;
-- explicit feedback relationship.
-
-Risks:
-
-- extra input may add unnecessary friction;
-- touch UI can become cluttered.
-
-### C — Movement-through / sweep pollination
-
-Pollination comes from flying through/around the flower area rather than waiting in one point.
-
-Strengths:
-
-- makes flying itself the verb;
-- potentially more expressive and active.
-
-Risks:
-
-- harder to explain/control;
-- collision/coverage tuning may be fiddly on touch.
-
-The winner becomes `VALIDATED` in `DECISIONS.md` before the permanent FlowerPatch interaction is locked.
+A normal intended-tier patch must not require tiny repetitive circles. A natural pass/loop through the flowers should remain the target feel.
 
 ## 5. Controls
 
@@ -90,14 +66,15 @@ Gameplay consumes semantic actions, not raw device checks.
 Desktop baseline:
 
 - `WASD` / arrows — movement;
-- semantic `interact` only if the validated core verb needs it;
+- no mandatory separate pollination action in the validated default interaction;
 - `Esc` / semantic back — pause/settings.
 
 Touch baseline:
 
-- movement scheme chosen after P-1/P1 research;
-- virtual joystick is a strong candidate, not an immutable UI decision;
-- the pollination action must not require precision tapping on individual flower sprites.
+- movement scheme chosen after P1 movement research;
+- virtual joystick remains a strong candidate, not an immutable UI decision;
+- default pollination is movement-owned and must not require precision tapping on individual flower sprites;
+- any accessibility/alternate pollination input is optional and must not silently replace the validated default.
 
 ## 6. Bee movement
 
@@ -140,6 +117,8 @@ Minimum data:
 - restoration contribution;
 - planted/customization state stored separately when applicable.
 
+The production pollination work unit is data-driven. Do not copy the disposable browser prototype's pixel-distance constant into Defold world data.
+
 ## 8. Difficulty
 
 Difficulty is efficiency/aspiration, not punishment.
@@ -158,16 +137,17 @@ Harder flowers should communicate difficulty through silhouette/state/feedback a
 
 A patch should resolve in seconds, not become a long idle bar.
 
-The exact target duration depends on the validated interaction model. The old 2–10 second ranges are design starting points only.
+The exact target duration remains tunable in P2. The old 2–10 second ranges are design starting points only.
 
 Rules:
 
-- feedback begins quickly after a valid interaction starts;
-- repeated intended-tier interactions must not feel like waiting;
-- progress/reset behavior is selected to support the chosen verb;
+- feedback begins quickly after qualifying movement starts;
+- standing still does not advance pollination;
+- repeated intended-tier interactions must not become forced micro-circling;
+- progress/reset behavior supports movement-through/sweep ownership;
 - no random failure.
 
-If a prototype relies on stationary waiting for long periods, reject or redesign it rather than compensating with more effects.
+If production tuning causes tiny repeated loops inside one patch, change the work/bounds model rather than masking the problem with effects.
 
 ## 10. Honey reward
 
@@ -301,9 +281,9 @@ Exact flower roster and canonical region order live in `04-world-content.md` and
 Before scaling content, answer with evidence:
 
 - Is flying itself pleasant?
-- Is the chosen pollination verb pleasant after many repetitions?
+- Is movement-through pollination pleasant after many repetitions?
 - Does feedback start fast enough?
-- Does a harder flower create aspiration rather than waiting?
+- Does a harder flower create aspiration rather than forced micro-circling?
 - Does upgrading visibly change experience?
 - Do seeds feel like ownership during restoration?
 - Can customization spending ever create grind?
