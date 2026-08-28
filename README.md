@@ -127,6 +127,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/research/BB-001-defold-bootstrap.md`](docs/research/BB-001-defold-bootstrap.md) — P0 runtime/bootstrap evidence
 - [`docs/research/BB-002-repository-tooling.md`](docs/research/BB-002-repository-tooling.md) — P0 repository/tooling evidence and alternatives
 - [`docs/research/BB-003-input-proxy-focus.md`](docs/research/BB-003-input-proxy-focus.md) — P0 semantic input, proxy-focus and modal-consumption proof
+- [`docs/research/BB-004-test-data-harness.md`](docs/research/BB-004-test-data-harness.md) — P0 deterministic test/data harness evidence and alternatives
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -181,7 +182,7 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 ## Current status
 
-**P0 — Foundation is in progress. `BB-001 — Defold bootstrap`, `BB-002 — Repository/tooling standards` and `BB-003 — Input and proxy-focus proof` are complete.**
+**P0 — Foundation is in progress. `BB-001 — Defold bootstrap`, `BB-002 — Repository/tooling standards`, `BB-003 — Input and proxy-focus proof` and `BB-004 — Test/data harness` are complete.**
 
 BB-001 establishes a minimal `app/` bootstrap, explicit development/release settings and a reproducible editor-independent HTML5 path. The toolchain is pinned to Defold **1.13.1**, OpenJDK **25**, `wasm-web` and the published Bob SHA-256. Exact-head CI successfully built both development and release bundles and rendered the bootstrap in Chromium before merge.
 
@@ -189,4 +190,6 @@ BB-002 adds Defold-aware generated-file rules, explicit text/Lua conventions, ca
 
 BB-003 replaces the empty binding with device-independent semantic actions, proves keyboard and HTML5 single-touch/pointer paths, explicitly owns collection-proxy input focus, and retains an exact-head Chromium proof that unconsumed actions traverse the proxy world while an open modal consumes them before proxied gameplay and lower main-world listeners. `T-010` remains a hypothesis because proxy memory/full lifecycle are still unproven, and final touch movement UX remains a later player-facing decision.
 
-**Next production task: `P0 / BB-004 — Test/data harness`.**
+BB-004 adds a dependency-free deterministic Lua test runner, a dedicated Defold headless test bootstrap, a canonical content catalog plus stable-ID/reference validation, and 11 initial deterministic cases covering input semantics and data-validation success/failure paths. The editor-independent runner verifies the pinned Bob/Java toolchain, requires a structured suite completion event, propagates failures through process exit status and retains diagnostic output. GitHub Actions runs the same command on PRs and `main` with read-only permissions; BB-005 remains responsible for the broader playable HTML5 artifact contract.
+
+**Next production task: `P0 / BB-005 — HTML5 CI`.**
