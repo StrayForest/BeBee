@@ -33,3 +33,6 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: python3 scripts/check_pr_evidence_policy.py
+
+      - name: One-time migration ordering guard
+        run: sleep 20
