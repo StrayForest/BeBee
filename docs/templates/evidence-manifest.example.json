@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-XXX",
+  "change_class": "player-facing",
+  "problem": "Describe the exact player/system problem in observable terms.",
+  "decision": {
+    "ids": ["D-XXX"],
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "EXPERIMENT_RESULT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "variant-b",
+    "rationale": "Explain the evidence chain without relying on popularity or taste alone."
+  },
+  "research": {
+    "candidate_pool": [
+      {"name": "Game A", "source": "https://example.com/a", "relevance": "Why it is a plausible candidate"},
+      {"name": "Game B", "source": "https://example.com/b", "relevance": "Why it is a plausible candidate"},
+      {"name": "Game C", "source": "https://example.com/c", "relevance": "Why it is a plausible candidate"},
+      {"name": "Game D", "source": "https://example.com/d", "relevance": "Why it is a plausible candidate"},
+      {"name": "Game E", "source": "https://example.com/e", "relevance": "Why it is a plausible candidate"}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {
+        "name": "Game A / exact feature",
+        "source": "https://example.com/a-feature",
+        "platform_version_date": "web / observed 2026-08-28",
+        "selection_reason": "Solves the same interaction problem under similar constraints.",
+        "observed_behavior": "Directly observed behavior only.",
+        "inference": "Separate interpretation from observation.",
+        "measurements": {
+          "actions_to_result": 1,
+          "feedback_latency_ms": 150,
+          "stationary_wait_seconds": 0
+        }
+      },
+      {
+        "name": "Game B / exact feature",
+        "source": "https://example.com/b-feature",
+        "platform_version_date": "web / observed 2026-08-28",
+        "selection_reason": "Uses a materially different solution to the same problem.",
+        "observed_behavior": "Directly observed behavior only.",
+        "inference": "Separate interpretation from observation.",
+        "measurements": {
+          "actions_to_result": 0,
+          "feedback_latency_ms": 100,
+          "stationary_wait_seconds": 2.5
+        }
+      }
+    ],
+    "reference_exception": "",
+    "anti_pattern": {
+      "source": "https://example.com/anti-pattern",
+      "observation": "Describe a relevant failure mode or materially different pattern.",
+      "lesson": "What BeBee should avoid or test rather than assume."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/...",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Exact documented API/engine constraint relevant to this implementation."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "variant-a",
+      "disposition": "rejected",
+      "reason": "Evidence-backed rejection reason."
+    },
+    {
+      "id": "variant-b",
+      "disposition": "selected",
+      "reason": "Evidence-backed selection reason."
+    },
+    {
+      "id": "variant-c",
+      "disposition": "rejected",
+      "reason": "Evidence-backed rejection reason."
+    }
+  ],
+  "acceptance_criteria": [
+    {"criterion": "Observable criterion one", "status": "pass", "evidence": "test/artifact/measurement"},
+    {"criterion": "Observable criterion two", "status": "pass", "evidence": "test/artifact/measurement"}
+  ],
+  "verification": {
+    "automated": ["command/result or CI check"],
+    "manual": ["runtime case checked"],
+    "runtime_errors": "none observed",
+    "save_data_impact": "none or explicit migration result"
+  },
+  "visual_evidence": {
+    "required": true,
+    "artifacts": ["artifact-name-or-PR-link"],
+    "states": ["idle", "active", "complete", "locked"],
+    "viewports": ["1440x900", "390x844"],
+    "motion_evidence": ["video-or-frame-sequence-artifact"]
+  },
+  "comparison": {
+    "measurements": {
+      "actions_to_result": 1,
+      "feedback_latency_ms": 120,
+      "persistent_hud_items": 2,
+      "instruction_lines": 0
+    },
+    "subjective_scores": {
+      "objective_clarity": {"score": 4, "note": "Concrete reason for the score."},
+      "state_readability": {"score": 4, "note": "Concrete reason for the score."},
+      "feedback_quality": {"score": 4, "note": "Concrete reason for the score."}
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "review_input": ["problem", "acceptance criteria", "reference observations", "rendered evidence", "measurements"],
+    "findings": ["Finding with severity or 'none'"],
+    "verdict": "PASS",
+    "iteration_required": false
+  },
+  "known_limitations": ["None, or explicit limitation"]
+}
