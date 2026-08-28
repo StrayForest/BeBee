@@ -1,6 +1,6 @@
 # 18 — Deterministic Visual QA
 
-Status: **BB-P008 design VALIDATED**. Runtime implementation belongs to P0/`BB-006`.
+Status: **BB-P008 design VALIDATED; P0 / BB-006 runtime foundation IMPLEMENTED.**
 
 Canonical machine-readable contract: [`config/visual-qa.json`](../config/visual-qa.json).
 
@@ -93,6 +93,8 @@ The initial P0 registry contains 15 states covering the evidence classes already
 
 The exact state-to-viewport matrix and observable assertions live in `config/visual-qa.json`. Adding a player-facing system normally adds or updates a QA fixture rather than creating an ad-hoc screenshot script.
 
+BB-006 implements only the minimum technical `movement_empty` fixture required to prove the pipeline. That fixture does not yet satisfy future P1 player-facing assertions such as the real bee being visible; P1 owns that scene/content upgrade.
+
 ## 6. Viewports
 
 BB-P008 consumes V-001 rather than duplicating independent dimensions.
@@ -111,11 +113,11 @@ These dimensions are synchronized by `tools/visual_qa/check_visual_qa_plan.py` a
 
 ## 7. Capture pipeline required in P0
 
-The intended exact-head flow is:
+The implemented exact-head flow is:
 
 ```text
 checkout exact PR head
- -> Bob builds one HTML5 bundle
+ -> Bob builds development + release HTML5 bundles with embedded source SHA
  -> hash bundle/provenance
  -> serve locally over HTTP
  -> launch pinned Playwright Chromium
@@ -124,10 +126,12 @@ checkout exact PR head
  -> navigate to ?qa=<state>&qa_seed=<seed>
  -> wait for engineReady + captureReady
  -> assert stateId + seed + buildCommitSha
- -> collect console/page errors
- -> capture PNG and required motion evidence
+ -> collect HTTP/request/console/page errors
+ -> capture PNG
+ -> repeat in a fresh BrowserContext and require identical hash/frame
+ -> adversarially probe release with and without QA query parameters
  -> hash captures
- -> write capture-report.json
+ -> write capture-report.json + console.log
  -> retain CI artifact
 ```
 
@@ -184,9 +188,10 @@ Capture fails rather than silently falling back when:
 - state, seed or build SHA does not match the request;
 - required still/motion evidence is absent;
 - capture dimensions differ from the configured viewport;
+- repeated unchanged captures disagree;
 - hashes disagree with the report;
-- unexpected page/console errors occur;
-- a release bundle exposes the QA bridge or accepts QA state injection.
+- unexpected HTTP/request/page/console errors occur;
+- a release bundle exposes the QA bridge or responds to QA state injection.
 
 After P0, a substantial player-facing PR declares its affected QA states. Missing required exact-head artifacts becomes a merge failure where the repository can enforce it.
 
@@ -198,11 +203,13 @@ P0 first proves stable repeated capture. Later, stable surfaces such as HUD or l
 
 ## 11. Current official technical basis
 
-Checked 2026-08-28:
+Checked 2026-08-29:
 
 - Defold automated testing: https://defold.com/manuals/automated-testing/
 - Defold Bob: https://defold.com/manuals/bob/
 - Defold HTML5: https://defold.com/manuals/html5/
+- Defold HTML5 Lua API: https://defold.com/ref/stable/html5-lua/
+- Defold project settings: https://defold.com/manuals/project-settings/
 - Playwright isolation: https://playwright.dev/docs/browser-contexts
 
 Current relevant constraints:
@@ -210,20 +217,44 @@ Current relevant constraints:
 - Defold distinguishes build evidence from runtime/browser evidence;
 - browser automation can resize viewport, collect console/JavaScript errors and capture screenshots;
 - an explicit JS testing bridge is the recommended reliable browser-test boundary;
-- Bob supports command-line CI bundling for `wasm-web`;
+- Bob supports command-line CI bundling for `wasm-web` and multiple ordered settings files;
 - HTML5 testing requires HTTP serving and correct `.wasm` MIME handling;
 - Playwright BrowserContexts provide isolated clean-slate browser sessions.
 
-## 12. P0 implementation acceptance
+## 12. BB-006 runtime proof
 
-`BB-006` cannot claim the visual-QA foundation complete until:
+Exact candidate `997d9a12465f01bb71de6adba5bbe6290c7caf72` passed HTML5 CI run `33214094696`.
 
-- a real Defold HTML5 bundle exposes the dev-only QA bridge;
-- at least one deterministic state is captured at desktop and mobile-landscape sizes;
-- repeated runs of that unchanged state are stable enough to support later regression work;
-- exact-head SHA and artifact hashes are present in the report;
-- browser console/page errors are captured;
-- CI retains the playable build and visual evidence;
-- a release build proves the QA injection/bridge is absent.
+Observed retained proof:
 
-Until then BB-P008 is a validated **implementation contract**, not evidence that runtime capture already exists.
+- Defold `1.13.1`;
+- Chromium `151.0.7922.34`;
+- QA state `movement_empty`, seed `88008`, `simulationFrame=2`;
+- embedded runtime `buildCommitSha` matched the exact candidate;
+- desktop `1280×720` capture SHA-256 `c0899c9a375828992b3c78363b13b699c455d9a4366c861dc3555ae83a46de3a`;
+- second isolated desktop capture produced the same hash;
+- mobile-landscape `844×390` capture SHA-256 `a10aaefb247a47d6044c3dc6c66dc3ece8b974e16ebaa170d2c0b269be5d6c5d`;
+- second isolated mobile capture produced the same hash;
+- both required captures recorded zero actionable console/page errors;
+- release exposed no `window.__bebeeQA` in plain or QA-query contexts;
+- plain release and QA-query release captures both hashed to `7a5175f59992a07616d58b06a310b2a3909c43df6d406a736ef54995563a09ed`;
+- retained visual artifact: `9702710185`, digest `sha256:884a1d62dff6641a0859887e18203e3afe41e032831921a1610b2facd7e8a0cb`.
+
+The retained desktop/mobile PNGs were opened and visually inspected. They show the expected P0 technical bootstrap: a black Defold canvas plus development footer. No bee/game content is present, so these frames prove the capture/crop/provenance pipeline only; they are not accepted as P1 movement-quality evidence.
+
+Repository standards run `33214094704` and Test/data run `33214094702` also passed on that exact candidate. The final closeout head must repeat the full candidate/trusted gate set before merge.
+
+## 13. P0 implementation acceptance
+
+The BB-006 implementation foundation is accepted when the final merge head repeats:
+
+- a real Defold HTML5 development bundle exposing the dev-only QA bridge;
+- deterministic `movement_empty` capture at desktop and mobile-landscape sizes;
+- exact repeated capture hash/frame equality in clean BrowserContexts;
+- exact-head SHA, bundle, browser and capture hashes in the report;
+- retained browser console/page/error evidence;
+- retained playable build and visual evidence artifacts;
+- release proof that QA injection/bridge is absent;
+- repository standards, Test/data and trusted-base evidence validation.
+
+BB-006 satisfies the technical implementation contract. Later milestones still own the real state content and player-facing visual assertions for each canonical fixture.
