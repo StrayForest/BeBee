@@ -1,0 +1,17 @@
+[project]
+title = BeBee
+version = 0.0.1
+
+[bootstrap]
+main_collection = /app/bootstrap.collectionc
+
+[display]
+width = 1280
+height = 720
+high_dpi = 1
+
+[html5]
+scale_mode = stretch
+wasm_streaming = 1
+show_fullscreen_button = 0
+show_made_with_defold = 0
