@@ -1,126 +1,157 @@
 # Feature Research Template
 
-Use this for substantial gameplay, UX/UI, economy, input, rendering, save, platform or performance work.
+Use for substantial gameplay, UX/UI, economy, input, rendering, save, platform or performance work.
 
 ## Task
 
 - Ticket:
 - Feature/problem:
 - Player/system outcome:
+- Relevant decision IDs from `DECISIONS.md`:
+- Current status (`LOCKED` / `VALIDATED` / `HYPOTHESIS` / `OPEN`):
 
-## 1. Comparable shipped references
+## 1. Problem definition
+
+- What is the player/system trying to accomplish?
+- What friction/uncertainty exists now?
+- What observable behavior means the problem is solved?
+- What is intentionally out of scope?
+
+## 2. Comparable shipped references
 
 ### Reference A
 - Game / feature:
-- Platform/version if relevant:
+- Platform/version/date if relevant:
 - Source/link:
-- What was observed:
+- Directly observed behavior:
+- Measurable notes (actions/timing/HUD/state/etc.):
 - Useful pattern:
 - What must not be copied:
 
 ### Reference B
 - Game / feature:
-- Platform/version if relevant:
+- Platform/version/date if relevant:
 - Source/link:
-- What was observed:
+- Directly observed behavior:
+- Measurable notes:
 - Useful pattern:
 - What must not be copied:
 
 If only one meaningful reference exists, explain why.
 
-## 2. Official technical documentation
+Do not use only one developer's catalog when a different game solves the exact problem better.
+
+## 3. Official technical documentation
 
 - Official source 1:
 - Official source 2:
 - Relevant constraints/API behavior:
-- Version-sensitive details:
+- Version/date-sensitive details:
+- Error/lifecycle cases to test:
 
-## 3. BeBee decision
+## 4. BeBee decision
 
 - Pattern adopted:
 - Intentional deviations from references:
-- Why this is appropriate for BeBee:
+- Why this fits BeBee:
+- Decision status after this work should become:
+- `DECISIONS.md` update required? yes/no
 
-## 4. Acceptance criteria
+## 5. Acceptance criteria
 
 - [ ]
 - [ ]
 - [ ]
 
-## 5. Technical plan
+## 6. Technical plan
 
 - Modules/files affected:
 - Data model impact:
 - Save/migration impact:
 - Analytics impact:
-- Performance risks:
+- Platform/SDK impact:
+- Performance/load risks:
 - Accessibility/input considerations:
+- Dependency/license impact:
 
-## 6. Verification plan
+## 7. Verification plan
 
 ### Automated
 - [ ] unit/data tests
 - [ ] HTML5 build
-- [ ] migration tests if relevant
+- [ ] migration/storage tests if relevant
+- [ ] economy simulation if relevant
+- [ ] deterministic visual state/capture if relevant
 
-### Manual
+### Manual/runtime
 - [ ] keyboard path if relevant
 - [ ] touch path if relevant
 - [ ] save/reload if relevant
 - [ ] blocked/error state if relevant
+- [ ] browser console/runtime errors checked
+- [ ] selected portal/device-specific case if relevant
 
-## 7. Visual QA plan
+## 8. Visual QA plan
 
-Required for player-facing work.
+Required for player-facing work. Follow `docs/13-visual-qa-scorecard.md`.
 
 Capture states:
-- [ ] before interaction
+- [ ] idle/before
 - [ ] active interaction
-- [ ] completed/reward state
-- [ ] locked/error state if relevant
-- [ ] mobile/narrow layout if relevant
+- [ ] completed/reward
+- [ ] locked/error if relevant
+- [ ] dense/worst case if relevant
+- [ ] mobile/portal layout if relevant
+- [ ] video/frame sequence for motion/timing when relevant
 
-Default comparison viewports where relevant:
+Development defaults until portal-specific sizes are selected:
 - desktop: 1440x900
 - mobile portrait: 390x844
 
-## 8. Post-implementation comparison
+## 9. Post-implementation comparison
 
-### Hierarchy
-- Result:
-- Notes:
+| Criterion | Reference A | Reference B | BeBee | Finding |
+|---|---:|---:|---:|---|
+| Actions to primary result | | | | |
+| Time to first feedback | | | | |
+| Persistent HUD count | | | | |
+| Objective clarity (1–5) | | | | |
+| State readability (1–5) | | | | |
+| Feedback quality (1–5) | | | | |
+| Mobile comfort (1–5) | | | | |
+| World transformation (1–5) | | | | |
+| Original BeBee expression (1–5) | n/a | n/a | | |
 
-### Simplicity / number of actions
-- Result:
-- Notes:
+Mark non-applicable rows rather than inventing measurements.
 
-### Readability
-- Result:
-- Notes:
+### Qualitative notes
 
-### Feedback / timing
-- Result:
-- Notes:
+- Hierarchy:
+- Simplicity/action cost:
+- Readability:
+- Feedback/timing:
+- Playfield obstruction:
+- Mobile/platform behavior:
+- Original BeBee expression:
 
-### Mobile layout
-- Result:
-- Notes:
-
-### Original BeBee expression
-- Result:
-- Notes:
-
-## 9. Conclusion
+## 10. Conclusion
 
 Choose one:
 
-- [ ] PASS — at or above reference quality for the target problem
-- [ ] PASS WITH DEVIATION — intentionally different; explained above
-- [ ] ITERATE — feature is not ready to merge
+- [ ] PASS — problem solved with no meaningful reference-quality gap
+- [ ] PASS WITH DEVIATION — intentionally different and evidence-backed
+- [ ] ITERATE — not ready to merge
 
-## 10. Evidence
+For P2/P4/P6 milestone gates:
+
+- Human approval required? yes/no
+- Human approval evidence/link:
+
+## 11. Evidence
 
 - BeBee screenshots/video:
 - Reference links/captures used during research:
 - Test/build evidence:
+- Simulation/profile evidence:
 - Known limitations:
+- Follow-up tickets:
