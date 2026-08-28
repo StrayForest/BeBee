@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-001-RUNTIME-EVIDENCE",
+  "change_class": "process",
+  "problem": "The trusted diff policy classifies Defold collection/game-object/script bootstrap resources as player-facing and therefore requires exact-head rendered evidence, but the repository has no runtime evidence workflow before P0 begins. Adding that workflow in the same runtime PR would itself be a governance-critical change and force an incompatible process classification.",
+  "decision": {
+    "ids": ["R-014", "R-016"],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "separate-read-only-evidence-runner",
+    "rationale": "Add a narrowly scoped pull_request workflow in its own process-only PR. It checks out the exact PR head with read-only permissions, builds through the repository's pinned Defold build tool, captures a browser frame and retains the runtime files without changing the required trusted validator or main ruleset."
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/bob/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Bob is the supported command-line builder; current Bob requires OpenJDK 25, supports debug/release variants, settings overlays, wasm-web and explicit bundle-output."
+    },
+    {
+      "source": "https://defold.com/manuals/automated-testing/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold recommends Bob for editor-independent CI and documents archive/build/bundle automation as a verification path."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "separate-read-only-evidence-runner",
+      "disposition": "selected",
+      "reason": "Preserves the existing trusted pull_request_target boundary while giving later runtime PRs a real exact-head HTML5 artifact and screenshot source."
+    },
+    {
+      "id": "add-workflow-inside-bb001-runtime-pr",
+      "disposition": "rejected",
+      "reason": "The trusted governance classifier requires any workflow-changing PR to use process class, while the BB-001 runtime files require player-facing classification; combining them cannot satisfy both policies."
+    },
+    {
+      "id": "declare-visual-evidence-without-executing-runtime",
+      "disposition": "rejected",
+      "reason": "Would violate R-008/R-014 by substituting prose or synthetic evidence for an observed exact-head rendered result."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "The runner executes candidate runtime code only under pull_request with contents:read and no repository-write or secret permissions.",
+      "status": "pass",
+      "evidence": ".github/workflows/defold-runtime-evidence.yml declares pull_request and permissions.contents=read; checkout disables persisted credentials."
+    },
+    {
+      "criterion": "The runner binds evidence to github.event.pull_request.head.sha and retains both HTML5 bundles plus a 1280x720 browser capture.",
+      "status": "pass",
+      "evidence": "Workflow checks out the exact head SHA, writes head-sha.txt, captures bootstrap-1280x720.png and uploads development/release bundles with a SHA-keyed artifact name."
+    },
+    {
+      "criterion": "The new workflow does not modify the existing required validate-pr-evidence trust path or main ruleset.",
+      "status": "pass",
+      "evidence": "Diff adds a separate non-required workflow and this manifest only; .github/workflows/pr-evidence-trusted.yml, policy scripts and ruleset configuration are unchanged."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Trusted-base validate-pr-evidence will classify and validate this process PR before merge."
+    ],
+    "manual": [
+      "Static workflow review confirms exact-head checkout, read-only permissions, pinned action commits, pinned-JDK setup and SHA-keyed retained artifact naming."
+    ],
+    "runtime_errors": "Not applicable to this process-only prerequisite PR; the first runtime execution is intentionally triggered by the following BB-001 runtime diff.",
+    "save_data_impact": "none"
+  },
+  "governance": {
+    "trust_boundary_change": "Adds a separate non-required pull_request evidence runner that executes candidate runtime code with contents:read only. It does not alter the pull_request_target trusted validator, required status context, policy source, branch ruleset, approvals or bypass actors.",
+    "bypass_analysis": "The new job cannot satisfy or replace validate-pr-evidence, has no write permission or secrets, checks out the exact candidate head only for runtime evidence, and does not execute in the privileged pull_request_target context. Candidate changes therefore cannot use this workflow to rewrite trusted policy or bypass the required ruleset check.",
+    "rollback": "Delete .github/workflows/defold-runtime-evidence.yml in a process-class governance PR. The existing required validate-pr-evidence workflow and main ruleset continue functioning independently."
+  },
+  "known_limitations": [
+    "The workflow is intentionally non-required until the later P0 CI milestone decides which runtime checks belong in the protected required set.",
+    "End-to-end execution is deferred to the first matching runtime PR because this process-only PR does not contain game.project or Defold runtime paths."
+  ]
+}
