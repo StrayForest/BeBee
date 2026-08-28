@@ -42,6 +42,16 @@ If license status is unclear, commercial use is not allowed, redistribution requ
 - Redistribution: allowed; BeBee does not currently redistribute `bob.jar`
 - Compliance note: review Defold tool licenses whenever the pinned engine/tool version changes.
 
+### Playwright for Python
+
+- Source: https://pypi.org/project/playwright/1.62.0/
+- Version: `1.62.0`
+- Role: development/CI-only browser automation for deterministic visual-QA capture
+- License: Apache License 2.0 — https://github.com/microsoft/playwright-python/blob/main/LICENSE
+- Commercial use: allowed under the license
+- Redistribution: allowed under Apache-2.0; BeBee does not ship Playwright in game runtime bundles
+- Compliance note: keep the version pinned in `tools/visual_qa/requirements.txt`; review package/browser license implications when upgrading.
+
 ## Defold library dependency rule
 
 Any future `game.project` dependency must have a matching `kind: "defold-library"` entry in `config/dependencies.json`, including its exact library URL, pinned version/commit/tag, license source, commercial-use decision, redistribution decision, attribution and review date. The repository standards validator rejects an unregistered Defold library URL or a stale registered library no longer present in `game.project`.
