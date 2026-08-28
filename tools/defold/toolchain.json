@@ -1,0 +1,8 @@
+{
+  "defold_version": "1.13.1",
+  "bob_url": "https://github.com/defold/defold/releases/download/1.13.1/bob.jar",
+  "bob_sha256": "8f2b1381fd4d0fb92816403cd0056cb7db5ad4083615be8dcc2d868fb4939938",
+  "java_major": 25,
+  "platform": "wasm-web",
+  "architectures": "wasm-web"
+}
