@@ -118,6 +118,8 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/10-development-workflow.md`](docs/10-development-workflow.md)
 - [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md)
 - [`docs/15-agent-evidence-governance.md`](docs/15-agent-evidence-governance.md)
+- [`docs/16-ci-trust-boundary.md`](docs/16-ci-trust-boundary.md)
+- [`docs/research/BB-P017-ruleset-closeout.md`](docs/research/BB-P017-ruleset-closeout.md) — P-1 exit / strict ruleset verification
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -142,9 +144,9 @@ Still open/tunable before downstream milestones lock production values:
 - rendered comprehension/input/seed pacing for the Hybrid restoration flow;
 - runtime proof that the validated V-001 style/crop rules survive the deterministic Defold HTML5 capture pipeline once P0 creates the production runtime.
 
-The objective-evidence hardening in `BB-P013`–`BB-P017` is already in place. `BB-P006` validated Poki as the primary external target, `BB-P007` defined V-001, `BB-P008` defined the deterministic visual-QA runtime contract, and `BB-P009` defined the HTML5 A/B generation storage/recovery contract. See their research/evidence records for scoped limitations.
+The objective-evidence hardening in `BB-P013`–`BB-P017` is in place. `BB-P006` validated Poki as the primary external target, `BB-P007` defined V-001, `BB-P008` defined the deterministic visual-QA runtime contract, and `BB-P009` defined the HTML5 A/B generation storage/recovery contract.
 
-See [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md) for P-1 exit criteria and `DECISIONS.md` for the remaining repository-settings blocker.
+Repository enforcement is also verified: active ruleset `Protect main` requires pull requests and `validate-pr-evidence`, uses strict/up-to-date checks, requires zero approvals, and has no bypass actors. See [`docs/research/BB-P017-ruleset-closeout.md`](docs/research/BB-P017-ruleset-closeout.md) and [`evidence/BB-P017-RULESET-CLOSEOUT/ruleset-snapshot.json`](evidence/BB-P017-RULESET-CLOSEOUT/ruleset-snapshot.json).
 
 ## Vertical-slice target
 
@@ -172,10 +174,10 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 ## Current status
 
-**P-1 — Blueprint Hardening.**
+**P0 — Foundation is ready to begin. P-1 Blueprint Hardening is complete.**
 
-Product-structure hardening now includes a validated movement-owned pollination verb (`D-006`), validated Hybrid seed/restoration topology (`D-005`), validated two-track Flight + Buzz upgrade set (`D-007`), and a deterministic first-region economy envelope that survives 5040 retained-sink purchase-priority orders without replay. Primary web target, visual baseline/QA design, storage/recovery protocol and autonomous evidence governance are also in place.
+P-1 now has validated movement-owned pollination (`D-006`), validated Hybrid seed/restoration topology (`D-005`), validated two-track Flight + Buzz upgrade set (`D-007`), a deterministic no-grind first-region economy envelope, a primary web target, measurable visual/QA contracts, an HTML5 storage/recovery contract, trusted-base evidence governance, and verified strict `main` enforcement (`R-019`).
 
-The remaining P-1 blocker is repository enforcement: `R-019` requires strict/up-to-date required status checks on `main`. Exact gameplay pacing and balance values deliberately move forward as runtime tuning work rather than blocking the Defold foundation phase once P-1 repository enforcement passes.
+P-1 completion does not claim that runtime tuning is finished. Exact gameplay pacing, Honey values, Flight/Buzz effects, rendered seed-flow comprehension and production visual/storage behavior remain explicit P0–P5 work.
 
-After the P-1 exit criteria pass, continue with P0/BB-001 and the production roadmap.
+**Next production task: `P0 / BB-001 — Defold bootstrap`.**
