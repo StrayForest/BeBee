@@ -2,15 +2,15 @@
   "schema_version": 1,
   "ticket": "BB-006-VISUAL-QA",
   "change_class": "technical",
-  "problem": "BeBee has a validated deterministic visual-QA design but no production runtime state router, readiness bridge, exact-head desktop/mobile capture path, repeatability proof or release guard. Later player-facing agents therefore cannot yet bind rendered evidence to a known Defold state and exact source candidate.",
+  "problem": "BeBee had a validated deterministic visual-QA design but no production runtime state router, readiness bridge, exact-head desktop/mobile capture path, repeatability proof or release guard. Later player-facing agents therefore could not bind rendered evidence to a known Defold state and exact source candidate.",
   "decision": {
     "ids": ["V-001", "T-002", "T-012", "R-001", "R-014", "R-016"],
     "status_before": "LOCKED",
     "status_after": "LOCKED",
     "provenance_type": "TECH_CONSTRAINT",
-    "evidence_strength": "MEDIUM",
+    "evidence_strength": "HIGH",
     "selected_alternative": "validated-playwright-bridge-contract",
-    "rationale": "Implement the already-validated BB-P008 contract: a development-only Defold QA router publishes explicit state/seed/readiness/exact-SHA provenance through window.__bebeeQA, while pinned Playwright uses clean BrowserContexts to capture canonical desktop/mobile evidence twice and the release build is adversarially checked for bridge/query absence."
+    "rationale": "Implement the already-validated BB-P008 contract: a development-only Defold QA router publishes explicit state/seed/readiness/exact-SHA provenance through window.__bebeeQA, while pinned Playwright uses clean BrowserContexts to capture canonical desktop/mobile evidence twice and the release build is adversarially checked for bridge/query absence. Exact-head candidate CI proved the runtime contract and retained the artifacts."
   },
   "research": {
     "candidate_pool": [],
@@ -81,38 +81,41 @@
   "acceptance_criteria": [
     {
       "criterion": "Development HTML5 can select a known QA state and fixed seed through the canonical query parameters and reports authoritative bridge readiness/provenance.",
-      "status": "pending_runtime_ci",
-      "evidence": "app/qa_router.lua implements movement_empty, default/fixed seed handling, exact build SHA, engineReady/captureReady and fail-closed unknown-state behavior; exact-head browser CI must prove it."
+      "status": "pass",
+      "evidence": "HTML5 CI run 33214094696 on exact candidate 997d9a12465f01bb71de6adba5bbe6290c7caf72 reached BEBEE_QA capture_ready for movement_empty, seed 88008, simulation frame 2, with the same embedded 40-character candidate SHA."
     },
     {
       "criterion": "The same known state is captured on canonical desktop and mobile-landscape viewports and repeated isolated captures are byte-stable.",
-      "status": "pending_runtime_ci",
-      "evidence": "tools/visual_qa/capture.py captures desktop_reference and mobile_landscape twice in fresh BrowserContexts and requires identical PNG SHA-256 plus simulationFrame."
+      "status": "pass",
+      "evidence": "Run 33214094696 produced desktop_reference 1280x720 SHA-256 c0899c9a375828992b3c78363b13b699c455d9a4366c861dc3555ae83a46de3a and mobile_landscape 844x390 SHA-256 a10aaefb247a47d6044c3dc6c66dc3ece8b974e16ebaa170d2c0b269be5d6c5d; each second fresh BrowserContext capture matched its first hash exactly and reported simulationFrame=2."
     },
     {
       "criterion": "Capture evidence includes exact-head, bundle, Defold, browser, state, seed, viewport, simulation-frame and capture hash provenance plus console/page error counts.",
-      "status": "pending_runtime_ci",
-      "evidence": "The Playwright runner writes the canonical fields into artifacts/visual-qa/<head>/capture-report.json and retains console.log; exact-head artifact CI must prove the files."
+      "status": "pass",
+      "evidence": "Visual artifact 9702710185 (digest sha256:884a1d62dff6641a0859887e18203e3afe41e032831921a1610b2facd7e8a0cb) contains capture-report.json, console.log and both PNGs. Report binds exact head 997d9a12465f01bb71de6adba5bbe6290c7caf72, development bundle c0f7637be4e83232a069c6d3f91208ba8e93cbb669927b754d9dae4b226d5904, Defold 1.13.1 and Chromium 151.0.7922.34; both required captures report zero console and page errors."
     },
     {
       "criterion": "Release does not expose the QA bridge and QA query parameters do not activate QA behavior.",
-      "status": "pending_runtime_ci",
-      "evidence": "release.settings explicitly sets bebee.qa_enabled=0; the capture runner probes plain and QA-query release contexts, requires no bridge and requires identical release screenshot hashes."
+      "status": "pass",
+      "evidence": "Run 33214094696 reports window.__bebeeQA absent in both plain and QA-query release contexts. Plain and ?qa=movement_empty&qa_seed=88008 release screenshots both hashed to 7a5175f59992a07616d58b06a310b2a3909c43df6d406a736ef54995563a09ed."
     },
     {
       "criterion": "Candidate runtime execution remains read-only and outside trusted-base governance authority while visual evidence becomes a retained exact-head artifact.",
       "status": "pass",
-      "evidence": "BB-006 extends the existing contents:read pull_request/push HTML5 CI workflow. The trusted pull_request_target evidence workflow and policy implementation are not modified."
+      "evidence": "BB-006 extends the existing contents:read pull_request/push HTML5 CI workflow. The trusted pull_request_target evidence workflow and policy implementation are not modified. Candidate run 33214094696 retained visual artifact 9702710185, playable artifact 9702709655 and diagnostic artifact 9702710780."
     }
   ],
   "verification": {
     "automated": [
-      "Repository standards, Test and data, HTML5 CI and trusted-base PR evidence validation must all pass on the final exact PR head.",
-      "HTML5 CI must retain a visual-qa-<head_sha> artifact containing capture-report.json, console.log and desktop/mobile movement_empty PNGs.",
-      "The runner itself adversarially checks unknown/mismatched readiness conditions through fail-closed bridge semantics and release QA-parameter/bridge absence."
+      "Repository standards run 33214094704: success on exact candidate 997d9a12465f01bb71de6adba5bbe6290c7caf72.",
+      "Test and data run 33214094702: success on exact candidate 997d9a12465f01bb71de6adba5bbe6290c7caf72.",
+      "HTML5 CI run 33214094696: success on exact candidate 997d9a12465f01bb71de6adba5bbe6290c7caf72, including prior release/input smokes, pinned Playwright install, repeated desktop/mobile deterministic capture, release guard and all artifact uploads.",
+      "Final closeout-documentation head must repeat repository standards, Test and data, HTML5 CI and trusted-base PR evidence validation before merge."
     ],
-    "manual": [],
-    "runtime_errors": "No runtime success is claimed before exact-head CI. Browser HTTP/request/console/page errors are retained and actionable failures reject the job; Chromium's automatic favicon 404 is the only narrowly classified browser-generated exception.",
+    "manual": [
+      "Downloaded visual artifact 9702710185 and opened both retained PNGs. They show the expected P0 technical bootstrap: black Defold canvas plus development footer, with no bee/game content. This is accepted as capture-pipeline proof only and is explicitly not treated as P1 player-facing visual evidence."
+    ],
+    "runtime_errors": "The passing exact-head capture recorded zero actionable console/page errors for both required captures. WebGL ReadPixels performance warnings were retained as warnings, not runtime failures. Browser favicon handling remains the narrowly documented BB-005 exception; other HTTP/request/console/page errors remain fatal.",
     "save_data_impact": "none"
   },
   "governance": {
