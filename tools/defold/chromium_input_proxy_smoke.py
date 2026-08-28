@@ -3,8 +3,8 @@
 
 The script intentionally uses only the Python standard library. It dispatches real
 browser keyboard and touch events, observes Defold console markers, and proves that
-modal input consumption stops delivery to the proxied gameplay listener and the
-main-world proxy owner.
+modal input consumption stops delivery to proxied gameplay and to a deliberately
+lower listener on the main-world input stack.
 """
 
 from __future__ import annotations
@@ -329,17 +329,19 @@ def main() -> int:
             cdp.call("Emulation.setTouchEmulationEnabled", {"enabled": True, "maxTouchPoints": 1})
             cdp.call("Page.reload", {"ignoreCache": True})
 
+            cdp.wait_for("BEBEE_INPUT sentinel_focus acquired", timeout=15)
+            cdp.wait_for("BEBEE_INPUT owner_focus acquired", timeout=15)
             cdp.wait_for("BEBEE_INPUT proxy_loaded owner_focus=1", timeout=15)
             cdp.wait_for("BEBEE_INPUT gameplay_focus acquired", timeout=15)
             advance_frames(cdp, 2)
-            observed["checks"].append("proxy_owner_and_gameplay_focus_ready")
+            observed["checks"].append("main_stack_owner_and_proxy_gameplay_focus_ready")
 
             before = len(cdp.console)
             dispatch_key(cdp, key="w", code="KeyW", virtual_key=87)
             keyboard_lines = cdp.console[before:]
             require_marker(keyboard_lines, "BEBEE_INPUT gameplay move_up pressed", "keyboard proxy delivery")
-            require_marker(keyboard_lines, "BEBEE_INPUT owner move_up pressed", "keyboard owner delivery")
-            observed["checks"].append("keyboard_semantic_action_reaches_proxy_and_owner")
+            require_marker(keyboard_lines, "BEBEE_INPUT sentinel move_up pressed", "keyboard main-stack continuation")
+            observed["checks"].append("keyboard_reaches_proxy_then_lower_main_stack")
 
             dispatch_escape(cdp)
             cdp.wait_for("BEBEE_INPUT modal_open focus_acquired", timeout=5)
@@ -350,8 +352,8 @@ def main() -> int:
             modal_lines = cdp.console[before:]
             require_marker(modal_lines, "BEBEE_INPUT modal_consumed move_up pressed", "modal consumption")
             forbid_marker(modal_lines, "BEBEE_INPUT gameplay move_up pressed", "modal consumption")
-            forbid_marker(modal_lines, "BEBEE_INPUT owner move_up pressed", "modal consumption")
-            observed["checks"].append("modal_consumes_before_gameplay_and_proxy_owner")
+            forbid_marker(modal_lines, "BEBEE_INPUT sentinel move_up pressed", "modal consumption")
+            observed["checks"].append("modal_consumes_before_gameplay_and_lower_main_stack")
 
             dispatch_escape(cdp)
             cdp.wait_for("BEBEE_INPUT modal_closed focus_released", timeout=5)
@@ -361,15 +363,15 @@ def main() -> int:
             dispatch_key(cdp, key="w", code="KeyW", virtual_key=87)
             restored_lines = cdp.console[before:]
             require_marker(restored_lines, "BEBEE_INPUT gameplay move_up pressed", "focus restoration")
-            require_marker(restored_lines, "BEBEE_INPUT owner move_up pressed", "focus restoration")
-            observed["checks"].append("closing_modal_restores_delivery")
+            require_marker(restored_lines, "BEBEE_INPUT sentinel move_up pressed", "focus restoration")
+            observed["checks"].append("closing_modal_restores_proxy_and_main_stack_delivery")
 
             before = len(cdp.console)
             dispatch_touch(cdp, 320, 360)
             touch_lines = cdp.console[before:]
             require_marker(touch_lines, "BEBEE_INPUT gameplay pointer_primary pressed", "single-touch abstraction")
-            require_marker(touch_lines, "BEBEE_INPUT owner pointer_primary pressed", "single-touch owner delivery")
-            observed["checks"].append("browser_touch_reaches_pointer_primary_semantic_action")
+            require_marker(touch_lines, "BEBEE_INPUT sentinel pointer_primary pressed", "single-touch main-stack delivery")
+            observed["checks"].append("browser_touch_reaches_pointer_primary_across_proxy_path")
 
             if cdp.runtime_exceptions:
                 raise RuntimeError(f"Runtime exceptions observed: {cdp.runtime_exceptions!r}")
