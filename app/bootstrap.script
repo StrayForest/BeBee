@@ -1,8 +1,15 @@
+local qa_router = require("app.qa_router")
+
 function init(self)
     self.proxy_ready = false
     self.owner_focused = false
+    self.qa = qa_router.start()
     msg.post("/sentinel#controller", "acquire_sentinel_focus")
     msg.post("#input_probe", "load")
+end
+
+function update(self, dt)
+    qa_router.update(self.qa)
 end
 
 function final(self)
