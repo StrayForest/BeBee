@@ -1,421 +1,266 @@
 # 03 — UX, UI & Controls
 
-## 1. UX objective
+## 1. Objective
 
-BeBee should be understandable by watching the screen for a few seconds. The interface supports play; it must not dominate it.
+BeBee should be understandable by watching the world for a few seconds. UI supports play; it must not become the game.
 
-Primary UX principle:
+Primary rule:
 
-> The world tells the player what to do first; UI confirms it second.
+> The world communicates the next useful action first; UI confirms it second.
 
----
+Decision status lives in `DECISIONS.md`. Exact HUD positions, joystick style and pollination input remain hypotheses until research/visual validation.
 
-## 2. Reference pattern synthesis
+## 2. Reference requirement
 
-The useful pattern shared by Cow Bay, Cow Castle, Olly the Paw, My Little Universe and Dreamdale is not a specific pixel layout. It is a low-friction hierarchy:
+Before implementing a player-facing surface, inspect problem-specific shipped references. Cow Bay/7Spot games are useful but are not the only visual/UX authority.
 
-1. character and nearby resource are visually dominant;
-2. one obvious current objective is visible;
-3. currency is always readable;
-4. unlock/upgrade affordances appear when relevant;
-5. most progression happens directly in the world;
-6. menus are shallow and task-specific.
+Use different references when they solve a problem better, for example:
 
-BeBee follows that hierarchy while using original visual design.
+- movement/touch feel;
+- cozy HUD hierarchy;
+- garden customization;
+- locked-node communication;
+- restoration feedback;
+- upgrade purchasing;
+- map/progress presentation.
 
----
+Record measurable observations in the feature research template and use `13-visual-qa-scorecard.md` after implementation.
 
-## 3. Gameplay HUD
+## 3. Gameplay HUD — HYPOTHESIS
 
-### Top-left: objective
+The current sparse concept remains:
 
-Compact objective card:
+- one primary objective/status surface;
+- one persistent Honey display;
+- contextual actions only when needed;
+- no premium-currency/shop/event clutter.
 
-```text
-🌼 Restore Sunny Meadow
-4 / 6 patches
-```
+The old fixed rule “objective top-left, Honey top-right” is a **starting layout**, not a locked decision. Final placement is chosen after desktop/mobile/portal reference comparison.
 
-Rules:
+### Objective surface
 
-- maximum two lines;
+Requirements:
+
+- one primary objective at a time;
+- minimal text;
 - no scrolling quest log during normal play;
-- collapses further after several seconds if the player is actively progressing;
-- tapping/clicking it can briefly highlight the target direction.
+- can briefly indicate direction without stealing the camera;
+- collapses/fades when the world already communicates the goal clearly.
 
-### Top-right: honey
+### Honey
 
-Single persistent currency display:
+Requirements:
 
-```text
-🍯 185
-```
+- always understandable when relevant;
+- gain/spend visibly attributed;
+- no constant attention pulse;
+- readable across selected portal/device sizes.
+
+## 4. Movement controls
+
+Gameplay consumes semantic movement intent.
+
+Desktop baseline:
+
+- WASD/arrows are supported;
+- no precision clicking required for ordinary flower interaction.
+
+Touch:
+
+- floating joystick remains a strong candidate;
+- alternative touch movement is allowed if research/prototype evidence is better;
+- movement surface must avoid collision with contextual UI/safe areas.
+
+The touch scheme is validated with real-device/browser testing before lock.
+
+## 5. Pollination input — follows P-1 decision
+
+Do not hard-code UI around auto-pollination before `BB-P003` selects the core verb.
+
+If the winner is:
+
+- proximity: no permanent pollination button is needed;
+- hold: use one clear semantic action with large touch affordance;
+- sweep/movement-through: movement itself carries most interaction and UI should show coverage/progress rather than another button.
+
+UX must follow the validated verb, not force the verb to fit an early HUD sketch.
+
+## 6. World-space interaction
+
+Prefer local world feedback for local states:
+
+- active patch highlight/progress;
+- locked requirement near the target;
+- restoration/unlock change physically in the world.
+
+Avoid permanent labels above every flower.
+
+A locked state should communicate the missing requirement with icon + concise value rather than a paragraph.
+
+## 7. Improvement/Hive surface
+
+The Hive remains the leading progression-hub concept, but exact card count/layout follows the validated upgrade set.
+
+Requirements:
+
+- current level/effect;
+- next effect;
+- Honey cost;
+- clear affordability;
+- one intentional purchase action;
+- no confirmation dialog for ordinary non-destructive improvement;
+- gameplay movement cannot leak through an open modal/panel.
+
+If Yield is removed, do not leave an empty third card or invent a filler stat.
+
+## 8. Seed/flower choice UI
+
+This UI follows the `BB-P004` seed/restoration flow.
+
+Requirements regardless of flow:
+
+- locked/unlocked/current state obvious;
+- player can preview/understand the flower choice;
+- planting is one clear action after selection;
+- current planted species is visible;
+- replant/undo rules are clear;
+- campaign progress cannot be accidentally reset through this surface.
+
+Mobile bottom-sheet and desktop anchored-panel patterns are candidates, not fixed law. Compare alternatives against playfield obstruction and action count.
+
+## 9. Region / planet progress
+
+The map/progress surface should answer:
+
+- where am I;
+- what has been restored;
+- what is next;
+- how much of the planet is alive;
+- which flower identities have been discovered/unlocked if useful.
+
+Do not turn it into a strategy dashboard.
+
+Fast travel is optional later; first-session map behavior is chosen after the selected portal/onboarding flow is known.
+
+## 10. Entry/title flow — corrected
+
+The old fixed sequence `Title -> Play -> Tutorial` is no longer a universal requirement.
+
+The primary distribution target is selected in P-1. Current portal guidance may favor landing directly in gameplay or allowing at most one click.
+
+Architecture/UI must support:
+
+- direct-to-gameplay onboarding;
+- one-click entry when appropriate;
+- standalone title/continue for direct hosting if useful.
+
+Do not build mandatory splash/menu friction that must later be bypassed for a portal.
+
+## 11. Pause/settings
+
+Keep one shallow panel:
+
+- resume;
+- music/SFX;
+- reduced motion;
+- haptics where supported;
+- text/accessibility controls when validated;
+- controls help;
+- return/exit appropriate to platform.
+
+Avoid custom fullscreen controls when a selected portal forbids/owns fullscreen behavior.
+
+## 12. Onboarding
+
+Teach inside gameplay.
 
 Rules:
 
-- number animates on gain/spend;
-- no separate premium icon in MVP;
-- briefly show `+24` beside it after reward;
-- affordability pulse occurs once, not continuously.
+- use visuals/motion before text;
+- one short contextual instruction at a time;
+- remove it as soon as behavior is demonstrated;
+- no lore/tutorial page stack before first interaction;
+- player reaches the core verb quickly.
 
-### Bottom-left: movement
+## 13. Direction guidance
 
-Mobile only: floating joystick.
+Use subtle world markers/edge guidance.
 
-- joystick origin appears where thumb first presses inside a safe zone;
-- deadzone prevents micro-jitter;
-- joystick fades when inactive;
-- do not place permanent decoration underneath it.
+Routine objective guidance must not yank the camera away from the bee.
 
-Desktop has no movement HUD after onboarding.
+Short authored reveals are allowed only when they preserve orientation and reduced-motion behavior.
 
-### Bottom-right
+## 14. Input focus and modal behavior
 
-Normally empty during active play.
+UI and gameplay use Defold input focus intentionally.
 
-Contextual action can appear for:
+When a modal/task-specific panel is active:
 
-- Hive interaction;
-- seed customization;
-- map/portal interaction;
-- accessibility fallback interact button.
+- it consumes the relevant input;
+- bee movement/pollination does not continue behind it;
+- closing returns focus predictably.
 
-Automatic pollination does not need an action button.
+If gameplay is loaded through a collection proxy, the proxy owner's input routing is part of the test plan.
 
-### Bottom-center
+## 15. Responsive targets
 
-Reserved for short contextual messages/toasts only:
+Development default captures:
 
-- `Buzz 3 required`
-- `Lavender seeds unlocked`
-- `Sunny Meadow restored`
+- desktop `1440x900`;
+- mobile portrait `390x844`.
 
-Do not stack more than two.
+After P-1 selects the primary portal, add its actual required/representative sizes. Do not treat development defaults as portal certification.
 
----
+Critical UI must survive:
 
-## 4. World-space interaction UI
+- desktop landscape;
+- narrow/wide browser windows allowed by target;
+- relevant mobile/tablet orientation(s);
+- safe areas/browser UI changes.
 
-World-space UI is preferred for local actions.
+## 16. Touch target/readability baseline
 
-### Flower patch
+- minimum interactive touch target: 44 logical px baseline unless target-platform research specifies stricter needs;
+- state cannot rely on color alone;
+- text requires background/outline/shadow treatment sufficient for world contrast;
+- interactive flowers must look different from decoration at gameplay zoom.
 
-When relevant:
+## 17. Motion/feedback
 
-- thin circular/organic progress ring near patch center;
-- small flower-tier icon if gated;
-- no permanent labels above every patch.
+UI/world motion should reinforce cause and effect:
 
-### Locked patch
+- pollination begins -> immediate local response;
+- completion -> flower/world response;
+- Honey -> source-to-counter attribution;
+- improvement -> effect/level change;
+- planting -> visible world change;
+- restoration -> strong environment transition.
 
-Show the reason directly:
+Avoid perpetual badges/bounces competing for attention.
 
-```text
-Buzz 3
-```
+Reduced-motion mode preserves state clarity while reducing nonessential camera/UI motion.
 
-with one icon and number. Avoid sentences like “Your pollination level is insufficient to interact with this resource.”
+## 18. UX acceptance questions
 
-### World unlock gate
+A new player should be able to answer without external explanation:
 
-Display one concise requirement near the blocked route:
+- what character do I control;
+- what do I do with flowers;
+- what do I earn;
+- what changed when I improved the bee;
+- why is this harder flower unavailable/slow;
+- how can I influence which flowers grow;
+- what is the long-term goal.
 
-```text
-Restore 4 meadows
-```
+If answers are unclear, improve the interaction/world/UI rather than adding a help encyclopedia.
 
-or
+## 19. Evidence requirement
 
-```text
-🍯 120
-```
+Every significant UX PR includes:
 
----
-
-## 5. Hive screen
-
-The Hive is the main progression hub.
-
-### Layout
-
-Header:
-
-```text
-Improve your bee          🍯 185
-```
-
-Main body: three vertically stacked or responsive cards.
-
-Card example:
-
-```text
-[wing icon] Flight       Lv. 2
-Fly 10% faster
-Next: 1.20x speed
-
-            🍯 56  [Upgrade]
-```
-
-Equivalent cards for Buzz and Yield.
-
-### Behavior
-
-- affordable cards have a clear primary button;
-- unaffordable cards show cost, not a disabled mystery state;
-- if a Buzz purchase unlocks a flower family, show the unlock in the same confirmation moment;
-- one tap/click buys; do not add an “Are you sure?” dialog for normal upgrades;
-- close/back returns directly to gameplay.
-
----
-
-## 6. Seed selector
-
-Opened only from a restored customizable patch.
-
-### Mobile
-
-Bottom sheet occupying roughly lower 35–45% of screen.
-
-### Desktop
-
-Small anchored panel near the patch or centered lower panel.
-
-Each seed card shows:
-
-- flower illustration;
-- name;
-- locked/unlocked state;
-- unlock honey cost if locked;
-- current selection mark.
-
-Actions:
-
-- locked seed: `Unlock`;
-- unlocked seed: `Plant`;
-- current seed: `Planted`.
-
-Replanting an unlocked seed is free in the vertical slice.
-
----
-
-## 7. Region / planet map
-
-The map is a progress overview, not a strategy game screen.
-
-Shows:
-
-- stylized planet or region ribbon;
-- current region highlighted;
-- completed regions in color;
-- future regions muted;
-- large `Planet in bloom: XX%`;
-- discovered flower count.
-
-Region card:
-
-```text
-Sunny Meadows
-5 / 6 restored
-Native flowers: Daisy · Clover · Lavender · Lily
-```
-
-Selecting a previously unlocked region may fast-travel later; during the first vertical slice, map navigation can be limited to the current region.
-
----
-
-## 8. Main menu
-
-Keep it minimal.
-
-### New player
-
-- `Play`
-- `Settings`
-- small version/build identifier
-
-### Returning player
-
-- `Continue`
-- `New Game` in secondary/options location to prevent accidental reset
-- `Settings`
-
-No carousel of shops, events, inbox, quests, passes and offers on launch.
-
----
-
-## 9. Pause / settings
-
-One simple panel:
-
-- Resume
-- Music volume
-- SFX volume
-- Haptics on/off (mobile)
-- Reduced motion on/off
-- Text scale: normal/large
-- Controls help
-- Return to title
-
-Optional later:
-
-- language selector;
-- color accessibility presets if flower-state readability needs them.
-
----
-
-## 10. Onboarding UI
-
-Tutorial instructions are contextual and disposable.
-
-Allowed examples:
-
-```text
-Fly to the flowers
-```
-
-```text
-Stay close to pollinate
-```
-
-```text
-Spend honey at the hive
-```
-
-Each instruction disappears as soon as the behavior is demonstrated.
-
-Do not darken the entire screen and force the player to tap through tutorial pages.
-
----
-
-## 11. Direction guidance
-
-When the objective is off-screen:
-
-- show a subtle edge arrow/petal marker;
-- fade it when close;
-- never yank the camera away from the bee.
-
-This explicitly avoids a common frustration in comparable games where objective guidance can interrupt spatial orientation.
-
----
-
-## 12. Input abstraction
-
-Gameplay code consumes semantic actions:
-
-- `move_x`
-- `move_y`
-- `interact`
-- `pause`
-- `ui_accept`
-- `ui_back`
-
-Do not spread raw key/touch checks across gameplay scripts.
-
-Touch and keyboard produce the same normalized movement vector.
-
----
-
-## 13. Responsive layout targets
-
-Support at minimum:
-
-- 16:9 desktop;
-- wide desktop/browser window;
-- portrait phone;
-- landscape phone/tablet.
-
-Gameplay camera can show more/less world, but critical UI remains in safe zones.
-
-No gameplay requirement may depend on a flower being visible at a fixed absolute screen coordinate.
-
----
-
-## 14. Tap/click target rules
-
-- minimum touch target: 44 logical px;
-- primary buttons should generally be 48–56 px high on mobile layouts;
-- avoid placing two destructive/important controls directly adjacent;
-- seed cards and upgrade cards can be tapped anywhere on the card where unambiguous;
-- close/back must be reachable with one obvious action.
-
----
-
-## 15. Color and readability
-
-Gameplay state cannot be color-only.
-
-Examples:
-
-- locked flower = closed silhouette + lock/Buzz icon, not merely gray;
-- completed patch = open bloom + particles/ground change, not merely greener;
-- selected seed = check mark + border/state, not merely hue.
-
-Text should maintain readable contrast over world scenes via panels/shadows, not hard-coded white text over every background.
-
----
-
-## 16. Animation rules
-
-UI motion should reinforce cause and effect:
-
-- honey flies from source to counter;
-- upgrade card expands/pops once;
-- unlock gate physically opens;
-- seed choice transforms the patch;
-- objective completion ticks and transitions to next objective.
-
-Avoid perpetual bouncing badges and competing attention animations.
-
-Reduced-motion mode should shorten or remove nonessential camera/UI motion while preserving state feedback.
-
----
-
-## 17. Audio UX
-
-Distinct short sounds for:
-
-- pollination progress ticks/flower openings;
-- patch completion;
-- honey gain;
-- upgrade purchase;
-- seed planting;
-- meadow restoration;
-- failed affordability/locked requirement.
-
-Do not reuse one “coin” sound for every event.
-
----
-
-## 18. First-session screen flow
-
-```text
-Title
- -> Play
- -> Tutorial Meadow
- -> first honey
- -> Hive upgrade
- -> first gated flower becomes available
- -> meadow restoration
- -> first seed choice
- -> planet reveal
- -> continue into region
-```
-
-The first session should contain no account creation, newsletter prompt, rating prompt or monetization interruption.
-
----
-
-## 19. UX acceptance tests
-
-A new playtester should answer these without explanation:
-
-- What character are you controlling?
-- What are you supposed to do to the flowers?
-- What do you earn?
-- Where do you improve the bee?
-- Why can't you efficiently pollinate the Lily yet?
-- How do you change flowers in a restored meadow?
-- What is the long-term goal?
-
-If two or more answers are unclear, revise the game/UI rather than adding a help page.
+- researched references;
+- official Defold/platform docs where relevant;
+- actual BeBee captures/video;
+- action/timing/readability scorecard;
+- mobile evidence where affected;
+- `PASS`, `PASS WITH DEVIATION`, or `ITERATE` conclusion.
