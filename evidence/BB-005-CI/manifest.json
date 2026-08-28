@@ -67,36 +67,38 @@
     {
       "criterion": "Every pull request and main update builds the exact source revision into development and release wasm-web bundles.",
       "status": "pass",
-      "evidence": ".github/workflows/defold-runtime-evidence.yml now triggers on every pull_request and push to main, explicitly checks out github.event.pull_request.head.sha or github.sha, and runs the pinned development/release bundle commands."
+      "evidence": "HTML5 CI run 33213154271 on exact candidate 3c50ca49d1b9fee8e39bac744e7d340e3f419963 successfully built both development and release bundles after explicitly checking out that SHA."
     },
     {
       "criterion": "Unit/data validation remains automatic for the same PR/main source without duplicating the headless test bundle in HTML5 CI.",
       "status": "pass",
-      "evidence": "The existing read-only .github/workflows/test-data.yml still triggers on every pull_request and main push and runs the canonical bash scripts/test.sh command."
+      "evidence": "Test and data run 33213154235 on exact candidate 3c50ca49d1b9fee8e39bac744e7d340e3f419963 completed successfully using the existing canonical BB-004 workflow."
     },
     {
       "criterion": "A successful run retains a clearly separated playable release bundle and machine-readable/browser diagnostic evidence.",
       "status": "pass",
-      "evidence": "HTML5 CI uploads build/html5/release/BeBee as html5-playable-<sha> and uploads html5-ci plus build/reports separately as html5-ci-evidence-<sha>, both with 14-day retention."
+      "evidence": "Run 33213154271 retained playable artifact 9702369697 (sha256:9ec8d981882d0d930a99999c9cac2e1611290776b4ce128ef5254a748d4bd20a) and evidence artifact 9702370265 (sha256:128f95bdaca553a8d068248322beee8ebd700b7971d267fd1c6e06f9d5f886d7), both bound to exact candidate 3c50ca49d1b9fee8e39bac744e7d340e3f419963."
     },
     {
-      "criterion": "Browser smoke rejects unusable canvas, missing/incorrect wasm delivery, console errors, runtime exceptions and actionable network load failures while preserving BB-003 input/proxy proof.",
+      "criterion": "Browser smoke rejects unusable canvas, missing/incorrect wasm delivery, console errors, runtime exceptions and actionable network/HTTP failures while preserving BB-003 input/proxy proof.",
       "status": "pass",
-      "evidence": "tools/defold/chromium_html5_smoke.py observes Runtime/Log/Page/Network before navigation and enforces the release checks; the workflow also continues to run chromium_input_proxy_smoke.py against the development bundle."
+      "evidence": "HTML5 CI run 33213154271 passed the release browser smoke and existing development input/proxy smoke. The preceding run 33212975885 failed on Chromium's automatic /favicon.ico 404; retained HTTP logs proved the game resources and BeBee.wasm loaded successfully, and the smoke was tightened to ignore only that independently identified browser favicon request while still failing all other HTTP 4xx/5xx responses."
     },
     {
       "criterion": "Candidate runtime execution remains read-only and outside trusted-base governance authority.",
       "status": "pass",
-      "evidence": "HTML5 CI declares contents: read and uses pull_request/push; pr-evidence-trusted.yml and trusted policy scripts are not modified."
+      "evidence": "HTML5 CI declares contents: read and uses pull_request/push; pr-evidence-trusted.yml, evidence-policy code and the main ruleset are not modified. Repository standards run 33213154277 also passed on the same candidate."
     }
   ],
   "verification": {
     "automated": [
-      "The added chromium_html5_smoke.py was syntax-compiled before commit with Python 3 compile().",
-      "Exact-head candidate GitHub Actions must prove the new HTML5 CI, existing Test and data, Repository standards and trusted evidence gates before closeout; the final merge head must repeat them."
+      "Repository standards run 33213154277: success on exact candidate 3c50ca49d1b9fee8e39bac744e7d340e3f419963.",
+      "Test and data run 33213154235: success on exact candidate 3c50ca49d1b9fee8e39bac744e7d340e3f419963.",
+      "HTML5 CI run 33213154271: success on exact candidate 3c50ca49d1b9fee8e39bac744e7d340e3f419963, including development/release Bob builds, release startup/resource/console smoke, BB-003 keyboard/touch/proxy smoke, release screenshot and both artifact uploads.",
+      "The final PR head after closeout documentation must repeat the candidate CI and trusted-base evidence checks before merge."
     ],
     "manual": [],
-    "runtime_errors": "No runtime result is claimed yet for the new browser smoke; exact-head CI is the closeout gate. The workflow retains browser/runtime diagnostics on failure rather than masking them.",
+    "runtime_errors": "Initial HTML5 CI run 33212975885 failed rather than masking an error-level browser log. Retained http-server.log identified the sole 404 as Chromium's automatic /favicon.ico request; BeBee.wasm returned HTTP 200 application/wasm, canvas reached 1280x577, and there were no runtime exceptions or network loading failures. The revised smoke classifies that exact browser-generated favicon 404 as non-actionable using Network-domain evidence while continuing to reject every other HTTP 4xx/5xx, actionable network failure, console error/assert and runtime exception. Passing run 33213154271 then completed both browser smokes successfully.",
     "save_data_impact": "none"
   },
   "governance": {
