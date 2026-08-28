@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-007-HARNESS",
+  "change_class": "technical",
+  "problem": "BB-P009 validated a local HTML5 persistence contract, but production code still lacks the storage service boundary, A/B recovery journal, protected corrupt-load path, size gate, migration fixture and real-browser reload probe required to implement it.",
+  "decision": {
+    "ids": ["BB-P009"],
+    "status_before": "VALIDATED",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "two-generation-a-b-journal",
+    "rationale": "Implement the validated BB-P009 protocol directly: semantic storage service, stable Defold application id, two alternating generations, protected load, monotonic generation selection, pre-write size checks and mandatory readback before success."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-game competitor comparison is not applicable to an engine persistence/recovery implementation; the governing evidence is the already-validated BB-P009 technical contract plus current Defold documentation.",
+    "selected_references": [],
+    "reference_exception": "No player-facing interaction or visual-quality decision is made by this storage harness ticket.",
+    "anti_pattern": {
+      "source": "https://defold.com/manuals/file-access/",
+      "observation": "A single unprotected save/load path can raise on corrupt data and a single-file replacement can leave no prior valid generation to recover.",
+      "lesson": "Protect load operations and preserve a previous validated generation until a new generation passes readback validation."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/file-access/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Defold documents sys.get_save_file/sys.save/sys.load for persisted tables, notes that missing files load as an empty table and corrupt/unsupported data may raise, and documents HTML5 persistence through the browser virtual filesystem/IndexedDB."
+    },
+    {
+      "source": "https://defold.com/llms/apis/sys-lua/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "The sys API documents sys.get_save_file as the platform save-path API and a 512 KiB serialized output ceiling; BeBee keeps stricter 128 KiB warning and 256 KiB release gates."
+    },
+    {
+      "source": "https://defold.com/manuals/html5/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "HTML5 filesystem persistence can be asynchronous relative to the game write call, so success is reported as accepted_local_pending_browser_persistence rather than immediate durable confirmation."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "two-generation-a-b-journal",
+      "disposition": "selected",
+      "reason": "Preserves a prior valid generation through failed writes/readback and matches the validated BB-P009 recovery protocol without wall-clock ordering."
+    },
+    {
+      "id": "single-file-overwrite",
+      "disposition": "rejected",
+      "reason": "Can replace the only valid save before the new bytes are proven readable."
+    },
+    {
+      "id": "timestamp-selected-slots",
+      "disposition": "rejected",
+      "reason": "Wall-clock ordering is unnecessary and less deterministic than an explicit monotonic generation counter."
+    },
+    {
+      "id": "repair-on-load",
+      "disposition": "rejected",
+      "reason": "Turns reads into implicit writes and destroys corrupt-peer evidence; repair is deferred to the next explicit successful save."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Gameplay-facing persistence is behind a service exposing load/save/has/delete and does not require direct sys calls.",
+      "status": "pass",
+      "evidence": "systems/storage/storage_service.lua composes the local adapter and Defold backend; all journal behavior lives below the semantic boundary."
+    },
+    {
+      "criterion": "A/B selection preserves the previous highest valid generation until the new target passes readback verification.",
+      "status": "pass",
+      "evidence": "adapters/storage/local_adapter.lua targets missing/invalid/lower generation, validates the readback canonical envelope and tests forced write/readback failures against the retained prior generation."
+    },
+    {
+      "criterion": "Corruption, migration, size-budget and storage-unavailable paths are explicit and non-throwing at the service boundary.",
+      "status": "pass",
+      "evidence": "Defold backend wraps save-path/load/save access, migrations advance sequentially, local adapter enforces size diagnostics/gates, and tests/test_storage.lua covers recovery/failure cases."
+    },
+    {
+      "criterion": "Real HTML5 storage can be exercised across reload, immediate refresh, browser close/reopen and corruption without exposing the test bridge in release.",
+      "status": "pending_ci_wiring",
+      "evidence": "app/storage_probe.lua and tools/visual_qa/storage_html5_smoke.py implement the browser-level proof; the separate BB-007 CI process PR must execute and retain it before ticket closeout."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Test and data runs the adversarial storage suite on the exact PR head.",
+      "Existing HTML5 CI builds/smokes the modified bootstrap and release bundle on the exact PR head.",
+      "A separate process PR will run storage_html5_smoke.py against exact-source development/release bundles and retain the report."
+    ],
+    "manual": [],
+    "runtime_errors": "No runtime/browser success is claimed by this harness manifest until exact-head CI executes the storage smoke; service-level failure paths return structured results rather than throwing into gameplay code.",
+    "save_data_impact": "Introduces format_version=1, save_version=1 A/B local save slots under stable application id com.strayforest.bebee. No prior public save exists; migration fixture covers save_version 0 to 1."
+  },
+  "visual_evidence": {
+    "required": false,
+    "artifacts": [],
+    "states": [],
+    "viewports": [],
+    "motion_evidence": [],
+    "provenance": {
+      "capture_commit_sha": "not_applicable",
+      "capture_mode": "not_applicable",
+      "artifact_locator": "not_applicable"
+    }
+  },
+  "known_limitations": [
+    "Portal private/incognito behavior remains the separate P0/P8 platform case defined by BB-P009.",
+    "Cloud save/account synchronization is intentionally not implemented by BB-007.",
+    "CI workflow execution of the browser persistence smoke is isolated into a separate process PR to preserve the governance trust boundary."
+  ]
+}
