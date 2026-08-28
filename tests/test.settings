@@ -1,2 +1,2 @@
 [bootstrap]
-main_collection = /tests/test_bootstrap.collectionc
+main_collection = /app/test_bootstrap.collectionc
