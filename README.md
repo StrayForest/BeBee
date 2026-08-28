@@ -20,6 +20,8 @@ You are a small bee. You fly through compact meadows, pollinate flowers, earn Ho
 10. **Validate one polished vertical slice before mass-producing regions.**
 11. **Research before implementation.** Study relevant shipped solutions and current official developer documentation first.
 12. **Look at the real rendered result.** Screenshots/video and comparison evidence are part of player-facing definition of done.
+13. **Separate confidence from persuasion.** A substantial decision records status, provenance and evidence strength rather than relying on an agent's prose.
+14. **Measure before judging.** Observable interaction/UI/economy evidence comes before subjective scoring.
 
 ## Technology
 
@@ -44,26 +46,37 @@ Statuses:
 - `OPEN` — intentionally undecided;
 - `DEPRECATED` — no longer authoritative.
 
+Substantial decisions also record **provenance**: owner constraint, reference pattern, technical constraint, experiment/simulation/playtest/telemetry result, or subjective direction. This prevents an aesthetic preference from being mislabeled as an objective fact.
+
 When older documentation conflicts with `DECISIONS.md`, the decision registry wins.
 
 ## Mandatory development method
 
 ```text
 problem
- -> decision status check
- -> shipped reference research
+ -> decision status/provenance check
+ -> reference candidate pool
+ -> deep shipped-reference research + different solution/anti-pattern
  -> current official developer docs
- -> implementation brief + acceptance criteria
+ -> alternatives + implementation brief + acceptance criteria
  -> smallest complete implementation/prototype
  -> tests + HTML5 build
- -> screenshots/video of the actual build
- -> reference/quality scorecard
+ -> screenshots/video + objective measurements
+ -> separate evaluation pass
  -> iteration
- -> PR evidence
+ -> structured evidence + PR summary
  -> merge
 ```
 
-Player-facing work is not accepted merely because code runs. See [`docs/10-development-workflow.md`](docs/10-development-workflow.md) and [`docs/13-visual-qa-scorecard.md`](docs/13-visual-qa-scorecard.md).
+Player-facing work is not accepted merely because code runs. See [`docs/10-development-workflow.md`](docs/10-development-workflow.md), [`docs/13-visual-qa-scorecard.md`](docs/13-visual-qa-scorecard.md) and [`docs/15-agent-evidence-governance.md`](docs/15-agent-evidence-governance.md).
+
+For substantial player-facing/economy work, machine-readable evidence lives at:
+
+```text
+evidence/<ticket>/manifest.json
+```
+
+Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json). The PR description summarizes evidence; it does not replace it.
 
 ## Documentation map
 
@@ -95,7 +108,9 @@ Player-facing work is not accepted merely because code runs. See [`docs/10-devel
 - [`docs/08-reference-analysis.md`](docs/08-reference-analysis.md)
 - [`docs/10-development-workflow.md`](docs/10-development-workflow.md)
 - [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md)
+- [`docs/15-agent-evidence-governance.md`](docs/15-agent-evidence-governance.md)
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
+- [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
 
 ### Legal
@@ -112,6 +127,8 @@ Before normal production, P-1 must validate:
 - first-region economy/no-grind paths;
 - primary web distribution target;
 - reproducible visual style and screenshot QA pipeline.
+
+P-1 must also finish the objective-evidence hardening in `BB-P013`–`BB-P017`: structured evidence, anti-confirmation research selection, decision provenance, independent evaluation and hard merge gates.
 
 See [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md).
 
@@ -143,6 +160,6 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 **P-1 — Blueprint Hardening.**
 
-The repository is not yet declaring the original blueprint “complete.” The immediate work is to convert the highest-impact assumptions into validated decisions, remove remaining contradictions, select the primary web target, specify deterministic visual QA/storage behavior and prove the core interaction/economy before normal production begins.
+The repository is not yet declaring the original blueprint “complete.” The immediate work is to convert the highest-impact assumptions into validated decisions, remove remaining contradictions, select the primary web target, specify deterministic visual QA/storage behavior, establish enforceable evidence governance and prove the core interaction/economy before normal production begins.
 
 After P-1 exit criteria pass, continue with P0/BB-001 and the production roadmap.

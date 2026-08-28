@@ -85,6 +85,7 @@ To avoid repeated contradictory values:
 | Technical contracts | `05-technical-architecture.md` |
 | Execution order | `06-production-roadmap.md` |
 | Test/release criteria | `07-qa-analytics-release.md` |
+| Evidence/provenance governance | `15-agent-evidence-governance.md` |
 | Global decisions/status | `DECISIONS.md` |
 
 Do not duplicate canonical numeric values in multiple documents. Other documents should link to the owner.
@@ -247,6 +248,64 @@ Once CI exists:
 - protected `main`/ruleset;
 - human approval gates for subjective product milestones.
 
+### BB-P013 — Machine-readable evidence schema
+
+Create and enforce `evidence/<ticket>/manifest.json` for substantial player-facing/economy changes.
+
+The schema must cover:
+
+- player/system problem;
+- decision IDs/status/provenance/evidence strength;
+- reference candidate pool and selected references;
+- direct observation vs inference;
+- anti-pattern/materially different solution;
+- alternatives and selection/rejection reasons;
+- official documentation;
+- acceptance criteria and verification;
+- visual artifacts/measurements where applicable;
+- separate evaluation verdict.
+
+### BB-P014 — Research selection protocol
+
+Prevent cherry-picking by requiring, when reasonably available:
+
+- at least five plausible candidate references;
+- at least two deeply observed problem-specific references;
+- one materially different solution or anti-pattern;
+- reasons for selection/rejection;
+- explicit exception when the candidate pool is genuinely smaller.
+
+### BB-P015 — Decision provenance model
+
+Every substantial decision records both:
+
+- decision status (`LOCKED`, `VALIDATED`, etc.);
+- provenance (`OWNER_CONSTRAINT`, `REFERENCE_PATTERN`, `TECH_CONSTRAINT`, `EXPERIMENT_RESULT`, `SIMULATION_RESULT`, `TELEMETRY_RESULT`, `PLAYTEST_RESULT`, `SUBJECTIVE_DIRECTION`).
+
+Also record evidence strength (`LOW`, `MEDIUM`, `HIGH`).
+
+### BB-P016 — Independent evaluator protocol
+
+Substantial player-facing implementation is followed by a separate evaluation pass using primarily the original problem, acceptance criteria, reference observations, rendered evidence and measurements.
+
+The evaluator records findings and `PASS` / `PASS WITH DEVIATION` / `ITERATE`.
+
+`ITERATE` blocks merge. P2/P4/P6 still require designated human approval.
+
+### BB-P017 — Hard merge gates
+
+Strengthen CI so a convincing PR body alone is insufficient:
+
+- parse/validate the evidence manifest;
+- require the manifest to be changed in the same feature/economy PR;
+- validate URL syntax and required counts/exceptions;
+- validate one selected alternative;
+- reject empty verification/acceptance evidence;
+- reject `ITERATE`;
+- require visual evidence declaration for player-facing changes.
+
+Configure a GitHub ruleset for `main` requiring pull requests and required status checks once repository settings are available.
+
 ## 5. P-1 exit criteria
 
 Do not start normal production milestone P0 until:
@@ -258,7 +317,13 @@ Do not start normal production milestone P0 until:
 - primary distribution target is selected;
 - visual style/QA approach is defined;
 - storage abstraction and HTML5 save risks are specified;
-- agent reading/decision rules are in place.
+- agent reading/decision rules are in place;
+- decision provenance/evidence strength rules are in place;
+- machine-readable evidence is required for substantial player-facing/economy work;
+- research selection/anti-confirmation rules are in place;
+- separate player-facing evaluation is part of definition of done;
+- PR evidence CI performs semantic structural checks beyond heading presence;
+- `main` protection/ruleset is configured, or an explicit repository-settings blocker is recorded before autonomous production begins.
 
 P-1 may use disposable prototypes and research scripts. It is intentionally allowed to discover that an earlier idea was wrong.
 

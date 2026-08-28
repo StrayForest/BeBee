@@ -22,6 +22,21 @@ Do not silently resolve a contradiction. Update the decision registry or open a 
 - `OPEN` — decision intentionally not made yet.
 - `DEPRECATED` — no longer authoritative.
 
+## Provenance vocabulary
+
+Status says how settled a decision is. Provenance says why the decision exists.
+
+- `OWNER_CONSTRAINT` — explicit project-owner direction.
+- `REFERENCE_PATTERN` — supported by shipped-product observation.
+- `TECH_CONSTRAINT` — required or strongly constrained by current official technical documentation.
+- `EXPERIMENT_RESULT` — selected after direct prototype/variant comparison.
+- `SIMULATION_RESULT` — supported by deterministic modeling.
+- `TELEMETRY_RESULT` — supported by production telemetry.
+- `PLAYTEST_RESULT` — supported by observed user testing.
+- `SUBJECTIVE_DIRECTION` — explicit aesthetic/tone choice that should not be presented as objectively proven.
+
+Substantial new decisions should also record evidence strength (`LOW`, `MEDIUM`, `HIGH`) in their research/evidence record. See `docs/15-agent-evidence-governance.md`.
+
 ## Product decisions
 
 | ID | Status | Decision | Evidence / next gate |
@@ -72,6 +87,12 @@ Do not silently resolve a contradiction. Update the decision registry or open a 
 | R-002 | LOCKED | Existing pre-workflow design choices are hypotheses until retroactively benchmarked or explicitly locked here. |
 | R-003 | LOCKED | An AI agent may not self-certify a subjective milestone merely with prose; visual/product milestones require evidence and designated human approval at P2, P4 and P6. |
 | R-004 | LOCKED | Routine competitor screenshots are research material and are not committed without a compatible license. |
+| R-005 | LOCKED | Substantial decisions record both decision status and decision provenance; subjective/owner choices must not be presented as externally proven facts. |
+| R-006 | LOCKED | Substantial player-facing research builds a candidate pool, deeply inspects at least two problem-specific references when reasonably available, and includes a materially different solution or anti-pattern. |
+| R-007 | LOCKED | Substantial player-facing/economy PRs use a machine-readable `evidence/<ticket>/manifest.json` changed in the same PR; PR prose is only a summary. |
+| R-008 | LOCKED | Objective measurements are recorded before subjective scoring where observable; invented measurements are prohibited. |
+| R-009 | LOCKED | Substantial player-facing changes require a separate post-implementation evaluation record; `ITERATE` blocks merge. Human P2/P4/P6 gates remain mandatory. |
+| R-010 | LOCKED | `main` should be protected by a ruleset requiring pull requests and required status checks; direct push is not the normal workflow. |
 
 ## Change rule
 
