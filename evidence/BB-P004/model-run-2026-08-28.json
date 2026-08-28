@@ -1,0 +1,15 @@
+{
+  "ticket": "BB-P004",
+  "run_date": "2026-08-28",
+  "protocol": "deterministic-model-abc",
+  "results": [
+    {"mode":"native-first","restored":true,"action_count":4,"ownership_actions_before_restore":0,"first_ownership_action":4,"initial_player_plot_plantable":false,"initial_native_plot_plantable":false,"native_visual_can_diverge_before_completion":false,"blocked_actions":2,"campaign_preserved_after_replant":true,"native_identity_preserved_after_replant":true},
+    {"mode":"player-shaped","restored":true,"action_count":6,"ownership_actions_before_restore":2,"first_ownership_action":1,"initial_player_plot_plantable":true,"initial_native_plot_plantable":true,"native_visual_can_diverge_before_completion":true,"blocked_actions":0,"campaign_preserved_after_replant":true,"native_identity_preserved_after_replant":true},
+    {"mode":"hybrid","restored":true,"action_count":5,"ownership_actions_before_restore":1,"first_ownership_action":1,"initial_player_plot_plantable":true,"initial_native_plot_plantable":false,"native_visual_can_diverge_before_completion":false,"blocked_actions":1,"campaign_preserved_after_replant":true,"native_identity_preserved_after_replant":true}
+  ],
+  "structural_conclusion": {
+    "selected": "hybrid",
+    "reason": "Hybrid is the only tested model that provides an ownership action before restoration while preventing an incomplete native campaign plot from simultaneously presenting a conflicting chosen species.",
+    "human_comprehension_status": "not directly playtested; requires later runtime/player validation"
+  }
+}
