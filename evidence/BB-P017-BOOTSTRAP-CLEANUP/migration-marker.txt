@@ -1,0 +1,2 @@
+Autonomous policy migration validation marker.
+This file exists only to produce a fresh commit SHA whose required evidence checks are evaluated against the autonomous migration base.
