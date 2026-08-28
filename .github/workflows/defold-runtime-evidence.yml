@@ -29,18 +29,21 @@ jobs:
       - name: Prepare exact-source evidence
         run: |
           set -euo pipefail
-          mkdir -p html5-ci
+          mkdir -p html5-ci visual-qa-ci
           printf '%s\n' "${{ github.event.pull_request.head.sha || github.sha }}" > html5-ci/head-sha.txt
 
       - name: Build pinned development and release HTML5 bundles
         run: |
           set -euo pipefail
+          head_sha="${{ github.event.pull_request.head.sha || github.sha }}"
           java -version
-          python3 tools/defold/bundle_html5.py --mode development
-          python3 tools/defold/bundle_html5.py --mode release
+          python3 tools/defold/bundle_html5.py --mode development --build-commit-sha "${head_sha}"
+          python3 tools/defold/bundle_html5.py --mode release --build-commit-sha "${head_sha}"
           test -f build/html5/development/BeBee/index.html
           test -f build/html5/release/BeBee/index.html
           find build/html5/release/BeBee -type f -name '*.wasm' -print -quit | grep -q .
+          grep -F '"build_commit_sha": "'"${head_sha}"'"' build/reports/development-toolchain.json
+          grep -F '"build_commit_sha": "'"${head_sha}"'"' build/reports/release-toolchain.json
 
       - name: Smoke release bundle and retain browser evidence
         run: |
@@ -81,6 +84,48 @@ jobs:
           find build/html5/release/BeBee -type f -print0 | sort -z | xargs -0 sha256sum > html5-ci/release-files.sha256
           sha256sum html5-ci/release-1280x720.png > html5-ci/release-1280x720.sha256
 
+      - name: Install pinned visual QA browser
+        run: |
+          set -euo pipefail
+          python3 -m venv .tmp/visual-qa-venv
+          .tmp/visual-qa-venv/bin/python -m pip install --disable-pip-version-check -r tools/visual_qa/requirements.txt
+          .tmp/visual-qa-venv/bin/python -m playwright install --with-deps chromium
+
+      - name: Capture deterministic development QA state
+        run: |
+          set -euo pipefail
+          head_sha="${{ github.event.pull_request.head.sha || github.sha }}"
+          output_root="artifacts/visual-qa/${head_sha}"
+
+          .tmp/visual-qa-venv/bin/python tools/visual_qa/serve.py --directory build/html5 --bind 127.0.0.1 --port 8001 >visual-qa-ci/http-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "${server_pid}" 2>/dev/null || true' EXIT
+
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1:8001/development/BeBee/ >/dev/null; then
+              break
+            fi
+            if [ "${attempt}" -eq 30 ]; then
+              cat visual-qa-ci/http-server.log
+              exit 1
+            fi
+            sleep 1
+          done
+
+          .tmp/visual-qa-venv/bin/python tools/visual_qa/capture.py \
+            --base-url http://127.0.0.1:8001/ \
+            --development-bundle build/html5/development/BeBee \
+            --release-bundle build/html5/release/BeBee \
+            --head-sha "${head_sha}" \
+            --state movement_empty \
+            --viewports desktop_reference,mobile_landscape \
+            --output-root "${output_root}"
+
+          test -s "${output_root}/capture-report.json"
+          test -s "${output_root}/console.log"
+          test -s "${output_root}/movement_empty/desktop_reference.png"
+          test -s "${output_root}/movement_empty/mobile_landscape.png"
+
       - name: Upload playable release bundle
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
@@ -88,6 +133,14 @@ jobs:
           if-no-files-found: error
           retention-days: 14
           path: build/html5/release/BeBee
+
+      - name: Upload deterministic visual QA evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: visual-qa-${{ github.event.pull_request.head.sha || github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: artifacts/visual-qa/${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Upload HTML5 CI diagnostics
         if: always()
@@ -98,4 +151,5 @@ jobs:
           retention-days: 14
           path: |
             html5-ci
+            visual-qa-ci
             build/reports
