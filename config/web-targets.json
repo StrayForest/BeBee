@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-08-28",
+  "primary": "poki",
+  "fallback": "crazygames",
+  "development": "direct_web",
+  "switch_condition": "If Poki developer access or external playtesting is unavailable when BeBee needs its first portal audience test, use CrazyGames as the primary external validation target without changing gameplay-domain code.",
+  "targets": {
+    "poki": {
+      "role": "primary_validation_and_distribution",
+      "defold_integration": "official_defold_extension_and_template",
+      "required_devices": ["desktop", "mobile", "tablet"],
+      "aspect_ratio": "16:9 responsive canvas",
+      "entry": "minimize menus; first gameplay input drives gameplayStart",
+      "network_policy": "external requests blocked by default; explicit approval required",
+      "save": {
+        "local": ["localStorage", "IndexedDB"],
+        "cloud_sync": "automatic for logged-in Poki users",
+        "cloud_limit": "1MB gzip"
+      },
+      "loading": {
+        "hard_numeric_limit_documented": false,
+        "guidance": "target <=5MB initial and <=8MB total; keep load under ~10s and use progressive loading"
+      },
+      "testing": "Poki Inspector plus staged playtesting/player-fit/web-fit process",
+      "sources": [
+        "https://developers.poki.com/guide/requirements-quality",
+        "https://developers.poki.com/guide/how-testing-works",
+        "https://developers.poki.com/guide/web-engine",
+        "https://developers.poki.com/guide/accounts",
+        "https://developers.poki.com/guide/external-resources-policy",
+        "https://github.com/defold/extension-poki-sdk"
+      ]
+    },
+    "crazygames": {
+      "role": "secondary_distribution_and_fallback_validation",
+      "defold_integration": "official_defold_extension",
+      "required_devices": ["desktop"],
+      "mobile": "supported and recommended; <=20MB initial needed for mobile homepage eligibility",
+      "aspect_ratio": "responsive 16:9 test sizes",
+      "entry": "full implementation lands directly in gameplay or at most one click",
+      "network_policy": "platform/SDK requirements apply; keep platform services behind adapters",
+      "save": {
+        "local": ["localStorage", "IndexedDB"],
+        "cloud_sync": "Data module or APS when applicable",
+        "cloud_limit": "1MB for Data module"
+      },
+      "loading": {
+        "max_initial_mb": 50,
+        "mobile_homepage_max_initial_mb": 20,
+        "max_total_mb": 250,
+        "max_files": 1500,
+        "guidance": "top-performing Basic Launch titles commonly stay below 20MB and load in under 10s"
+      },
+      "testing": "QA/preview plus Basic Launch KPI period before Full Launch",
+      "sources": [
+        "https://docs.crazygames.com/requirements/intro/",
+        "https://docs.crazygames.com/requirements/technical/",
+        "https://docs.crazygames.com/requirements/gameplay/",
+        "https://docs.crazygames.com/resources/basic-launch-metrics/",
+        "https://docs.crazygames.com/sdk/data/",
+        "https://defold.com/extension-crazygames/"
+      ]
+    },
+    "direct_web": {
+      "role": "development_qa_and_optional_owned_distribution",
+      "defold_integration": "native_html5_bundle",
+      "required_devices": [],
+      "entry": "BeBee-owned",
+      "network_policy": "BeBee-owned",
+      "save": {
+        "local": ["IndexedDB via Defold HTML5 virtual filesystem"],
+        "cloud_sync": "none unless BeBee adds a backend",
+        "cloud_limit": null
+      },
+      "testing": "local/CI HTTP server plus browser automation",
+      "sources": [
+        "https://defold.com/manuals/html5/",
+        "https://defold.com/manuals/automated-testing/",
+        "https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria"
+      ]
+    }
+  },
+  "cross_target_contract": {
+    "gameplay_domain_must_not_import_portal_sdk": true,
+    "platform_sdk_behind_adapter": true,
+    "must_run_without_account": true,
+    "must_run_in_private_incognito_mode_where_target_requires": true,
+    "release_build_must_bundle_required_fonts_assets_libraries": true,
+    "baseline_aspect_ratio": "16:9",
+    "touch_supported_from_start": true,
+    "first_session_target": "direct gameplay or <=1 intentional action",
+    "save_payload_target": "well below 512KB serialized domain save"
+  }
+}
