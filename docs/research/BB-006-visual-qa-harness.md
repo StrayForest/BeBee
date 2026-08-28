@@ -6,20 +6,21 @@ Checked: 2026-08-29
 
 BB-006 implements the previously validated BB-P008 deterministic visual-QA contract far enough to prove one real exact-build HTML5 capture path before player-facing systems scale.
 
-This harness PR adds:
+The completed foundation provides:
 
 - a development/CI-only Defold QA router and `window.__bebeeQA` readiness bridge;
 - exact source-commit binding injected by the pinned Bob build command;
 - one infrastructure-only `foundation_probe` fixture in addition to the fifteen canonical future gameplay/UI states;
 - a canonical local HTML5 HTTP server with explicit WebAssembly MIME handling;
 - pinned Playwright-for-Python capture tooling using isolated Chromium BrowserContexts;
-- desktop-reference and mobile-landscape capture definitions with exact repeated-capture stability checks;
-- release-bundle proof logic that rejects any exposed QA bridge or probe;
-- deterministic tests for state/seed request handling.
+- desktop-reference and mobile-landscape capture with exact repeated-capture stability checks;
+- release-bundle proof that rejects any exposed QA bridge or probe;
+- deterministic tests for state/seed request handling;
+- exact-source HTML5 CI execution and a retained `visual-qa-<sha>` artifact.
 
 `foundation_probe` deliberately does not pretend that `movement_empty`, HUD, pollination, hive, seed or restoration gameplay already exists. Those canonical states retain their original semantic assertions and become implementable only when their owning systems exist.
 
-CI wiring and retained visual artifacts are a separate BB-006 process PR so this high-risk runtime change does not mix candidate Lua with governance/workflow authority changes.
+The runtime/tooling implementation was merged separately from workflow wiring so high-risk candidate Lua did not share a PR with governance-sensitive Actions changes.
 
 ## Official documentation checked
 
@@ -76,7 +77,7 @@ Use the BB-P008 contract directly: engine-owned readiness/state provenance, Play
 
 Why selected:
 
-- follows the already validated repository contract rather than creating a second capture architecture;
+- matches the already validated repository contract rather than creating a second capture architecture;
 - separates state readiness from arbitrary browser sleeps;
 - provides browser/version/context semantics needed for later player-facing evidence;
 - allows repeated captures to establish actual stability before any golden threshold is invented.
@@ -96,9 +97,9 @@ Root `game.properties` defines:
 - `bebee.qa_enabled` — false by default, explicitly true in development settings and false in release settings;
 - `bebee.build_commit_sha` — exact source provenance injected by `tools/defold/bundle_html5.py` through a second temporary Bob settings file.
 
-Development HTML5 always exposes `window.__bebeeQA`; a requested supported fixture becomes capture-ready only after the bootstrap proxy has loaded. Unknown states fail closed with `error=unknown_state` and never become capture-ready.
+Development HTML5 exposes `window.__bebeeQA` only when the QA runtime flag is enabled. A requested supported fixture becomes capture-ready only after the bootstrap proxy has loaded. Unknown states fail closed with `error=unknown_state` and never become capture-ready.
 
-Release builds do not execute QA initialization because `bebee.qa_enabled=false`; the capture runner explicitly verifies that `window.__bebeeQA` and the probe DOM node are absent even when QA query parameters are supplied.
+Release builds do not execute QA initialization because `bebee.qa_enabled=false`; the capture runner verifies that `window.__bebeeQA` and the probe DOM node are absent even when QA query parameters are supplied.
 
 ## Foundation fixture
 
@@ -122,15 +123,45 @@ python3 -m playwright install chromium
 python3 tools/visual_qa/capture_visual_qa.py --head-sha <FULL_SHA>
 ```
 
+The CI command uses `python3 -m playwright install --with-deps chromium` so the hosted runner also receives required Linux browser dependencies.
+
 The server explicitly serves `.wasm` as `application/wasm` and answers only Chromium's implicit root `/favicon.ico` request with 204 so browser chrome noise does not masquerade as a game-resource error.
+
+## Exact runtime proof
+
+The first complete BB-006 CI proof is GitHub Actions run `33214438370` on candidate head `56fa405c48d7c193c5e9888b825c48a0779c93a2`.
+
+Observed capture report:
+
+- browser: Playwright Chromium `151.0.7922.34`;
+- Defold: `1.13.1`;
+- QA seed: `88008`;
+- reported build SHA exactly matched the candidate head;
+- development bundle SHA-256: `fd0f30b989f1d65dc493a7128897a9d671b8b665303236ec944fd8c2e4c0cdf0`;
+- desktop 1280×720: both isolated repeats SHA-256 `9efcf3f167dad760168b6d3fe14dc3b5126115960bda827260ac4687a8cc1f11`;
+- mobile-landscape 844×390: both isolated repeats SHA-256 `046b359c483baeb1cae2240dd0c8a01000dab6509047b41e99197e746de2c471`;
+- `console_error_count=0` and `page_error_count=0` for both captures;
+- release proof: `bridge_present=false`, `probe_present=false`.
+
+Retained artifacts from that run:
+
+- `visual-qa-56fa405c48d7c193c5e9888b825c48a0779c93a2` — artifact `9702826036`, Actions digest `sha256:cabb48fd669f9f55e1482a55413538da6d33fbfb2c8fdeb9dfb22301d997593d`;
+- `html5-playable-56fa405c48d7c193c5e9888b825c48a0779c93a2` — artifact `9702825800`, digest `sha256:18acb76a3040cc348216bcbd020f50c6fd7d6e9b9a9aaeefe3d2ea62583741f9`;
+- `html5-ci-evidence-56fa405c48d7c193c5e9888b825c48a0779c93a2` — artifact `9702826312`, digest `sha256:f3aea48e7519f221f0c98f8d35f50fd832add15cb737fea70d985ec87e3fc503`.
+
+The downloaded visual artifact was also inspected directly: both images show only the intended centered infrastructure probe on the real development HTML5 surface. The report/log contains warning-level Chromium WebGL `ReadPixels` performance diagnostics during screenshot capture, but no error/assert/page exception, and the exact repeated image hashes remain identical.
+
+The same candidate head also passed `Repository standards` run `33214438383`, `Test and data` run `33214438431` and trusted `validate-pr-evidence` check `98994811068`.
 
 ## Decision impact
 
 No `DECISIONS.md` status changes. `T-002`, `T-012`, `R-001`, `R-014` and the validated BB-P008 contract are implemented rather than reopened.
 
 Provenance: `TECH_CONSTRAINT`.
-Evidence strength: `HIGH` for the harness architecture and release isolation; actual repeatability/retained-artifact proof is completed by the separate BB-006 CI process PR.
+Evidence strength: `HIGH` for the harness architecture, exact-build binding, release isolation and observed repeatability of the foundation fixture.
 
-## Follow-up boundary
+## Closeout boundary
 
-The process PR must install the pinned Playwright package/Chromium, use the canonical server, run exact-head desktop/mobile captures, retain `artifacts/visual-qa/<sha>/`, verify repeated stability and release QA absence, then update README/roadmap to BB-006 COMPLETE. BB-007 remains responsible for browser storage persistence/reload.
+BB-006 proves the P0 visual-QA infrastructure contract and one deterministic still fixture; it does **not** claim that the future player-facing state registry is implemented. Player-facing states and required motion evidence are added by the milestones that own those systems.
+
+BB-007 remains responsible for the storage abstraction, corrupt-load recovery and browser save/reload persistence proof.

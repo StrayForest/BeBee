@@ -112,7 +112,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`config/dependencies.json`](config/dependencies.json) — machine-readable third-party dependency/license inventory
 - [`config/web-targets.json`](config/web-targets.json)
 - [`config/visual-style.json`](config/visual-style.json) — canonical numeric style tokens
-- [`config/visual-qa.json`](config/visual-qa.json) — deterministic QA-state/capture contract
+- [`config/visual-qa.json`](config/visual-qa.json) — canonical deterministic QA-state/capture contract
 - [`config/storage-contract.json`](config/storage-contract.json) — HTML5 persistence/recovery contract
 - [`tools/defold/toolchain.json`](tools/defold/toolchain.json) — pinned Defold/Bob/Java/HTML5 build contract
 
@@ -129,6 +129,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/research/BB-003-input-proxy-focus.md`](docs/research/BB-003-input-proxy-focus.md) — P0 semantic input, proxy-focus and modal-consumption proof
 - [`docs/research/BB-004-test-data-harness.md`](docs/research/BB-004-test-data-harness.md) — P0 deterministic test/data harness evidence and alternatives
 - [`docs/research/BB-005-html5-ci.md`](docs/research/BB-005-html5-ci.md) — P0 exact-source playable HTML5 CI/browser-smoke contract
+- [`docs/research/BB-006-visual-qa-harness.md`](docs/research/BB-006-visual-qa-harness.md) — P0 deterministic exact-build visual-QA runtime/capture proof
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -151,7 +152,7 @@ Still open/tunable before downstream milestones lock production values:
 - exact Honey reward/cost table and minutes/actions between meaningful purchases;
 - final Flight/Buzz effect curves and flower-gate tuning;
 - rendered comprehension/input/seed pacing for the Hybrid restoration flow;
-- runtime proof that the validated V-001 style/crop rules survive the deterministic Defold HTML5 capture pipeline once P0 creates the production runtime.
+- applying and tuning the validated V-001 style/crop rules against future real player-facing scenes through the now-operational deterministic HTML5 capture pipeline.
 
 The objective-evidence hardening in `BB-P013`–`BB-P017` is in place. `BB-P006` validated Poki as the primary external target, `BB-P007` defined V-001, `BB-P008` defined the deterministic visual-QA runtime contract, and `BB-P009` defined the HTML5 A/B generation storage/recovery contract.
 
@@ -183,7 +184,7 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 ## Current status
 
-**P0 — Foundation is in progress. `BB-001` through `BB-005` are complete.**
+**P0 — Foundation is in progress. `BB-001` through `BB-006` are complete.**
 
 BB-001 establishes a minimal `app/` bootstrap, explicit development/release settings and a reproducible editor-independent HTML5 path. The toolchain is pinned to Defold **1.13.1**, OpenJDK **25**, `wasm-web` and the published Bob SHA-256. Exact-head CI successfully built both development and release bundles and rendered the bootstrap in Chromium before merge.
 
@@ -191,8 +192,10 @@ BB-002 adds Defold-aware generated-file rules, explicit text/Lua conventions, ca
 
 BB-003 replaces the empty binding with device-independent semantic actions, proves keyboard and HTML5 single-touch/pointer paths, explicitly owns collection-proxy input focus, and retains an exact-head Chromium proof that unconsumed actions traverse the proxy world while an open modal consumes them before proxied gameplay and lower main-world listeners. `T-010` remains a hypothesis because proxy memory/full lifecycle are still unproven, and final touch movement UX remains a later player-facing decision.
 
-BB-004 adds a dependency-free deterministic Lua test runner, a dedicated Defold headless test bootstrap, a canonical content catalog plus stable-ID/reference validation, and 11 initial deterministic cases covering input semantics and data-validation success/failure paths. The editor-independent runner verifies the pinned Bob/Java toolchain, requires a structured suite completion event, propagates failures through process exit status and retains diagnostic output. GitHub Actions runs the same command on PRs and `main` with read-only permissions.
+BB-004 adds a dependency-free deterministic Lua test runner, a dedicated Defold headless test bootstrap, a canonical content catalog plus stable-ID/reference validation, and 11 initial deterministic cases covering input semantics and data-validation success/failure paths. The editor-independent runner verifies the pinned Bob/Java toolchain, requires a structured suite completion event, propagates failures through process exit status and retains diagnostic output. GitHub Actions runs the same command on PRs and `main` with read-only permissions; subsequent foundation work extends the suite without changing the BB-004 harness contract.
 
-BB-005 turns the existing runtime evidence path into exact-source **HTML5 CI** for every PR and `main` update: pinned development/release `wasm-web` builds, release Chromium startup/resource/console smoke, retained BB-003 keyboard/touch/proxy smoke, a dedicated playable release artifact and separate diagnostic evidence. The first strict smoke correctly stopped on Chromium's automatic favicon 404; retained network evidence proved all game resources healthy, so the check was narrowed only for that browser-generated request while all other HTTP 4xx/5xx remain fatal. Candidate run `33213154271` then passed and retained playable artifact `9702369697` plus evidence artifact `9702370265` on exact head `3c50ca49…`.
+BB-005 turns the existing runtime evidence path into exact-source **HTML5 CI** for every PR and `main` update: pinned development/release `wasm-web` builds, release Chromium startup/resource/console smoke, retained BB-003 keyboard/touch/proxy smoke, a dedicated playable release artifact and separate diagnostic evidence. The first strict smoke correctly stopped on Chromium's automatic favicon 404; retained network evidence proved all game resources healthy, so the check was narrowed only for that browser-generated request while all other HTTP 4xx/5xx remain fatal.
 
-**Next production task: `P0 / BB-006 — Visual QA harness foundation`.**
+BB-006 implements the BB-P008 deterministic visual-QA foundation in the real Defold HTML5 runtime: development-only `?qa=...&qa_seed=...` routing and `window.__bebeeQA`, exact source-SHA binding through Bob, a canonical HTTP server, pinned Playwright Chromium, isolated BrowserContexts, desktop/mobile capture and release-negative proof. The infrastructure-only `foundation_probe` is byte-stable across two fresh-context repeats at both **1280×720** and **844×390**, with zero console/page errors; release exposes neither bridge nor probe. Exact candidate run `33214438370` retained visual artifact `9702826036` plus the same-run playable and diagnostic HTML5 artifacts. Future gameplay/UI QA states remain owned by their actual systems rather than being falsely marked implemented here.
+
+**Next production task: `P0 / BB-007 — Storage adapter proof`.**

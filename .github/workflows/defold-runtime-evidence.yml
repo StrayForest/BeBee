@@ -26,6 +26,12 @@ jobs:
           java-version: "25"
           cache: ""
 
+      - name: Install pinned visual QA browser tooling
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check -r tools/visual_qa/requirements.txt
+          python3 -m playwright install --with-deps chromium
+
       - name: Prepare exact-source evidence
         run: |
           set -euo pipefail
@@ -42,16 +48,16 @@ jobs:
           test -f build/html5/release/BeBee/index.html
           find build/html5/release/BeBee -type f -name '*.wasm' -print -quit | grep -q .
 
-      - name: Smoke release bundle and retain browser evidence
+      - name: Smoke bundles and capture deterministic visual QA
         run: |
           set -euo pipefail
 
-          python3 -m http.server 8000 --bind 127.0.0.1 --directory build/html5 >html5-ci/http-server.log 2>&1 &
+          python3 scripts/serve_html5.py --root build/html5 --bind 127.0.0.1 --port 8000 >html5-ci/http-server.log 2>&1 &
           server_pid=$!
           trap 'kill "${server_pid}" 2>/dev/null || true' EXIT
 
           for attempt in $(seq 1 30); do
-            if curl --fail --silent --show-error http://127.0.0.1:8000/release/BeBee/ >/dev/null; then
+            if curl --fail --silent --show-error http://127.0.0.1:8000/release/BeBee/ >/dev/null && curl --fail --silent --show-error http://127.0.0.1:8000/development/BeBee/ >/dev/null; then
               break
             fi
             if [ "${attempt}" -eq 30 ]; then
@@ -75,9 +81,20 @@ jobs:
             printf '%s\n' '{"schema_version":1,"result":"not_applicable","reason":"input proxy proof not present on this head"}' > html5-ci/input-proxy-smoke.json
           fi
 
+          head_sha="${{ github.event.pull_request.head.sha || github.sha }}"
+          python3 tools/visual_qa/capture_visual_qa.py \
+            --head-sha "${head_sha}" \
+            --state foundation_probe \
+            --viewports desktop_reference,mobile_landscape \
+            --repeat 2 \
+            --output-root "artifacts/visual-qa/${head_sha}"
+
           "${browser}" --headless=new --no-sandbox --disable-gpu --window-size=1280,720 --virtual-time-budget=5000 --screenshot=html5-ci/release-1280x720.png http://127.0.0.1:8000/release/BeBee/
 
           test -s html5-ci/release-1280x720.png
+          test -s "artifacts/visual-qa/${head_sha}/foundation_probe/desktop_reference.png"
+          test -s "artifacts/visual-qa/${head_sha}/foundation_probe/mobile_landscape.png"
+          test -s "artifacts/visual-qa/${head_sha}/capture-report.json"
           find build/html5/release/BeBee -type f -print0 | sort -z | xargs -0 sha256sum > html5-ci/release-files.sha256
           sha256sum html5-ci/release-1280x720.png > html5-ci/release-1280x720.sha256
 
@@ -88,6 +105,14 @@ jobs:
           if-no-files-found: error
           retention-days: 14
           path: build/html5/release/BeBee
+
+      - name: Upload deterministic visual QA evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: visual-qa-${{ github.event.pull_request.head.sha || github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: artifacts/visual-qa/${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Upload HTML5 CI diagnostics
         if: always()

@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-006 — Visual QA harness foundation**.
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-007 — Storage adapter proof**.
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -76,7 +76,7 @@ Do **not** build dependent production systems around downstream hypotheses that 
 
 # P0 — Foundation
 
-**Status: IN PROGRESS — BB-001 through BB-005 complete; BB-006 next.**
+**Status: IN PROGRESS — BB-001 through BB-006 complete; BB-007 next.**
 
 ## Goal
 
@@ -139,7 +139,7 @@ Delivered:
 - timeout, complete log retention, one required structured `suite_end` event and non-zero failure propagation;
 - PR/main `Test and data` workflow with read-only contents permission and retained diagnostic artifacts.
 
-The exact stacked candidate `7c3aefb8112fd1385ddeeec760b3aa27b32548e2` produced `BB-004 tests: PASS (11/11)` and retained `summary.json`, the engine log and Bob build report. The first CI execution also correctly exposed the missing Ubuntu `libopenal.so.1` runtime dependency; CI now installs `libopenal1` rather than masking the failure. Detailed scope and alternatives are retained in `docs/research/BB-004-test-data-harness.md` and `evidence/BB-004-HARNESS/manifest.json`. BB-005 owns the broader playable HTML5 PR artifact contract.
+The exact stacked candidate `7c3aefb8112fd1385ddeeec760b3aa27b32548e2` produced `BB-004 tests: PASS (11/11)` and retained `summary.json`, the engine log and Bob build report. The first CI execution also correctly exposed the missing Ubuntu `libopenal.so.1` runtime dependency; CI now installs `libopenal1` rather than masking the failure. Detailed scope and alternatives are retained in `docs/research/BB-004-test-data-harness.md` and `evidence/BB-004-HARNESS/manifest.json`. Later P0 work can extend the suite while preserving this harness contract.
 
 ### BB-005 — HTML5 CI — COMPLETE
 
@@ -156,12 +156,25 @@ Delivered:
 
 The first strict run `33212975885` stopped on an error-level Chromium message; retained HTTP evidence identified the sole 404 as the browser's automatic `/favicon.ico` request while all Defold game resources, including `BeBee.wasm`, loaded successfully. The smoke was narrowed only for a Network-domain-proven favicon 404 while every other HTTP 4xx/5xx remains fatal. Exact candidate `3c50ca49d1b9fee8e39bac744e7d340e3f419963` then passed `Repository standards` (`33213154277`), `Test and data` (`33213154235`) and `HTML5 CI` (`33213154271`), retaining playable artifact `9702369697` and evidence artifact `9702370265`. Detailed reasoning and closeout proof are retained in `docs/research/BB-005-html5-ci.md` and `evidence/BB-005-CI/manifest.json`.
 
-### BB-006 — Visual QA harness foundation
+### BB-006 — Visual QA harness foundation — COMPLETE
 
-- deterministic development state injection/router;
-- local serve command;
-- automated screenshot tooling design implemented far enough to capture a known test state;
-- desktop/mobile artifact capture.
+Delivered:
+
+- development/CI-only `?qa=<state>&qa_seed=<seed>` routing plus engine-owned `window.__bebeeQA` readiness/provenance bridge;
+- release-mode hard disable of the QA bridge and explicit negative browser proof;
+- exact source-commit binding injected through the canonical pinned Bob build path;
+- infrastructure-only `foundation_probe` that proves the harness without falsely implementing future gameplay QA states;
+- canonical local HTTP server with explicit `application/wasm` handling;
+- pinned Playwright Python/Chromium tooling using fresh BrowserContexts per independent capture;
+- deterministic 1280×720 desktop and 844×390 mobile-landscape still capture;
+- two isolated repetitions per viewport with exact PNG SHA-256 equality for the unchanged foundation fixture;
+- machine-readable `capture-report.json`, `console.log` and dedicated `visual-qa-<sha>` CI artifact;
+- deterministic QA request/seed tests added to the existing Test/data harness;
+- candidate Playwright execution remains read-only and separate from trusted `pull_request_target` governance authority.
+
+The first complete proof was HTML5 CI run `33214438370` on exact head `56fa405c48d7c193c5e9888b825c48a0779c93a2` using Playwright Chromium `151.0.7922.34` and Defold `1.13.1`. Desktop repeats both hashed to `9efcf3f167dad760168b6d3fe14dc3b5126115960bda827260ac4687a8cc1f11`; mobile repeats both hashed to `046b359c483baeb1cae2240dd0c8a01000dab6509047b41e99197e746de2c471`; both viewports reported zero console/page errors, and release reported `bridge_present=false` / `probe_present=false`. Visual artifact `9702826036` has Actions digest `sha256:cabb48fd669f9f55e1482a55413538da6d33fbfb2c8fdeb9dfb22301d997593d`. Detailed reasoning and closeout proof are retained in `docs/research/BB-006-visual-qa-harness.md`, `docs/18-deterministic-visual-qa.md` and `evidence/BB-006-CI/manifest.json`.
+
+The fifteen canonical future player-facing QA states remain semantic contracts owned by their actual gameplay/UI milestones; BB-006 does not claim they already render. Motion capture and selective golden-image policies are added only where later evidence requires them.
 
 ### BB-007 — Storage adapter proof
 
