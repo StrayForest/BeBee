@@ -199,23 +199,32 @@ Restoration may add:
 
 The before/after difference must remain obvious with the HUD hidden.
 
-## 13. Seeds and customization — corrected direction
+## 13. Seeds and customization — VALIDATED Hybrid topology
 
-The previous GDD treated customization mostly as something unlocked only after full meadow completion. That is no longer authoritative.
+`BB-P004` compared Native-first, fully Player-shaped and Hybrid seed/restoration models. The structural result is recorded in `docs/research/BB-P004-seed-restoration-result.md` and `evidence/BB-P004/model-run-2026-08-28.json`.
 
-Locked principle:
+The validated default topology is:
 
-> Seed choice must contribute to player ownership during the restoration journey while remaining safe for campaign progression.
+> During restoration, authored native campaign plots keep their native/campaign identity, while dedicated player-shaped plots may accept owned seeds. Player-shaped plots never gate native campaign completion. After restoration, completed native plots may become replantable where content allows. Campaign/native identity and current planted species are separate state concepts.
 
-`BB-P004` compares:
+Why Hybrid won:
 
-1. native restoration first, customize later;
-2. owned seeds can be planted during restoration;
-3. hybrid native objectives + player-shaped plots.
+- Native-first kept campaign language simple but produced no ownership action before restoration, violating the ownership-during-restoration principle;
+- fully Player-shaped provided immediate freedom but allowed one incomplete native campaign plot to carry an authored native identity while displaying a different chosen species;
+- Hybrid provided an early ownership action without overloading active native campaign plots with two simultaneous identities;
+- every model preserved campaign completion across replanting, so progression safety alone did not decide the winner.
 
-Campaign-native completion and current planted visual species must be separate state concepts so planting cannot erase progression.
+Production P5 must still validate:
 
-Replanting should be reversible where promised. Aesthetic choices must not create a soft-lock.
+- visual language separating native and player-shaped plots without persistent explanatory UI;
+- exact number and placement of player-shaped plots;
+- when player-shaped plots first appear during onboarding;
+- planting input/gesture;
+- seed unlock and cost pacing;
+- whether all or only selected native plots become replantable after restoration;
+- establishment/pollination behavior for newly planted seeds.
+
+Replanting must be reversible where promised. Aesthetic choices must not create a soft-lock or erase campaign completion.
 
 ## 14. World gates
 
@@ -286,6 +295,7 @@ Before scaling content, answer with evidence:
 - Does a harder flower create aspiration rather than forced micro-circling?
 - Does upgrading visibly change experience?
 - Do seeds feel like ownership during restoration?
+- Can a player distinguish native objectives from player-shaped plots without persistent explanation?
 - Can customization spending ever create grind?
 - Is the world transformation strong enough without UI?
 - Can a new player state the long-term goal?

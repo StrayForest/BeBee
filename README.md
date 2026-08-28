@@ -128,11 +128,12 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 ## Current product hypotheses that must not be mistaken for locked design
 
-`D-006` is now `VALIDATED`: default pollination is movement-through/sweep — qualifying movement inside a pollinatable patch advances progress, standing still does not, and the default scheme has no separate high-frequency pollination button. Exact movement/work tuning remains a P2 task.
+`D-006` is `VALIDATED`: default pollination is movement-through/sweep — qualifying movement inside a pollinatable patch advances progress, standing still does not, and the default scheme has no separate high-frequency pollination button. Exact movement/work tuning remains a P2 task.
+
+`D-005` is also `VALIDATED`: seed ownership uses a Hybrid restoration topology. Authored native campaign plots keep their native identity during restoration, dedicated player-shaped plots allow seed ownership before full completion, and campaign/native state remains separate from planted species. P5 still must prove that the two roles are understandable in the rendered game and tune the exact plot count, placement, planting input and seed economy.
 
 Before normal production, P-1 still needs product evidence for:
 
-- how seed choice participates in restoration;
 - whether `Yield` deserves to remain an upgrade track;
 - first-region pacing/no-grind behavior beyond the current deterministic arithmetic simulation;
 - runtime proof that the validated V-001 style/crop rules survive the deterministic Defold HTML5 capture pipeline once P0 creates the production runtime.
@@ -169,6 +170,6 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 **P-1 — Blueprint Hardening.**
 
-The repository now has enforceable evidence governance, a protected autonomous merge path, a validated movement-owned pollination verb (`D-006`), a seed/restoration A/B/C experiment harness, a deterministic economy simulator, a validated primary web target, measurable V-001 visual style, deterministic visual-QA design and a validated HTML5 storage/recovery protocol. Remaining product work is to validate the seed/restoration flow, settle the upgrade set (especially Yield), and resolve first-region pacing assumptions before normal production begins. Runtime visual/storage proof executes in P0 when the Defold project exists.
+The repository now has enforceable evidence governance, a protected autonomous merge path, a validated movement-owned pollination verb (`D-006`), a validated Hybrid seed/restoration topology (`D-005`), a deterministic economy simulator, a validated primary web target, measurable V-001 visual style, deterministic visual-QA design and a validated HTML5 storage/recovery protocol. Remaining product work is to settle the upgrade set (especially Yield) and resolve first-region pacing assumptions before normal production begins. Runtime visual/storage proof executes in P0 when the Defold project exists.
 
 After P-1 exit criteria pass, continue with P0/BB-001 and the production roadmap.
