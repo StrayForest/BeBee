@@ -4,17 +4,13 @@
   "change_class": "process",
   "problem": "The BB-004 headless test/data command exists but is not yet executed automatically by GitHub Actions, so test/data failures would not produce a CI failure signal on every pull request and main update.",
   "decision": {
-    "ids": [
-      "R-001",
-      "R-015",
-      "R-016"
-    ],
+    "ids": ["R-001", "R-015", "R-016"],
     "status_before": "LOCKED",
     "status_after": "LOCKED",
     "provenance_type": "TECH_CONSTRAINT",
     "evidence_strength": "HIGH",
     "selected_alternative": "separate-candidate-test-workflow",
-    "rationale": "Add a read-only pull_request/push workflow that checks out the exact candidate/source revision, installs the already pinned Java major and invokes the canonical BB-004 test command. Keep trusted pull_request_target evidence policy unchanged so candidate test code never becomes the authority for governance validation."
+    "rationale": "Add a read-only pull_request/push workflow that checks out the exact candidate/source revision, installs the pinned Java major and required Linux headless runtime library, and invokes the canonical BB-004 test command. Keep trusted pull_request_target evidence policy unchanged so candidate test code never becomes the authority for governance validation."
   },
   "research": {
     "candidate_pool": [],
@@ -71,32 +67,32 @@
     {
       "criterion": "The CI job invokes the same canonical BB-004 command developers use locally and propagates its non-zero exit status.",
       "status": "pass",
-      "evidence": "The workflow installs OpenJDK 25 and runs `bash scripts/test.sh` directly under the default shell failure semantics."
+      "evidence": "The workflow installs OpenJDK 25 plus libopenal1 and runs `bash scripts/test.sh` directly under shell failure semantics. The missing OpenAL runtime was exposed by the first CI execution and fixed rather than bypassed."
     },
     {
       "criterion": "Test reports/logs are retained for diagnosis without granting write permissions.",
       "status": "pass",
-      "evidence": "The workflow declares contents: read and uploads build/test-results plus build/reports/tests.json with the repository's already pinned upload-artifact action."
+      "evidence": "The workflow declares contents: read and uploads build/test-results plus build/reports/tests.json with the repository's pinned upload-artifact action."
     },
     {
-      "criterion": "Existing trusted PR evidence validation remains separate and unchanged.",
+      "criterion": "Existing trusted PR evidence validation remains separate and unchanged while source-of-truth docs advance only after BB-004 proof.",
       "status": "pass",
-      "evidence": "The diff adds only .github/workflows/test-data.yml and this process evidence record; pr-evidence-trusted.yml and policy scripts are not modified."
+      "evidence": "pr-evidence-trusted.yml and policy scripts are not modified. README.md and docs/06-production-roadmap.md record BB-004 complete and hand off to BB-005 after exact stacked runtime proof passed 11/11."
     }
   ],
   "verification": {
     "automated": [
-      "The stacked PR runs the new test-data job against the combined exact head containing the BB-004 harness.",
-      "Trusted-base PR evidence and trust-boundary validators inspect this governance diff independently."
+      "Exact stacked candidate 7c3aefb8112fd1385ddeeec760b3aa27b32548e2 completed the new headless test/data job with BB-004 tests: PASS (11/11) and retained artifact 9700371425.",
+      "The final PR head must repeat Repository standards, Test and data, and trusted-base evidence/trust-boundary validation before merge."
     ],
     "manual": [],
-    "runtime_errors": "The test-data job fails if the canonical headless command returns non-zero; the combined stacked run is required to show one passing suite_end event before the harness is merged.",
+    "runtime_errors": "The first CI execution correctly failed because Ubuntu lacked libopenal.so.1. Installing libopenal1 resolved the environment dependency; the subsequent exact stacked run completed 11/11. The final PR head is required to repeat the same proof before merge.",
     "save_data_impact": "none"
   },
   "governance": {
-    "trust_boundary_change": "Adds a new unprivileged candidate-source CI workflow only. It has contents: read, runs under pull_request/push, and does not modify the existing pull_request_target trusted evidence workflow, ruleset authority or policy code.",
+    "trust_boundary_change": "Adds a new unprivileged candidate-source CI workflow. It has contents: read, runs under pull_request/push, and does not modify the existing pull_request_target trusted evidence workflow, ruleset authority or policy code. README/roadmap changes are status closeout only.",
     "bypass_analysis": "Candidate branches can edit their own tests/workflow, so this job is intentionally not a governance authority and does not replace validate-pr-evidence. Its role is deterministic runtime/data regression detection. The trusted-base policy continues to classify and validate the candidate diff independently.",
-    "rollback": "Delete .github/workflows/test-data.yml. No production runtime code, secrets, ruleset or trusted evidence policy depends on the workflow."
+    "rollback": "Delete .github/workflows/test-data.yml and revert the BB-004 status handoff if the workflow must be removed. No production runtime code, secrets, ruleset or trusted evidence policy depends on the workflow."
   },
   "known_limitations": [
     "The workflow is a CI regression signal; the repository's existing required ruleset check remains validate-pr-evidence unless separately changed through an explicit ruleset governance task.",
