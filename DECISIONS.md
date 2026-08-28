@@ -107,7 +107,7 @@ Substantial new decisions should also record evidence strength (`LOW`, `MEDIUM`,
 | R-016 | LOCKED | Governance-critical workflow/policy/source-of-truth changes require a same-PR governance evidence manifest with explicit trust-boundary impact, bypass analysis and rollback; they do not require a second GitHub account. |
 | R-017 | DEPRECATED | Mandatory exact-head approval from a second human GitHub account for P2/P4/P6 or governance changes. | Replaced by R-003, R-009, R-016 and R-020. |
 | R-018 | LOCKED | Player-facing/economy reference diversity is based on shipped-product identity (`product_id`), not URL count; multiple pages for one product cannot satisfy independent-reference counts. |
-| R-019 | LOCKED | Required status checks on `main` must use strict/up-to-date enforcement; the existing loose ruleset remains a P-1 settings blocker until GitHub reports strict required status checks enabled. |
+| R-019 | LOCKED | Required status checks on `main` use strict/up-to-date enforcement. **Verified satisfied 2026-08-28:** active `Protect main` ruleset 21741136 targets the default branch, requires `validate-pr-evidence`, and reports `strict_required_status_checks_policy=true`; evidence: `evidence/BB-P017-RULESET-CLOSEOUT/ruleset-snapshot.json`. |
 | R-020 | LOCKED | BeBee's normal autonomous development path must not depend on maintaining a second human GitHub account/collaborator. Human review may be requested deliberately, but absence of a second reviewer is not a merge blocker. |
 
 See `docs/16-ci-trust-boundary.md` for the enforcement design and bootstrap boundary.
