@@ -120,6 +120,12 @@ The evidence manifest should be changed in the same PR as the implementation it 
 
 Routine screenshots/video should normally remain CI/PR artifacts rather than repository files. The manifest records their artifact names/links when available.
 
+### Exact-head provenance binding
+
+A commit cannot contain its own final Git commit SHA as literal file content: changing the manifest changes the commit SHA. Therefore exact-head evidence fields may use the literal binding `$PR_HEAD` in the committed manifest. Trusted CI resolves that binding against `github.event.pull_request.head.sha`, checks out that exact commit and records the concrete SHA inside the retained runtime/evaluation artifact. A literal SHA is also valid when it already equals the PR head; any other value fails policy.
+
+This binding is not a wildcard and does not permit evidence from another commit. Artifact provenance must still demonstrate which concrete PR head was built, captured or evaluated.
+
 ---
 
 ## 7. Measure first, judge second
