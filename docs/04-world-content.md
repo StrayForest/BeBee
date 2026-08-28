@@ -1,487 +1,315 @@
 # 04 — World & Content Design
 
-## 1. World structure
+## 1. Authority
 
-BeBee uses an authored planet made from regions, not an infinite procedural world.
+This document owns canonical region/meadow/flower content structure. Economy values belong in `02-progression-economy.md`; global decision status belongs in `DECISIONS.md`.
+
+Later-region content remains proposal-level until the vertical slice is validated.
+
+## 2. World structure
+
+BeBee uses an authored planet:
 
 ```text
 Planet
- ├─ Region
- │   ├─ Meadow
- │   │   ├─ FlowerPatch
- │   │   ├─ FlowerPatch
- │   │   └─ UnlockGate / Landmark
- │   └─ Meadow...
- └─ Region...
+ └─ Region
+     └─ Meadow
+         ├─ FlowerPatch
+         ├─ Player-shaped / seed-capable plot where validated
+         └─ UnlockGate / Landmark
 ```
 
-Authoring the world gives us better pacing, visual composition, tutorial control and performance predictability than procedural generation.
+Authoring gives better pacing, visual composition, tutorial control and performance predictability than an infinite procedural world.
 
----
+## 3. Canonical proposed region order
 
-## 2. Region design rules
+To resolve the previous documentation contradiction, the current canonical proposal is:
 
-Each region must have:
+1. **Sunny Meadows** — first-region tutorial/vertical slice;
+2. **Golden Fields** — larger open loops, sunflower/poppy identity;
+3. **Wetland Garden** — water/roots/islands, lotus/iris identity;
+4. **Rosewood** — woodland clearings, rose/bluebell identity;
+5. **Alpine Bloom** — rock/snow/wind, alpine flower identity;
+6. **Moon Garden** — glowing/exotic finale.
 
-- a distinct color/biome identity;
-- 4–8 compact meadows;
-- 1–2 newly introduced flower species;
-- at least one visible landmark;
+This order is recorded in `DECISIONS.md` as the current canonical proposal. Only Region 1 is production-relevant before P6 passes.
+
+## 4. Region design rules
+
+A region should have:
+
+- distinct biome/color identity;
+- compact authored meadows;
+- 1–2 new flower families rather than an unrelated system dump;
+- at least one orientation landmark;
 - one modest navigation variation;
-- a clear restoration finale;
-- a seed reward or flower discovery that makes the region memorable.
+- visible restoration finale;
+- a seed/flower-expression reward or discovery.
 
-A region should not introduce multiple unrelated systems at once.
+New regions should mostly reuse proven systems. If a region needs major new architecture, stop and question the architecture/content scope.
 
----
-
-## 3. Proposed planet progression
-
-### Region 1 — Sunny Meadows
-
-Purpose: teach the complete game.
-
-Visuals:
-
-- warm green grass;
-- soft dirt paths;
-- shallow creek;
-- small hive/home tree;
-- white/yellow/purple flower palette.
-
-Flowers:
-
-- Daisy;
-- Clover;
-- Lavender;
-- Tulip;
-- Lily finale.
-
-Navigation idea: simple creek/bridge and blocked vine paths.
-
-### Region 2 — Golden Fields
-
-Purpose: increase scale and route planning.
-
-Visuals:
-
-- tall grass;
-- wheat-like ground cover;
-- amber afternoon lighting;
-- windmill/old garden marker.
-
-Flowers:
-
-- Sunflower;
-- Poppy;
-- carried-over Tulip/Lily.
-
-Navigation idea: patches arranged in larger open loops.
-
-### Region 3 — Wetland Garden
-
-Purpose: stronger spatial identity.
-
-Visuals:
-
-- ponds;
-- reeds;
-- stepping roots;
-- reflected sky.
-
-Flowers:
-
-- Water Lily / Lotus;
-- Iris;
-- carried-over Lavender.
-
-Navigation idea: narrow dry routes around water and island patches.
-
-### Region 4 — Rosewood
-
-Purpose: introduce richer aesthetic customization.
-
-Visuals:
-
-- forest edges;
-- moss;
-- shaded clearings;
-- softer pink/red palette.
-
-Flowers:
-
-- Rose;
-- Bluebell;
-- Foxglove-like fictionalized species if needed for readability.
-
-Navigation idea: curved woodland corridors and clearings.
-
-### Region 5 — Alpine Bloom
-
-Purpose: advanced pollination requirements.
-
-Visuals:
-
-- pale rock;
-- snow edges;
-- alpine grass;
-- wind effects.
-
-Flowers:
-
-- Edelweiss-like alpine flower;
-- Crocus;
-- rare blue/purple species.
-
-Navigation idea: elevation communicated visually but gameplay remains effectively 2D.
-
-### Region 6 — Moon Garden
-
-Purpose: finale and visual reward.
-
-Visuals:
-
-- dusk/night palette;
-- glowing pollen;
-- bioluminescent plants;
-- restored planet vistas.
-
-Flowers:
-
-- Orchid;
-- Moonflower;
-- fictional exotic finale species.
-
-Navigation idea: glowing bloom gates opened by overall restoration progress.
-
----
-
-## 4. Meadow template
-
-A typical meadow should fit mostly within a few camera screens and contain:
-
-- entrance/reveal;
-- 3–7 required patches;
-- 0–2 optional decorative/replay patches;
-- one visual focal point;
-- one path toward future content;
-- one safe space for customization viewing;
-- minimal empty travel.
-
-### Good layout
-
-```text
-Entrance
-   ↓
-Easy patch ── visible harder patch
-   │                 │
-Hive/path        soft gate
-   │                 │
-Easy patch ── medium patch
-          ↓
-     restoration focal point
-```
-
-The player should frequently see something they will be able to access soon.
-
----
-
-## 5. First-region meadow specs
+## 5. First-region proposal — HYPOTHESIS until pacing validation
 
 ### M01 — First Patch
 
-Role: tutorial.
+Role: teach movement, the validated pollination verb, first Honey and first improvement.
 
-- 3 Daisy patches.
-- Hive within short travel distance.
-- First Lily bud visible behind a decorative boundary but not interactable.
-- No navigation obstacle.
-- Completion unlocks Clover seeds and next meadow path.
+- small number of starter patches;
+- Hive/home nearby if Hive remains the validated upgrade surface;
+- visibly harder future flower nearby;
+- no meaningful navigation obstacle.
+
+Do not lock the first seed grant here until `BB-P004` chooses the seed/restoration flow.
 
 ### M02 — Clover Bend
 
-Role: first choice and first customization demonstration.
+Role: first route choice and first player-ownership/seed demonstration if the validated flow introduces it here.
 
-- 4 patches.
-- Mix Daisy/Clover.
-- Curved path around a small stone/tree landmark.
-- Restoring it enables seed replanting tutorial.
+- starter flower mix;
+- curved route/landmark;
+- at least one space where player choice can visibly alter the recovering meadow.
 
 ### M03 — Lavender Bank
 
-Role: first soft gate.
+Role: first soft difficulty aspiration.
 
-- 4 patches.
-- 2 easy, 2 Lavender.
-- Player can attempt Lavender underpowered but sees slow progress.
-- Buzz upgrade makes difference obvious.
+- easy + medium patches;
+- underpowered interaction remains understandable;
+- relevant improvement visibly changes efficiency.
 
 ### M04 — Creek Garden
 
-Role: movement feel.
+Role: movement/navigation feel.
 
-- 5 patches.
-- Creek divides the meadow.
-- Short bridge loop.
-- Travel distance makes Flight upgrade attractive without requiring it.
+- shallow creek/bridge loop;
+- slightly longer traversal that makes movement upgrades desirable without hard-requiring them.
 
 ### M05 — Tulip Rise
 
-Role: mixed-tier efficiency.
+Role: mixed-tier efficiency and route order.
 
-- 5 patches.
-- Tulips visually large and satisfying.
-- Route forks so player chooses order.
-- One optional replay/customization nook.
+- clear fork/order choice;
+- large readable bloom payoff;
+- room for visible player-selected flower composition.
 
 ### M06 — Lily Clearing
 
 Role: region climax.
 
-- 6 patches.
-- Final Lily cluster hard-gated by Buzz 3.
-- Completion triggers the strongest region-scale restoration sequence.
-- Lily seeds become permanent reward.
-- Planet map expands/reveals Region 2 silhouette.
+- explicit high-tier gate candidate;
+- strongest first-region restoration sequence;
+- region-completion reward/reveal;
+- next-region silhouette rather than a full new production area.
 
----
+The old exact patch counts are no longer locked. `BB-P005`/P2/P4 playtests determine final counts and pacing.
 
 ## 6. Flower content model
 
-Each flower definition should contain data, not bespoke game logic unless necessary.
+Each flower definition is data-driven.
 
-Suggested schema:
+Conceptual schema:
 
 ```lua
 {
-  id = "daisy",
+  id = "flower_daisy",
   display_name_key = "flower.daisy",
   tier = 1,
   pollination_required = 3,
   base_honey = 10,
   min_buzz_level = 1,
-  soft_gate = false,
-  seed_unlock_cost = 0,
+  gate_mode = "none",
   palette_id = "daisy_white_yellow",
   patch_prefab = "/flowers/daisy/daisy_patch.collection",
-  bloom_sfx = "daisy_bloom",
-  tags = { "meadow", "starter" }
+  tags = { "starter", "meadow" }
 }
 ```
 
-Do not encode progression by checking species names in scripts.
+Canonical values live in data/economy ownership, not copied into multiple docs.
 
----
+Do not encode progression by checking species names in behavior scripts.
 
 ## 7. Flower roster principles
 
-A new flower is worth adding when it contributes at least two of:
+A new species should add at least two meaningful dimensions:
 
-- new silhouette;
-- new dominant color;
-- new biome association;
-- new difficulty tier;
-- new reward/collection identity;
-- new subtle pollination animation.
+- silhouette;
+- dominant color;
+- biome identity;
+- difficulty vocabulary;
+- reward/collection identity;
+- subtle bloom/pollination presentation.
 
-Avoid adding 30 near-identical flowers purely to inflate a collection list.
+Avoid adding near-identical species merely to inflate a collection count.
 
----
+## 8. Native challenge vs planted expression
 
-## 8. Native flowers vs planted flowers
+This separation is required regardless of the final seed flow.
 
-Each patch has a **native flower** used for campaign difficulty and first restoration.
+Each campaign patch/plot may have:
 
-After meadow restoration:
+- `native_flower_id` or campaign objective identity;
+- campaign completion state;
+- current planted/display species;
+- optional player-choice state.
 
-- native challenge is considered completed permanently;
-- player may replant an unlocked species;
-- replant choice affects appearance and optional replay behavior, not campaign gate history.
+Changing a planted species must not erase campaign-native completion or lock the player out of progression.
 
-This separation prevents customization from breaking progression rules.
+## 9. Seed/restoration flow — HYPOTHESIS
 
----
+The old rule “finish the whole meadow, then customization begins” is no longer authoritative.
 
-## 9. Combination system
+`BB-P004` evaluates:
 
-At meadow level, combinations already happen by planting different primary species into different patches.
+### Model A — Native first
 
-Post-vertical-slice optional Accent system:
+All required native work completes before the player replants.
 
-```text
-Patch
-  Primary: Lavender
-  Accent: Daisy
-```
+Pros: simple campaign language.
+Risk: ownership arrives too late.
 
-Visual spawn ratio recommendation:
+### Model B — Player-shaped restoration
 
-- primary 70–80%;
-- accent 20–30%.
+Owned seeds can be planted while the meadow is still being restored.
 
-No negative compatibility table. Every unlocked flower can coexist unless art readability proves otherwise.
+Pros: closest to the original fantasy of choosing what the planet becomes.
+Risk: native difficulty/progression language may become unclear.
 
----
+### Model C — Hybrid
 
-## 10. Restoration staging
+Some authored native patches establish biome/challenge identity while dedicated/optional plots can be shaped by the player during restoration.
 
-Every meadow defines authored visual stages.
+Pros: likely best separation of campaign readability and ownership.
+Risk: must not feel like two unrelated patch systems.
 
-Example:
+The selected model becomes `VALIDATED` in `DECISIONS.md` before P5 is implemented permanently.
 
-### Stage 0 — Dormant
+## 10. Combination system
 
-- muted grass;
-- closed buds;
-- little ambient motion;
-- sparse soundscape.
+Player-requested flower combinations can exist without arbitrary tile editing.
 
-### Stage 1 — Waking
+Baseline approach:
 
-- stronger grass color;
-- a few butterflies/pollen particles;
-- subtle music layer added.
+- different plots/patches in one meadow may use different primary species;
+- optional Accent species is post-vertical-slice only if readability/performance remain strong.
 
-### Stage 2 — Growing
+If Accent exists later:
 
-- ground flowers/grass tufts increase;
-- landmark visually improves;
-- more ambient insects.
+- primary remains visually dominant;
+- accent is cosmetic-first;
+- no negative compatibility table;
+- no aesthetic punishment.
 
-### Stage 3 — Restored
+## 11. Restoration staging
 
-- full color;
-- all required flowers open;
-- restoration burst;
-- richer ambience;
-- customization becomes available.
+Every meadow has authored stages such as:
 
-The change should be obvious in screenshots before/after.
+### Dormant
 
----
+- lower saturation;
+- fewer ground details;
+- sparse ambience;
+- closed/limited flower life.
 
-## 11. Planet-level restoration
+### Waking
 
-Completing regions should alter the meta planet visual.
+- stronger ground color;
+- first ambient insects/pollen;
+- small landmark improvements.
 
-At 0%:
+### Growing
 
-- mostly muted surface;
-- a few dim regions.
+- more ground cover/flowers;
+- richer ambience/music layer;
+- player choices increasingly visible.
 
-At milestones such as 25/50/75/100%:
+### Restored
 
-- colored areas expand;
-- cloud/atmosphere treatment becomes warmer;
-- tiny visible bloom patterns appear;
-- final completion gives a unique planet-scale bloom animation.
+- full authored color/vegetation target;
+- strongest local bloom moment;
+- richer fauna/ambience;
+- player's chosen flower composition remains visible where the validated seed model allows it.
 
-The final reward is primarily visual ownership, not a stat popup.
+The state difference must be obvious in deterministic screenshots with HUD hidden.
 
----
+## 12. Planet-level restoration
 
-## 12. Environmental hazards
+Completing required meadow/region restoration alters the meta planet visual.
 
-MVP has obstacles, not punishment hazards.
+The exact percentage model should move meaningfully after major work. Avoid tiny percentage changes that make a completed meadow feel numerically irrelevant.
+
+The final 100% reward is primarily visual/world ownership, not another stat popup.
+
+## 13. Environmental obstacles
+
+Vertical-slice obstacles are navigation, not punishment:
 
 Allowed:
 
 - water edges;
-- rocks;
-- tree trunks;
-- vines/gates;
+- rocks/tree trunks;
+- vines/restoration gates;
 - narrow paths;
-- wind zone later that gently affects steering.
+- gentle wind later if validated.
 
-Not in MVP:
+Excluded:
 
-- damage spikes;
-- enemies;
 - lethal water;
-- durability loss;
-- resource theft.
+- enemy damage;
+- durability/resource theft;
+- punishment hazards that contradict the cozy core.
 
----
+## 14. Landmarks and orientation
 
-## 13. Landmarks
+Use landmarks to make compact spaces memorable and navigable:
 
-Landmarks help orientation and emotional memory.
-
-Examples:
-
-- home hive tree;
-- little pond;
-- abandoned watering can reclaimed by flowers;
+- Hive/home tree;
+- pond/creek;
+- watering can reclaimed by flowers;
 - stone arch;
 - old garden sign;
-- tiny greenhouse ruin;
+- greenhouse ruin;
 - windmill;
-- glowing moon tree.
+- glowing finale tree.
 
-Landmarks should become prettier as surrounding restoration progresses.
+Landmarks should improve visually with surrounding restoration where feasible.
 
----
+## 15. Ambient life
 
-## 14. Ambient life
-
-Ambient fauna communicates ecosystem recovery.
-
-Progressive additions:
+Ambient fauna communicates ecosystem recovery:
 
 - butterflies;
 - ladybugs;
-- tiny birds in background;
 - dragonflies near water;
-- floating pollen;
-- fireflies in late/night regions.
+- background birds;
+- pollen/fireflies.
 
-These are visual actors, not simulation-heavy NPC systems in MVP.
-
----
-
-## 15. Art production constraints
-
-Every gameplay flower needs:
-
-- closed/bud state;
-- 2–3 intermediate bloom states or equivalent animation;
-- full bloom state;
-- readable patch arrangement;
-- icon/seed card illustration;
-- optional accent-compatible version later.
-
-Every patch must remain readable when partially obscured by particles/UI.
-
----
+These are lightweight presentation actors, not simulation-heavy NPC systems in the vertical slice.
 
 ## 16. Content authoring workflow
 
-1. define flower data;
-2. create patch prefab/collection;
-3. place in meadow collection;
-4. assign stable patch IDs;
-5. define unlock requirement;
-6. define reward;
-7. author restoration stage effects;
-8. run economy validation;
-9. run navigation/readability playtest;
-10. capture before/after screenshots for review.
+For each new meadow/flower:
 
-No meadow ships with auto-generated IDs that can change and corrupt saves.
-
----
+1. read `DECISIONS.md` and relevant feature research;
+2. research problem-specific references when introducing a new player-facing pattern;
+3. define stable data/IDs;
+4. author minimal layout/prefab;
+5. validate progression/economy references;
+6. run navigation/readability test;
+7. capture deterministic before/active/after states;
+8. compare against reference and BeBee visual rules;
+9. only then scale/duplicate the pattern.
 
 ## 17. Content acceptance criteria
 
-A finished meadow must have:
+A production meadow must have:
 
-- obvious entrance and progression direction;
+- obvious entrance/progression readability;
 - no collision trap;
-- no required patch hidden by decoration;
-- at least one visually satisfying vista/focal area;
-- patch rewards defined in data;
-- save IDs stable;
-- restoration stages authored;
-- objective marker targets assigned;
-- desktop and portrait-mobile framing checked;
-- completion reachable without grind outside intended progression.
+- no required interaction hidden by decoration;
+- stable persistent IDs;
+- authored restoration stages;
+- validated objective targets;
+- desktop + relevant mobile framing evidence;
+- completion possible without unintended replay grind;
+- player flower choices preserved safely where supported;
+- approved reference/visual comparison evidence.
