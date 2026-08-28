@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-006-VISUAL-QA",
+  "change_class": "technical",
+  "problem": "BeBee has a validated deterministic visual-QA design but no production runtime state router, readiness bridge, exact-head desktop/mobile capture path, repeatability proof or release guard. Later player-facing agents therefore cannot yet bind rendered evidence to a known Defold state and exact source candidate.",
+  "decision": {
+    "ids": ["V-001", "T-002", "T-012", "R-001", "R-014", "R-016"],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "validated-playwright-bridge-contract",
+    "rationale": "Implement the already-validated BB-P008 contract: a development-only Defold QA router publishes explicit state/seed/readiness/exact-SHA provenance through window.__bebeeQA, while pinned Playwright uses clean BrowserContexts to capture canonical desktop/mobile evidence twice and the release build is adversarially checked for bridge/query absence."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-product research is not applicable to deterministic CI/browser evidence infrastructure; the behavior is constrained by the already-validated repository QA contract and current Defold/Playwright APIs.",
+    "selected_references": [],
+    "reference_exception": "BB-006 makes no new player-facing visual/aesthetic decision and does not claim that the placeholder movement fixture satisfies P1 visual assertions.",
+    "anti_pattern": {
+      "source": "https://defold.com/manuals/automated-testing/",
+      "observation": "Browser capture synchronized by arbitrary sleeps is weaker than an explicit JavaScript testing bridge because it cannot prove the game state/readiness represented by a screenshot.",
+      "lesson": "Make engineReady/captureReady authoritative and fail closed on unknown states or provenance mismatch instead of sleeping and capturing whatever happens to be on screen."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/automated-testing/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Defold HTML5 can be browser-automated for runtime screenshots and JavaScript/console error checks, and an explicit JavaScript testing bridge is an appropriate synchronization boundary."
+    },
+    {
+      "source": "https://defold.com/ref/stable/html5-lua/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "html5.run executes JavaScript from the Defold HTML5 runtime, allowing the development-only engine state router to publish the readiness/provenance bridge."
+    },
+    {
+      "source": "https://defold.com/manuals/project-settings/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Custom project settings can be declared in game.properties and read through sys.get_config_* so QA enablement and source provenance can be build-configured rather than hard-coded."
+    },
+    {
+      "source": "https://defold.com/manuals/bob/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Bob supports repeated --settings arguments applied left to right, so an ephemeral exact-head provenance settings file can override the tracked mode settings without modifying source files."
+    },
+    {
+      "source": "https://playwright.dev/docs/browser-contexts",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Playwright BrowserContext provides isolated clean-slate browser sessions appropriate for independent order-insensitive QA captures."
+    },
+    {
+      "source": "https://github.com/microsoft/playwright-python",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "The selected Playwright Python package is an Apache-2.0 browser automation QA dependency and is not required in the BeBee runtime bundle."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "validated-playwright-bridge-contract",
+      "disposition": "selected",
+      "reason": "Directly implements BB-P008, provides clean BrowserContext isolation and maintained screenshot/error APIs, and keeps state readiness authoritative in the Defold runtime."
+    },
+    {
+      "id": "extend-raw-cdp-client",
+      "disposition": "rejected",
+      "reason": "The BB-005 raw-CDP client is intentionally narrow; extending it would make BeBee maintain context isolation, capture and page-error plumbing that Playwright already provides and BB-P008 already selected."
+    },
+    {
+      "id": "fixed-sleep-screenshot",
+      "disposition": "rejected",
+      "reason": "A fixed delay cannot prove state identity, seed, exact build provenance or deterministic readiness and can conceal async races."
+    },
+    {
+      "id": "release-debug-router",
+      "disposition": "rejected",
+      "reason": "Shipping the QA bridge/router would violate the validated release contract and add an unnecessary production debug surface."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Development HTML5 can select a known QA state and fixed seed through the canonical query parameters and reports authoritative bridge readiness/provenance.",
+      "status": "pending_runtime_ci",
+      "evidence": "app/qa_router.lua implements movement_empty, default/fixed seed handling, exact build SHA, engineReady/captureReady and fail-closed unknown-state behavior; exact-head browser CI must prove it."
+    },
+    {
+      "criterion": "The same known state is captured on canonical desktop and mobile-landscape viewports and repeated isolated captures are byte-stable.",
+      "status": "pending_runtime_ci",
+      "evidence": "tools/visual_qa/capture.py captures desktop_reference and mobile_landscape twice in fresh BrowserContexts and requires identical PNG SHA-256 plus simulationFrame."
+    },
+    {
+      "criterion": "Capture evidence includes exact-head, bundle, Defold, browser, state, seed, viewport, simulation-frame and capture hash provenance plus console/page error counts.",
+      "status": "pending_runtime_ci",
+      "evidence": "The Playwright runner writes the canonical fields into artifacts/visual-qa/<head>/capture-report.json and retains console.log; exact-head artifact CI must prove the files."
+    },
+    {
+      "criterion": "Release does not expose the QA bridge and QA query parameters do not activate QA behavior.",
+      "status": "pending_runtime_ci",
+      "evidence": "release.settings explicitly sets bebee.qa_enabled=0; the capture runner probes plain and QA-query release contexts, requires no bridge and requires identical release screenshot hashes."
+    },
+    {
+      "criterion": "Candidate runtime execution remains read-only and outside trusted-base governance authority while visual evidence becomes a retained exact-head artifact.",
+      "status": "pass",
+      "evidence": "BB-006 extends the existing contents:read pull_request/push HTML5 CI workflow. The trusted pull_request_target evidence workflow and policy implementation are not modified."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Repository standards, Test and data, HTML5 CI and trusted-base PR evidence validation must all pass on the final exact PR head.",
+      "HTML5 CI must retain a visual-qa-<head_sha> artifact containing capture-report.json, console.log and desktop/mobile movement_empty PNGs.",
+      "The runner itself adversarially checks unknown/mismatched readiness conditions through fail-closed bridge semantics and release QA-parameter/bridge absence."
+    ],
+    "manual": [],
+    "runtime_errors": "No runtime success is claimed before exact-head CI. Browser HTTP/request/console/page errors are retained and actionable failures reject the job; Chromium's automatic favicon 404 is the only narrowly classified browser-generated exception.",
+    "save_data_impact": "none"
+  },
+  "governance": {
+    "trust_boundary_change": "The existing unprivileged exact-source HTML5 CI workflow gains dependency installation and candidate visual-QA execution/artifact retention. It remains pull_request/push with contents:read. No pull_request_target workflow, ruleset, secrets permission or trusted evidence policy code changes.",
+    "bypass_analysis": "The candidate can modify its own HTML5/visual-QA workflow and tooling, so these outputs are technical regression/evidence signals rather than governance authority. The unchanged trusted-base validate-pr-evidence workflow independently classifies the diff and validates the manifest. Release behavior is checked from the separately built release bundle rather than trusting a development flag assertion alone.",
+    "rollback": "Revert the BB-006 workflow additions, QA router/build settings, Playwright/local-serve/capture tooling and dependency ledger entries. The BB-005 playable HTML5 CI, BB-003 input/proxy smoke and BB-004 test/data workflow remain independently usable."
+  },
+  "known_limitations": [
+    "movement_empty is a technical bootstrap fixture at P0 and is not evidence that P1 movement composition or the eventual bee-visible assertion is complete.",
+    "Only the minimum one-state desktop/mobile still-capture foundation is implemented in BB-006; the other canonical states and motion clips are implemented by the milestones that own those systems.",
+    "No universal screenshot pixel-diff tolerance or golden-image regression policy is introduced; repeated unchanged capture uses exact SHA equality to prove the current deterministic fixture only."
+  ]
+}
