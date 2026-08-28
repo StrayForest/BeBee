@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "ticket": "BB-P005",
-  "change_class": "economy",
+  "change_class": "process",
   "problem": "BeBee needs a first-region Honey structure that cannot be soft-locked by upgrade/seed spending and a vertical-slice upgrade set whose tracks have clear player-facing purpose. Yield remained unresolved because an income multiplier can become a timing spreadsheet, trap, or universal opener.",
   "decision": {
     "ids": ["D-007"],
@@ -68,6 +68,11 @@
     "yield_mid_net_advantage": -1,
     "yield_late_net_advantage": -15,
     "evaluation_verdict": "PASS WITH DEVIATION"
+  },
+  "governance": {
+    "trust_boundary_change": "Changes authoritative product source-of-truth D-007 from HYPOTHESIS to VALIDATED Flight + Buzz only based on same-PR simulation evidence. It does not modify CI workflows, policy code, required checks, reviewer rules, or trusted-base authority.",
+    "bypass_analysis": "The required process class is caused by the DECISIONS.md source-of-truth change and is not used to weaken economy evidence. The same BB-P005 manifest retains the candidate pool, selected references, alternatives, 5040-order simulation, Yield counterevidence, acceptance criteria and verification. Candidate policy/workflow code is unchanged and cannot become the authority that validates this PR.",
+    "rollback": "If production P1/P3 evidence shows the two-track set is insufficient, revert D-007 to HYPOTHESIS and reopen upgrade alternatives with new evidence. The historical Yield research case remains reproducible and no production save migration is required."
   },
   "known_limitations": [
     "The economy evidence is deterministic arithmetic, not a human time/feel playtest; evidence strength is MEDIUM.",
