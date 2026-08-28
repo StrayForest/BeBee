@@ -20,6 +20,8 @@ You are a small bee. You fly through compact meadows, pollinate flower patches, 
 8. **HTML5 first, mobile-ready.** Desktop and touch controls are first-class from the start.
 9. **Data-driven content.** Flower types, zones, upgrades, seed recipes and rewards live in data definitions rather than scattered game logic.
 10. **Ship a vertical slice early.** One polished region is more valuable than ten unfinished systems.
+11. **Research before implementation.** Significant features begin with competitor/reference research and current official developer documentation, not immediate coding.
+12. **Look at the rendered result.** Player-facing changes require screenshots/video, inspection and comparison with the selected references before merge.
 
 ## Technology decision
 
@@ -33,6 +35,28 @@ You are a small bee. You fly through compact meadows, pollinate flower patches, 
 
 Defold is selected because BeBee is a small, interaction-heavy 2D title targeting web and mobile, and the engine has a small runtime, direct HTML5/mobile support and a workflow well suited to a data-driven Lua game.
 
+## Mandatory development method
+
+For meaningful features, the repository uses this order:
+
+```text
+problem definition
+ -> shipped-game reference research
+ -> official developer documentation
+ -> implementation brief + acceptance criteria
+ -> implementation
+ -> tests + HTML5 build
+ -> screenshots/video of actual BeBee build
+ -> visual/interaction comparison against references
+ -> iteration
+ -> PR evidence
+ -> merge
+```
+
+A coding agent must not jump directly from a ticket to code. Full rules live in [`docs/10-development-workflow.md`](docs/10-development-workflow.md), and substantial work should use [`docs/templates/feature-research.md`](docs/templates/feature-research.md).
+
+Competitor references are used to learn proven interaction, information hierarchy, controls, feedback and pacing. They are not permission to copy proprietary assets, code, maps, text or pixel-identical UI.
+
 ## Documentation
 
 - [`docs/00-product-vision.md`](docs/00-product-vision.md) — product vision, audience, pillars and scope
@@ -45,6 +69,8 @@ Defold is selected because BeBee is a small, interaction-heavy 2D title targetin
 - [`docs/07-qa-analytics-release.md`](docs/07-qa-analytics-release.md) — tests, telemetry, release gates and live-quality rules
 - [`docs/08-reference-analysis.md`](docs/08-reference-analysis.md) — competitor/open-source research and reuse boundaries
 - [`docs/09-art-direction.md`](docs/09-art-direction.md) — bee, flowers, restoration visuals, UI skin, animation and audio direction
+- [`docs/10-development-workflow.md`](docs/10-development-workflow.md) — mandatory research-first implementation and visual comparison process
+- [`docs/templates/feature-research.md`](docs/templates/feature-research.md) — reusable evidence/decision template for substantial features
 - [`AGENTS.md`](AGENTS.md) — implementation contract for Codex/AI-assisted development
 - [`THIRD_PARTY.md`](THIRD_PARTY.md) — mandatory dependency/asset license ledger
 
@@ -75,4 +101,4 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 ## Current status
 
-**Phase 0 — product blueprint complete.** The next implementation step is `P0 / BB-001`: create the Defold project bootstrap and a reproducible HTML5 build, then follow `docs/06-production-roadmap.md` in order.
+**Phase 0 — product blueprint complete.** The next implementation step is `P0 / BB-001`: create the Defold project bootstrap and a reproducible HTML5 build, then follow `docs/06-production-roadmap.md` in order. Every substantial implementation task must also follow `docs/10-development-workflow.md`.
