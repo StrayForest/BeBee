@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-004-HARNESS",
+  "change_class": "technical",
+  "problem": "BeBee has no deterministic Defold unit-test runner or data-validation boundary, so production logic/content could regress without an editor-independent, machine-readable failure signal.",
+  "decision": {
+    "ids": [
+      "T-001",
+      "T-003"
+    ],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "project-local-headless-runner",
+    "rationale": "Use a small repository-local Lua runner inside a dedicated Defold headless bootstrap, with the existing pinned Bob/Java contract and a dependency-free process controller. This follows current Defold automated-testing guidance while avoiding an unnecessary third-party framework."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-game competitor research is not applicable to a test/data infrastructure ticket; engine/runtime correctness is governed by Defold technical contracts.",
+    "selected_references": [],
+    "reference_exception": "No player-facing interaction or presentation decision is made.",
+    "anti_pattern": {
+      "source": "https://defold.com/manuals/automated-testing/",
+      "observation": "A host-only test can miss engine-specific behavior and a CI process that only looks for any log output can falsely pass a crashed or incomplete suite.",
+      "lesson": "Run engine-dependent tests in a dedicated Defold bootstrap and require a structured completion event plus process exit status."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/automated-testing/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold documents dedicated test bootstraps, Bob headless bundles, captured exit status/logs, timeout enforcement and a required structured suite-completion event for CI."
+    },
+    {
+      "source": "https://defold.com/manuals/bob/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Bob supports dedicated settings, x86_64-linux bundles and the headless engine variant used by the test process controller."
+    },
+    {
+      "source": "https://defold.com/ref/stable/sys-lua/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "sys.exit(code) terminates the Defold application with an explicit process exit code that can propagate suite failure."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "project-local-headless-runner",
+      "disposition": "selected",
+      "reason": "Runs in the real Defold Lua environment, stays dependency-free and exactly covers the small P0 test/data requirement."
+    },
+    {
+      "id": "community-test-framework",
+      "disposition": "rejected",
+      "reason": "A new dependency/license/version surface is not justified by the initial small suite; it can be revisited if the local runner becomes burdensome."
+    },
+    {
+      "id": "host-only-tests",
+      "disposition": "rejected",
+      "reason": "Host-only Lua/Python execution would not prove behavior in Defold's Lua environment and can miss engine globals such as hash()."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "A dedicated non-production Defold test bootstrap executes deterministic Lua suites without changing the production bootstrap.",
+      "status": "pass",
+      "evidence": "tests/test.settings overrides only main_collection to app/test_bootstrap.collectionc; game.project and app/bootstrap.collection remain unchanged and do not reference the test bootstrap."
+    },
+    {
+      "criterion": "The data validator rejects duplicate/malformed stable IDs and broken authored cross-references with deterministic diagnostics.",
+      "status": "pass",
+      "evidence": "data/validator.lua implements sorted structural/reference errors and tests/test_data_validation.lua includes positive and adversarial cases."
+    },
+    {
+      "criterion": "The first deterministic suite covers merged production input semantics as well as the data-validation contract.",
+      "status": "pass",
+      "evidence": "tests/test_input_semantics.lua and tests/test_data_validation.lua define eleven deterministic cases executed by tests/test_runner.script."
+    },
+    {
+      "criterion": "The editor-independent test command propagates build/test failure through process status and requires structured suite completion.",
+      "status": "pass",
+      "evidence": "tools/defold/run_tests.py verifies pinned Bob/Java, builds the documented headless target, enforces a timeout, parses BEBEE_TEST JSON, requires one passing suite_end event and exit code 0."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Repository standards validate Python/JSON/text hygiene and the explicit tests non-production root on the exact candidate source.",
+      "The stacked BB-004 CI wiring PR runs bash scripts/test.sh against the combined exact head before this harness is merged, providing the runtime execution proof without mixing runtime Lua and governance workflow changes in one PR."
+    ],
+    "manual": [],
+    "runtime_errors": "The headless process controller retains the complete engine log and treats build errors, timeout, malformed/missing completion, failed cases or any non-zero exit as failure; exact runtime execution is bound to the stacked CI PR before merge.",
+    "save_data_impact": "none"
+  },
+  "known_limitations": [
+    "The foundation validates catalog structure/references only; domain-specific flower/economy constraints are added with the content systems that own them.",
+    "The Defold test bootstrap collection/game-object descriptors live under app/ so the repository's existing lifecycle-resource classifier treats them as high-risk technical; production game.project/bootstrap do not reference them, and tests/test.settings is the only bootstrap selector.",
+    "CI workflow wiring is intentionally a separate process PR so the trusted base classification policy is not weakened or bypassed."
+  ]
+}
