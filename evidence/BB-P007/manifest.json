@@ -60,6 +60,11 @@
     "runtime_errors": "none; pre-runtime style contract/tooling only, generated SVG/XML validation passes",
     "save_data_impact": "none; no production runtime or save format exists/changes in BB-P007"
   },
+  "governance": {
+    "trust_boundary_change": "This PR updates DECISIONS.md because V-001 becomes an authoritative VALIDATED visual decision and D-008 receives an evidence note. It does not alter CI policy authority, evidence validators, required status checks, reviewer requirements or the base-vs-candidate execution boundary.",
+    "bypass_analysis": "The authoritative decision update is intentionally treated as governance-critical rather than hidden in a lower-precedence document. The same-PR evidence manifest remains present, Change class stays process, no policy file is weakened, and no runtime/player-facing diff is downgraded to avoid stronger evidence requirements.",
+    "rollback": "Revert the V-001 registry entry and D-008 note together with the BB-P007 style contract/docs/tooling if later evidence invalidates the baseline. There is no runtime or save migration because P0 production runtime has not started."
+  },
   "style_results": {"reference_viewport":"1280x720","primary_orientation":"landscape 16:9","bee_screen_height":"12-15%, nominal 13.5%","filtering":"linear","outline_rule":"selective","default_persistent_hud_clusters_max":2,"approved_frame_count":8,"font_family_status":"OPEN_PENDING_REDISTRIBUTION_LICENSE"},
   "known_limitations": ["The approved BB-P007 frames are primitive pre-runtime blocking compositions, not final Defold screenshots or production art.","Public competitor imagery was inspected but is not committed; manual screen-scale estimates are range checks, not pixel-perfect authoritative measurements.","BB-P008/P0 must retain exact-build runtime captures and may tune V-001 only with new evidence.","Final font family remains open pending redistribution license and localization coverage."]
 }
