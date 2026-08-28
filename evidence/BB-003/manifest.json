@@ -2,7 +2,7 @@
   "schema_version": 1,
   "ticket": "BB-003",
   "change_class": "technical",
-  "problem": "BeBee had no production input binding and no runtime proof that input reaches a collection-proxy world, that modal UI can consume it before gameplay, or that focus returns correctly after the modal closes.",
+  "problem": "BeBee had no production input binding and no runtime proof that input reaches a collection-proxy world, that modal UI can consume it before gameplay and lower main-world listeners, or that focus returns correctly after the modal closes.",
   "decision": {
     "ids": ["T-010", "T-011"],
     "status_before": "HYPOTHESIS",
@@ -10,7 +10,7 @@
     "provenance_type": "EXPERIMENT_RESULT",
     "evidence_strength": "HIGH",
     "selected_alternative": "native-proxy-focus-stack",
-    "rationale": "Use Defold's documented input stacks directly: the main-world collection-proxy owner acquires input focus, proxied gameplay acquires focus in its own world, and a modal listener acquires later focus and returns true while open. Exact-head Chromium events prove propagation, consumption and restoration. T-010 remains a hypothesis because this ticket does not prove the proxy memory/lifecycle budget."
+    "rationale": "Use Defold's documented input stacks directly: a lower main-world sentinel acquires focus first, the main-world collection-proxy owner acquires above it, proxied gameplay acquires focus in its own world, and a modal listener acquires later focus and returns true while open. Exact-head Chromium events prove propagation into the proxy world, cross-stack consumption, and restoration. T-010 remains a hypothesis because this ticket does not prove the proxy memory/lifecycle budget."
   },
   "research": {
     "candidate_pool": [],
@@ -30,9 +30,9 @@
       "verified_constraint": "Objects in a collection loaded through a collection proxy receive input only when the game object containing the proxy participates in input focus routing."
     },
     {
-      "source": "https://defold.com/ref/stable/go-lua/",
+      "source": "https://defold.com/manuals/input/",
       "date_checked": "2026-08-28",
-      "verified_constraint": "Input focus is stack ordered; a listener can return true from on_input to consume the action and stop lower listeners, and release_input_focus removes it from the stack."
+      "verified_constraint": "Each proxy-loaded world has its own input stack; listeners there are processed before dispatch continues down the main stack, and returning true consumes the action across that nested traversal."
     },
     {
       "source": "https://defold.com/manuals/input-mouse-and-touch/",
@@ -42,7 +42,7 @@
     {
       "source": "https://chromedevtools.github.io/devtools-protocol/tot/Input/",
       "date_checked": "2026-08-28",
-      "verified_constraint": "Chromium CDP can dispatch deterministic keyboard and touch events into the actual HTML5 build used by CI."
+      "verified_constraint": "Chromium CDP can dispatch deterministic keyboard and touch events into the actual HTML5 build used by CI; the probe holds states across animation frames so Defold samples pressed/released edges."
     }
   ],
   "official_docs_exception": "",
@@ -75,20 +75,20 @@
       "evidence": "MOUSE_BUTTON_1 maps to pointer_primary; Defold's documented single-touch mapping and exact-head Chromium touch dispatch exercise that semantic path."
     },
     {
-      "criterion": "Input propagates from the main-world proxy owner into the loaded gameplay world.",
+      "criterion": "Input propagates from the main-world proxy owner into the loaded gameplay world and then continues to a lower main-world listener when unconsumed.",
       "status": "pass",
-      "evidence": "The exact-head runtime smoke requires a W event to produce both proxied gameplay and main-world owner move_up markers after explicit owner/gameplay focus acquisition."
+      "evidence": "The exact-head runtime smoke establishes sentinel focus below proxy-owner focus and requires one W event to produce both proxied gameplay and lower-main-stack sentinel move_up markers."
     },
     {
-      "criterion": "An open modal consumes relevant input before gameplay and the proxy owner, then releasing it restores normal delivery.",
+      "criterion": "An open modal consumes relevant input before gameplay and lower listeners on the main-world stack, then releasing it restores normal delivery.",
       "status": "pass",
-      "evidence": "The exact-head runtime smoke opens the modal with Esc, requires modal-only W delivery, forbids gameplay/owner leakage, closes the modal, then requires gameplay/owner W delivery again."
+      "evidence": "The exact-head runtime smoke opens the modal with Esc, requires modal-only W delivery, forbids gameplay/sentinel leakage, closes the modal, then requires gameplay/sentinel W delivery again."
     }
   ],
   "verification": {
     "automated": [
       "Defold runtime evidence builds development and release HTML5 bundles from the exact PR head.",
-      "tools/defold/chromium_input_proxy_smoke.py dispatches actual Chromium key/touch events and writes runtime-evidence/input-proxy-smoke.json; any missing/forbidden marker fails the job.",
+      "tools/defold/chromium_input_proxy_smoke.py dispatches actual Chromium key/touch events, holds their state across animation frames, and writes runtime-evidence/input-proxy-smoke.json; any missing/forbidden marker fails the job.",
       "Repository standards and trusted-base PR evidence gates run independently on the candidate diff."
     ],
     "manual": [],
