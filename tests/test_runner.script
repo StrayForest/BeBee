@@ -1,0 +1,15 @@
+local testlib = require "tests.testlib"
+
+local suites = {
+    require "tests.test_input_semantics",
+    require "tests.test_data_validation",
+}
+
+local function emit(event)
+    print("BEBEE_TEST " .. json.encode(event))
+end
+
+function init(self)
+    local summary = testlib.run(suites, emit)
+    sys.exit(summary.failed == 0 and 0 or 1)
+end

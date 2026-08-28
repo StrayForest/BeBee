@@ -1,0 +1,6 @@
+name: "test_bootstrap"
+instances {
+  id: "runner"
+  prototype: "/tests/test_runner.go"
+}
+scale_along_z: 0
