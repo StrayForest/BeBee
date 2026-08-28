@@ -1,0 +1,28 @@
+local input = require "app.input_semantics"
+
+function init(self)
+    self.focused = false
+end
+
+function final(self)
+    if self.focused then
+        msg.post(".", "release_input_focus")
+    end
+end
+
+function on_message(self, message_id)
+    if message_id == hash("acquire_sentinel_focus") and not self.focused then
+        self.focused = true
+        msg.post(".", "acquire_input_focus")
+        msg.post("/bootstrap#controller", "sentinel_focus_ready")
+        print("BEBEE_INPUT sentinel_focus acquired")
+    end
+end
+
+function on_input(self, action_id, action)
+    local action_name = input.name(action_id)
+    if action_name and action.pressed then
+        print("BEBEE_INPUT sentinel " .. action_name .. " pressed")
+    end
+    return false
+end
