@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-007-CLOSEOUT",
+  "change_class": "process",
+  "problem": "BB-007 runtime and lifecycle corrections are merged, but P0 Foundation must not close until the corrected real-browser storage lifecycle smoke runs on exact source and is retained as dedicated CI evidence.",
+  "decision": {
+    "ids": ["BB-P009"],
+    "status_before": "VALIDATED",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "extend-existing-html5-ci-with-corrected-storage-proof",
+    "rationale": "Run the merged schema-v2 BB-007 browser lifecycle smoke inside the existing read-only exact-source HTML5 pipeline and retain its machine-readable report independently from visual QA and generic diagnostics."
+  },
+  "governance": {
+    "trust_boundary_change": "This PR modifies only the read-only pull_request/push HTML5 evidence workflow. The base-controlled pull_request_target trusted evidence workflow, ruleset, permissions, secrets, reviewers and merge authority are unchanged.",
+    "bypass_analysis": "No bypass is introduced. Candidate code may execute browser tests but cannot redefine validate-pr-evidence or write repository state. Merge remains subject to the trusted base workflow and protected-main rules.",
+    "rollback": "Revert the HTML5 workflow invocation/upload of storage_html5_smoke.py. The already-merged BB-007 runtime and lifecycle implementation remains independently intact."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "This PR only executes and retains the already-validated BB-P009 storage lifecycle contract; it makes no player-facing design choice.",
+    "selected_references": [],
+    "reference_exception": "No shipped-game reference is relevant to CI execution of an existing technical contract.",
+    "anti_pattern": {
+      "source": "https://github.com/StrayForest/BeBee/pull/36",
+      "observation": "The first process candidate failed because it incorrectly required a pending HTML5 generation to be browser-durable after immediate navigation. Closing that PR unmerged preserved the failed evidence rather than normalizing it away.",
+      "lesson": "Retain exact failures, correct the technical contract in a separate runtime PR, then rerun the corrected proof from updated main."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/html5/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Defold HTML5 persistence is browser-backed and may lag the immediate file operation, so rapid lifecycle proof must respect pending durability semantics."
+    },
+    {
+      "source": "https://defold.com/manuals/file-access/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Defold HTML5 saves use the virtual filesystem backed by IndexedDB and corrupt load behavior requires protected recovery handling."
+    },
+    {
+      "source": "https://github.com/defold/defold/pull/9828",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Defold HTML5 uses an asynchronous FS.syncfs persistence path initiated by its loader after file close; the merged BB-007 lifecycle correction aligns rapid-window expectations with that behavior."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "extend-existing-html5-ci-with-corrected-storage-proof",
+      "disposition": "selected",
+      "reason": "Reuses exact-source bundles, the canonical server and pinned browser toolchain while preserving the trusted governance boundary."
+    },
+    {
+      "id": "reopen-failed-pr-36",
+      "disposition": "rejected",
+      "reason": "Would blur the historical failed proof with the corrected runtime baseline; the failed attempt remains closed and auditable."
+    },
+    {
+      "id": "unit-tests-only",
+      "disposition": "rejected",
+      "reason": "Cannot prove actual IndexedDB persistence, immediate navigation recovery, browser restart behavior, persistent delete or release bridge absence."
+    },
+    {
+      "id": "manual-browser-check-only",
+      "disposition": "rejected",
+      "reason": "Would not provide exact-head reproducibility or retained machine-readable evidence."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Exact-source HTML5 CI invokes the corrected schema-v2 BB-007 storage lifecycle smoke against development and release bundles.",
+      "status": "pass",
+      "evidence": ".github/workflows/defold-runtime-evidence.yml invokes tools/visual_qa/storage_html5_smoke.py against the same exact-source server used by existing browser evidence."
+    },
+    {
+      "criterion": "The workflow requires and retains storage-report.json as a dedicated storage-qa-<sha> artifact.",
+      "status": "pass",
+      "evidence": "The HTML5 workflow tests the report is non-empty and uploads artifacts/storage-qa/<sha> with if-no-files-found=error."
+    },
+    {
+      "criterion": "Existing release, input-proxy and deterministic visual evidence remain active in the same HTML5 job.",
+      "status": "pass",
+      "evidence": "The process change adds the storage smoke without removing or weakening existing release Chromium, BB-003 proxy/input or BB-006 visual QA steps."
+    },
+    {
+      "criterion": "Trusted governance authority remains outside candidate workflow execution.",
+      "status": "pass",
+      "evidence": "The pull_request_target PR evidence workflow is unchanged and protected-main still requires validate-pr-evidence."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Exact-head HTML5 CI must pass the corrected storage lifecycle smoke before merge.",
+      "Exact-head trusted PR evidence, repository standards and test/data checks must pass before merge.",
+      "Post-merge main HTML5 CI must repeat the storage lifecycle proof."
+    ],
+    "manual": [],
+    "runtime_errors": "storage_html5_smoke.py fails on browser console/page errors, failed settled latest-generation persistence, invalid rapid-window recovery, persistent-delete resurrection, corruption-recovery mismatch or release storage-bridge exposure.",
+    "save_data_impact": "No save-format/runtime mutation is made by this process PR. It executes the merged BB-007 A/B implementation and lifecycle semantics."
+  },
+  "visual_evidence": {
+    "required": false,
+    "artifacts": [],
+    "states": [],
+    "viewports": [],
+    "motion_evidence": [],
+    "provenance": {
+      "capture_commit_sha": "not_applicable",
+      "capture_mode": "not_applicable",
+      "artifact_locator": "not_applicable"
+    }
+  },
+  "known_limitations": [
+    "Poki/private-incognito and quota/storage-unavailable portal cases remain BB-P009 P0_P8 and are required before public release rather than for direct-web P0 foundation exit.",
+    "A pending generation may still lose an immediate navigation race; the required invariant is newest or explicit recovery to the last confirmed persistent generation, never false durable confirmation.",
+    "Cloud/cross-device behavior is not inferred from direct-web IndexedDB persistence."
+  ]
+}
