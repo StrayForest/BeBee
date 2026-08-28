@@ -2,7 +2,7 @@
   "schema_version": 1,
   "ticket": "BB-006-CI",
   "change_class": "process",
-  "problem": "The merged BB-006 runtime/capture harness is not yet executed automatically, so P0 still lacks retained exact-head desktop/mobile visual evidence and cannot prove that release builds hide the QA bridge.",
+  "problem": "The merged BB-006 runtime/capture harness was not yet executed automatically, so P0 lacked retained exact-head desktop/mobile visual evidence and proof that release builds hide the QA bridge.",
   "decision": {
     "ids": ["T-012", "R-001", "R-014", "R-015", "R-016"],
     "status_before": "LOCKED",
@@ -67,31 +67,40 @@
     {
       "criterion": "Every successful HTML5 CI run executes the merged foundation_probe against desktop_reference and mobile_landscape using pinned Playwright Chromium.",
       "status": "pass",
-      "evidence": ".github/workflows/defold-runtime-evidence.yml installs tools/visual_qa/requirements.txt plus Playwright Chromium and invokes capture_visual_qa.py for exactly the two BB-006 foundation viewports."
+      "evidence": "Exact candidate run 33214438370 on head 56fa405c48d7c193c5e9888b825c48a0779c93a2 executed Playwright Chromium 151.0.7922.34 and captured foundation_probe at 1280x720 and 844x390."
     },
     {
       "criterion": "The visual capture runs against the same exact-source development/release bundles already built by HTML5 CI and uses the canonical local HTTP server.",
       "status": "pass",
-      "evidence": "The workflow builds once, starts scripts/serve_html5.py over build/html5, then runs BB-005 release/input smoke and BB-006 capture before any artifact upload."
+      "evidence": "Run 33214438370 built development/release once, served build/html5 with scripts/serve_html5.py, passed BB-005 release smoke and BB-003 input/proxy smoke, then captured bundle SHA-256 fd0f30b989f1d65dc493a7128897a9d671b8b665303236ec944fd8c2e4c0cdf0."
     },
     {
       "criterion": "A successful run retains the machine-readable report, console log and required desktop/mobile PNGs in a dedicated exact-SHA artifact.",
       "status": "pass",
-      "evidence": "The workflow requires both PNGs and capture-report.json to be non-empty and uploads artifacts/visual-qa/<sha> as visual-qa-<sha> with 14-day retention."
+      "evidence": "Artifact 9702826036 (visual-qa-56fa405c48d7c193c5e9888b825c48a0779c93a2, SHA-256 cabb48fd669f9f55e1482a55413538da6d33fbfb2c8fdeb9dfb22301d997593d) contains capture-report.json, console.log, desktop_reference.png and mobile_landscape.png."
+    },
+    {
+      "criterion": "Repeated captures are deterministic and release does not expose the QA surface.",
+      "status": "pass",
+      "evidence": "Desktop repeats both hash to 9efcf3f167dad760168b6d3fe14dc3b5126115960bda827260ac4687a8cc1f11; mobile repeats both hash to 046b359c483baeb1cae2240dd0c8a01000dab6509047b41e99197e746de2c471; report records bridge_present=false and probe_present=false for release."
     },
     {
       "criterion": "Trusted PR evidence authority remains separate and unchanged.",
       "status": "pass",
-      "evidence": "Only the candidate-source HTML5 workflow plus this governance evidence are changed initially; pr-evidence-trusted.yml and policy scripts are not modified."
+      "evidence": "Trusted validate-pr-evidence check 98994811068 passed on the candidate while pr-evidence-trusted.yml and policy scripts remained unchanged; candidate execution kept contents: read."
     }
   ],
   "verification": {
     "automated": [
-      "The candidate HTML5 CI run must prove two exact repeated captures per viewport, bridge state/seed/build SHA matching, zero page/console errors and release QA absence before closeout.",
-      "Repository standards and Test and data remain independent exact-source checks, while validate-pr-evidence continues to execute trusted-base policy."
+      "Exact candidate head 56fa405c48d7c193c5e9888b825c48a0779c93a2: HTML5 CI run 33214438370 passed Playwright installation, development/release Bob builds, BB-005 release smoke, BB-003 keyboard/touch/proxy smoke, deterministic BB-006 capture and all three artifact uploads.",
+      "capture-report.json reports Playwright Chromium 151.0.7922.34, Defold 1.13.1, qa_seed 88008, simulation_frame 0, exact head binding, zero console errors and zero page errors for both viewports.",
+      "Repository standards run 33214438383, Test and data run 33214438431 and trusted validate-pr-evidence check 98994811068 all passed on the same exact candidate head.",
+      "Playable artifact 9702825800 has Actions digest sha256:18acb76a3040cc348216bcbd020f50c6fd7d6e9b9a9aaeefe3d2ea62583741f9; HTML5 diagnostics artifact 9702826312 has sha256:f3aea48e7519f221f0c98f8d35f50fd832add15cb737fea70d985ec87e3fc503."
     ],
-    "manual": [],
-    "runtime_errors": "No runtime-success claim is made until the candidate workflow executes; failures in Playwright install, server startup, readiness, provenance, screenshot stability, release isolation or artifact existence fail HTML5 CI rather than being ignored.",
+    "manual": [
+      "Downloaded visual artifact 9702826036 was inspected: both retained images show the intended centered foundation_probe marker at their exact configured viewport dimensions and do not claim a gameplay visual state."
+    ],
+    "runtime_errors": "No actionable runtime errors were observed. Both captures report console_error_count=0 and page_error_count=0. Chromium emitted WebGL ReadPixels performance warnings during one screenshot pass; these are warning-level capture-side diagnostics, not page/runtime exceptions, and exact repeated PNG hashes still matched. Release QA bridge/probe absence passed.",
     "save_data_impact": "none"
   },
   "governance": {
