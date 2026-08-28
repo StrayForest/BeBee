@@ -149,40 +149,52 @@ def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
     shutil.rmtree(build_output, ignore_errors=True)
     shutil.rmtree(bundle_output, ignore_errors=True)
     build_output.parent.mkdir(parents=True, exist_ok=True)
-    bundle_output.mkdir(parents=True, exist_ok=True)
+    bundle_output.parent.mkdir(parents=True, exist_ok=True)
     report_output.parent.mkdir(parents=True, exist_ok=True)
 
     build_output_arg = str(build_output.relative_to(ROOT))
-    bundle_output_arg = str(bundle_output.relative_to(ROOT))
     report_output_arg = str(report_output.relative_to(ROOT))
 
-    command = [
-        "java",
-        "-jar",
-        str(bob),
-        "--root",
-        str(ROOT),
-        "--settings",
-        str(settings),
-        "--platform",
-        str(toolchain["platform"]),
-        "--architectures",
-        str(toolchain["architectures"]),
-        "--variant",
-        str(mode_config["variant"]),
-        "--archive",
-        "--output",
-        build_output_arg,
-        "--bundle-output",
-        bundle_output_arg,
-        "--build-report-json",
-        report_output_arg,
-        "resolve",
-        "build",
-        "bundle",
-    ]
-    print("+", " ".join(command), flush=True)
-    subprocess.run(command, check=True, cwd=ROOT)
+    # Defold reserves the project's build/ tree for compiled intermediates and
+    # refuses to bundle into it directly. Bundle into an external temporary
+    # directory first, then copy the completed artifact into our stable CI path.
+    with tempfile.TemporaryDirectory(prefix=f"bebee-{mode}-bundle-") as temp_dir:
+        staged_bundle_output = Path(temp_dir)
+        command = [
+            "java",
+            "-jar",
+            str(bob),
+            "--root",
+            str(ROOT),
+            "--settings",
+            str(settings),
+            "--platform",
+            str(toolchain["platform"]),
+            "--architectures",
+            str(toolchain["architectures"]),
+            "--variant",
+            str(mode_config["variant"]),
+            "--archive",
+            "--output",
+            build_output_arg,
+            "--bundle-output",
+            str(staged_bundle_output),
+            "--build-report-json",
+            report_output_arg,
+            "resolve",
+            "build",
+            "bundle",
+        ]
+        print("+", " ".join(command), flush=True)
+        subprocess.run(command, check=True, cwd=ROOT)
+
+        staged_bundle_dir = staged_bundle_output / "BeBee"
+        staged_index = staged_bundle_dir / "index.html"
+        if not staged_index.is_file():
+            raise RuntimeError(
+                f"Expected staged HTML5 entry point was not produced: {staged_index}"
+            )
+        shutil.copytree(staged_bundle_dir, bundle_output / "BeBee")
 
     bundle_dir = bundle_output / "BeBee"
     index = bundle_dir / "index.html"
