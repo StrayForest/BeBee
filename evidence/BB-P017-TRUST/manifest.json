@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P017-TRUST",
+  "change_class": "process",
+  "problem": "The required PR evidence workflow can execute validator and adversarial-test code from the same candidate PR it is judging, and milestone human approval is not machine-bound to GitHub review provenance.",
+  "decision": {
+    "ids": ["R-015", "R-016", "R-017", "R-018", "R-019"],
+    "status_before": "OPEN",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "trusted-base-overlay",
+    "rationale": "Keep candidate code non-authoritative by running policy from the base/default branch, add an additive trust-boundary validator, and bind human gates to exact-head GitHub review provenance."
+  },
+  "official_docs": [
+    {
+      "source": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request_target",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "pull_request_target runs in the context of the base/default branch; candidate code must not be executed with privileged credentials."
+    },
+    {
+      "source": "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Strict required status checks are needed to require a branch to be up to date before merge."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "candidate-self-validates",
+      "disposition": "rejected",
+      "reason": "A PR can weaken the validator/tests that judge the same PR."
+    },
+    {
+      "id": "trusted-base-overlay",
+      "disposition": "selected",
+      "reason": "Previous trusted policy remains authoritative while candidate files are treated only as data."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Required evidence validation executes policy from the PR base/default branch rather than the candidate.",
+      "status": "pass",
+      "evidence": "pr-evidence.yml uses pull_request_target and separate trusted/candidate checkouts."
+    },
+    {
+      "criterion": "Adversarial tests cover human exact-head review, data/script classification, product identity and blank official-doc N/A.",
+      "status": "pass",
+      "evidence": "34 local policy tests passed, including the new trust-boundary suite."
+    },
+    {
+      "criterion": "Governance-critical changes become diff-detected and require a same-PR governance manifest.",
+      "status": "pass",
+      "evidence": "scripts/check_trust_boundary.py governance path policy."
+    }
+  ],
+  "verification": {
+    "automated": ["python3 -m unittest discover -s scripts/policy_tests -p 'test_*.py' -v -> 34 passed locally"],
+    "manual": ["Reviewed pull_request_target security boundary and current Protect main ruleset state."],
+    "runtime_errors": "No game runtime change.",
+    "save_data_impact": "none"
+  },
+  "governance": {
+    "trust_boundary_change": "Required evidence policy moves from candidate-controlled execution to base/default-branch trusted execution. Candidate HEAD is checked out only for inspection.",
+    "bypass_analysis": "Covers validator/test self-modification, governance-file downgrade, stale/non-exact human approvals, same-author/bot approvals, same-product multi-URL reference padding, ambiguous data paths and blank official-doc N/A parsing.",
+    "rollback": "Revert this PR to restore the prior pull_request workflow and remove the additive trust-boundary layer.",
+    "human_review_required": true
+  },
+  "known_limitations": [
+    "Repository ruleset strict/up-to-date enforcement remains a GitHub settings action and is tracked in issue #4.",
+    "The bootstrap PR is judged by the previous policy; exact-head governance approval becomes mandatory after this change is present in main."
+  ]
+}
