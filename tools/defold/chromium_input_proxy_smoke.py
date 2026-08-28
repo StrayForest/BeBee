@@ -205,16 +205,40 @@ def devtools_target(port: int, timeout: float = 10) -> dict:
     raise RuntimeError(f"Chromium DevTools endpoint did not become ready: {last_error}")
 
 
-def dispatch_key(cdp: DevTools, *, key: str, code: str, virtual_key: int) -> None:
+def dispatch_key(
+    cdp: DevTools,
+    *,
+    key: str,
+    code: str,
+    virtual_key: int,
+    key_identifier: str | None = None,
+    raw_key_down: bool = False,
+) -> None:
     common = {
         "key": key,
         "code": code,
         "windowsVirtualKeyCode": virtual_key,
         "nativeVirtualKeyCode": virtual_key,
     }
-    cdp.call("Input.dispatchKeyEvent", {"type": "keyDown", **common})
+    if key_identifier is not None:
+        common["keyIdentifier"] = key_identifier
+    down_type = "rawKeyDown" if raw_key_down else "keyDown"
+    cdp.call("Input.dispatchKeyEvent", {"type": down_type, **common})
     cdp.call("Input.dispatchKeyEvent", {"type": "keyUp", **common})
     cdp.drain()
+
+
+def dispatch_escape(cdp: DevTools) -> None:
+    # Chromium's own DevTools protocol tests use rawKeyDown with virtual key 27
+    # for Escape; U+001B is the corresponding keyIdentifier.
+    dispatch_key(
+        cdp,
+        key="Escape",
+        code="Escape",
+        virtual_key=27,
+        key_identifier="U+001B",
+        raw_key_down=True,
+    )
 
 
 def dispatch_touch(cdp: DevTools, x: float, y: float) -> None:
@@ -255,7 +279,9 @@ def main() -> int:
         "console_markers": [],
     }
 
-    with tempfile.TemporaryDirectory(prefix="bebee-chromium-") as profile_dir, browser_log.open("w", encoding="utf-8") as log_file:
+    with tempfile.TemporaryDirectory(
+        prefix="bebee-chromium-", ignore_cleanup_errors=True
+    ) as profile_dir, browser_log.open("w", encoding="utf-8") as log_file:
         process = subprocess.Popen(
             [
                 args.browser,
@@ -292,7 +318,7 @@ def main() -> int:
             require_marker(keyboard_lines, "BEBEE_INPUT owner move_up pressed", "keyboard owner delivery")
             observed["checks"].append("keyboard_semantic_action_reaches_proxy_and_owner")
 
-            dispatch_key(cdp, key="Escape", code="Escape", virtual_key=27)
+            dispatch_escape(cdp)
             cdp.wait_for("BEBEE_INPUT modal_open focus_acquired", timeout=5)
 
             before = len(cdp.console)
@@ -303,7 +329,7 @@ def main() -> int:
             forbid_marker(modal_lines, "BEBEE_INPUT owner move_up pressed", "modal consumption")
             observed["checks"].append("modal_consumes_before_gameplay_and_proxy_owner")
 
-            dispatch_key(cdp, key="Escape", code="Escape", virtual_key=27)
+            dispatch_escape(cdp)
             cdp.wait_for("BEBEE_INPUT modal_closed focus_released", timeout=5)
 
             before = len(cdp.console)
