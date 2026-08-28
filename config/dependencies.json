@@ -28,6 +28,20 @@
       "runtime_included": false,
       "attribution": "Build-time tool only; review Defold tool licenses when the pinned engine version changes.",
       "reviewed_date": "2026-08-28"
+    },
+    {
+      "id": "playwright-python",
+      "name": "Playwright for Python",
+      "kind": "test-tool",
+      "source": "https://pypi.org/project/playwright/1.62.0/",
+      "version": "1.62.0",
+      "license": "Apache-2.0",
+      "license_source": "https://github.com/microsoft/playwright-python/blob/v1.62.0/LICENSE",
+      "commercial_use_allowed": true,
+      "redistribution_allowed": true,
+      "runtime_included": false,
+      "attribution": "Test/visual-QA tooling only. The Playwright-managed Chromium binary is installed transiently in CI and is not shipped with BeBee.",
+      "reviewed_date": "2026-08-29"
     }
   ]
 }
