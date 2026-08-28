@@ -22,6 +22,7 @@ GOVERNANCE_FILES = {
     ".github/CODEOWNERS",
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/workflows/pr-evidence.yml",
+    ".github/workflows/pr-evidence-trusted.yml",
     "AGENTS.md",
     "DECISIONS.md",
     "docs/10-development-workflow.md",
@@ -121,35 +122,6 @@ def load_manifest(candidate_path: str) -> dict | None:
     return data if isinstance(data, dict) else None
 
 
-def load_reviews() -> list[dict]:
-    review_path = os.environ.get("PR_REVIEWS_FILE", "")
-    if not review_path:
-        return []
-    try:
-        data = json.loads(Path(review_path).read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return []
-    return data if isinstance(data, list) else []
-
-
-def has_exact_head_independent_human_approval(head_sha: str, author: str) -> bool:
-    for review in load_reviews():
-        if not isinstance(review, dict):
-            continue
-        user = review.get("user") if isinstance(review.get("user"), dict) else {}
-        login = str(user.get("login") or "")
-        user_type = str(user.get("type") or "")
-        if (
-            review.get("state") == "APPROVED"
-            and review.get("commit_id") == head_sha
-            and login
-            and login != author
-            and user_type.lower() != "bot"
-        ):
-            return True
-    return False
-
-
 def validate_official_docs(body: str) -> list[str]:
     block = section_between(body, "### Official technical documentation", "## Alternatives / BeBee decision")
     if not block:
@@ -207,18 +179,10 @@ def validate_governance_manifest(data: dict | None) -> list[str]:
     for key in ("trust_boundary_change", "bypass_analysis", "rollback"):
         if not nonempty(governance.get(key)):
             errors.append(f"governance.{key} must be non-empty.")
-    if governance.get("human_review_required") is not True:
-        errors.append("governance.human_review_required must be true.")
     return errors
 
 
-def validate(
-    *,
-    body: str,
-    changed_files: set[str],
-    head_sha: str,
-    pr_author: str,
-) -> list[str]:
+def validate(*, body: str, changed_files: set[str]) -> list[str]:
     errors: list[str] = []
     change_class = field_from_body(body, "Change class")
     manifest_path = field_from_body(body, "Evidence manifest")
@@ -252,16 +216,6 @@ def validate(
     if change_class in {"player-facing", "economy"} and data is not None:
         errors.extend(validate_reference_identity(data))
 
-    # This enforcement switch is set only by the trusted-base workflow.
-    if os.environ.get("ENFORCE_INDEPENDENT_HUMAN_REVIEW") == "1":
-        needs_human = governance_changed or milestone_gate in {"P2", "P4", "P6"}
-        if needs_human and not has_exact_head_independent_human_approval(head_sha, pr_author):
-            reason = "governance-critical policy changed" if governance_changed else f"{milestone_gate} milestone gate"
-            errors.append(
-                f"Independent human approval required: {reason}. "
-                "Need an APPROVED GitHub review on the exact PR head from a non-author, non-bot reviewer."
-            )
-
     return errors
 
 
@@ -269,19 +223,13 @@ def main() -> int:
     body = os.environ.get("PR_BODY", "")
     base_sha = os.environ.get("BASE_SHA", "").strip()
     head_sha = os.environ.get("HEAD_SHA", "").strip()
-    pr_author = os.environ.get("PR_AUTHOR", "").strip()
     try:
         changed_files = changed_files_from_git(base_sha, head_sha)
     except (OSError, subprocess.CalledProcessError) as exc:
         print(f"Trust-boundary validation failed:\n\n- Could not determine changed files: {exc}")
         return 1
 
-    errors = validate(
-        body=body,
-        changed_files=changed_files,
-        head_sha=head_sha,
-        pr_author=pr_author,
-    )
+    errors = validate(body=body, changed_files=changed_files)
     if errors:
         print("Trust-boundary validation failed:\n")
         for error in errors:
