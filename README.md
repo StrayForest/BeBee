@@ -126,21 +126,25 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 - [`THIRD_PARTY.md`](THIRD_PARTY.md)
 
-## Current product hypotheses that must not be mistaken for locked design
+## Validated product structure vs open tuning
 
 `D-006` is `VALIDATED`: default pollination is movement-through/sweep — qualifying movement inside a pollinatable patch advances progress, standing still does not, and the default scheme has no separate high-frequency pollination button. Exact movement/work tuning remains a P2 task.
 
-`D-005` is also `VALIDATED`: seed ownership uses a Hybrid restoration topology. Authored native campaign plots keep their native identity during restoration, dedicated player-shaped plots allow seed ownership before full completion, and campaign/native state remains separate from planted species. P5 still must prove that the two roles are understandable in the rendered game and tune the exact plot count, placement, planting input and seed economy.
+`D-005` is `VALIDATED`: seed ownership uses a Hybrid restoration topology. Authored native campaign plots keep their native identity during restoration, dedicated player-shaped plots allow seed ownership before full completion, and campaign/native state remains separate from planted species. P5 still must prove that the two roles are understandable in the rendered game and tune the exact plot count, placement, planting input and seed economy.
 
-Before normal production, P-1 still needs product evidence for:
+`D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks. Yield is excluded rather than preserved as a third card. BB-P005 showed that the current no-Yield structure reaches region completion across all **5040 / 5040** full retained-sink purchase-priority orders with zero replay and non-negative balance. Exact Flight/Buzz effects, Honey costs/rewards and real-time purchase cadence remain P1/P3 tuning work.
 
-- whether `Yield` deserves to remain an upgrade track;
-- first-region pacing/no-grind behavior beyond the current deterministic arithmetic simulation;
+Still open/tunable before downstream milestones lock production values:
+
+- exact movement/pollination work and timing;
+- exact Honey reward/cost table and minutes/actions between meaningful purchases;
+- final Flight/Buzz effect curves and flower-gate tuning;
+- rendered comprehension/input/seed pacing for the Hybrid restoration flow;
 - runtime proof that the validated V-001 style/crop rules survive the deterministic Defold HTML5 capture pipeline once P0 creates the production runtime.
 
 The objective-evidence hardening in `BB-P013`–`BB-P017` is already in place. `BB-P006` validated Poki as the primary external target, `BB-P007` defined V-001, `BB-P008` defined the deterministic visual-QA runtime contract, and `BB-P009` defined the HTML5 A/B generation storage/recovery contract. See their research/evidence records for scoped limitations.
 
-See [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md) for the remaining P-1 exit criteria.
+See [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md) for P-1 exit criteria and `DECISIONS.md` for the remaining repository-settings blocker.
 
 ## Vertical-slice target
 
@@ -151,7 +155,7 @@ The intended slice still aims to prove:
 - one compact authored region;
 - satisfying movement-through pollination/bloom feedback;
 - Honey economy;
-- meaningful bee improvement;
+- meaningful Flight/Buzz improvement;
 - seeds that let players influence the recovering meadow;
 - visible meadow/planet restoration;
 - save/reload;
@@ -160,7 +164,7 @@ The intended slice still aims to prove:
 - analytics abstraction;
 - production-quality HTML5 build.
 
-Exact stat/pacing values are validated through P-1/P2 rather than treated as immutable because they appeared in an early GDD.
+Exact stat/pacing values are validated through runtime milestones rather than treated as immutable because they appeared in an early GDD.
 
 ## Non-goals for the vertical slice
 
@@ -170,6 +174,8 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 **P-1 — Blueprint Hardening.**
 
-The repository now has enforceable evidence governance, a protected autonomous merge path, a validated movement-owned pollination verb (`D-006`), a validated Hybrid seed/restoration topology (`D-005`), a deterministic economy simulator, a validated primary web target, measurable V-001 visual style, deterministic visual-QA design and a validated HTML5 storage/recovery protocol. Remaining product work is to settle the upgrade set (especially Yield) and resolve first-region pacing assumptions before normal production begins. Runtime visual/storage proof executes in P0 when the Defold project exists.
+Product-structure hardening now includes a validated movement-owned pollination verb (`D-006`), validated Hybrid seed/restoration topology (`D-005`), validated two-track Flight + Buzz upgrade set (`D-007`), and a deterministic first-region economy envelope that survives 5040 retained-sink purchase-priority orders without replay. Primary web target, visual baseline/QA design, storage/recovery protocol and autonomous evidence governance are also in place.
 
-After P-1 exit criteria pass, continue with P0/BB-001 and the production roadmap.
+The remaining P-1 blocker is repository enforcement: `R-019` requires strict/up-to-date required status checks on `main`. Exact gameplay pacing and balance values deliberately move forward as runtime tuning work rather than blocking the Defold foundation phase once P-1 repository enforcement passes.
+
+After the P-1 exit criteria pass, continue with P0/BB-001 and the production roadmap.
