@@ -14,15 +14,16 @@
   },
   "research": {
     "candidate_pool": [
-      {"name": "Game A", "source": "https://example.com/a", "relevance": "Why it is a plausible candidate"},
-      {"name": "Game B", "source": "https://example.com/b", "relevance": "Why it is a plausible candidate"},
-      {"name": "Game C", "source": "https://example.com/c", "relevance": "Why it is a plausible candidate"},
-      {"name": "Game D", "source": "https://example.com/d", "relevance": "Why it is a plausible candidate"},
-      {"name": "Game E", "source": "https://example.com/e", "relevance": "Why it is a plausible candidate"}
+      {"product_id": "game-a", "name": "Game A", "source": "https://example.com/a", "relevance": "Why it is a plausible candidate"},
+      {"product_id": "game-b", "name": "Game B", "source": "https://example.com/b", "relevance": "Why it is a plausible candidate"},
+      {"product_id": "game-c", "name": "Game C", "source": "https://example.com/c", "relevance": "Why it is a plausible candidate"},
+      {"product_id": "game-d", "name": "Game D", "source": "https://example.com/d", "relevance": "Why it is a plausible candidate"},
+      {"product_id": "game-e", "name": "Game E", "source": "https://example.com/e", "relevance": "Why it is a plausible candidate"}
     ],
     "candidate_pool_exception": "",
     "selected_references": [
       {
+        "product_id": "game-a",
         "name": "Game A / exact feature",
         "source": "https://example.com/a-feature",
         "platform_version_date": "web / observed 2026-08-28",
@@ -36,6 +37,7 @@
         }
       },
       {
+        "product_id": "game-b",
         "name": "Game B / exact feature",
         "source": "https://example.com/b-feature",
         "platform_version_date": "web / observed 2026-08-28",
@@ -65,21 +67,8 @@
   ],
   "official_docs_exception": "",
   "alternatives": [
-    {
-      "id": "variant-a",
-      "disposition": "rejected",
-      "reason": "Evidence-backed rejection reason."
-    },
-    {
-      "id": "variant-b",
-      "disposition": "selected",
-      "reason": "Evidence-backed selection reason."
-    },
-    {
-      "id": "variant-c",
-      "disposition": "rejected",
-      "reason": "Evidence-backed rejection reason."
-    }
+    {"id": "variant-a", "disposition": "rejected", "reason": "Evidence-backed rejection reason."},
+    {"id": "variant-b", "disposition": "selected", "reason": "Evidence-backed selection reason."}
   ],
   "acceptance_criteria": [
     {"criterion": "Observable criterion one", "status": "pass", "evidence": "test/artifact/measurement"},
@@ -109,16 +98,10 @@
       "feedback_latency_ms": 120,
       "persistent_hud_items": 2,
       "instruction_lines": 0
-    },
-    "subjective_scores": {
-      "objective_clarity": {"score": 4, "note": "Concrete reason for the score."},
-      "state_readability": {"score": 4, "note": "Concrete reason for the score."},
-      "feedback_quality": {"score": 4, "note": "Concrete reason for the score."}
     }
   },
   "evaluation": {
     "mode": "independent_pass",
-    "review_input": ["problem", "acceptance criteria", "reference observations", "rendered evidence", "measurements"],
     "findings": ["Finding with severity or 'none'"],
     "verdict": "PASS",
     "iteration_required": false,
@@ -129,6 +112,12 @@
       "input_artifacts": ["<visual-evidence-locator>"],
       "record_locator": "<retained-evaluation-record-locator>"
     }
+  },
+  "governance": {
+    "trust_boundary_change": "Required only for governance-critical PRs; describe how the trust boundary changes.",
+    "bypass_analysis": "Required only for governance-critical PRs; list attempted/considered bypasses.",
+    "rollback": "Required only for governance-critical PRs; describe rollback.",
+    "human_review_required": true
   },
   "known_limitations": ["None, or explicit limitation"]
 }
