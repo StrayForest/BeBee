@@ -10,7 +10,7 @@ The roadmap now starts with **P-1 Blueprint Hardening** because the audit found 
 
 | Milestone | Goal | Main evidence |
 |---|---|---|
-| P-1 | Validate blueprint assumptions | research, prototypes, economy model, platform decision |
+| P-1 | Validate blueprint assumptions and evidence governance | research, prototypes, economy model, platform decision, machine-checkable evidence |
 | P0 | Foundation | reproducible HTML5 build + CI + QA hooks |
 | P1 | Movement | bee feels good to control |
 | P2 | Pollination loop | validated core verb is satisfying and complete |
@@ -40,7 +40,12 @@ Detailed requirements: `docs/11-blueprint-hardening.md`.
 - `BB-P009` HTML5 storage specification;
 - `BB-P010` agent context/decision model;
 - `BB-P011` reusable repository-local agent skills;
-- `BB-P012` quality-gate enforcement design.
+- `BB-P012` quality-gate enforcement design;
+- `BB-P013` machine-readable evidence schema;
+- `BB-P014` research selection / anti-confirmation protocol;
+- `BB-P015` decision provenance + evidence-strength model;
+- `BB-P016` separate player-facing evaluator protocol;
+- `BB-P017` hard PR evidence/merge gates.
 
 ## Exit criteria
 
@@ -51,7 +56,13 @@ Detailed requirements: `docs/11-blueprint-hardening.md`.
 - primary web target is selected;
 - visual QA/style constraints are specified;
 - storage/platform risks are specified;
-- unresolved assumptions are explicitly `HYPOTHESIS`/`OPEN`, not disguised as facts.
+- unresolved assumptions are explicitly `HYPOTHESIS`/`OPEN`, not disguised as facts;
+- substantial decisions have explicit provenance/evidence strength;
+- substantial player-facing/economy work has machine-readable evidence;
+- reference selection includes a search-space/counterexample discipline rather than confirmation-only examples;
+- substantial player-facing work has a separate evaluation pass;
+- PR evidence CI validates structured evidence, not headings alone;
+- `main` is protected by required PR/status checks before normal autonomous production, or a repository-settings blocker is explicitly recorded.
 
 Do **not** build dependent production systems around unresolved P-1 hypotheses.
 
@@ -146,7 +157,7 @@ Make an empty test field enjoyable to fly through before resource content is add
 
 ## Validation
 
-Research comparable movement/camera solutions first. Capture motion evidence, not screenshots only.
+Research comparable movement/camera solutions first. Capture motion evidence, not screenshots only. Use a changed `evidence/<ticket>/manifest.json` and separate evaluation pass for the substantial player-facing result.
 
 ## Exit criteria
 
@@ -210,7 +221,7 @@ A player can fly, understand how to pollinate without explanation, complete a pa
 
 ### Human gate
 
-P2 requires designated human review of the actual build, motion evidence and reference scorecard before P3 complexity begins.
+P2 requires designated human review of the actual build, motion evidence, structured evidence and reference scorecard before P3 complexity begins.
 
 ---
 
@@ -361,7 +372,7 @@ Scale proven content/system patterns only.
 Rules:
 
 - new regions should be mostly authored content/data;
-- every new system still follows research-first workflow;
+- every new system still follows research-first workflow and evidence governance;
 - if each region requires core architecture rewrites, stop and repair architecture;
 - canonical proposed region order lives in `DECISIONS.md` / `04-world-content.md`.
 
