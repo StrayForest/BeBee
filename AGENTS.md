@@ -157,11 +157,9 @@ At the ends of P2, P4 and P6, require a complete milestone evidence package and 
 
 ## 10. Implementation order
 
-Current repository status is **P-1 blueprint hardening**, not normal gameplay production.
+Current repository status is **P0 — Foundation**. P-1 Blueprint Hardening is complete; normal production starts with `BB-001 — Defold bootstrap`.
 
-Complete `docs/11-blueprint-hardening.md` exit criteria, including the objective-evidence hardening tasks in `docs/06-production-roadmap.md`, before treating P0/BB-001 onward as the normal production path.
-
-After P-1, build vertically:
+Build vertically:
 
 1. bootstrap/build/test infrastructure;
 2. movement/camera;
