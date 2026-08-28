@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-004-CI",
+  "change_class": "process",
+  "problem": "The BB-004 headless test/data command exists but is not yet executed automatically by GitHub Actions, so test/data failures would not produce a CI failure signal on every pull request and main update.",
+  "decision": {
+    "ids": [
+      "R-001",
+      "R-015",
+      "R-016"
+    ],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "separate-candidate-test-workflow",
+    "rationale": "Add a read-only pull_request/push workflow that checks out the exact candidate/source revision, installs the already pinned Java major and invokes the canonical BB-004 test command. Keep trusted pull_request_target evidence policy unchanged so candidate test code never becomes the authority for governance validation."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-product research is not applicable to CI wiring.",
+    "selected_references": [],
+    "reference_exception": "This process change has no player-facing behavior.",
+    "anti_pattern": {
+      "source": "https://docs.github.com/en/actions/reference/events-that-trigger-workflows",
+      "observation": "Using a privileged pull_request_target workflow to execute untrusted candidate code expands the trust boundary.",
+      "lesson": "Run candidate test code under pull_request with read-only permissions and leave the trusted evidence workflow separate."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://docs.github.com/en/actions/reference/events-that-trigger-workflows",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "pull_request workflows are appropriate for testing proposed changes, while pull_request_target has a different trust/security model and should not execute untrusted candidate code."
+    },
+    {
+      "source": "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Workflow permissions can be restricted to read-only contents and jobs can run on pull_request and push events."
+    },
+    {
+      "source": "https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/store-and-share-data-from-a-workflow",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Workflow artifacts can retain generated test reports and logs after the job completes."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "separate-candidate-test-workflow",
+      "disposition": "selected",
+      "reason": "Keeps runtime test execution on exact candidate source with read-only permissions while preserving the trusted evidence-policy boundary unchanged."
+    },
+    {
+      "id": "extend-trusted-evidence-workflow",
+      "disposition": "rejected",
+      "reason": "Executing candidate runtime/test code from pull_request_target would unnecessarily expand the privileged trust boundary and mix governance authority with candidate execution."
+    },
+    {
+      "id": "piggyback-repository-standards",
+      "disposition": "rejected",
+      "reason": "Repository standards is a lightweight static gate; coupling a Defold headless build into it would blur responsibilities and make standards failures slower to diagnose."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Every pull request and main push gets an explicit test/data CI job using the exact source revision.",
+      "status": "pass",
+      "evidence": ".github/workflows/test-data.yml triggers on pull_request and push to main and checks out github.event.pull_request.head.sha or github.sha with persisted credentials disabled."
+    },
+    {
+      "criterion": "The CI job invokes the same canonical BB-004 command developers use locally and propagates its non-zero exit status.",
+      "status": "pass",
+      "evidence": "The workflow installs OpenJDK 25 and runs `bash scripts/test.sh` directly under the default shell failure semantics."
+    },
+    {
+      "criterion": "Test reports/logs are retained for diagnosis without granting write permissions.",
+      "status": "pass",
+      "evidence": "The workflow declares contents: read and uploads build/test-results plus build/reports/tests.json with the repository's already pinned upload-artifact action."
+    },
+    {
+      "criterion": "Existing trusted PR evidence validation remains separate and unchanged.",
+      "status": "pass",
+      "evidence": "The diff adds only .github/workflows/test-data.yml and this process evidence record; pr-evidence-trusted.yml and policy scripts are not modified."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "The stacked PR runs the new test-data job against the combined exact head containing the BB-004 harness.",
+      "Trusted-base PR evidence and trust-boundary validators inspect this governance diff independently."
+    ],
+    "manual": [],
+    "runtime_errors": "The test-data job fails if the canonical headless command returns non-zero; the combined stacked run is required to show one passing suite_end event before the harness is merged.",
+    "save_data_impact": "none"
+  },
+  "governance": {
+    "trust_boundary_change": "Adds a new unprivileged candidate-source CI workflow only. It has contents: read, runs under pull_request/push, and does not modify the existing pull_request_target trusted evidence workflow, ruleset authority or policy code.",
+    "bypass_analysis": "Candidate branches can edit their own tests/workflow, so this job is intentionally not a governance authority and does not replace validate-pr-evidence. Its role is deterministic runtime/data regression detection. The trusted-base policy continues to classify and validate the candidate diff independently.",
+    "rollback": "Delete .github/workflows/test-data.yml. No production runtime code, secrets, ruleset or trusted evidence policy depends on the workflow."
+  },
+  "known_limitations": [
+    "The workflow is a CI regression signal; the repository's existing required ruleset check remains validate-pr-evidence unless separately changed through an explicit ruleset governance task.",
+    "BB-005 still owns the broader PR HTML5 playable artifact contract."
+  ]
+}
