@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-005-CI",
+  "change_class": "process",
+  "problem": "BeBee can already build HTML5 manually and retain narrow bootstrap evidence, but P0 still lacks one stable every-PR/main contract that retains a playable release artifact and rejects browser-load/console failures while preserving exact-source and trusted-governance boundaries.",
+  "decision": {
+    "ids": ["T-002", "R-001", "R-015", "R-016"],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "evolve-existing-runtime-workflow",
+    "rationale": "Broaden the existing unprivileged exact-source Defold runtime workflow into the P0 HTML5 CI contract, retain the already-independent Test and data workflow, smoke the served release bundle in Chromium, and upload the release bundle as a dedicated playable artifact without moving candidate execution into the trusted pull_request_target governance workflow."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-product research is not applicable to CI/build infrastructure.",
+    "selected_references": [],
+    "reference_exception": "This process change has no player-facing design choice.",
+    "anti_pattern": {
+      "source": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows",
+      "observation": "A pull_request workflow uses a synthetic merge ref by default, while privileged pull_request_target has a different trust model.",
+      "lesson": "Explicitly checkout the PR head SHA for exact-source runtime validation and keep candidate runtime execution outside trusted-base governance authority."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/html5/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Defold HTML5 bundles must be tested through an HTTP server, use WebAssembly on modern browsers, and require application/wasm MIME for streamed wasm compilation."
+    },
+    {
+      "source": "https://defold.com/manuals/bob/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Bob is the supported command-line build/bundle path for CI and wasm-web is a supported HTML5 platform architecture."
+    },
+    {
+      "source": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "pull_request normally checks a synthetic merge ref; github.event.pull_request.head.sha can be used when the workflow intentionally validates only the exact proposed head."
+    },
+    {
+      "source": "https://docs.github.com/en/actions/tutorials/store-and-share-data?apiVersion=2022-11-28",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "GitHub Actions build/test outputs can be retained as named workflow artifacts with a custom retention period."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "evolve-existing-runtime-workflow",
+      "disposition": "selected",
+      "reason": "Reuses the already-proven exact-head Defold browser path, avoids duplicate HTML5 builds, and gives P0 one stable release-artifact/browser contract."
+    },
+    {
+      "id": "add-parallel-html5-workflow",
+      "disposition": "rejected",
+      "reason": "Keeping the old runtime-evidence workflow plus a new HTML5 workflow would duplicate Bob builds and allow browser/artifact contracts to drift."
+    },
+    {
+      "id": "execute-inside-trusted-evidence-workflow",
+      "disposition": "rejected",
+      "reason": "The trusted pull_request_target workflow is governance authority and must not execute candidate runtime code under its privileged trust model."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Every pull request and main update builds the exact source revision into development and release wasm-web bundles.",
+      "status": "pass",
+      "evidence": ".github/workflows/defold-runtime-evidence.yml now triggers on every pull_request and push to main, explicitly checks out github.event.pull_request.head.sha or github.sha, and runs the pinned development/release bundle commands."
+    },
+    {
+      "criterion": "Unit/data validation remains automatic for the same PR/main source without duplicating the headless test bundle in HTML5 CI.",
+      "status": "pass",
+      "evidence": "The existing read-only .github/workflows/test-data.yml still triggers on every pull_request and main push and runs the canonical bash scripts/test.sh command."
+    },
+    {
+      "criterion": "A successful run retains a clearly separated playable release bundle and machine-readable/browser diagnostic evidence.",
+      "status": "pass",
+      "evidence": "HTML5 CI uploads build/html5/release/BeBee as html5-playable-<sha> and uploads html5-ci plus build/reports separately as html5-ci-evidence-<sha>, both with 14-day retention."
+    },
+    {
+      "criterion": "Browser smoke rejects unusable canvas, missing/incorrect wasm delivery, console errors, runtime exceptions and actionable network load failures while preserving BB-003 input/proxy proof.",
+      "status": "pass",
+      "evidence": "tools/defold/chromium_html5_smoke.py observes Runtime/Log/Page/Network before navigation and enforces the release checks; the workflow also continues to run chromium_input_proxy_smoke.py against the development bundle."
+    },
+    {
+      "criterion": "Candidate runtime execution remains read-only and outside trusted-base governance authority.",
+      "status": "pass",
+      "evidence": "HTML5 CI declares contents: read and uses pull_request/push; pr-evidence-trusted.yml and trusted policy scripts are not modified."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "The added chromium_html5_smoke.py was syntax-compiled before commit with Python 3 compile().",
+      "Exact-head candidate GitHub Actions must prove the new HTML5 CI, existing Test and data, Repository standards and trusted evidence gates before closeout; the final merge head must repeat them."
+    ],
+    "manual": [],
+    "runtime_errors": "No runtime result is claimed yet for the new browser smoke; exact-head CI is the closeout gate. The workflow retains browser/runtime diagnostics on failure rather than masking them.",
+    "save_data_impact": "none"
+  },
+  "governance": {
+    "trust_boundary_change": "The existing unprivileged candidate-source Defold runtime workflow is broadened to every PR/main update and renamed at the workflow display level to HTML5 CI. It remains contents: read and pull_request/push based. No ruleset, privileged pull_request_target workflow or policy authority is changed.",
+    "bypass_analysis": "A candidate branch can edit its own HTML5 CI workflow, so this workflow remains a regression/build signal rather than governance authority. The trusted-base validate-pr-evidence path continues to classify and validate the diff independently. The separate Test and data workflow also remains independently visible.",
+    "rollback": "Revert .github/workflows/defold-runtime-evidence.yml and remove tools/defold/chromium_html5_smoke.py plus BB-005 research/evidence. This restores the previous BB-001/BB-003 runtime evidence workflow without changing runtime game code, secrets, rulesets or trusted policy."
+  },
+  "known_limitations": [
+    "The browser smoke proves startup/resource/console health, not deterministic visual-state routing; BB-006 owns deterministic QA-state injection and desktop/mobile capture.",
+    "The workflow retains artifacts for 14 days rather than acting as a permanent release store.",
+    "BB-007 still owns storage persistence/reload proof."
+  ]
+}
