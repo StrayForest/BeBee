@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>BeBee BB-P003 — Pollination A/B/C Lab</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="lab-header">
+      <div>
+        <p class="eyebrow">BB-P003 · disposable interaction lab</p>
+        <h1>Pollination A/B/C</h1>
+      </div>
+      <div class="mode-tabs" role="tablist" aria-label="Pollination mode">
+        <button data-mode="auto" role="tab">A · Proximity</button>
+        <button data-mode="hold" role="tab">B · Hold</button>
+        <button data-mode="sweep" role="tab">C · Sweep</button>
+      </div>
+    </header>
+
+    <section class="status-row" aria-live="polite">
+      <div><span>Objective</span><strong id="objective">Bloom all 3 patches</strong></div>
+      <div><span>Mode</span><strong id="modeLabel">A · Proximity</strong></div>
+      <div><span>Completed</span><strong id="completed">0 / 3</strong></div>
+      <button id="resetButton" class="secondary">Reset run</button>
+    </section>
+
+    <section class="play-wrap">
+      <canvas id="game" width="960" height="600" aria-label="Pollination prototype field"></canvas>
+      <div id="touchStick" class="touch-stick" aria-hidden="true"><span></span></div>
+      <button id="pollinateButton" class="pollinate-button">POLLINATE</button>
+      <div id="hint" class="hint"></div>
+    </section>
+
+    <section class="metrics-panel">
+      <div class="metric"><span>First feedback</span><strong id="mFeedback">—</strong></div>
+      <div class="metric"><span>Run time</span><strong id="mTime">0.0 s</strong></div>
+      <div class="metric"><span>Stationary in patch</span><strong id="mWait">0.0 s</strong></div>
+      <div class="metric"><span>Pollinate presses</span><strong id="mPresses">0</strong></div>
+      <div class="metric"><span>Distance</span><strong id="mDistance">0 px</strong></div>
+      <button id="copyButton" class="secondary">Copy result JSON</button>
+    </section>
+
+    <details>
+      <summary>Experiment protocol</summary>
+      <p>Use the same three patches and finish one run in each mode. Do not tune movement between variants. Record first-feedback latency, total completion time, stationary wait, explicit pollinate presses, and movement distance. After three runs, judge agency, repetition comfort, mobile comfort, and whether the interaction still feels intentional rather than passive.</p>
+    </details>
+  </main>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
