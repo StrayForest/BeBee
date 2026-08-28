@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-08-28",
+  "source": "https://api.github.com/repos/StrayForest/BeBee/rulesets/21741136",
+  "repository": "StrayForest/BeBee",
+  "ruleset": {
+    "id": 21741136,
+    "name": "Protect main",
+    "target": "branch",
+    "enforcement": "active",
+    "conditions": {
+      "ref_name": {
+        "include": ["~DEFAULT_BRANCH"],
+        "exclude": []
+      }
+    },
+    "rules": {
+      "deletion_blocked": true,
+      "non_fast_forward_blocked": true,
+      "pull_request_required": true,
+      "required_approving_review_count": 0,
+      "required_reviewers": [],
+      "require_code_owner_review": false,
+      "require_last_push_approval": false,
+      "required_status_checks": [
+        {
+          "context": "validate-pr-evidence",
+          "integration_id": 15368
+        }
+      ],
+      "strict_required_status_checks_policy": true,
+      "do_not_enforce_on_create": false
+    },
+    "bypass_actors": [],
+    "current_user_can_bypass": "never",
+    "github_updated_at": "2026-08-28T19:13:12.577+03:00"
+  },
+  "assessment": {
+    "r_010_main_protection": "pass",
+    "r_019_strict_up_to_date": "pass",
+    "r_020_no_required_human": "pass",
+    "p_minus_1_repository_enforcement_gate": "pass"
+  }
+}
