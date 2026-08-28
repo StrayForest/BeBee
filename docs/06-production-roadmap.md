@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-005 — HTML5 CI**.
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-006 — Visual QA harness foundation**.
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -76,7 +76,7 @@ Do **not** build dependent production systems around downstream hypotheses that 
 
 # P0 — Foundation
 
-**Status: IN PROGRESS — BB-001 through BB-004 complete; BB-005 next.**
+**Status: IN PROGRESS — BB-001 through BB-005 complete; BB-006 next.**
 
 ## Goal
 
@@ -141,12 +141,20 @@ Delivered:
 
 The exact stacked candidate `7c3aefb8112fd1385ddeeec760b3aa27b32548e2` produced `BB-004 tests: PASS (11/11)` and retained `summary.json`, the engine log and Bob build report. The first CI execution also correctly exposed the missing Ubuntu `libopenal.so.1` runtime dependency; CI now installs `libopenal1` rather than masking the failure. Detailed scope and alternatives are retained in `docs/research/BB-004-test-data-harness.md` and `evidence/BB-004-HARNESS/manifest.json`. BB-005 owns the broader playable HTML5 PR artifact contract.
 
-### BB-005 — HTML5 CI
+### BB-005 — HTML5 CI — COMPLETE
 
-- build on PR;
-- unit/data validation;
-- retain playable artifact;
-- browser console smoke check where practical.
+Delivered:
+
+- one exact-source `HTML5 CI` workflow for every pull request and `main` update;
+- repository-pinned development and release `wasm-web` builds;
+- release Chromium startup/resource/console smoke requiring a usable canvas, successful `application/wasm` delivery, no actionable HTTP/network failures, no actionable console errors and no runtime exceptions;
+- retained BB-003 keyboard/touch/proxy-focus browser smoke against the development bundle;
+- dedicated `html5-playable-<sha>` release artifact separated from build/browser diagnostics;
+- `html5-ci-evidence-<sha>` containing exact source SHA, browser logs/JSON, release screenshot, bundle hashes and Defold build reports;
+- existing `Test and data` kept as an independent PR/main signal instead of rebuilding the BB-004 headless suite inside the browser job;
+- read-only candidate execution kept outside the trusted `pull_request_target` governance authority.
+
+The first strict run `33212975885` stopped on an error-level Chromium message; retained HTTP evidence identified the sole 404 as the browser's automatic `/favicon.ico` request while all Defold game resources, including `BeBee.wasm`, loaded successfully. The smoke was narrowed only for a Network-domain-proven favicon 404 while every other HTTP 4xx/5xx remains fatal. Exact candidate `3c50ca49d1b9fee8e39bac744e7d340e3f419963` then passed `Repository standards` (`33213154277`), `Test and data` (`33213154235`) and `HTML5 CI` (`33213154271`), retaining playable artifact `9702369697` and evidence artifact `9702370265`. Detailed reasoning and closeout proof are retained in `docs/research/BB-005-html5-ci.md` and `evidence/BB-005-CI/manifest.json`.
 
 ### BB-006 — Visual QA harness foundation
 
