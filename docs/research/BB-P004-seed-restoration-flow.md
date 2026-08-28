@@ -1,6 +1,6 @@
 # BB-P004 — Seed ownership during restoration
 
-Status: **experiment in progress**. The locked principle is that seed choice contributes to ownership during the restoration journey without threatening campaign progression. The exact flow remains unvalidated.
+Status: **validated**. `BB-P004` selects the Hybrid topology: authored native campaign plots remain stable during restoration while dedicated player-shaped plots accept seeds early; completed native plots may become replantable after restoration where content allows. Exact presentation, plot counts, planting input and seed economy remain open for P5 runtime validation.
 
 ## Problem
 
@@ -128,6 +128,17 @@ Relevant browser input authority for later touch interaction checks:
 
 Production implementation must still be re-verified against current Defold input/GUI documentation after the model is selected.
 
-## Decision gate
+## Decision result
 
-Do not change the exact seed/restoration flow to `VALIDATED` until the three variants have been run and evaluated. The harness protects progression state, but only observation/playtesting can resolve whether B's dual identity is understandable and whether C's two plot types feel coherent.
+The deterministic A/B/C run and separate evaluator are recorded in [`BB-P004-seed-restoration-result.md`](BB-P004-seed-restoration-result.md) and [`../../evidence/BB-P004/model-run-2026-08-28.json`](../../evidence/BB-P004/model-run-2026-08-28.json).
+
+Selected: **C — Hybrid**.
+
+Why:
+
+- A produced no ownership action before native restoration and therefore fails the ownership-during-restoration product requirement;
+- B provides early ownership but allows an incomplete native campaign plot to carry a chosen display species different from its authored native identity;
+- C provides an early ownership action through dedicated player-shaped plots while keeping incomplete native campaign plots authored and unambiguous at the state-model level;
+- all variants preserve campaign completion across replanting, so safety alone does not decide the winner.
+
+Validation scope is intentionally narrow. Human comprehension of the two plot roles, final visual language, exact plot count/placement, planting input and seed pacing remain P5 runtime/player validation tasks.
