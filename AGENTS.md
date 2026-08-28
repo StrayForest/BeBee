@@ -128,7 +128,7 @@ At minimum where applicable:
 
 For substantial player-facing work, the implementation pass must not be the only evaluation authority. Run a separate evaluation pass using primarily the problem, acceptance criteria, selected reference observations, rendered evidence and measurements. Record its findings/verdict in the evidence manifest.
 
-At the ends of P2, P4 and P6, subjective product quality requires designated human approval in addition to agent evidence.
+At the ends of P2, P4 and P6, require a complete milestone evidence package and separate evaluation pass. Human review is optional and must never be a prerequisite for CI, merge or phase progression unless the owner explicitly requests review for that specific change.
 
 ## 8. Product guardrails
 
@@ -201,6 +201,7 @@ For substantial player-facing/economy work, the evidence source of truth is `evi
 - PR must include research, official docs, decision status/provenance, verification evidence, visual evidence where relevant, save impact and known limitations.
 - Do not merge knowingly broken HTML5 builds.
 - `main` should be protected by a GitHub ruleset requiring PRs and required status checks; direct push is not the normal workflow.
+- Required workflow gates must be fully autonomous. No reviewer, approval, second GitHub account or manual interaction is part of the normal merge path.
 - Once CI/rulesets exist, do not bypass required checks except through an explicit emergency decision documented in the PR.
 
 ## 13. Local agent skills
