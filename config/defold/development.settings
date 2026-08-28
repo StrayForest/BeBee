@@ -1,0 +1,5 @@
+[profiler]
+enabled = 1
+
+[html5]
+show_made_with_defold = 1
