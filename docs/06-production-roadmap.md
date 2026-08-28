@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is now complete; the current production handoff is **P0 / BB-001 — Defold bootstrap**.
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-002 — Repository/tooling standards**.
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -76,19 +76,24 @@ Do **not** build dependent production systems around downstream hypotheses that 
 
 # P0 — Foundation
 
-**Status: NEXT — ready to begin.**
+**Status: IN PROGRESS — BB-001 complete; BB-002 next.**
 
 ## Goal
 
 Create a deterministic Defold project, CI path and evidence pipeline.
 
-### BB-001 — Defold bootstrap
+### BB-001 — Defold bootstrap — COMPLETE
 
-- `game.project`;
-- bootstrap collection/controller;
-- development/release configurations;
-- reproducible HTML5 bundle;
-- exact Defold version/pinning strategy documented.
+Delivered:
+
+- root `game.project` with a minimal long-lived `app/` bootstrap collection/controller;
+- explicit development/release settings;
+- reproducible editor-independent HTML5 bundler;
+- Defold `1.13.1`, Bob SHA-256, OpenJDK `25` and `wasm-web` pinned in a machine-readable toolchain contract;
+- exact-head development + release HTML5 build proof;
+- exact-head Chromium smoke capture and retained artifact.
+
+The first fully successful runtime proof was GitHub Actions run `33201017563` on head `46d48bd265458b14e7b5d0a5673800ab39d50a3c`; the final merge head must repeat the same checks successfully. BB-001 intentionally leaves semantic input, collection-proxy focus/lifecycle, storage, test/data harness and deterministic gameplay QA to their scoped follow-up tasks.
 
 ### BB-002 — Repository/tooling standards
 
