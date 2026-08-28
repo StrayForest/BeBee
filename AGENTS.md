@@ -34,7 +34,7 @@ Do not silently choose between contradictions. Record the finding and update the
 | save / browser / platform / SDK | `05-technical-architecture.md`, `07-qa-analytics-release.md`, `12-platform-storage.md` |
 | art / VFX / audio | `09-art-direction.md`, `13-visual-qa-scorecard.md` |
 | roadmap / milestone | `06-production-roadmap.md`, `11-blueprint-hardening.md` |
-| research process | `10-development-workflow.md`, relevant `.agents/skills/.../SKILL.md` |
+| research process | `10-development-workflow.md`, `15-agent-evidence-governance.md`, relevant `.agents/skills/.../SKILL.md` |
 
 Read additional docs only when the task crosses domains.
 
@@ -58,6 +58,21 @@ Rules:
 
 Existing design text written before the research-first workflow does not automatically override this rule.
 
+### Decision provenance
+
+For every substantial new or changed decision, record why it exists using the provenance taxonomy in `docs/15-agent-evidence-governance.md`:
+
+- `OWNER_CONSTRAINT`
+- `REFERENCE_PATTERN`
+- `TECH_CONSTRAINT`
+- `EXPERIMENT_RESULT`
+- `SIMULATION_RESULT`
+- `TELEMETRY_RESULT`
+- `PLAYTEST_RESULT`
+- `SUBJECTIVE_DIRECTION`
+
+Also record evidence strength (`LOW`, `MEDIUM`, `HIGH`). Do not present owner preference or subjective art direction as objective external evidence.
+
 ## 5. Mandatory research-first workflow
 
 Do not begin a meaningful feature by writing production code.
@@ -74,19 +89,24 @@ Required order:
 8. render the actual game;
 9. capture screenshots/video for player-facing work;
 10. compare the result against references and BeBee rules;
-11. iterate when evidence exposes a gap;
-12. open/finalize PR with evidence;
-13. merge only after gates pass.
+11. run a separate evaluation pass for substantial player-facing work;
+12. iterate when evidence exposes a gap;
+13. open/finalize PR with evidence;
+14. merge only after gates pass.
 
-Use `docs/templates/feature-research.md` and repository-local skills under `.agents/skills/`.
+Use `docs/templates/feature-research.md`, `docs/templates/evidence-manifest.example.json` and repository-local skills under `.agents/skills/`.
 
 ## 6. Research rules
 
 - References are used for interaction/UX/quality patterns, not proprietary expression.
 - Prefer problem-specific shipped references; do not use only one developer's games when broader references exist.
+- For substantial player-facing work, build a candidate pool of at least five plausible shipped references when reasonably available, then inspect at least two deeply.
+- Include a materially different solution or anti-pattern so research is not only confirming the preferred idea.
+- Record why references were selected and why notable candidates were rejected or considered less relevant.
 - Prefer official technical documentation over snippets, forum answers or model memory.
 - Verify APIs and current portal requirements; never invent names or assume an old integration still applies.
 - Record observed facts separately from inference.
+- Prefer measurable observations before subjective ratings.
 - Do not commit competitor screenshots/assets unless their license explicitly permits it.
 
 ## 7. Visual QA rules
@@ -106,6 +126,8 @@ At minimum where applicable:
 
 `ITERATE` means not merge-ready.
 
+For substantial player-facing work, the implementation pass must not be the only evaluation authority. Run a separate evaluation pass using primarily the problem, acceptance criteria, selected reference observations, rendered evidence and measurements. Record its findings/verdict in the evidence manifest.
+
 At the ends of P2, P4 and P6, subjective product quality requires designated human approval in addition to agent evidence.
 
 ## 8. Product guardrails
@@ -117,6 +139,7 @@ At the ends of P2, P4 and P6, subjective product quality requires designated hum
 - World gates default to restoration/progression/Buzz, not Honey payments.
 - Do not add systems for hypothetical future content before the current validated milestone needs them.
 - A feature must improve flying, pollinating, blooming, upgrading, choosing flowers or restoring the world.
+- Do not add a feature merely because it would make the game feel richer; identify the player problem and evidence first.
 
 ## 9. Technical guardrails
 
@@ -136,7 +159,7 @@ At the ends of P2, P4 and P6, subjective product quality requires designated hum
 
 Current repository status is **P-1 blueprint hardening**, not normal gameplay production.
 
-Complete `docs/11-blueprint-hardening.md` exit criteria before treating P0/BB-001 onward as the normal production path.
+Complete `docs/11-blueprint-hardening.md` exit criteria, including the objective-evidence hardening tasks in `docs/06-production-roadmap.md`, before treating P0/BB-001 onward as the normal production path.
 
 After P-1, build vertically:
 
@@ -157,22 +180,27 @@ A meaningful task is done only when:
 
 - required research exists or a justified exception is recorded;
 - relevant official docs were consulted;
+- the decision has explicit provenance/evidence strength when substantial;
 - acceptance criteria pass;
 - tests/data validation/build pass where relevant;
 - save/migration impact is handled;
 - no new runtime/console errors are introduced;
 - player-facing states have rendered evidence;
+- a substantial player-facing change has a separate evaluation record;
 - comparison conclusion is not `ITERATE`;
 - third-party provenance is clear;
 - `DECISIONS.md` is updated if decision status changed.
+
+For substantial player-facing/economy work, the evidence source of truth is `evidence/<ticket>/manifest.json`, changed in the same PR. PR prose summarizes it but does not replace it.
 
 ## 12. Git workflow
 
 - `main` is intended to stay releasable.
 - Use focused branches and PRs.
 - One concern per PR where practical.
-- PR must include research, official docs, decision status, verification evidence, visual evidence where relevant, save impact and known limitations.
+- PR must include research, official docs, decision status/provenance, verification evidence, visual evidence where relevant, save impact and known limitations.
 - Do not merge knowingly broken HTML5 builds.
+- `main` should be protected by a GitHub ruleset requiring PRs and required status checks; direct push is not the normal workflow.
 - Once CI/rulesets exist, do not bypass required checks except through an explicit emergency decision documented in the PR.
 
 ## 13. Local agent skills
