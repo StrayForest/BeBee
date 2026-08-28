@@ -1,4 +1,5 @@
 local qa_runtime = require "app.qa_runtime"
+local storage_probe = require "app.storage_probe"
 
 local function html5_available()
     return html5 ~= nil and html5.run ~= nil
@@ -119,6 +120,9 @@ function init(self)
     self.proxy_ready = false
     self.owner_focused = false
     init_qa(self)
+    if self.qa_enabled then
+        storage_probe.run()
+    end
     msg.post("/sentinel#controller", "acquire_sentinel_focus")
     msg.post("#input_probe", "load")
 end
