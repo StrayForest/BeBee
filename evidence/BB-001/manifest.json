@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-001",
+  "change_class": "technical",
+  "problem": "BeBee needs a minimal, reproducible Defold HTML5 runtime bootstrap with an exact pinned engine/toolchain before later P0 gameplay, input, storage or visual-QA systems are implemented.",
+  "decision": {
+    "ids": ["T-001", "T-002", "R-012"],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "pinned-upstream-bob",
+    "rationale": "Pin Defold 1.13.1 and the published Bob SHA-256, require Java 25, build wasm-web through Bob, and keep the bootstrap under the long-lived app layer. This gives an editor-independent deterministic toolchain without committing the large upstream binary or floating to latest."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-game reference research is not applicable to a technical engine/bootstrap build task.",
+    "selected_references": [],
+    "reference_exception": "Official Defold documentation and the published stable release artifact are authoritative for this task.",
+    "anti_pattern": {
+      "source": "https://defold.com/manuals/bob/",
+      "observation": "A floating Bob download would make the build tool version external to the repository state.",
+      "lesson": "Pin the upstream Bob artifact by stable release and digest rather than resolving a moving latest version."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/bob/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Bob is the editor-independent build tool; current Bob requires OpenJDK 25, supports debug/release variants and wasm-web HTML5 builds."
+    },
+    {
+      "source": "https://defold.com/manuals/project-settings/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "game.project is the project configuration root and bootstrap resources use compiled resource paths such as .collectionc."
+    },
+    {
+      "source": "https://defold.com/manuals/automated-testing/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Bob supports scripted resolve/build/bundle execution suitable for an editor-independent CI path."
+    },
+    {
+      "source": "https://github.com/defold/defold/releases/tag/1.13.1",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold 1.13.1 is the selected stable release; its published bob.jar digest is 8f2b1381fd4d0fb92816403cd0056cb7db5ad4083615be8dcc2d868fb4939938."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "pinned-upstream-bob",
+      "disposition": "selected",
+      "reason": "Keeps engine/tool identity reviewable and reproducible while verifying the downloaded upstream artifact cryptographically."
+    },
+    {
+      "id": "floating-latest-bob",
+      "disposition": "rejected",
+      "reason": "A moving latest version can change build behavior without a repository change and prevents historical reproduction."
+    },
+    {
+      "id": "commit-bob-binary",
+      "disposition": "rejected",
+      "reason": "Committing the large upstream binary is unnecessary when the exact release artifact can be checksum-verified and cached."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Root game.project points to a minimal app/bootstrap.collectionc and the bootstrap reaches a Lua controller without adding later gameplay systems.",
+      "status": "pass",
+      "evidence": "game.project plus app/bootstrap.collection, app/bootstrap.go and app/bootstrap.script."
+    },
+    {
+      "criterion": "Development and release build modes are explicit and use isolated Defold settings/variants.",
+      "status": "pass",
+      "evidence": "config/defold/development.settings, config/defold/release.settings and MODES in tools/defold/bundle_html5.py."
+    },
+    {
+      "criterion": "Defold version and Bob artifact are pinned and verified rather than floating.",
+      "status": "pass",
+      "evidence": "tools/defold/toolchain.json pins Defold 1.13.1, Java 25, wasm-web and Bob SHA-256; bundle_html5.py rejects mismatched Java/Bob/version."
+    },
+    {
+      "criterion": "The repository contains an editor-independent command that requires the expected HTML5 index output for both modes.",
+      "status": "pass",
+      "evidence": "python3 tools/defold/bundle_html5.py --mode development|release; exact-head GitHub runtime workflow executes both before merge."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Trusted-base policy regression suite runs on the BB-001 PR and must pass before merge.",
+      "Defold runtime evidence workflow builds development and release bundles from the exact PR head and must pass before merge."
+    ],
+    "manual": [
+      "Reviewed bootstrap dependency boundary against docs/05-technical-architecture.md; input, storage, proxies, gameplay and UI remain out of scope."
+    ],
+    "runtime_errors": "Pending exact-head runtime workflow at initial manifest creation; merge is blocked operationally until the workflow is green and this record is updated with the retained run/artifact.",
+    "save_data_impact": "None; BB-001 introduces no storage calls, save schema or migration."
+  },
+  "visual_evidence": {
+    "required": false,
+    "artifacts": [],
+    "states": [],
+    "viewports": [],
+    "motion_evidence": [],
+    "provenance": {
+      "capture_commit_sha": "$PR_HEAD",
+      "capture_mode": "ci",
+      "artifact_locator": "Runtime smoke screenshot is retained by the Defold runtime evidence workflow but visual quality is not an acceptance gate for this technical bootstrap."
+    }
+  },
+  "comparison": {
+    "measurements": {}
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": ["N/A — BB-001 is technical bootstrap infrastructure and makes no player-facing quality claim."],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "technical-review-pass",
+      "implementation_author_id": "implementation-pass",
+      "input_artifacts": ["docs/research/BB-001-defold-bootstrap.md", "tools/defold/toolchain.json", "tools/defold/bundle_html5.py"],
+      "record_locator": "evidence/BB-001/manifest.json"
+    }
+  },
+  "governance": {
+    "trust_boundary_change": "None; BB-001 consumes the policy/runtime-evidence infrastructure merged before this task.",
+    "bypass_analysis": "No required check or policy code is changed by BB-001. The repository owner temporarily disabled the external ruleset, but this PR will not be merged until both trusted evidence validation and exact-head Defold runtime evidence succeed.",
+    "rollback": "Revert the BB-001 merge to remove the initial runtime bootstrap/toolchain files; no persistent data migration is involved."
+  },
+  "known_limitations": [
+    "BB-001 does not implement input, collection-proxy lifecycle, tests/data harness, deterministic QA routing or storage; those remain BB-003 through BB-007.",
+    "The Protect main ruleset enforcement is temporarily disabled externally and must be re-enabled after the repair/bootstrap merge."
+  ]
+}
