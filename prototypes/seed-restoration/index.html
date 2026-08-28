@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>BeBee BB-P004 — Seed / Restoration Lab</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">BB-P004 · disposable ownership-flow lab</p>
+        <h1>When does the meadow become yours?</h1>
+      </div>
+      <nav class="mode-tabs" aria-label="Restoration model">
+        <button data-mode="native-first">A · Native first</button>
+        <button data-mode="player-shaped">B · Player-shaped</button>
+        <button data-mode="hybrid">C · Hybrid</button>
+      </nav>
+    </header>
+
+    <section class="brief">
+      <div><span>Campaign objective</span><strong>Restore 3 native patches</strong></div>
+      <div><span>Restoration</span><strong id="progress">0 / 3</strong></div>
+      <div><span>Ownership before restore</span><strong id="ownershipBefore">0 actions</strong></div>
+      <button id="reset" class="secondary">Reset flow</button>
+    </section>
+
+    <section class="experiment">
+      <aside class="seed-tray">
+        <p class="label">Seeds</p>
+        <button draggable="false" data-seed="daisy">Daisy</button>
+        <button draggable="false" data-seed="clover">Clover</button>
+        <button draggable="false" data-seed="lavender">Lavender</button>
+        <p id="seedHint" class="microcopy">Choose a seed, then choose a plot.</p>
+      </aside>
+
+      <div class="meadow-card">
+        <div class="meadow-head">
+          <div>
+            <span id="stage" class="stage">DORMANT</span>
+            <strong id="modeTitle">A · Native first</strong>
+          </div>
+          <p id="modeExplanation"></p>
+        </div>
+        <div id="meadow" class="meadow" aria-label="Seed restoration experiment meadow"></div>
+      </div>
+    </section>
+
+    <section class="metrics">
+      <div><span>Actions</span><strong id="actions">0</strong></div>
+      <div><span>First ownership action</span><strong id="firstOwnership">—</strong></div>
+      <div><span>Campaign state after replant</span><strong id="campaignSafety">Not tested</strong></div>
+      <div><span>Choice available now</span><strong id="choiceNow">No</strong></div>
+      <button id="copy" class="secondary">Copy result JSON</button>
+    </section>
+
+    <details>
+      <summary>What this experiment is testing</summary>
+      <p>A delays customization until native restoration is complete. B allows seeds on every plot during restoration while keeping native campaign identity separate from planted appearance. C keeps native challenge plots authored but exposes dedicated player-shaped plots immediately. The test is about comprehension, ownership timing, reversibility and campaign safety—not art quality.</p>
+    </details>
+  </main>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
