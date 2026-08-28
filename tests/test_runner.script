@@ -4,6 +4,7 @@ local suites = {
     require "tests.test_input_semantics",
     require "tests.test_data_validation",
     require "tests.test_qa_runtime",
+    require "tests.test_storage",
 }
 
 local function emit(event)
