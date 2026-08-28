@@ -1,4 +1,4 @@
-# 16 — CI Trust Boundary & Human Gates
+# 16 — CI Trust Boundary & Autonomous Gates
 
 ## 1. Purpose
 
@@ -16,9 +16,11 @@ diff / manifest / evidence validation
 
 The candidate may change policy files, but those changes do not become the authority until after they have passed the previous trusted policy and merged.
 
+The normal development path is autonomous. A second human GitHub account is not required for routine governance or milestone progress.
+
 ## 2. Trusted workflow model
 
-The required `PR evidence` workflow uses `pull_request_target`, whose workflow context comes from the base/default branch.
+The required evidence workflow uses `pull_request_target`, whose workflow context comes from the base/default branch.
 
 Security rules:
 
@@ -51,25 +53,28 @@ A governance-critical PR must:
 
 1. use `Change class: process`;
 2. change `evidence/<ticket>/manifest.json` in the same PR;
-3. record `governance.trust_boundary_change`, `governance.bypass_analysis`, `governance.rollback` and `governance.human_review_required = true`;
-4. receive an exact-head independent GitHub approval once the trusted-base gate is active.
+3. record `governance.trust_boundary_change`, `governance.bypass_analysis` and `governance.rollback`;
+4. pass the previous trusted-base policy and its adversarial test suite.
 
-## 4. Exact-head human approval
+A second reviewer is not a default requirement. The owner can request human review for a specific change if desired, but CI does not depend on maintaining another GitHub identity.
 
-Human approval is not represented by prose or by an agent-created file.
+## 4. Milestone evaluation
 
-For P2, P4, P6 and governance-critical policy changes, the trusted workflow checks GitHub review data.
+P2, P4 and P6 remain stronger product checkpoints, but they are evidence gates rather than second-account gates.
 
-A qualifying approval must be:
+A milestone package should include:
 
-- `APPROVED`;
-- attached to the exact current PR head commit;
-- from a reviewer different from the PR author;
-- from a non-bot account.
+- runnable build/artifact;
+- representative screenshots/video;
+- objective measurements;
+- completed comparison scorecard;
+- acceptance-criteria evidence;
+- separate evaluator findings;
+- explicit known deviations.
 
-An approval attached to an older commit does not count.
+`ITERATE` blocks progress. Human review is optional unless the owner explicitly requests it for that milestone.
 
-This means a solo-author PR cannot self-approve a human gate. A designated second human GitHub identity/collaborator is required for these gates.
+This preserves the goal of preventing an implementation pass from merely declaring its own work good enough without making repository progress depend on another person's GitHub account.
 
 ## 5. Diff-classification additions
 
@@ -113,8 +118,8 @@ Until GitHub reports strict required status checks enabled, a stale green PR can
 
 This setting cannot be corrected by repository code. Issue #4 remains the settings-level P-1 blocker until strict/up-to-date enforcement is active and verified.
 
-## 9. Bootstrap note
+## 9. Bootstrap cleanup
 
-The migration PR that introduces this trust boundary is necessarily judged by the previous policy.
+The migration that introduced the trusted workflow temporarily retained the previous `pull_request` workflow so the first trust-boundary PR could be admitted under the old rules.
 
-After this change lands in `main`, subsequent governance-critical PRs are judged by the trusted-base version and require the exact-head independent human gate described above.
+That bootstrap workflow is not part of the final design and must be removed. After cleanup, only the base-authoritative trusted workflow should publish the required `validate-pr-evidence` context.
