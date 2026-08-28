@@ -1,7 +1,9 @@
 {
   "schema_version": 1,
-  "status": "HYPOTHESIS",
-  "notes": "Disposable BB-P005 balance candidate. Values are simulation inputs, not production balance.",
+  "status": "HYPOTHESIS_VALUES_WITH_VALIDATED_STRUCTURE",
+  "notes": "BB-P005 research candidate. Reward/cost values are simulation inputs, not production balance. The historical Yield purchase is intentionally retained only for regression comparison; D-007 excludes Yield from the vertical slice.",
+  "validated_upgrade_tracks": ["flight", "buzz"],
+  "excluded_vertical_slice_tracks": ["yield"],
   "starting_honey": 0,
   "milestones": [
     {"id": "M01", "base_honey": 45, "requires_buzz": 1},
@@ -17,7 +19,7 @@
     {"id": "buzz_3", "kind": "buzz", "level": 3, "cost": 68, "required_before": "M06", "requires_purchase": "buzz_2", "available_after": "M04"},
     {"id": "flight_2", "kind": "flight", "level": 2, "cost": 30, "available_after": "M01"},
     {"id": "flight_3", "kind": "flight", "level": 3, "cost": 56, "requires_purchase": "flight_2", "available_after": "M03"},
-    {"id": "yield_2", "kind": "yield", "level": 2, "cost": 40, "reward_multiplier": 1.15, "available_after": "M03"},
+    {"id": "yield_2", "kind": "yield", "level": 2, "cost": 40, "reward_multiplier": 1.15, "available_after": "M03", "research_only": true},
     {"id": "seed_daisy", "kind": "seed", "cost": 15, "available_after": "M01"},
     {"id": "seed_clover", "kind": "seed", "cost": 18, "available_after": "M02"},
     {"id": "seed_lavender", "kind": "seed", "cost": 22, "available_after": "M03"}
