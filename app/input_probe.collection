@@ -1,0 +1,10 @@
+name: "input_probe"
+instances {
+  id: "gameplay"
+  prototype: "/app/input_probe_gameplay.go"
+}
+instances {
+  id: "modal"
+  prototype: "/app/input_probe_modal.go"
+}
+scale_along_z: 0
