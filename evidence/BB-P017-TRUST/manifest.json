@@ -41,21 +41,21 @@
     {
       "criterion": "Required evidence validation executes policy from the PR base/default branch rather than the candidate.",
       "status": "pass",
-      "evidence": "pr-evidence.yml uses pull_request_target and separate trusted/candidate checkouts."
+      "evidence": "pr-evidence-trusted.yml uses pull_request_target and separate trusted/candidate checkouts."
     },
     {
       "criterion": "Adversarial tests cover human exact-head review, data/script classification, product identity and blank official-doc N/A.",
       "status": "pass",
-      "evidence": "34 local policy tests passed, including the new trust-boundary suite."
+      "evidence": "GitHub Actions run 33184528114 completed successfully; its adversarial evidence-policy test step passed on the candidate branch."
     },
     {
       "criterion": "Governance-critical changes become diff-detected and require a same-PR governance manifest.",
       "status": "pass",
-      "evidence": "scripts/check_trust_boundary.py governance path policy."
+      "evidence": "scripts/check_trust_boundary.py governance path policy and scripts/policy_tests/test_trust_boundary.py adversarial cases."
     }
   ],
   "verification": {
-    "automated": ["python3 -m unittest discover -s scripts/policy_tests -p 'test_*.py' -v -> 34 passed locally"],
+    "automated": ["GitHub Actions run 33184528114: validate-pr-evidence SUCCESS; adversarial evidence-policy tests, structural validator and diff policy all passed."],
     "manual": ["Reviewed pull_request_target security boundary and current Protect main ruleset state."],
     "runtime_errors": "No game runtime change.",
     "save_data_impact": "none"
@@ -68,6 +68,7 @@
   },
   "known_limitations": [
     "Repository ruleset strict/up-to-date enforcement remains a GitHub settings action and is tracked in issue #4.",
-    "The bootstrap PR is judged by the previous policy; exact-head governance approval becomes mandatory after this change is present in main."
+    "The bootstrap PR is judged by the previous policy; exact-head governance approval becomes mandatory after this change is present in main.",
+    "The temporary bootstrap pull_request workflow must be removed immediately after merge under the new trusted workflow."
   ]
 }
