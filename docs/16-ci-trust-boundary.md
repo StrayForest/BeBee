@@ -16,7 +16,7 @@ diff / manifest / evidence validation
 
 The candidate may change policy files, but those changes do not become the authority until after they have passed the previous trusted policy and merged.
 
-The normal development path is autonomous. A second human GitHub account is not required for routine governance or milestone progress.
+The normal development path is fully autonomous. No second GitHub account, human reviewer, milestone approver, or manual approval is required by CI or the development process. Human review is optional and may be requested by the owner, but it is never a blocking dependency.
 
 ## 2. Trusted workflow model
 
@@ -56,11 +56,11 @@ A governance-critical PR must:
 3. record `governance.trust_boundary_change`, `governance.bypass_analysis` and `governance.rollback`;
 4. pass the previous trusted-base policy and its adversarial test suite.
 
-A second reviewer is not a default requirement. The owner can request human review for a specific change if desired, but CI does not depend on maintaining another GitHub identity.
+No reviewer identity is required. The owner may request a human review for a specific change if desired, but CI and milestone progression must not depend on it.
 
 ## 4. Milestone evaluation
 
-P2, P4 and P6 remain stronger product checkpoints, but they are evidence gates rather than second-account gates.
+P2, P4 and P6 remain stronger product checkpoints, but they are evidence gates rather than human gates.
 
 A milestone package should include:
 
@@ -72,13 +72,13 @@ A milestone package should include:
 - separate evaluator findings;
 - explicit known deviations.
 
-`ITERATE` blocks progress. Human review is optional unless the owner explicitly requests it for that milestone.
+`ITERATE` blocks progress. Human review does not.
 
-This preserves the goal of preventing an implementation pass from merely declaring its own work good enough without making repository progress depend on another person's GitHub account.
+This preserves the goal of preventing an implementation pass from merely declaring its own work good enough while keeping the entire development loop executable by agents.
 
 ## 5. Diff-classification additions
 
-The additional trust-boundary policy intentionally fails closed for previously ambiguous runtime/content files.
+The trust-boundary policy intentionally fails closed for previously ambiguous runtime/content files.
 
 Examples:
 
@@ -108,18 +108,24 @@ If official-doc research is not applicable, explain why:
 
 cannot consume text from the next paragraph and pretend to be filled.
 
-## 8. Remaining repository-setting requirement
+## 8. Repository protection after migration
 
-The active `Protect main` ruleset already requires PRs, blocks non-fast-forward changes and requires `validate-pr-evidence`.
+The permanent target configuration for `Protect main` is:
 
-However, the required-status-check policy must also require branches to be up to date before merging.
+- pull requests required;
+- required approvals: `0`;
+- code-owner approval not required;
+- non-fast-forward changes blocked;
+- deletion blocked;
+- `validate-pr-evidence` required;
+- branches required to be up to date before merge (`strict` / up-to-date enabled).
 
-Until GitHub reports strict required status checks enabled, a stale green PR can theoretically merge after `main` changed without being revalidated against the new base.
+The ruleset was temporarily disabled once to escape the legacy human-approval self-lock. That exception belongs only to this migration and is not part of the ongoing BeBee process.
 
-This setting cannot be corrected by repository code. Issue #4 remains the settings-level P-1 blocker until strict/up-to-date enforcement is active and verified.
+After migration, re-enable the ruleset with the configuration above. Issue #4 can be closed once GitHub reports strict/up-to-date enforcement active.
 
 ## 9. Bootstrap cleanup
 
-The migration that introduced the trusted workflow temporarily retained the previous `pull_request` workflow so the first trust-boundary PR could be admitted under the old rules.
+The previous candidate-controlled `pull_request` bootstrap workflow has been removed from the final design.
 
-That bootstrap workflow is not part of the final design and must be removed. After cleanup, only the base-authoritative trusted workflow should publish the required `validate-pr-evidence` context.
+Only `.github/workflows/pr-evidence-trusted.yml` should publish the permanent required `validate-pr-evidence` context. This avoids duplicate-context ambiguity and prevents a candidate-controlled workflow from becoming an alternate authority.
