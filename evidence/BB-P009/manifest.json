@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P009",
+  "change_class": "technical",
+  "problem": "BeBee needs an HTML5 save protocol that preserves the last valid generation across corrupt loads, failed writes/readbacks and migration failures while correctly representing Defold's delayed IndexedDB persistence semantics.",
+  "decision": {
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "two_generation_ab_journal",
+    "rationale": "Use two peer generation slots and always write the next generation to the missing/invalid/lower slot, then verify it by protected readback. This preserves the sole newest valid generation until the candidate is proven readable and avoids relying on an extra mutable active-slot pointer."
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/ref/stable/sys/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Current Defold sys documentation states that sys.get_save_file/sys.save/sys.load can raise errors, HTML5 save paths are in IndexedDB-backed storage, sys.save has a 512 KiB output ceiling and individual tables have a 65,536-row limit."
+    },
+    {
+      "source": "https://defold.com/manuals/file-access/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold currently documents pcall(sys.load, path) as the recoverable pattern for corrupt, foreign or unsupported serialized files."
+    },
+    {
+      "source": "https://defold.com/manuals/html5/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold HTML5 uses an IndexedDB-backed virtual filesystem and documents a slight delay between file writes and persistent browser database storage."
+    },
+    {
+      "source": "https://developers.poki.com/guide/requirements-quality",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Poki currently requires incognito playability and warns that local browser storage can be restricted."
+    },
+    {
+      "source": "https://developers.poki.com/guide/accounts",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Poki currently documents monitoring localStorage/IndexedDB for cloud gamesaves and a 1 MB gzip gamesave limit; BeBee does not assume the exact Defold IDBFS layout is cross-device synced until real-build verification."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "single_file",
+      "disposition": "rejected",
+      "reason": "A corrupt or failed overwrite can destroy the only usable save generation."
+    },
+    {
+      "id": "primary_backup_copy",
+      "disposition": "rejected",
+      "reason": "Can be safe with careful ordering, but backup/primary copy ordering is easier to implement incorrectly and can copy stale/corrupt state or overwrite the last-good file too early."
+    },
+    {
+      "id": "two_generation_ab_journal",
+      "disposition": "selected",
+      "reason": "Both files are peers ordered by monotonic generation. New writes target the older/invalid slot and are verified by readback before success, preserving the previous valid generation without an active-pointer dependency."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "The local storage contract never overwrites the sole newest valid generation before a candidate write is read back and validated.",
+      "status": "pass",
+      "evidence": "config/storage-contract.json local_adapter.write_rule/readback_verification_required and save_pipeline encode this invariant."
+    },
+    {
+      "criterion": "Corrupt/unsupported loads are protected and either generation slot can recover the game.",
+      "status": "pass",
+      "evidence": "config/storage-contract.json requires pcall and P0 test cases for A corrupt/B valid and B corrupt/A valid."
+    },
+    {
+      "criterion": "HTML5 save success is not falsely labeled as immediate browser durability.",
+      "status": "pass",
+      "evidence": "durability.local_html5_default_after_success is accepted_local_pending_browser_persistence and the validator rejects stronger default claims."
+    },
+    {
+      "criterion": "Save growth stays far below the current Defold output ceiling.",
+      "status": "pass",
+      "evidence": "128 KiB warning and 256 KiB release gate are machine-readable and validated as warning < gate < 512 KiB ceiling."
+    },
+    {
+      "criterion": "Migration/write/readback failure paths preserve original valid state and are part of the required P0 test matrix.",
+      "status": "pass",
+      "evidence": "config/storage-contract.json includes required failed-write, failed-readback and migration-failure preservation tests."
+    },
+    {
+      "criterion": "Portal cloud behavior does not become an unverified dependency of local persistence.",
+      "status": "pass",
+      "evidence": "Poki Defold-IDBFS cloud sync is explicitly MUST_VERIFY on a real portal build before cross-device behavior is relied upon."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Static validator added at tools/storage/check_storage_contract.py and adversarial mutation tests added at tools/storage/test_storage_contract.py. Runtime execution belongs to P0 because the production Defold project/storage adapter does not exist yet."
+    ],
+    "manual": [
+      "Cross-checked sys.save/sys.load/get_save_file, file-access pcall guidance, HTML5 IndexedDB persistence delay and current Poki incognito/cloud-gamesave documentation on 2026-08-28.",
+      "Replaced the older conceptual primary/backup flow in docs/12-platform-storage.md with the A/B generation protocol and explicit durability semantics."
+    ],
+    "runtime_errors": "none applicable; BB-P009 changes pre-runtime architecture/config/validation only",
+    "save_data_impact": "no existing production save exists; this contract defines the first public-format safety requirements for P0"
+  },
+  "known_limitations": [
+    "No production Defold adapter exists yet, so crash/power-loss behavior is specified and must be proven in P0 browser tests.",
+    "Envelope checksum remains open until real corruption tests show value beyond sys.load errors plus schema/domain validation.",
+    "Poki cross-device handling of the exact Defold IndexedDB virtual filesystem remains a real-build verification gate."
+  ]
+}
