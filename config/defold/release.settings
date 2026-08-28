@@ -3,3 +3,6 @@ enabled = 0
 
 [html5]
 show_made_with_defold = 0
+
+[bebee]
+qa_enabled = 0
