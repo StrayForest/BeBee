@@ -1,59 +1,48 @@
 # 05 — Technical Architecture
 
-## 1. Architecture goals
+## 1. Authority
 
-BeBee should be easy to reason about, cheap to run in a browser, deterministic enough to test, and structured so content can scale without rewriting core systems.
+This document owns runtime architecture. Decision status lives in `DECISIONS.md`; current web/storage constraints live in `12-platform-storage.md`.
 
-Primary goals:
+Do not build around a `HYPOTHESIS` as if it were a permanent interface unless the architecture deliberately isolates the experiment.
 
-- HTML5-first performance;
-- stable save data;
-- data-driven flowers/upgrades/regions;
-- clean separation of simulation and GUI;
-- low dependency count;
-- minimal runtime allocation in hot gameplay paths;
-- fast local iteration;
-- straightforward automated validation.
+## 2. Goals
 
----
+BeBee should be:
 
-## 2. Engine
+- small and fast in HTML5;
+- straightforward to reason about;
+- deterministic enough to test;
+- safe to save/reload;
+- data-driven for content/balance;
+- easy to render in deterministic QA states;
+- portable across direct web / portal adapters;
+- scalable in content without core rewrites.
+
+## 3. Engine
 
 **Defold + Lua**.
 
-Why:
+Use current official Defold documentation for implementation details rather than memory or old samples.
 
-- strong 2D workflow;
-- compact runtime and browser builds;
-- official HTML5, Android, iOS and desktop support;
-- input abstraction supports keyboard, mouse, touch and gamepads;
-- GUI system is separate from world camera and supports responsive layouts;
-- collection proxies can load/unload level collections;
-- built-in profiling tools are available during development;
-- `sys.save()` / `sys.load()` provide a simple local persistence foundation.
-
-Do not introduce Unity/Godot runtime dependencies into the production game.
-
----
-
-## 3. Proposed repository layout
+## 4. Proposed repository layout
 
 ```text
 BeBee/
 ├─ game.project
 ├─ README.md
 ├─ AGENTS.md
+├─ DECISIONS.md
 ├─ THIRD_PARTY.md
+├─ .agents/skills/
+├─ .github/
 ├─ docs/
 ├─ input/
-│  └─ game.input_binding
 ├─ main/
-│  ├─ main.collection
-│  └─ bootstrap.script
 ├─ app/
 │  ├─ app_state.lua
-│  ├─ event_bus.lua
 │  ├─ commands.lua
+│  ├─ events.lua
 │  └─ constants.lua
 ├─ data/
 │  ├─ flowers.lua
@@ -67,593 +56,411 @@ BeBee/
 │  ├─ flowers/
 │  ├─ meadow/
 │  ├─ world/
-│  ├─ hive/
 │  └─ camera/
 ├─ ui/
-│  ├─ hud/
-│  ├─ hive/
-│  ├─ seeds/
-│  ├─ map/
-│  ├─ pause/
-│  └─ common/
 ├─ systems/
 │  ├─ economy.lua
 │  ├─ progression.lua
-│  ├─ save_service.lua
+│  ├─ storage.lua
 │  ├─ analytics.lua
+│  ├─ platform.lua
 │  ├─ audio.lua
 │  └─ settings.lua
+├─ adapters/
+│  ├─ storage_local.lua
+│  ├─ platform_direct_web.lua
+│  └─ portal adapters when selected
 ├─ levels/
-│  ├─ region_01/
-│  └─ shared/
 ├─ art/
 ├─ audio/
 ├─ tests/
-│  ├─ unit/
-│  ├─ fixtures/
-│  └─ smoke/
 └─ scripts/
    ├─ build.sh
    ├─ test.sh
-   └─ validate_data.py (optional tooling only)
+   ├─ validate_data.*
+   ├─ serve_build.*
+   └─ capture_visuals.*
 ```
 
-Lua remains the gameplay language. A small Python validator is acceptable for CI/content validation but must not become a runtime dependency.
+Exact directories may change, but dependency direction should not.
 
----
-
-## 4. Boot and scene flow
-
-`main/main.collection` is the bootstrap collection.
-
-It owns only long-lived application-level objects:
-
-- app controller;
-- audio controller;
-- save service;
-- analytics adapter;
-- screen/collection proxy controller.
-
-Gameplay regions and major screens are loaded as collections rather than permanently keeping the whole planet active.
-
-Suggested flow:
+## 5. Dependency direction
 
 ```text
-bootstrap
- -> title collection
- -> region collection
- -> optional map overlay/screen
- -> title
+content/data
+   ↓
+domain systems (economy/progression/storage contracts)
+   ↓
+gameplay controllers
+   ↓
+presentation/view models
+   ↓
+GUI / VFX / audio presentation
+
+platform/portal SDKs -> adapters -> internal platform/storage contracts
 ```
 
-Do not load every region and all flower assets at startup.
+GUI does not own Honey, upgrades or campaign completion.
 
----
+Portal SDKs do not appear inside FlowerPatch/Meadow/Hive gameplay code.
 
-## 5. State model
+## 6. Application state
 
-Persistent player state lives in a plain Lua table managed by `app_state`/`save_service`.
+Persistent state is a plain versioned Lua table managed behind storage/save services.
 
-Example conceptual state:
+Conceptual shape:
 
 ```lua
 {
   save_version = 1,
   player = {
     honey = 0,
-    upgrades = {
-      flight = 1,
-      buzz = 1,
-      yield = 1,
-    },
-    unlocked_seeds = {
-      daisy = true,
-    },
+    upgrades = {},
+    unlocked_seeds = {},
   },
   world = {
+    campaign_completion = {},
+    planted_species = {},
     restored_meadows = {},
-    patches = {},
-    unlocked_regions = { "region_01" },
+    unlocked_regions = {},
   },
-  settings = {
-    music = 1.0,
-    sfx = 1.0,
-    haptics = true,
-    reduced_motion = false,
-  },
-  stats = {
-    total_honey_earned = 0,
-    total_patches_pollinated = 0,
-  }
+  settings = {},
+  stats = {},
 }
 ```
 
-Gameplay objects should not be the source of truth for permanent progression.
+Important: campaign/native completion and planted/customization state are separate.
 
----
+Derived values should be recomputed rather than serialized when practical.
 
-## 6. Stable identifiers
+## 7. Stable IDs
 
-Every persistent content object needs a stable authored ID.
+Persistent objects use authored IDs such as:
 
-Examples:
+- `region_01`;
+- `r01_m03`;
+- `r01_m03_patch_04`;
+- `flower_lavender`;
+- `seed_lavender`.
 
-- `region_01`
-- `r01_m03`
-- `r01_m03_patch_04`
-- `flower_lavender`
-- `seed_lavender`
+Never persist array index, collection instance order or transient runtime URL as semantic identity.
 
-Never use collection instance order, transient URL strings or array position as persistent identity.
+Renaming a public persistent ID requires a migration.
 
-Renaming a persistent ID requires a save migration.
+## 8. Storage abstraction
 
----
+Domain/gameplay code never calls `sys.save()` / `sys.load()` directly.
 
-## 7. Save system
+Internal contract:
 
-MVP uses local save.
+```lua
+storage.load(slot)
+storage.save(slot, value)
+storage.has(slot)
+storage.delete(slot)
+```
 
-Implementation:
+First implementation uses a local Defold adapter. Future portal/cloud adapters may coexist.
 
-1. obtain platform-valid path using `sys.get_save_file()`;
-2. write a versioned Lua table using `sys.save()`;
-3. load using `sys.load()`;
-4. validate loaded shape/version;
-5. migrate older versions sequentially;
-6. if corrupt, retain a backup and initialize a clean state rather than crashing.
+See `12-platform-storage.md` for current HTML5 constraints.
 
-### Save triggers
+### Local adapter requirements
 
-Save after:
+- path from `sys.get_save_file()`;
+- `pcall`/protected corrupt-load handling;
+- schema/version validation;
+- sequential migrations;
+- previous-good backup strategy;
+- serialized-size diagnostics;
+- explicit error result rather than silent data loss.
 
-- patch completion;
+Current Defold documentation imposes a serialized `sys.save()` output ceiling around 512 KB. BeBee intentionally budgets far below it.
+
+### HTML5 durability tests
+
+Because HTML5 file persistence is backed by browser IndexedDB and can lag slightly after write, test immediate refresh/close scenarios rather than assuming synchronous durability.
+
+## 9. Save triggers
+
+Save after durable progression transactions such as:
+
+- campaign patch completion;
 - upgrade purchase;
-- seed unlock/replant;
+- seed unlock/plant change;
 - meadow restoration;
 - region unlock;
-- settings changes;
-- orderly pause/exit where available.
+- relevant settings changes.
 
-Debounce high-frequency saves if multiple progression events happen in one animation sequence.
+Coalesce/debounce multiple events when appropriate without creating a window where a visibly granted reward is likely to vanish on normal navigation.
 
-### Backup strategy
+## 10. Economy system
 
-Maintain at least:
+Pure/testable Lua owns:
 
-- primary save;
-- previous-good backup.
+- Honey add/spend validation;
+- upgrade cost/effect data access;
+- reward calculation;
+- no-negative-balance invariant.
 
-A write should not destroy the only recoverable state before the new state has been successfully serialized.
+Economy does not decide UI animation.
 
-### Save migrations
+A deterministic simulation command must be able to exercise campaign paths outside the full rendered game.
 
-Example:
+## 11. Progression system
 
-```lua
-local migrations = {
-  [1] = function(save) return migrate_v1_to_v2(save) end,
-  [2] = function(save) return migrate_v2_to_v3(save) end,
-}
-```
+Owns:
 
-Never scatter migration conditionals across gameplay scripts.
+- flower/capability eligibility;
+- meadow/region completion;
+- planet progress;
+- seed availability rules;
+- separation of campaign completion from planted expression.
 
----
+Do not check specific species names in generic progression logic.
 
-## 8. Data-driven content
+## 12. FlowerPatch controller
 
-Gameplay balance data lives in Lua definition modules.
+Owns local runtime interaction/presentation state for one logical patch.
 
-Example flower API:
+It may:
 
-```lua
-local M = {}
+- detect selected/validated pollination interaction;
+- update local progress;
+- trigger bloom staging;
+- emit semantic completion once.
 
-M.by_id = {
-  flower_daisy = {
-    tier = 1,
-    pollination_required = 3,
-    base_honey = 10,
-    min_buzz_level = 1,
-    soft_gate = false,
-  },
-}
+It does not:
 
-return M
-```
+- mutate Honey directly;
+- write saves directly;
+- own global meadow completion;
+- manipulate arbitrary HUD nodes.
 
-Benefits:
+The exact pollination interaction is implemented only after P-1 validation.
 
-- balancing does not require editing behavior scripts;
-- tests can iterate all definitions;
-- IDs can be validated in CI;
-- designers/agents have one place to compare values.
+## 13. Input architecture
 
-Do not duplicate economy numbers inside scene files where avoidable.
+Raw device inputs map to semantic actions.
 
----
+Gameplay consumes normalized movement/action intent independent of keyboard/touch source.
 
-## 9. Systems and responsibilities
+### Input focus
 
-### Bee controller
+Defold uses input focus stacks. Modal GUI must consume relevant input so gameplay does not continue behind it.
 
-Responsible for:
+### Collection proxies
 
-- normalized movement input;
-- acceleration/deceleration;
-- facing/lean animation state;
-- entering/leaving pollination trigger areas;
-- player-local presentation.
+Collection proxies remain a `HYPOTHESIS` for major region/screen lifecycle until P0 proof.
 
-Not responsible for:
+Current official Defold behavior to account for:
 
-- calculating economy rewards;
-- saving data;
-- deciding meadow completion;
-- directly manipulating GUI node state.
+- proxy-loaded collections are separate game worlds/physics worlds;
+- input into a proxy world depends on the game object owning the proxy participating in the main input stack;
+- each loaded world has its own input stack;
+- loading many proxy worlds has memory cost.
 
-### FlowerPatch controller
+P0 must prove the chosen lifecycle/input approach before content scales.
 
-Responsible for:
+## 14. Scene/lifecycle strategy
 
-- local patch state;
-- pollination progress;
-- bloom presentation staging;
-- emitting completion event exactly once.
+Keep one long-lived bootstrap/application layer.
 
-Uses flower definition data for requirements/reward reference.
-
-### Economy system
-
-Pure-ish Lua module responsible for:
-
-- upgrade cost lookup;
-- honey reward calculation;
-- affordability;
-- honey add/spend transaction validation.
-
-Should be unit-testable without a Defold scene.
-
-### Progression system
-
-Responsible for:
-
-- hard/soft gate checks;
-- meadow completion;
-- region unlock criteria;
-- planet restoration calculation;
-- seed unlock availability.
-
-### Save service
-
-Only persistence boundary.
-
-Gameplay modules request persistence through app-level messages/events, not direct `sys.save()` calls everywhere.
-
-### Analytics adapter
-
-Gameplay emits semantic events to an internal interface. Provider-specific SDK integration sits behind the adapter.
-
-Example:
-
-```lua
-analytics.track("patch_completed", {
-  patch_id = patch_id,
-  flower_id = flower_id,
-  buzz_level = buzz_level,
-  reward = reward,
-})
-```
-
-No gameplay logic may depend on analytics success.
-
----
-
-## 10. Event architecture
-
-Use direct Defold messages when sender/receiver relationship is local and obvious.
-
-Use a small app event bus only for cross-cutting domain events such as:
-
-- `honey_changed`
-- `upgrade_purchased`
-- `patch_completed`
-- `meadow_restored`
-- `seed_planted`
-- `region_unlocked`
-
-Avoid turning every function call into an event. The goal is decoupling, not indirection.
-
----
-
-## 11. Input architecture
-
-Defold input bindings map raw inputs to semantic actions.
-
-Input layer outputs one normalized movement vector.
-
-Desktop:
+Candidate flow:
 
 ```text
-left/right/up/down -> movement vector
+bootstrap
+ -> selected entry/onboarding shell
+ -> region/gameplay world
+ -> overlays/task-specific GUI
 ```
 
-Touch:
+Do not architecturally require a standalone title/menu before gameplay because portal requirements may favor direct gameplay entry.
 
-```text
-virtual joystick -> movement vector
-```
+If collection proxies are retained, load only what is needed and explicitly manage enable/disable/unload and input focus.
 
-Gameplay does not care whether the vector came from keyboard or touch.
-
-UI input should consume relevant actions so joystick/world input does not activate behind modal screens.
-
----
-
-## 12. Camera
-
-Camera follows bee with damping.
-
-Requirements:
-
-- deterministic bounds per meadow;
-- aspect-ratio-aware framing;
-- no automatic objective camera yank;
-- optional short authored reveal for a newly opened route only when control can remain understandable;
-- reduced-motion setting disables/shortens nonessential camera animations.
-
-The camera module exposes simple commands instead of allowing arbitrary scripts to manipulate it.
-
----
-
-## 13. Collision
-
-Use collision sparingly.
-
-Gameplay collision groups:
-
-- `bee`
-- `world_blocker`
-- `pollination_area`
-- `interaction_area`
-
-Decorative flowers should generally not have collision.
-
-Pollination triggers are larger forgiving shapes around authored patches.
-
-Avoid detailed per-flower collision geometry.
-
----
-
-## 14. Flower rendering strategy
-
-A patch may visually contain many flowers but should not require a heavy full game object hierarchy for every petal.
-
-Preferred options depending on art implementation:
-
-- small number of authored sprite game objects per patch;
-- batched/tilemap-like decoration for non-interactive flowers;
-- pooled transient particles/honey icons.
-
-The gameplay patch controller remains one logical entity.
-
-Profile before introducing custom rendering extensions.
-
----
-
-## 15. Object pooling
-
-Pool objects only when they are repeatedly spawned/despawned and profiling shows value.
-
-Likely candidates:
-
-- pollen particles;
-- honey fly-to-HUD world effects;
-- ambient insects;
-- repeated transient text popups.
-
-Permanent patch objects do not need pooling simply because pooling exists in reference projects.
-
----
-
-## 16. UI architecture
-
-Each major GUI scene has a small presenter/controller.
+## 15. UI architecture
 
 Pattern:
 
 ```text
-Domain state/events
- -> view-model/presenter
- -> GUI nodes
+domain state/events
+ -> presenter/view model
+ -> GUI
 
 GUI input
  -> command/domain call
- -> state mutation
- -> domain event
- -> GUI update
+ -> state change
+ -> semantic event
+ -> presentation update
 ```
 
-Do not make GUI scripts the owners of honey, upgrades or progression.
+Task-specific menus remain shallow.
 
----
+Responsive layout behavior is tested at selected portal/device sizes, not only one desktop resolution.
 
-## 17. Localization
+## 16. Camera
 
-All player-facing strings use localization keys from the first implementation.
+Camera module owns follow/bounds/reveal behavior.
 
-Example keys:
+Rules:
 
-- `ui.play`
-- `ui.continue`
-- `upgrade.flight.name`
-- `flower.lily.name`
-- `objective.restore_meadow`
+- normal objectives do not yank camera away from bee;
+- reduced-motion behavior supported;
+- authored reveal may exist only when orientation remains understandable;
+- camera tuning is validated with motion evidence.
 
-English can be the first content language, but code must not embed UI copy throughout scripts.
+## 17. Collision
 
----
+Use collision sparingly:
 
-## 18. Audio architecture
+- bee;
+- meaningful world blockers;
+- pollination/interaction areas as needed by the validated verb.
 
-Audio service exposes semantic calls:
+Decorative flowers generally do not collide.
 
-- `play_ui(name)`
-- `play_world(name, position)`
-- `set_music_state(state)`
-- `set_music_volume(v)`
-- `set_sfx_volume(v)`
+Avoid detailed per-flower physics.
 
-Music can layer as restoration progresses, but MVP should keep implementation simple.
+## 18. Rendering/VFX
 
----
+One logical patch may display many flowers without making every petal a gameplay entity.
 
-## 19. Performance budgets
+Use small authored sprite groups/batched decoration as appropriate.
 
-Targets for representative supported hardware/browser:
+Pool only where repeated spawn/despawn and profiling justify it (pollen, reward flyouts, ambient insects, transient text).
 
-- gameplay: stable 60 FPS target;
-- acceptable fallback: stable 30 FPS on lower-end devices rather than uneven frame pacing;
-- no noticeable hitch on patch completion or save;
-- first interactive load should remain small enough for casual web distribution;
-- no unbounded world entity growth;
-- region changes unload content no longer needed.
+## 19. Platform adapter
 
-Concrete bundle-size budget must be established after first art/audio import. Track it in CI after the vertical slice exists.
+Internal semantic API may include:
 
----
+```lua
+platform.gameplay_started()
+platform.gameplay_stopped(reason)
+platform.get_locale()
+platform.get_safe_area()
+```
 
-## 20. Profiling policy
+Ads/cloud/account APIs are added only when required by the selected target and remain optional capabilities.
 
-Profile these moments explicitly:
+Gameplay must function when analytics/platform optional calls fail.
 
-- cold startup;
-- region load;
-- dense restored meadow;
-- many pollen/VFX effects simultaneously;
-- seed replant transition;
-- save operation;
-- portrait mobile browser;
-- low-end Android device/browser if available.
+## 20. Analytics adapter
 
-Do not optimize hypothetical bottlenecks before measurements.
+Gameplay emits semantic events; provider integration is behind an adapter.
 
----
+No gameplay behavior depends on successful telemetry.
 
-## 21. Testing strategy
+Never place private credentials in an HTML5 bundle/repository.
 
-### Pure Lua unit tests
+## 21. Localization
 
-Prioritize:
+Player-facing copy uses keys from first implementation.
 
-- economy formulas;
-- upgrade costs;
+Do not scatter hard-coded English copy through scripts.
+
+Exact launch languages are a product decision; font/assets must support chosen scripts and commercial licensing.
+
+## 22. Deterministic QA states
+
+Development builds should support deterministic test state injection for player-facing evidence.
+
+See `13-visual-qa-scorecard.md`.
+
+Requirements:
+
+- known player/world state;
+- repeatable camera position;
+- deterministic content where practical;
+- production-safe disable/removal;
+- browser automation can load a state and capture artifacts.
+
+## 23. Testing layers
+
+### Pure Lua
+
+- economy;
 - gate eligibility;
-- reward calculation;
-- meadow completion;
+- completion rules;
 - planet progress;
-- save migration;
-- data-reference validation.
+- save migrations/validation;
+- data references;
+- economy simulation.
 
-### Smoke tests
+### Runtime smoke
 
-Automate or script repeatable checks for:
-
-- boot to title;
-- start new game;
-- movement;
-- first patch completion;
-- honey increases;
+- boot;
+- input;
+- validated pollination completion;
+- Honey update;
 - upgrade purchase;
 - save/reload;
-- restored patch retains customization.
+- planted state persistence;
+- modal input isolation.
 
-### Visual/manual QA
+### Browser/storage
 
-Capture milestone screenshots/videos for:
+- normal persistence;
+- immediate refresh/close cases;
+- corrupt primary/backup recovery;
+- selected portal/private-mode behavior.
 
-- movement and camera;
-- pollination feedback;
-- HUD responsive layouts;
-- meadow before/after;
-- seed transformation;
-- region completion.
+### Visual
 
----
+- deterministic screenshot/video artifacts for critical states.
 
-## 22. Dependency policy
+## 24. Performance/load budgets
 
-Every external library/extension must have:
+Target smooth 60 FPS on normal supported devices, with stable lower fallback preferred over unstable frame pacing.
 
-- a clear need;
-- active maintenance or trivial replaceability;
+Track early:
+
+- initial bytes/time to playable state;
+- total bundle/file count for selected portal;
+- dense meadow frame pacing;
+- memory across repeated region transitions;
+- save hitch;
+- VFX-heavy completion;
+- representative low/mid mobile/Chromebook where relevant.
+
+Exact portal budgets are set in P-1 after target selection.
+
+## 25. Dependency policy
+
+Every dependency/asset needs:
+
+- clear need;
+- pinned version/commit where appropriate;
 - compatible license;
-- entry in `THIRD_PARTY.md`;
-- pinned version/commit where appropriate.
+- `THIRD_PARTY.md` entry;
+- current official docs/source review.
 
-Prefer official Defold extensions or small focused dependencies.
+Do not add a framework because a reference project uses it.
 
-Do not add frameworks simply because an open-source reference uses them.
+## 26. Error handling
 
----
+- optional analytics/platform failure -> continue gameplay;
+- corrupt save -> protected recovery path;
+- invalid content reference -> fail CI/dev loudly;
+- duplicate stable ID -> fail validation;
+- insufficient Honey -> transaction returns failure, balance unchanged;
+- storage write failure -> surfaced in diagnostics and never reported as durable success silently.
 
-## 23. Platform SDKs
+## 27. Implementation sequence
 
-Distribution SDKs such as Poki/CrazyGames should be integration adapters, not embedded in gameplay logic.
+Normal production begins only after P-1.
 
-Example boundary:
-
-```text
-gameplay -> platform_service.show_rewarded_ad(reason)
-```
-
-If platform SDK is unavailable, gameplay remains functional with a no-op implementation.
-
-No SDK integration belongs in the first movement/pollination milestone.
-
----
-
-## 24. Error handling
-
-Player-facing builds should fail soft where possible.
-
-- missing optional analytics: continue game;
-- corrupt save: attempt backup, then clean state with explicit log;
-- missing flower definition: fail loudly in development/CI;
-- invalid content reference: CI error;
-- duplicate stable ID: CI error;
-- insufficient honey transaction: return false, never produce negative balance.
-
----
-
-## 25. Security/privacy baseline
-
-MVP has no account/backend and should collect minimal analytics.
-
-Before public analytics deployment:
-
-- document provider and event payloads;
-- avoid sending unnecessary personal data;
-- provide required consent/privacy surfaces for target distribution/regions;
-- never place secrets/API private keys in the repository or browser bundle.
-
----
-
-## 26. Initial implementation sequence
-
-Create the smallest end-to-end path first:
+Then build the smallest vertical path:
 
 ```text
-game.project + bootstrap
- -> bee movement
- -> one patch trigger
- -> pollination state
- -> reward calculation
- -> honey HUD
- -> save
- -> one Hive Buzz upgrade
- -> reload and verify
+bootstrap/build/CI
+ -> input + deterministic QA state
+ -> movement
+ -> validated pollination interaction
+ -> one completion/reward
+ -> storage save/reload
+ -> one validated upgrade
+ -> one meadow restoration
+ -> validated seed/restoration flow
 ```
 
-Only then add the first meadow and content authoring pipeline.
+Do not scale regions, menus or art production before this path is proven.
