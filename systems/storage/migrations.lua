@@ -27,9 +27,10 @@ function M.migrate(payload)
 
     local migrated = table_utils.deep_copy(payload)
     while migrated.save_version < M.CURRENT_SAVE_VERSION do
-        local step = steps[migrated.save_version]
+        local before_version = migrated.save_version
+        local step = steps[before_version]
         if not step then
-            return nil, "migration_step_missing:" .. tostring(migrated.save_version)
+            return nil, "migration_step_missing:" .. tostring(before_version)
         end
         local ok, result = pcall(step, migrated)
         if not ok then
@@ -38,11 +39,10 @@ function M.migrate(payload)
         if type(result) ~= "table" then
             return nil, "migration_step_invalid_result"
         end
-        if result.save_version ~= migrated.save_version then
-            migrated = result
-        else
-            migrated = result
+        if result.save_version ~= before_version + 1 then
+            return nil, "migration_step_did_not_advance"
         end
+        migrated = result
     end
     return migrated
 end
