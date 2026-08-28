@@ -32,7 +32,12 @@
     {
       "source": "https://defold.com/manuals/project-settings/",
       "date_checked": "2026-08-28",
-      "verified_constraint": "game.project is the project configuration root and bootstrap resources use compiled resource paths such as .collectionc."
+      "verified_constraint": "game.project is the project configuration root; bootstrap resources use compiled resource paths and the default project input binding is a project resource unless explicitly overridden."
+    },
+    {
+      "source": "https://defold.com/manuals/input/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Input bindings are the project-wide mapping from raw device input to named actions. BB-001 supplies an empty binding resource only so no semantic input action is chosen before BB-003."
     },
     {
       "source": "https://defold.com/manuals/automated-testing/",
@@ -67,7 +72,7 @@
     {
       "criterion": "Root game.project points to a minimal app/bootstrap.collectionc and the bootstrap reaches a Lua controller without adding later gameplay systems.",
       "status": "pass",
-      "evidence": "game.project plus app/bootstrap.collection, app/bootstrap.go and app/bootstrap.script."
+      "evidence": "game.project plus app/bootstrap.collection, app/bootstrap.go and app/bootstrap.script; the empty app/empty.input_binding defines no semantic actions."
     },
     {
       "criterion": "Development and release build modes are explicit and use isolated Defold settings/variants.",
@@ -80,57 +85,74 @@
       "evidence": "tools/defold/toolchain.json pins Defold 1.13.1, Java 25, wasm-web and Bob SHA-256; bundle_html5.py rejects mismatched Java/Bob/version."
     },
     {
-      "criterion": "The repository contains an editor-independent command that requires the expected HTML5 index output for both modes.",
+      "criterion": "Editor-independent development and release HTML5 bundles build successfully and the development bundle renders in headless Chromium.",
       "status": "pass",
-      "evidence": "python3 tools/defold/bundle_html5.py --mode development|release; exact-head GitHub runtime workflow executes both before merge."
+      "evidence": "Defold runtime evidence run 33201017563 succeeded on exact head 46d48bd265458b14e7b5d0a5673800ab39d50a3c; final PR head is required to repeat the same green workflow before merge."
     }
   ],
   "verification": {
     "automated": [
-      "Trusted-base policy regression suite runs on the BB-001 PR and must pass before merge.",
-      "Defold runtime evidence workflow builds development and release bundles from the exact PR head and must pass before merge."
+      "Trusted-base validate-pr-evidence succeeded on candidate head 46d48bd265458b14e7b5d0a5673800ab39d50a3c, including the repaired governance regression suite.",
+      "Defold runtime evidence run 33201017563 succeeded on candidate head 46d48bd265458b14e7b5d0a5673800ab39d50a3c: Java 25 setup, pinned Bob verification, development build, release build, Chromium capture and artifact upload all passed.",
+      "Final PR head must repeat both checks successfully before merge; those exact-head checks are the merge-time authority rather than this historical run alone."
     ],
     "manual": [
-      "Reviewed bootstrap dependency boundary against docs/05-technical-architecture.md; input, storage, proxies, gameplay and UI remain out of scope."
+      "Reviewed bootstrap dependency boundary against docs/05-technical-architecture.md; semantic input, storage, proxies, gameplay and UI remain out of scope.",
+      "Reviewed the two failed Bob iterations and retained the fixes: Bob build output is root-relative, bundle staging occurs outside Defold's reserved project build directory, and an empty explicit input-binding resource replaces the missing default path without defining actions."
     ],
-    "runtime_errors": "Pending exact-head runtime workflow at initial manifest creation; merge is blocked operationally until the workflow is green and this record is updated with the retained run/artifact.",
+    "runtime_errors": "None observed in successful exact-head runtime run 33201017563. Final merge is permitted only after the current final head repeats the runtime workflow successfully.",
     "save_data_impact": "None; BB-001 introduces no storage calls, save schema or migration."
   },
   "visual_evidence": {
     "required": false,
-    "artifacts": [],
-    "states": [],
-    "viewports": [],
+    "artifacts": [
+      "defold-runtime-46d48bd265458b14e7b5d0a5673800ab39d50a3c"
+    ],
+    "states": [
+      "technical bootstrap smoke"
+    ],
+    "viewports": [
+      "1280x720"
+    ],
     "motion_evidence": [],
     "provenance": {
       "capture_commit_sha": "$PR_HEAD",
       "capture_mode": "ci",
-      "artifact_locator": "Runtime smoke screenshot is retained by the Defold runtime evidence workflow but visual quality is not an acceptance gate for this technical bootstrap."
+      "artifact_locator": "Defold runtime evidence workflow; artifact name is defold-runtime-${PR_HEAD}. First successful retained artifact: id 9697760484, digest sha256:e2cad63c012a5d4b71934e1fbb5869c4727502f5da9f3b3c68302c188309783c."
     }
   },
   "comparison": {
-    "measurements": {}
+    "measurements": {
+      "player_facing_comparison_applicable": false
+    }
   },
   "evaluation": {
     "mode": "independent_pass",
-    "findings": ["N/A — BB-001 is technical bootstrap infrastructure and makes no player-facing quality claim."],
+    "findings": [
+      "No player-facing quality claim is made. The bootstrap stays within the application/build boundary and leaves semantic input, proxy lifecycle, storage and gameplay to later scoped tasks."
+    ],
     "verdict": "PASS",
     "iteration_required": false,
     "provenance": {
       "evaluated_sha": "$PR_HEAD",
       "evaluator_id": "technical-review-pass",
       "implementation_author_id": "implementation-pass",
-      "input_artifacts": ["docs/research/BB-001-defold-bootstrap.md", "tools/defold/toolchain.json", "tools/defold/bundle_html5.py"],
+      "input_artifacts": [
+        "docs/research/BB-001-defold-bootstrap.md",
+        "tools/defold/toolchain.json",
+        "tools/defold/bundle_html5.py",
+        "Defold runtime evidence workflow"
+      ],
       "record_locator": "evidence/BB-001/manifest.json"
     }
   },
   "governance": {
     "trust_boundary_change": "None; BB-001 consumes the policy/runtime-evidence infrastructure merged before this task.",
-    "bypass_analysis": "No required check or policy code is changed by BB-001. The repository owner temporarily disabled the external ruleset, but this PR will not be merged until both trusted evidence validation and exact-head Defold runtime evidence succeed.",
+    "bypass_analysis": "No required check or policy code is changed by BB-001. The repository owner temporarily disabled the external ruleset, but this PR is still held to both trusted evidence validation and exact-head Defold runtime evidence before merge.",
     "rollback": "Revert the BB-001 merge to remove the initial runtime bootstrap/toolchain files; no persistent data migration is involved."
   },
   "known_limitations": [
-    "BB-001 does not implement input, collection-proxy lifecycle, tests/data harness, deterministic QA routing or storage; those remain BB-003 through BB-007.",
-    "The Protect main ruleset enforcement is temporarily disabled externally and must be re-enabled after the repair/bootstrap merge."
+    "BB-001 does not implement semantic input, collection-proxy lifecycle, tests/data harness, deterministic QA routing or storage; those remain BB-003 through BB-007.",
+    "The Protect main ruleset enforcement is temporarily disabled externally and must be re-enabled before normal protected development continues."
   ]
 }
