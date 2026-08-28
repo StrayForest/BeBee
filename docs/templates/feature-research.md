@@ -2,7 +2,9 @@
 
 Use for substantial gameplay, UX/UI, economy, input, rendering, save, platform or performance work.
 
-For substantial player-facing/economy work, also create `evidence/<ticket>/manifest.json` using `docs/templates/evidence-manifest.example.json`. The manifest is the machine-readable source of truth; this document/PR note is the human-readable working record.
+For substantial player-facing/economy work, also create `evidence/<ticket>/manifest.json` using `docs/templates/evidence-manifest.example.json`. The manifest is the machine-readable source of truth; this document/PR note is the readable working record.
+
+The default BeBee process is fully autonomous. Human review may be requested as optional advice, but no human approval, reviewer, second GitHub account or manual checkpoint is required for CI, merge or milestone progression.
 
 ## Task
 
@@ -123,13 +125,15 @@ List credible alternatives before selecting one.
 - [ ] economy simulation if relevant
 - [ ] deterministic visual state/capture if relevant
 
-### Manual/runtime
+### Agent-executed runtime checks
 - [ ] keyboard path if relevant
 - [ ] touch path if relevant
 - [ ] save/reload if relevant
 - [ ] blocked/error state if relevant
 - [ ] browser console/runtime errors checked
 - [ ] selected portal/device-specific case if relevant
+
+These checks may be interactive, but they are executed by the agent/tooling and do not imply a required human tester.
 
 ## 9. Visual QA plan
 
@@ -193,7 +197,7 @@ Evaluator should begin primarily from:
 
 Record:
 
-- Evaluation mode (`independent_pass` / human):
+- Evaluation mode (`independent_pass` / optional human advisory review):
 - Findings/severity:
 - Acceptance/reference gaps:
 - Required iteration:
@@ -209,10 +213,14 @@ Choose one:
 - [ ] PASS WITH DEVIATION — intentionally different and evidence-backed
 - [ ] ITERATE — not ready to merge
 
-For P2/P4/P6 milestone gates:
+For P2/P4/P6 milestone checkpoints:
 
-- Human approval required? yes/no
-- Human approval evidence/link:
+- Evidence package complete? yes/no
+- Separate evaluation verdict:
+- Any blocking acceptance/test failure? yes/no
+- Optional owner/human advisory review requested? yes/no
+
+`ITERATE`, missing required evidence or failed acceptance criteria blocks progression. Absence of human review does not.
 
 ## 13. Evidence
 
