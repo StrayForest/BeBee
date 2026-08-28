@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run adversarial evidence-policy tests
-        run: python3 -m unittest discover -s scripts/tests -p 'test_*.py' -v
+        run: python3 -m unittest discover -s scripts/policy_tests -p 'test_*.py' -v
 
       - name: Validate declared PR evidence structure and manifest
         env:
