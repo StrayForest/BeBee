@@ -11,6 +11,7 @@ local SLOT_ORDER = { SLOT_A, SLOT_B }
 local DEFAULT_WARNING_BYTES = 131072
 local DEFAULT_RELEASE_GATE_BYTES = 262144
 local HTML5_DURABILITY = "accepted_local_pending_browser_persistence"
+local NOT_WRITTEN_DURABILITY = "not_written"
 
 local function diagnostic(slot, generation, recovery_used, size_bytes, size_warning)
     return {
@@ -26,7 +27,7 @@ local function failure(code, diagnostics, error_text)
     return {
         ok = false,
         code = code,
-        durability = "not_accepted",
+        durability = NOT_WRITTEN_DURABILITY,
         recovery = diagnostics and diagnostics.recovery_used or false,
         diagnostics = diagnostics or diagnostic(nil, 0, false, nil, false),
         error = error_text,
@@ -38,7 +39,7 @@ local function success(code, value, diagnostics, durability)
         ok = true,
         code = code,
         value = value,
-        durability = durability or "loaded_local",
+        durability = durability or NOT_WRITTEN_DURABILITY,
         recovery = diagnostics and diagnostics.recovery_used or false,
         diagnostics = diagnostics or diagnostic(nil, 0, false, nil, false),
     }
@@ -225,10 +226,21 @@ function M.new(options)
             highest_generation = math.max(highest_generation, item.generation)
         end
 
-        if a.state ~= "valid" then
+        -- Prefer an unused slot over an invalid one so failed-migration/corrupt
+        -- evidence is preserved whenever a clean peer is still available.
+        if a.state == "missing" then
             return SLOT_A, highest_generation + 1
         end
-        if b.state ~= "valid" then
+        if b.state == "missing" then
+            return SLOT_B, highest_generation + 1
+        end
+        if a.state ~= "valid" and b.state == "valid" then
+            return SLOT_A, highest_generation + 1
+        end
+        if b.state ~= "valid" and a.state == "valid" then
+            return SLOT_B, highest_generation + 1
+        end
+        if a.state ~= "valid" and b.state ~= "valid" then
             return SLOT_B, highest_generation + 1
         end
         if a.generation < b.generation then
@@ -348,7 +360,7 @@ function M.new(options)
                 table.concat(failures, ",")
             )
         end
-        return success("ok", true, diagnostic(nil, 0, false, nil, false), "deleted_local")
+        return success("ok", true, diagnostic(nil, 0, false, nil, false))
     end
 
     return adapter
