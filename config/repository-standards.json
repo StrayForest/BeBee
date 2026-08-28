@@ -79,6 +79,7 @@
     "standards": "python3 scripts/check_repository_standards.py",
     "tests": "bash scripts/test.sh",
     "build_development": "python3 tools/defold/bundle_html5.py --mode development",
-    "build_release": "python3 tools/defold/bundle_html5.py --mode release"
+    "build_release": "python3 tools/defold/bundle_html5.py --mode release",
+    "serve_html5": "python3 tools/visual_qa/serve.py --directory build/html5"
   }
 }
