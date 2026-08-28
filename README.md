@@ -28,7 +28,10 @@ You are a small bee. You fly through compact meadows, pollinate flowers, earn Ho
 - Engine: **Defold**
 - Gameplay language: **Lua**
 - Runtime target: **HTML5-first**
-- Secondary targets: mobile/native only after browser validation
+- Primary external validation/distribution target: **Poki** (`P-001 VALIDATED`)
+- Secondary/fallback portal: **CrazyGames**
+- Owned development/QA target: **direct web**
+- Secondary native targets: mobile/native only after browser validation
 - Storage: versioned domain state behind a storage abstraction
 - Platform integrations: adapters, never gameplay dependencies
 
@@ -102,6 +105,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/07-qa-analytics-release.md`](docs/07-qa-analytics-release.md)
 - [`docs/12-platform-storage.md`](docs/12-platform-storage.md)
 - [`docs/13-visual-qa-scorecard.md`](docs/13-visual-qa-scorecard.md)
+- [`config/web-targets.json`](config/web-targets.json)
 
 ### Research/process
 
@@ -119,18 +123,17 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 ## Current product hypotheses that must not be mistaken for locked design
 
-Before normal production, P-1 must validate:
+Before normal production, P-1 still needs product evidence for:
 
 - the best repeatable pollination input model (auto / hold / movement-through);
 - how seed choice participates in restoration;
 - whether `Yield` deserves to remain an upgrade track;
-- first-region economy/no-grind paths;
-- primary web distribution target;
+- first-region pacing/no-grind behavior beyond the current deterministic arithmetic simulation;
 - reproducible visual style and screenshot QA pipeline.
 
-P-1 must also finish the objective-evidence hardening in `BB-P013`–`BB-P017`: structured evidence, anti-confirmation research selection, decision provenance, independent evaluation and hard merge gates.
+The objective-evidence hardening in `BB-P013`–`BB-P017` is already in place. `BB-P006` has validated Poki as the primary external target, with CrazyGames as fallback; see [`docs/research/BB-P006-primary-web-target.md`](docs/research/BB-P006-primary-web-target.md).
 
-See [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md).
+See [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md) for the remaining P-1 exit criteria.
 
 ## Vertical-slice target
 
@@ -160,6 +163,6 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 **P-1 — Blueprint Hardening.**
 
-The repository is not yet declaring the original blueprint “complete.” The immediate work is to convert the highest-impact assumptions into validated decisions, remove remaining contradictions, select the primary web target, specify deterministic visual QA/storage behavior, establish enforceable evidence governance and prove the core interaction/economy before normal production begins.
+The repository now has enforceable evidence governance, a protected autonomous merge path, disposable BB-P003/BB-P004 product experiment harnesses, a deterministic BB-P005 economy simulator, and a validated primary web target. Remaining P-1 work is to collect/compare the core interaction and seed-flow evidence, settle the upgrade set, and establish reproducible visual style/capture constraints before normal production begins.
 
 After P-1 exit criteria pass, continue with P0/BB-001 and the production roadmap.

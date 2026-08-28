@@ -75,7 +75,7 @@ Substantial new decisions should also record evidence strength (`LOW`, `MEDIUM`,
 
 | ID | Status | Decision | Evidence / next gate |
 |---|---|---|---|
-| P-001 | OPEN | Primary distribution target: direct web vs Poki vs CrazyGames. | Must be chosen in P-1 before player-facing shell/onboarding is locked. |
+| P-001 | VALIDATED | Primary external validation/distribution target is Poki; CrazyGames is the secondary/fallback portal; direct web remains the owned development/QA target and optional distribution channel. | BB-P006 current official platform/Defold comparison. If Poki access or external playtesting is unavailable when first portal audience testing is needed, switch that validation target to CrazyGames without changing gameplay-domain code. |
 | P-002 | LOCKED | Architecture must support portal requirements without infecting gameplay logic. | Adapter boundary. |
 | P-003 | LOCKED | First-session UX must support landing directly in gameplay or reaching gameplay with at most one intentional action when a selected portal requires it. | Current portal requirements/guidelines. |
 

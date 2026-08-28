@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P006",
+  "change_class": "process",
+  "problem": "BeBee needs one concrete primary web target during P0-P6 so onboarding, device support, loading, storage and SDK lifecycle are validated against current requirements instead of a generic HTML5 assumption, while preserving a multi-portal adapter boundary.",
+  "decision": {
+    "status_before": "OPEN",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "poki_primary",
+    "rationale": "Poki combines current desktop/mobile/tablet and 16:9 requirements, aggressive loading discipline, transparent portal cloud-save support, an official actively maintained Defold integration/template, and an early validation program that supplies gameplay recordings. CrazyGames remains an official-Defold-compatible fallback with Basic Launch KPI testing, and direct web remains the owned dev/QA target."
+  },
+  "official_docs": [
+    {"source": "https://developers.poki.com/guide/requirements-quality", "date_checked": "2026-08-28", "verified_constraint": "Poki currently requires desktop/mobile/tablet support, responsive 16:9, incognito playability, no unapproved external requests, correct SDK events, and a small/fast build."},
+    {"source": "https://developers.poki.com/guide/how-testing-works", "date_checked": "2026-08-28", "verified_constraint": "Poki currently supports prototype playtesting with gameplay recordings and staged player-fit/web-fit testing."},
+    {"source": "https://developers.poki.com/guide/accounts", "date_checked": "2026-08-28", "verified_constraint": "Poki cloud gamesaves transparently monitor localStorage/IndexedDB for logged-in users and currently use a 1MB gzip gamesave limit."},
+    {"source": "https://docs.crazygames.com/requirements/intro/", "date_checked": "2026-08-28", "verified_constraint": "CrazyGames currently documents <=50MB initial, <=250MB total and <=1500 file requirements, with Full Implementation SDK/gameplay-entry requirements."},
+    {"source": "https://docs.crazygames.com/resources/basic-launch-metrics/", "date_checked": "2026-08-28", "verified_constraint": "CrazyGames Basic Launch currently evaluates live engagement over a 7-21 day/500-play process and recommends fast <20MB builds for strong conversion."},
+    {"source": "https://defold.com/extension-crazygames/", "date_checked": "2026-08-28", "verified_constraint": "Defold provides an official CrazyGames SDK extension with game/ad/user/data integration and QA tooling."},
+    {"source": "https://github.com/defold/extension-poki-sdk", "date_checked": "2026-08-28", "verified_constraint": "Defold maintains an official Poki SDK extension with Poki-specific HTML5 build/SDK integration."},
+    {"source": "https://defold.com/manuals/html5/", "date_checked": "2026-08-28", "verified_constraint": "Defold provides a native HTML5/WebAssembly bundle path and browser persistence through an IndexedDB-backed virtual filesystem."}
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {"id": "direct_web_primary", "disposition": "rejected", "reason": "Best for owned dev/QA control but supplies no built-in audience or external validation loop; BeBee would need to recruit users and build cloud/account/acquisition infrastructure itself."},
+    {"id": "poki_primary", "disposition": "selected", "reason": "Best fit for the current evidence-driven workflow: strict mobile/web constraints, official Defold partnership/integration, Inspector tooling and early recorded player playtests while remaining compatible with a no-backend vertical slice."},
+    {"id": "crazygames_primary", "disposition": "rejected", "reason": "Technically strong and retained as fallback/secondary target, but the currently published early validation path is more KPI-oriented while Poki explicitly supplies gameplay recordings useful for BeBee's visual/behavioral iteration loop."}
+  ],
+  "acceptance_criteria": [
+    {"criterion": "Primary target is selected from direct web, Poki and CrazyGames using current official requirements rather than model memory.", "status": "pass", "evidence": "docs/research/BB-P006-primary-web-target.md records current official sources and comparison."},
+    {"criterion": "Selection does not create gameplay-domain dependency on one portal SDK.", "status": "pass", "evidence": "config/web-targets.json keeps portal SDKs behind adapters and preserves direct/Poki/CrazyGames roles."},
+    {"criterion": "A concrete fallback exists if primary portal access/testing is unavailable.", "status": "pass", "evidence": "CrazyGames is explicitly selected as fallback external validation target without gameplay-domain redesign."},
+    {"criterion": "P0 receives measurable web constraints for devices, entry flow, loading, storage and network behavior.", "status": "pass", "evidence": "config/web-targets.json and the BB-P006 research record define the baseline contract and initial engineering budgets."}
+  ],
+  "verification": {
+    "automated": ["Machine-readable JSON target contract is added at config/web-targets.json and is syntactically valid JSON."],
+    "manual": ["Compared current Poki, CrazyGames, Defold and browser-storage documentation on 2026-08-28; separated hard platform requirements from BeBee engineering targets/guidance."],
+    "runtime_errors": "none; documentation/platform-contract change only",
+    "save_data_impact": "none now; establishes future platform/storage adapter constraints only"
+  },
+  "governance": {
+    "trust_boundary_change": "Updates P-001 in DECISIONS.md from OPEN to VALIDATED and therefore changes an authoritative source-of-truth decision; it does not change evidence validators, workflow authority, required checks, review policy or trust execution.",
+    "bypass_analysis": "The decision does not weaken research/evidence requirements or allow portal-specific gameplay coupling. Candidate policy still runs from trusted base and changing this decision later still requires the normal governance evidence path.",
+    "rollback": "Revert P-001 to OPEN, remove or supersede config/web-targets.json and the BB-P006 research record if portal requirements/access materially change or the selected target proves unavailable. No runtime migration is required because production portal adapters do not yet exist."
+  }
+}
