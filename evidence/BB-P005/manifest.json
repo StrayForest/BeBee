@@ -2,96 +2,76 @@
   "schema_version": 1,
   "ticket": "BB-P005",
   "change_class": "economy",
-  "problem": "The first-region Honey economy needs a reproducible way to detect negative balances, replay dependence, purchase-order soft-locks and Yield dominance before any numeric curve is treated as production balance.",
+  "problem": "BeBee needs a first-region Honey structure that cannot be soft-locked by upgrade/seed spending and a vertical-slice upgrade set whose tracks have clear player-facing purpose. Yield remained unresolved because an income multiplier can become a timing spreadsheet, trap, or universal opener.",
   "decision": {
+    "ids": ["D-007"],
     "status_before": "HYPOTHESIS",
-    "status_after": "HYPOTHESIS",
+    "status_after": "VALIDATED",
     "provenance_type": "SIMULATION_RESULT",
     "evidence_strength": "MEDIUM",
-    "selected_alternative": "deterministic_exhaustive_model",
-    "rationale": "Use a deterministic executable model with named strategies, exhaustive upgrade-priority permutations and Yield sensitivity instead of accepting one hand-authored happy path. Current values remain hypotheses because seed flow and gameplay pacing are not yet validated."
+    "selected_alternative": "flight_buzz_only",
+    "rationale": "With Yield removed, all 5040 full priority permutations across Buzz 2/3, Flight 2/3 and three seed sinks complete Region 1 with zero replay and non-negative balance. The historical 1.15x Yield candidate repays only at M06: earliest purchase ends +11 Honey versus no Yield, mid -1 and late -15; 1.10x never repays in Region 1 while 1.20x moves toward a stronger economic opener. Flight and Buzz have direct experiential roles, so the vertical slice intentionally uses two tracks rather than preserving a third card for symmetry."
   },
   "research": {
     "candidate_pool": [
-      {"name": "Cow Bay", "product_id": "cow-bay", "source": "https://poki.com/en/g/cow-bay", "relevance": "Compact gather/craft/unlock economy and an explicit energy-cost anti-pattern."},
-      {"name": "Forager", "product_id": "forager", "source": "https://en.wikipedia.org/wiki/Forager_%28video_game%29", "relevance": "Resource/economic activity funds capability growth and land expansion."},
-      {"name": "Dreamdale", "product_id": "dreamdale", "source": "https://dreamdale.fandom.com/wiki/Tools", "relevance": "Tool upgrades increase resource production and provide a comparison for output multipliers."},
-      {"name": "My Little Universe", "product_id": "my-little-universe", "source": "https://news.xbox.com/en-us/2025/04/07/my-little-universe-survival-guide/", "relevance": "Active resource gathering is tied to short-session world progression."},
-      {"name": "Cow Castle", "product_id": "cow-castle", "source": "https://poki.com/en/g/cow-castle", "relevance": "Low-complexity resource gathering feeds location/facility unlocks."}
+      {"name":"Cow Bay","product_id":"cow-bay","source":"https://poki.com/en/g/cow-bay","relevance":"Compact gather/resource/progression cadence and an explicit energy anti-pattern."},
+      {"name":"Forager","product_id":"forager","source":"https://en.wikipedia.org/wiki/Forager_%28video_game%29","relevance":"One economy funds capability and expansion, making purchase-order safety relevant."},
+      {"name":"Dreamdale","product_id":"dreamdale","source":"https://dreamdale.fandom.com/wiki/Tools","relevance":"Output-increase upgrades provide a comparison for Yield-style economy multipliers."},
+      {"name":"My Little Universe","product_id":"my-little-universe","source":"https://news.xbox.com/en-us/2025/04/07/my-little-universe-survival-guide/","relevance":"Active gathering and world expansion reference for short-session progression cadence."},
+      {"name":"Cow Castle","product_id":"cow-castle","source":"https://poki.com/en/g/cow-castle","relevance":"Low-complexity resource-to-world-progress reference."}
     ],
     "candidate_pool_exception": "",
     "selected_references": [
-      {
-        "name": "Cow Bay",
-        "product_id": "cow-bay",
-        "source": "https://poki.com/en/g/cow-bay",
-        "platform_version_date": "Poki web page checked 2026-08-28",
-        "selection_reason": "Useful compact resource-progression reference and clear anti-pattern boundary because Poki documents an energy cost per task.",
-        "observed_behavior": "Poki describes gathering/crafting/unlocking islands and states that each task costs energy.",
-        "inference": "BeBee should not use mandatory energy or replay to conceal an underfunded normal campaign path.",
-        "measurements": {}
-      },
-      {
-        "name": "Forager",
-        "product_id": "forager",
-        "source": "https://en.wikipedia.org/wiki/Forager_%28video_game%29",
-        "platform_version_date": "multi-platform shipped game; source checked 2026-08-28",
-        "selection_reason": "Relevant example of one progression economy funding capabilities and world expansion.",
-        "observed_behavior": "Resources/economic activity contribute to leveling, tools and purchasing additional land.",
-        "inference": "A shared currency with multiple useful sinks needs purchase-order safety testing, not only a designer-approved path.",
-        "measurements": {}
-      },
-      {
-        "name": "Dreamdale",
-        "product_id": "dreamdale",
-        "source": "https://dreamdale.fandom.com/wiki/Tools",
-        "platform_version_date": "community mechanics reference checked 2026-08-28",
-        "selection_reason": "Provides a direct comparison for upgrades that increase resource output.",
-        "observed_behavior": "Tool upgrades increase resource production.",
-        "inference": "A production multiplier may be familiar but still needs explicit payback/dominance analysis before BeBee ships Yield.",
-        "measurements": {}
-      }
+      {"name":"Cow Bay economy cadence","product_id":"cow-bay","source":"https://poki.com/en/g/cow-bay","platform_version_date":"Poki page checked 2026-08-28","selection_reason":"Compact browser progression reference and useful energy anti-pattern.","observed_behavior":"Poki describes gathering/crafting progression and task energy cost.","inference":"BeBee should test whether campaign content funds itself rather than hiding an underfunded economy behind waiting/energy.","measurements":{}},
+      {"name":"Forager shared economy","product_id":"forager","source":"https://en.wikipedia.org/wiki/Forager_%28video_game%29","platform_version_date":"reference checked 2026-08-28","selection_reason":"Shows why one resource funding multiple useful sinks needs purchase-order safety analysis.","observed_behavior":"Resources/economic activity support skills, tools and land expansion.","inference":"BeBee should stress optional spending before required progression gates.","measurements":{}},
+      {"name":"Dreamdale output upgrades","product_id":"dreamdale","source":"https://dreamdale.fandom.com/wiki/Tools","platform_version_date":"community reference checked 2026-08-28","selection_reason":"Closest comparison for an output-improvement purchase like Yield.","observed_behavior":"Tool upgrades increase resource production.","inference":"Familiarity does not prove a Honey multiplier is an interesting BeBee choice; payback and timing must be measured.","measurements":{}}
     ],
     "reference_exception": "",
-    "anti_pattern": {
-      "source": "https://poki.com/en/g/cow-bay",
-      "observation": "Poki states that Cow Bay tasks consume energy.",
-      "lesson": "BeBee's vertical slice must not solve an unsafe or slow economy by requiring energy waits or mandatory replay; new campaign content should fund normal progression."
-    }
+    "anti_pattern": {"source":"https://poki.com/en/g/cow-bay","observation":"Cow Bay explicitly uses energy per task.","lesson":"Do not solve an underfunded first-region economy by adding waiting/energy; no-replay arithmetic must pass directly."}
   },
   "official_docs": [
-    {"source": "https://docs.python.org/3/library/itertools.html#itertools.permutations", "date_checked": "2026-08-28", "verified_constraint": "itertools.permutations generates ordered arrangements used to exhaustively enumerate the five first-region capability purchase priorities."},
-    {"source": "https://docs.python.org/3/library/json.html", "date_checked": "2026-08-28", "verified_constraint": "Python standard-library JSON support is sufficient for deterministic checked-in input and machine-readable report generation without adding a dependency."}
+    {"source":"https://docs.python.org/3/library/itertools.html#itertools.permutations","date_checked":"2026-08-28","verified_constraint":"itertools.permutations enumerates ordered arrangements and is used to exhaustively cover the seven retained purchase priorities (7! = 5040)."},
+    {"source":"https://docs.python.org/3/library/json.html","date_checked":"2026-08-28","verified_constraint":"The standard json module provides deterministic configuration/report serialization for the checked-in simulation evidence."}
   ],
   "official_docs_exception": "",
   "alternatives": [
-    {"id": "manual_spreadsheet_only", "disposition": "rejected", "reason": "Easy to inspect but weak for exhaustive purchase-order coverage and regression testing."},
-    {"id": "named_paths_only", "disposition": "rejected", "reason": "Named strategies can miss soft-locks created by unexpected but legal upgrade ordering; the first candidate demonstrated exactly this risk."},
-    {"id": "deterministic_exhaustive_model", "disposition": "selected", "reason": "Combines readable named paths with exhaustive upgrade-priority enumeration, hard assertions and reproducible Yield sensitivity."}
+    {"id":"keep_yield_1_15","disposition":"rejected","reason":"Not required for no-grind progression; only the earliest allowed timing beats the no-Yield baseline in Region 1 and payback occurs at M06."},
+    {"id":"retune_yield_multiplier","disposition":"rejected","reason":"Sensitivity changes the timing answer rather than creating a direct experiential purpose: 1.10x never repays in Region 1 while 1.20x moves toward a stronger economic opener."},
+    {"id":"flight_buzz_only","disposition":"selected","reason":"Both tracks change direct play capability and all 5040 retained-sink priority orders remain replay-free and non-negative without Yield."}
   ],
   "acceptance_criteria": [
-    {"criterion": "Named minimal, Buzz-first, Flight-first, balanced, customization-heavy, poor-but-valid and Yield timing paths complete required gates without replay or negative Honey.", "status": "pass", "evidence": "evidence/BB-P005/first-region-summary.json hard_assertions and strategy_summary."},
-    {"criterion": "Every priority ordering of the five first-region capability upgrades is checked for progression safety.", "status": "pass", "evidence": "120 permutations tested; 120 passed after availability staging."},
-    {"criterion": "The model fails a deliberately broken candidate where required Buzz cannot be afforded.", "status": "pass", "evidence": "test_gate_failure_when_required_buzz_is_unaffordable passes."},
-    {"criterion": "Yield payback and multiplier sensitivity are explicit rather than hand-waved.", "status": "pass", "evidence": "1.10x/1.15x/1.20x sensitivity and 1.15x payback are recorded in first-region-summary.json."},
-    {"criterion": "Simulation results do not prematurely lock D-007 or production values.", "status": "pass", "evidence": "candidate config and research record are explicitly tagged HYPOTHESIS; DECISIONS.md is unchanged."}
+    {"criterion":"Removing Yield must not make required first-region progression depend on replay.","status":"pass","evidence":"evidence/BB-P005/upgrade-set-summary.json records 5040/5040 retained-sink purchase-priority orders passing with total_replay_actions=0."},
+    {"criterion":"Customization-heavy spending must remain campaign-safe in the validated structural candidate.","status":"pass","evidence":"The exhaustive set includes all three seed sinks in every full priority permutation; all 5040 orders pass and the all-sink final balance is 271 Honey."},
+    {"criterion":"Yield usefulness must be quantified rather than accepted because three upgrade cards look conventional.","status":"pass","evidence":"Yield comparison records M06 break-even and final deltas of +11 early, -1 mid and -15 late versus no Yield; multiplier sensitivity is also retained."},
+    {"criterion":"The decision must not falsely lock current Honey costs/rewards or real-time pacing.","status":"pass","evidence":"Decision/result docs validate the two-track set and no-grind structural envelope while explicitly keeping exact values, minutes/actions cadence and final effect curves open for P2/P3/P5."},
+    {"criterion":"Downstream source-of-truth documents must no longer treat Yield as an unresolved vertical-slice track.","status":"pass","evidence":"Same PR updates D-007, game design, progression/economy research and README to Flight + Buzz only for the vertical slice."}
   ],
   "verification": {
     "automated": [
-      "python3 -m unittest discover -s tools/economy -p 'test_*.py' -v -> 4 tests PASS",
-      "python3 tools/economy/simulate.py -> hard_failures=[]; 120/120 exhaustive upgrade priorities pass"
+      "python3 -m unittest discover -s tools/economy -p 'test_*.py' -v",
+      "python3 tools/economy/upgrade_set_analysis.py",
+      "Trusted PR evidence workflow validates the exact PR candidate using base-branch policy."
     ],
-    "manual": [
-      "Reviewed initial failed candidate: 12/120 priority permutations soft-locked at M03 before availability staging; corrected by delaying later optional purchases rather than adding hidden replay income."
-    ],
-    "runtime_errors": "none; Python model/tests execute successfully",
-    "save_data_impact": "none; simulation-only inputs/evidence, no production save format"
+    "manual": ["Separate evaluator reviewed the original product problem, reference observations, historical Yield payback/sensitivity and the no-Yield exhaustive stress result; verdict PASS WITH DEVIATION."],
+    "runtime_errors": "none expected/observed in deterministic Python analysis; no production runtime changed",
+    "save_data_impact": "none; P-1 simulation/research decision only and no production save schema exists"
   },
   "economy_results": {
-    "summary": "evidence/BB-P005/first-region-summary.json",
-    "orders_tested": 120,
-    "orders_failed": 0,
-    "customization_heavy_replay_actions": 0,
-    "yield_status": "HYPOTHESIS"
-  }
+    "original_summary": "evidence/BB-P005/first-region-summary.json",
+    "decision_summary": "evidence/BB-P005/upgrade-set-summary.json",
+    "retained_purchase_orders_tested": 5040,
+    "retained_purchase_orders_failed": 0,
+    "retained_purchase_orders_replay_actions": 0,
+    "all_retained_sinks_final_balance": 271,
+    "yield_status": "EXCLUDED_FROM_VERTICAL_SLICE",
+    "yield_early_net_advantage": 11,
+    "yield_mid_net_advantage": -1,
+    "yield_late_net_advantage": -15,
+    "evaluation_verdict": "PASS WITH DEVIATION"
+  },
+  "known_limitations": [
+    "The economy evidence is deterministic arithmetic, not a human time/feel playtest; evidence strength is MEDIUM.",
+    "Current costs/rewards remain tuning hypotheses and must be calibrated against production movement/pollination cadence.",
+    "The historical Yield candidate remains in the research config intentionally for regression comparison but is marked research_only and is not a production track."
+  ]
 }
