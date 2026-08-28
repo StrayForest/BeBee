@@ -48,11 +48,17 @@ Substantial new decisions should also record evidence strength (`LOW`, `MEDIUM`,
 | D-005 | LOCKED | Seeds/customization must affect the restoration journey, not exist only as a post-completion decoration menu. | Original product intent restored after audit. Exact flow remains HYPOTHESIS. |
 | D-006 | HYPOTHESIS | Primary pollination interaction is movement/proximity auto-pollination. | Must beat hold-to-pollinate and movement-through/sweep prototypes in P-1. |
 | D-007 | HYPOTHESIS | Bee upgrade tracks are Flight / Buzz / Yield. | Flight/Buzz are strong candidates; Yield must pass economy simulation and usefulness test. |
-| D-008 | HYPOTHESIS | Sparse HUD: one objective plus Honey, with contextual world-space interaction. | Requires screen benchmark and visual QA. |
+| D-008 | HYPOTHESIS | Sparse HUD: one objective plus Honey, with contextual world-space interaction. | V-001 validates the default density ceiling (one objective + Honey); exact contextual/world-space interaction behavior still requires runtime screen benchmark and visual QA. |
 | D-009 | LOCKED | Progress/customization choices must not create an unrecoverable grind or punish aesthetics. | Product rule. |
 | D-010 | LOCKED | MVP world gates should use restoration/progression/Buzz by default, not Honey payments. | Prevents spending seeds from blocking campaign progress. Any Honey gate requires new evidence. |
 | D-011 | HYPOTHESIS | Six-meadow first-region structure: First Patch, Clover Bend, Lavender Bank, Creek Garden, Tulip Rise, Lily Clearing. | Validate pacing after core loop prototype. |
 | D-012 | LOCKED | Canonical proposed region order is Sunny Meadows → Golden Fields → Wetland Garden → Rosewood → Alpine Bloom → Moon Garden. | Resolves previous Lavender Hills/Rosewood contradiction. Later regions remain content proposals, not production commitments. |
+
+## Visual decisions
+
+| ID | Status | Decision | Evidence / next gate |
+|---|---|---|---|
+| V-001 | VALIDATED | BB-P007 visual production baseline uses a 1280×720 / 16:9 landscape reference surface, an ordinary bee height of 12–15% of viewport height, orthographic Auto Cover camera semantics with a narrow zoom band, linear filtering, selective outlines, broad low-frequency terrain, and a default maximum of one objective + Honey as persistent HUD clusters. Canonical UI/motion/VFX tokens live in `config/visual-style.json`. | BB-P007 current Poki/Defold constraints + multi-product public visual benchmark + deterministic original BeBee blocking-frame generation. Evidence strength MEDIUM. BB-P008/P0 must prove/tune the contract against retained Defold HTML5 captures; final font family and final illustration/animation assets remain OPEN. |
 
 ## Technical decisions
 

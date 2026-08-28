@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P007",
+  "decision_id": "V-001",
+  "status": "VALIDATED",
+  "reference_viewport": {
+    "width": 1280,
+    "height": 720,
+    "aspect_ratio": "16:9",
+    "primary_orientation": "landscape",
+    "portal_scale_examples": [[640, 360], [836, 470], [1031, 580]],
+    "mobile_qa": [844, 390],
+    "safe_edge_px_at_reference": 32
+  },
+  "world_scale": {
+    "coordinate_convention": "1 world design unit = 1 reference-view pixel at baseline zoom",
+    "bee_screen_height_ratio": {"min": 0.12, "nominal": 0.135, "max": 0.15},
+    "bee_reference_height_px": 97,
+    "ordinary_flower_height_px": {"min": 34, "max": 58},
+    "hard_flower_height_px": {"min": 52, "max": 76},
+    "camera_zoom_multiplier": {"min": 0.95, "default": 1.0, "max": 1.1},
+    "transient_reveal_zoom_out_min": 0.9,
+    "required_gameplay_safe_margin_ratio": 0.05
+  },
+  "camera": {
+    "projection": "orthographic",
+    "adaptive_mode": "auto_cover",
+    "required_content_policy": "required objective/player state may not be placed in crop-only margins",
+    "camera_impulse_max_reference_px": 10,
+    "camera_impulse_max_ms": 220
+  },
+  "rendering": {
+    "texture_filtering": "linear",
+    "pixel_art": false,
+    "outline_rule": "selective",
+    "outline_reference_px": {"bee": 3, "critical_interactable": 2, "terrain": 0},
+    "shadow": {
+      "kind": "soft_ellipse",
+      "opacity_min": 0.16,
+      "opacity_max": 0.28,
+      "vertical_offset_reference_px": {"min": 6, "max": 14}
+    },
+    "detail_hierarchy": {
+      "terrain": "low-frequency broad shapes",
+      "decoration": "boundary/landmark biased",
+      "interactables": "highest silhouette/contrast priority"
+    }
+  },
+  "palette": {
+    "ink": "#493B32",
+    "cream": "#FFF7E8",
+    "honey": "#F6B73C",
+    "honey_dark": "#8A4E16",
+    "grass": "#79C965",
+    "grass_dark": "#3E8247",
+    "active": "#78D6E8",
+    "success": "#6ACB76",
+    "locked": "#7B6E8E",
+    "dormant_ground": "#96A47A",
+    "dormant_saturation_target": {"min": 0.25, "max": 0.45},
+    "restored_saturation_target": {"min": 0.55, "max": 0.8},
+    "state_rule": "locked/active/completed states require shape/value/motion redundancy; hue alone is insufficient"
+  },
+  "ui": {
+    "spacing_scale_px": [4, 8, 12, 16, 24, 32, 48],
+    "radius_scale_px": [8, 12, 16, 24, 999],
+    "panel_padding_px": {"compact": 16, "standard": 24, "large": 32},
+    "button_visual_height_px": {"min": 64, "preferred": 72},
+    "minimum_touch_hitbox_px_at_reference": 80,
+    "icon_sizes_px": [32, 40, 48, 56],
+    "type_sizes_px": {"caption": 18, "body": 22, "label": 26, "title": 36, "display": 48},
+    "type_weights": {"regular": 500, "emphasis": 700, "strong": 800},
+    "font_family_status": "OPEN_PENDING_REDISTRIBUTION_LICENSE",
+    "persistent_hud_item_target": {"default_max": 2, "temporary_max": 3},
+    "persistent_objective_count_max": 1
+  },
+  "motion": {
+    "ui_transition_ms": {"min": 120, "max": 200},
+    "reward_pop_ms": {"min": 260, "max": 420},
+    "completion_accent_ms": {"min": 450, "max": 800},
+    "major_restoration_reveal_ms": {"min": 1200, "max": 2000},
+    "reduced_motion": {
+      "transition_max_ms": 150,
+      "camera_impulse": false,
+      "particle_count_multiplier": 0.3
+    }
+  },
+  "vfx": {
+    "normal_simultaneous_pollination_groups_max": 3,
+    "particles_per_group_max": 18,
+    "total_live_particles_target_max": 64,
+    "low_end_total_live_particles_max": 32,
+    "particle_lifetime_seconds": {"min": 0.25, "max": 0.8},
+    "particle_alpha_max": 0.65,
+    "bee_occlusion_area_ratio_max": 0.2,
+    "completion_burst_seconds_max": 0.8
+  },
+  "approved_frames": [
+    {"id": "gameplay_default", "viewport": [1280, 720]},
+    {"id": "pollination_active", "viewport": [1280, 720]},
+    {"id": "hard_flower_locked", "viewport": [1280, 720]},
+    {"id": "meadow_dormant", "viewport": [1280, 720]},
+    {"id": "meadow_restored", "viewport": [1280, 720]},
+    {"id": "hive_improvement", "viewport": [1280, 720]},
+    {"id": "seed_choice", "viewport": [1280, 720]},
+    {"id": "mobile_gameplay", "viewport": [844, 390]}
+  ],
+  "reference_frame_generation": {
+    "format": "svg",
+    "generator": "tools/visual_style/generate_reference_frames.py",
+    "outputs_committed": false,
+    "reason": "Pre-runtime style anchors are generated from repository source; BB-P008 will retain exact-head runtime captures.",
+    "sha256": {
+      "gameplay_default": "bb9bdc54cf9daeb6d78e474dba6db180160f2a8e89222ba6f3285f532ea6056a",
+      "pollination_active": "8b5cf216fac56d868437fa65e7db72dd6f9cfcb4004234807fff3f41813c8b34",
+      "hard_flower_locked": "1ade9293b9dbe4fe5741b3f435ba10c189a84e9511cd0be84d2703ed91517ea1",
+      "meadow_dormant": "b19afd317cd8604c845966e70beb1b5f4721ee16903f94e3f8c7c4b77b5661db",
+      "meadow_restored": "f23ef9797eb3027ca364a3a106cef50c292223d81c586b3de21479a8c534c55d",
+      "hive_improvement": "6e98dbf84b08f60127515cd21e21763e4403fb7c421343eacb90e9ef13704868",
+      "seed_choice": "aa57789a1d23896901b587f6a04b21c535af8d2dbdd86fbc2bf62a34be69f5fe",
+      "mobile_gameplay": "94d6b964938332f6663825d5a764a81bc5668395ab5b163365a80d10be6e3a38"
+    }
+  }
+}

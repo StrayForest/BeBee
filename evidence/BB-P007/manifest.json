@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P007",
+  "change_class": "process",
+  "problem": "BeBee has qualitative art direction but no reproducible numeric visual baseline, so future agents can independently invent bee scale, camera range, filtering, UI density, motion timing and VFX density while still claiming to follow the same direction.",
+  "decision": {
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "REFERENCE_PATTERN",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "selective_outline_soft_2d",
+    "rationale": "Use a 1280x720/16:9 soft 2D baseline with a 12-15% screen-height bee, linear filtering, orthographic Auto Cover camera semantics, selective outlines, broad low-frequency terrain and a default two-cluster HUD. Hard viewport/filter/camera constraints come from current Poki/Defold documentation; the scale/hierarchy choice is bounded by multiple shipped visual patterns plus BeBee's locked low-cognitive-load and cute-bee direction."
+  },
+  "research": {
+    "candidate_pool": [
+      {"name":"Cow Bay","product_id":"cow-bay","source":"https://poki.com/en/g/cow-bay","relevance":"Compact cute top-down browser/mobile world with large character, broad terrain forms and low interaction complexity."},
+      {"name":"Olly the Paw","product_id":"olly-the-paw","source":"https://poki.com/en/g/olly-the-paw","relevance":"Browser/mobile cute-character hierarchy with simple movement presentation and compact edge UI."},
+      {"name":"My Little Universe","product_id":"my-little-universe","source":"https://store.steampowered.com/app/2328750/My_Little_Universe/","relevance":"Colorful compact world with materially smaller player and low-outline 3D rendering; counterweight to heavy cartoon contours."},
+      {"name":"Dreamdale","product_id":"dreamdale","source":"https://apps.apple.com/ru/app/dreamdale/id1517564300","relevance":"Mobile colorful world and upgrade/resource presentation useful for character/world scale and UI-density comparison."},
+      {"name":"Forager","product_id":"forager","source":"https://store.steampowered.com/app/751780/Forager/","relevance":"Strong 2D readability but intentionally dense world/HUD, useful as a counterexample to BeBee's low cognitive load."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {
+        "name":"Cow Bay / public gameplay presentation","product_id":"cow-bay","source":"https://poki.com/en/g/cow-bay","platform_version_date":"Poki web / public page and imagery checked 2026-08-28","selection_reason":"Closest shipped browser/mobile reference for a cute large controllable animal in a compact broad-shape world.","observed_behavior":"Public imagery presents a visually dominant player character, broad low-frequency land shapes, strong contour separation and edge-concentrated UI rather than dense central overlays.","inference":"BeBee should keep the bee in a large readable band, but use its own proportions and avoid copying Cow Bay's global contour language or interaction/economy.","measurements":{"player_screen_height_estimate":"mid-teens percent in representative public imagery; manual range check only","terrain_detail_class":"broad/low-frequency","outline_usage":"strong on foreground character/interactables"}
+      },
+      {
+        "name":"My Little Universe / public gameplay presentation","product_id":"my-little-universe","source":"https://store.steampowered.com/app/2328750/My_Little_Universe/","platform_version_date":"Steam shipped game / public page and imagery checked 2026-08-28","selection_reason":"Materially different successful hierarchy: smaller avatar and low-outline geometric world while retaining strong spatial readability.","observed_behavior":"Public imagery uses large color/geometry masses with limited contouring; the player occupies less screen height than the large-character Cow Bay pattern.","inference":"BeBee can avoid outlines on terrain and keep more world context, while retaining stronger bee/interactable separation because the bee's personality/control readability is a product requirement.","measurements":{"player_screen_height_estimate":"high-single-digits to low-teens percent depending on representative public shot; manual range check only","terrain_detail_class":"large geometric masses","outline_usage":"low"}
+      },
+      {
+        "name":"Olly the Paw / browser-mobile hierarchy","product_id":"olly-the-paw","source":"https://poki.com/en/g/olly-the-paw","platform_version_date":"Poki web / checked 2026-08-28","selection_reason":"Useful same-device browser/mobile reference for readable cute-character hierarchy; explicitly not counted as the only independent aesthetic family because it shares a developer with Cow Bay.","observed_behavior":"Current Poki listing supports desktop/phone/tablet and public imagery keeps the controllable character visually obvious with bold simple shapes.","inference":"The BeBee bee can remain visually dominant on small screens without requiring a dense UI; exact 7Spot styling is not adopted.","measurements":{"supported_devices":"desktop/phone/tablet","hierarchy":"character-first"}
+      }
+    ],
+    "reference_exception": "",
+    "anti_pattern": {"source":"https://store.steampowered.com/app/751780/Forager/","observation":"Forager public screenshots can show many simultaneous resource nodes, world objects, tools and persistent status/resource surfaces, matching its systems-rich loop.","lesson":"BeBee should not import that information density: default gameplay stays at one objective plus Honey and decoration/VFX must not become equivalent-priority information layers."}
+  },
+  "official_docs": [
+    {"source":"https://developers.poki.com/guide/requirements-quality","date_checked":"2026-08-28","verified_constraint":"Poki currently requires desktop/mobile/tablet support and a responsive 16:9 canvas, with proportional scale examples 640x360, 836x470 and 1031x580."},
+    {"source":"https://defold.com/manuals/gui-layouts/","date_checked":"2026-08-28","verified_constraint":"Defold's built-in display profiles currently use 1280x720 Landscape and 720x1280 Portrait; GUI layout adaptation is separate from in-game camera/render behavior."},
+    {"source":"https://defold.com/manuals/camera/","date_checked":"2026-08-28","verified_constraint":"Defold 2D cameras support orthographic projection; Auto Cover fills the window and can crop margins, while orthographic_zoom remains an additional multiplier."},
+    {"source":"https://defold.com/manuals/texture-filtering/","date_checked":"2026-08-28","verified_constraint":"Defold linear filtering is the current default and provides smooth subpixel sampling; nearest is appropriate for strict pixel mapping but can snap during slow motion."}
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {"id":"pixel_nearest_small_avatar","disposition":"rejected","reason":"Conflicts with the soft non-pixel toy-world direction and expressive bee target; nearest/pixel snapping is a poor default for smooth continuous flight."},
+    {"id":"fully_outlined_mobile_cartoon","disposition":"rejected","reason":"Strong readability but makes terrain and interactables compete at similar contour priority and risks overfitting to one reference family."},
+    {"id":"selective_outline_soft_2d","disposition":"selected","reason":"Keeps strong bee/interactable readability while broad outline-free terrain and linear filtering preserve a softer original BeBee hierarchy."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"Visual style has one machine-readable source for reference viewport, bee scale, camera band, filtering, outline/shadow hierarchy, UI tokens, motion and VFX budgets.","status":"pass","evidence":"config/visual-style.json + tools/visual_style/check_visual_style.py"},
+    {"criterion":"The 16:9/reference-camera choices are grounded in current Poki and Defold documentation rather than invented portal assumptions.","status":"pass","evidence":"docs/research/BB-P007-visual-style-bible.md records current official Poki/Defold sources checked 2026-08-28."},
+    {"criterion":"At least five plausible visual references are considered, multiple shipped-product identities are observed deeply, and a denser materially different solution is included.","status":"pass","evidence":"Research candidate pool includes Cow Bay, Olly the Paw, My Little Universe, Dreamdale and Forager; Cow Bay/My Little Universe are deep counterbalancing references and Forager is the density anti-pattern."},
+    {"criterion":"Eight original BeBee composition anchors are deterministically generated and protected against silent drift before the Defold runtime exists.","status":"pass","evidence":"generate_reference_frames.py emits eight SVGs; config stores their SHA-256 hashes; check_visual_style.py regenerates twice and validates XML/dimensions/hashes."},
+    {"criterion":"Dormant/restored, active and locked blocking states do not depend on color alone and the mobile landscape composition keeps the sparse HUD readable.","status":"pass","evidence":"Local rendered inspection of all eight generated frames; seed-choice overlap found in the first pass was corrected before final hash lock."},
+    {"criterion":"Open visual questions are not falsely locked.","status":"pass","evidence":"Final font family, production illustrations, animation curves, particle textures, portrait support and regression thresholds remain explicitly open in docs/17-visual-style-bible.md."}
+  ],
+  "verification": {
+    "automated": ["python3 tools/visual_style/check_visual_style.py -> BB-P007 visual style contract: PASS","python3 -m py_compile tools/visual_style/generate_reference_frames.py tools/visual_style/check_visual_style.py -> PASS","checker regenerates all 8 SVG anchors twice, parses XML, validates dimensions/viewBox and matches approved SHA-256 values"],
+    "manual": ["Rendered the eight generated SVGs locally as raster previews and inspected them as a set; first seed-choice composition had overlap and was iterated before locking hashes.","Verified dormant/restored contrast without relying on HUD text and locked-state redundancy via closed flower shapes plus explicit lock treatment."],
+    "runtime_errors": "none; pre-runtime style contract/tooling only, generated SVG/XML validation passes",
+    "save_data_impact": "none; no production runtime or save format exists/changes in BB-P007"
+  },
+  "governance": {
+    "trust_boundary_change": "This PR updates DECISIONS.md because V-001 becomes an authoritative VALIDATED visual decision and D-008 receives an evidence note. It does not alter CI policy authority, evidence validators, required status checks, reviewer requirements or the base-vs-candidate execution boundary.",
+    "bypass_analysis": "The authoritative decision update is intentionally treated as governance-critical rather than hidden in a lower-precedence document. The same-PR evidence manifest remains present, Change class stays process, no policy file is weakened, and no runtime/player-facing diff is downgraded to avoid stronger evidence requirements.",
+    "rollback": "Revert the V-001 registry entry and D-008 note together with the BB-P007 style contract/docs/tooling if later evidence invalidates the baseline. There is no runtime or save migration because P0 production runtime has not started."
+  },
+  "style_results": {"reference_viewport":"1280x720","primary_orientation":"landscape 16:9","bee_screen_height":"12-15%, nominal 13.5%","filtering":"linear","outline_rule":"selective","default_persistent_hud_clusters_max":2,"approved_frame_count":8,"font_family_status":"OPEN_PENDING_REDISTRIBUTION_LICENSE"},
+  "known_limitations": ["The approved BB-P007 frames are primitive pre-runtime blocking compositions, not final Defold screenshots or production art.","Public competitor imagery was inspected but is not committed; manual screen-scale estimates are range checks, not pixel-perfect authoritative measurements.","BB-P008/P0 must retain exact-build runtime captures and may tune V-001 only with new evidence.","Final font family remains open pending redistribution license and localization coverage."]
+}
