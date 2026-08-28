@@ -28,6 +28,20 @@
       "runtime_included": false,
       "attribution": "Build-time tool only; review Defold tool licenses when the pinned engine version changes.",
       "reviewed_date": "2026-08-28"
+    },
+    {
+      "id": "playwright-python",
+      "name": "Playwright for Python",
+      "kind": "qa-tool",
+      "source": "https://pypi.org/project/playwright/1.62.0/",
+      "version": "1.62.0",
+      "license": "Apache License 2.0",
+      "license_source": "https://github.com/microsoft/playwright-python/blob/main/LICENSE",
+      "commercial_use_allowed": true,
+      "redistribution_allowed": true,
+      "runtime_included": false,
+      "attribution": "Development and CI visual-QA tool only; not included in BeBee runtime bundles.",
+      "reviewed_date": "2026-08-29"
     }
   ]
 }
