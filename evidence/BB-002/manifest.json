@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-002",
+  "change_class": "technical",
+  "problem": "BeBee needs a deterministic repository/tooling contract for generated files, source placement, text/lint conventions, dependency/license intake and canonical commands before later P0 runtime systems expand the codebase.",
+  "decision": {
+    "ids": ["T-001", "R-012"],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "stdlib-repository-gate",
+    "rationale": "Use Defold-aware repository metadata plus a machine-readable contract and Python-stdlib validator. This enforces fresh-clone standards without introducing a floating formatter/linter dependency solely to police repository hygiene."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-game competitor research is not applicable to repository/tooling policy; current Defold documentation/source is the relevant authority.",
+    "selected_references": [],
+    "reference_exception": "Official Defold editor, library and licensing documentation/source define the relevant engine/tool constraints for this task.",
+    "anti_pattern": {
+      "source": "https://defold.com/manuals/libraries/",
+      "observation": "A dependency can be introduced through game.project as a remote library URL, while moving/unreviewed dependency references move code outside the repository's reviewed source state.",
+      "lesson": "Require every Defold library URL to match a reviewed, versioned dependency/license manifest entry and reject unregistered or stale entries."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://github.com/defold/defold/blob/dev/editor/src/clj/editor/git.clj",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Current Defold editor source requires /.editor_settings, /.internal and /build to be ignored by Git."
+    },
+    {
+      "source": "https://defold.com/manuals/writing-code/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold editor integrates Luacheck and supports a project-root .luacheckrc; BeBee records the documented compatible baseline explicitly."
+    },
+    {
+      "source": "https://defold.com/manuals/libraries/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold library dependencies are configured as remote library archive URLs, making exact source/version registration part of reproducible repository policy."
+    },
+    {
+      "source": "https://defold.com/license/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold engine use/distribution is license-governed and therefore belongs in the project third-party inventory rather than being treated as no third-party technology."
+    },
+    {
+      "source": "https://github.com/defold/defold/blob/dev/TOOLS_LICENSES.md",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold tools include licensed third-party components, reinforcing explicit build-tool provenance and review."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "external-format-lint-stack",
+      "disposition": "rejected",
+      "reason": "Adding formatter/linter packages now creates new version/install/license surfaces before a concrete code-quality problem requires them; repository hygiene can be enforced without that dependency cost."
+    },
+    {
+      "id": "documentation-only-policy",
+      "disposition": "rejected",
+      "reason": "Prose-only standards are weak for autonomous development because generated output, source placement and dependency registration can drift without a failing check."
+    },
+    {
+      "id": "stdlib-repository-gate",
+      "disposition": "selected",
+      "reason": "Provides machine-checkable source/layout/dependency/text rules on a fresh clone with Python and Git only while retaining Defold editor Luacheck integration."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Defold editor/build state and BeBee generated roots are ignored and tracked generated output is rejected.",
+      "status": "pass",
+      "evidence": ".gitignore, config/repository-standards.json and scripts/check_repository_standards.py"
+    },
+    {
+      "criterion": "Formatting/lint conventions are explicit and mechanically checkable without adding an unpinned formatting dependency.",
+      "status": "pass",
+      "evidence": ".editorconfig, .luacheckrc and scripts/check_repository_standards.py"
+    },
+    {
+      "criterion": "Production Defold/runtime resources have stable canonical source roots and misplaced resources fail validation.",
+      "status": "pass",
+      "evidence": "config/repository-standards.json canonical_runtime_roots and check_source_layout()"
+    },
+    {
+      "criterion": "Third-party dependency/license intake is explicit, records existing Defold/Bob technology, and game.project library URLs cannot bypass the inventory.",
+      "status": "pass",
+      "evidence": "config/dependencies.json, THIRD_PARTY.md and check_dependencies()"
+    },
+    {
+      "criterion": "Repository standards and existing development/release build commands are documented and the standards command runs in CI.",
+      "status": "pass",
+      "evidence": "docs/19-repository-tooling-standards.md and .github/workflows/repository-standards.yml; exact-head CI must be green before merge"
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Repository standards workflow runs python3 scripts/check_repository_standards.py against the exact PR head.",
+      "Trusted-base validate-pr-evidence must pass on the exact final PR head before merge.",
+      "Existing Defold runtime evidence remains the authority for the BB-001 build path where its path trigger applies."
+    ],
+    "manual": [
+      "Reviewed BB-002 diff for scope: no semantic input, collection-proxy lifecycle, storage, gameplay, UI or data/test harness implementation is introduced.",
+      "Reviewed dependency ledger against the already-pinned Defold 1.13.1/Bob toolchain and authoritative Defold license/tool-license sources."
+    ],
+    "runtime_errors": "No player runtime behavior is introduced. Merge requires exact-head repository/evidence CI success.",
+    "save_data_impact": "None; BB-002 introduces no persistent game state or migration."
+  },
+  "visual_evidence": {
+    "required": false,
+    "artifacts": [],
+    "states": [],
+    "viewports": [],
+    "motion_evidence": [],
+    "provenance": {
+      "capture_commit_sha": "$PR_HEAD",
+      "capture_mode": "not-applicable",
+      "artifact_locator": "N/A — repository/tooling-only task with no player-facing rendering change"
+    }
+  },
+  "comparison": {
+    "measurements": {
+      "player_facing_comparison_applicable": false
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": [
+      "The implementation is scoped to repository/tooling policy and adds a failing mechanical gate rather than relying on prose alone.",
+      "No BB-003 through BB-007 runtime capability is implemented or claimed by the standards layer."
+    ],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "technical-policy-review-pass",
+      "implementation_author_id": "implementation-pass",
+      "input_artifacts": [
+        "docs/research/BB-002-repository-tooling.md",
+        "docs/19-repository-tooling-standards.md",
+        "config/repository-standards.json",
+        "config/dependencies.json",
+        "scripts/check_repository_standards.py"
+      ],
+      "record_locator": "evidence/BB-002/manifest.json"
+    }
+  },
+  "governance": {
+    "trust_boundary_change": "Adds a read-only pull_request/push repository-standards workflow that executes candidate-owned validation code. It is an additional quality signal only: it does not replace, modify or weaken the pull_request_target trusted-base validate-pr-evidence policy, branch/ruleset requirements or evidence trust boundary.",
+    "bypass_analysis": "The new standards workflow can be changed by a candidate PR because it validates candidate repository policy; therefore it is not treated as a trusted security boundary. Governance-critical enforcement remains in the existing trusted-base workflow/policy. The validator uses git ls-files so ignored/untracked local output cannot masquerade as reviewed repository content, and dependency URLs are checked bidirectionally against the manifest.",
+    "rollback": "Revert the BB-002 merge to remove the standards workflow/config/validator and restore the previous THIRD_PARTY/roadmap documentation. No save data or runtime migration is involved."
+  },
+  "known_limitations": [
+    "Standalone command-line Luacheck/formatter packages are intentionally not mandatory in BB-002; Defold editor lint plus the dependency-free repository gate is the current baseline.",
+    "BB-003 owns semantic input and proxy/input-focus proof; BB-004 owns test/data harness; BB-005 owns full PR HTML5 CI; BB-006 owns deterministic visual capture; BB-007 owns storage proof."
+  ]
+}
