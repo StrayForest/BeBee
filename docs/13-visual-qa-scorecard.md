@@ -194,9 +194,9 @@ The evidence manifest is authoritative for substantial player-facing work.
 
 The comparison is not a license to copy pixel layout. BeBee can score better through a different composition.
 
-## 10. Human approval gates
+## 10. Autonomous milestone gates
 
-At the end of P2, P4 and P6, the agent cannot close the milestone solely by self-scoring. It must provide:
+At the end of P2, P4 and P6, the milestone cannot close from implementation prose or an ungrounded self-score. The autonomous evidence package must include:
 
 - runnable build/artifact;
 - representative captures/video;
@@ -205,7 +205,9 @@ At the end of P2, P4 and P6, the agent cannot close the milestone solely by self
 - automated/manual test evidence;
 - separate evaluation findings.
 
-A designated human approves the subjective product bar before mass content or the next major phase.
+The separate evaluation pass issues `PASS`, `PASS WITH DEVIATION`, or `ITERATE`. `ITERATE`, missing required evidence, or failed acceptance criteria blocks progression.
+
+No human review, approval, second GitHub account or manual action is required for CI, merge, milestone completion or phase progression. The owner may request a human review for a particular change, but that review is advisory unless the owner explicitly changes the process decision for that scoped task.
 
 ## 11. Visual regression automation
 
@@ -222,4 +224,4 @@ Recommended automated coverage:
 - dormant/restored meadow framing;
 - representative mobile layout.
 
-Large intentional world-art variations may require thresholded or manual review rather than brittle pixel equality.
+Large intentional world-art variations may require thresholded or separate evaluation rather than brittle pixel equality.
