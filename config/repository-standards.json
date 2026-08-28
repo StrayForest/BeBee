@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "text": {
+    "encoding": "utf-8",
+    "line_endings": "lf",
+    "final_newline": true,
+    "trailing_whitespace": false
+  },
+  "indentation": {
+    "lua": 4,
+    "python": 4,
+    "json": 2,
+    "yaml": 2
+  },
+  "canonical_runtime_roots": [
+    "app",
+    "input",
+    "main",
+    "data",
+    "gameplay",
+    "ui",
+    "systems",
+    "adapters",
+    "levels",
+    "art",
+    "audio"
+  ],
+  "allowed_nonproduction_runtime_roots": [
+    "prototypes"
+  ],
+  "runtime_resource_extensions": [
+    ".atlas",
+    ".camera",
+    ".collection",
+    ".collectionfactory",
+    ".collectionproxy",
+    ".factory",
+    ".font",
+    ".go",
+    ".gui",
+    ".gui_script",
+    ".input_binding",
+    ".label",
+    ".lua",
+    ".material",
+    ".mesh",
+    ".model",
+    ".particlefx",
+    ".render",
+    ".render_script",
+    ".script",
+    ".sound",
+    ".sprite",
+    ".tilemap",
+    ".tilesource"
+  ],
+  "generated_roots": [
+    ".editor_settings",
+    ".internal",
+    "build",
+    ".cache",
+    ".tmp",
+    "dist",
+    "out"
+  ],
+  "required_gitignore_entries": [
+    "/.editor_settings",
+    "/.internal",
+    "/build",
+    "/.cache",
+    "/.tmp",
+    "/dist",
+    "/out"
+  ],
+  "dependency_manifest": "config/dependencies.json",
+  "third_party_ledger": "THIRD_PARTY.md",
+  "commands": {
+    "standards": "python3 scripts/check_repository_standards.py",
+    "build_development": "python3 tools/defold/bundle_html5.py --mode development",
+    "build_release": "python3 tools/defold/bundle_html5.py --mode release"
+  }
+}
