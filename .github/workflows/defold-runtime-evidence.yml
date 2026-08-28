@@ -36,7 +36,7 @@ jobs:
           python3 tools/defold/bundle_html5.py --mode development
           python3 tools/defold/bundle_html5.py --mode release
 
-      - name: Capture bootstrap frame from exact head
+      - name: Capture exact-head runtime evidence
         run: |
           set -euo pipefail
           mkdir -p runtime-evidence
@@ -64,6 +64,16 @@ jobs:
           if [ -z "${browser}" ]; then
             echo "No Chromium-compatible browser found on runner" >&2
             exit 1
+          fi
+
+          if [ -f app/input_probe.collectionproxy ]; then
+            python3 tools/defold/chromium_input_proxy_smoke.py \
+              --browser "${browser}" \
+              --url http://127.0.0.1:8000/ \
+              --output runtime-evidence/input-proxy-smoke.json \
+              --browser-log runtime-evidence/input-browser.log
+          else
+            printf '%s\n' '{"schema_version":1,"result":"not_applicable","reason":"input proxy proof not present on this head"}' > runtime-evidence/input-proxy-smoke.json
           fi
 
           "${browser}" \
