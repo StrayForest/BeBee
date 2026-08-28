@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "ticket": "BB-002",
-  "change_class": "technical",
+  "change_class": "process",
   "problem": "BeBee needs a deterministic repository/tooling contract for generated files, source placement, text/lint conventions, dependency/license intake and canonical commands before later P0 runtime systems expand the codebase.",
   "decision": {
     "ids": ["T-001", "R-012"],
