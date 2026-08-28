@@ -1,3 +1,33 @@
+local input = require "app.input_semantics"
+
 function init(self)
-    print("BeBee bootstrap ready")
+    self.proxy_ready = false
+    msg.post(".", "acquire_input_focus")
+    msg.post("#input_probe", "load")
+    print("BEBEE_INPUT owner_focus acquired")
+end
+
+function final(self)
+    msg.post(".", "release_input_focus")
+    if self.proxy_ready then
+        msg.post("#input_probe", "disable")
+        msg.post("#input_probe", "unload")
+    end
+end
+
+function on_message(self, message_id, message, sender)
+    if message_id == hash("proxy_loaded") then
+        msg.post(sender, "init")
+        msg.post(sender, "enable")
+        self.proxy_ready = true
+        print("BEBEE_INPUT proxy_loaded owner_focus=1")
+    end
+end
+
+function on_input(self, action_id, action)
+    local action_name = input.name(action_id)
+    if action_name and action.pressed then
+        print("BEBEE_INPUT owner " .. action_name .. " pressed")
+    end
+    return false
 end
