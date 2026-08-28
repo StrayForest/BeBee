@@ -82,8 +82,14 @@ local function init_qa(self)
         "new URLSearchParams(window.location.search).get('qa_seed') || ''"
     )
     self.qa_request = qa_runtime.resolve_request(requested_state, requested_seed)
-    self.qa_build_sha = sys.get_config_string("bebee.build_commit_sha", "unavailable")
 
+    -- Storage QA uses the same development-only gate but must not create an
+    -- unrelated visual-QA bridge when no visual state was requested.
+    if requested_state == "" then
+        return
+    end
+
+    self.qa_build_sha = sys.get_config_string("bebee.build_commit_sha", "unavailable")
     set_qa_bridge(self, false)
     if self.qa_request.error then
         print("BEBEE_QA unknown_state " .. self.qa_request.state_id)
