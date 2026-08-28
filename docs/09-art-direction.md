@@ -2,450 +2,317 @@
 
 ## 1. Visual goal
 
-BeBee should read as a small living toy world: soft, friendly, colorful, readable at a glance and satisfying when the land changes from dormant to blooming.
+BeBee should feel like a small living toy world: soft, friendly, colorful, readable at a glance and satisfying when the land changes from dormant to blooming.
 
-The target is **cozy casual clarity**, not detailed botanical realism.
+Target: **cozy casual clarity**, not botanical realism.
 
----
+This document defines direction. `BB-P007` must convert the qualitative direction into a measurable style bible before mass asset production.
 
-## 2. Camera and presentation
+## 2. Locked visual principles
 
-- top-down with a slight 3/4 feel;
-- character always readable against ground;
-- camera close enough that the bee has personality, far enough to show several nearby objectives;
-- avoid strong perspective distortion;
-- world composition should work on desktop landscape and phone portrait crops;
-- no camera angle change between gameplay and normal pollination.
+- bee is always readable against terrain;
+- gameplay flowers read by silhouette/state, not color alone;
+- interactable objects are clearer than decoration;
+- dormant land is subdued but still appealing;
+- restored land is visibly richer even with HUD hidden;
+- UI belongs to the same visual world and remains sparse;
+- production art must be original or properly licensed;
+- competitor screenshots may inform hierarchy/clarity but are not tracing references.
 
-The screen should visually prioritize:
+## 3. Camera/presentation — HYPOTHESIS details
 
-1. bee;
-2. active/available flower patches;
-3. route toward next content;
-4. HUD.
+Direction:
 
----
+- top-down / slight 3/4 feel;
+- bee large enough to show personality;
+- enough nearby world visible to understand goals;
+- no strong perspective distortion;
+- composition survives desktop and selected mobile/portal crops.
 
-## 3. Bee character
+Exact camera zoom, bee screen size and world scale are **not locked** until P1/`BB-P007` visual tests.
 
-### Shape language
+## 4. Bee design
+
+Shape language:
 
 - rounded body;
-- oversized head/eyes relative to real anatomy;
+- oversized expressive head/eyes relative to real anatomy;
 - short soft limbs;
-- two readable wings;
-- simple stripe pattern;
-- silhouette identifiable even at small scale.
+- readable wings;
+- simple stripes;
+- no threatening realistic insect anatomy.
 
-Avoid:
-
-- realistic insect anatomy;
-- sharp mandibles/stingers as dominant features;
-- highly detailed texture noise.
-
-### Personality through movement
-
-Required animation states:
+Required production-state family after movement is validated:
 
 - idle hover;
 - fly;
 - turn/lean;
-- pollinating;
-- upgrade reaction;
-- meadow-restored celebration.
+- validated pollination state;
+- improvement reaction;
+- restoration celebration.
 
 Optional later:
 
-- sleepy idle;
-- seed-plant reaction;
-- cosmetics.
+- cosmetics;
+- extra idles;
+- special reactions.
 
-### Movement animation
+## 5. Flower readability
 
-- body lags movement direction slightly;
-- wings accelerate with movement;
-- gentle vertical hover motion at rest;
-- pollination creates a focused “buzz” pose without freezing the bee rigidly;
-- completion gives a tiny upward pop or happy spin, short enough not to block control.
-
----
-
-## 4. Flower readability
-
-Every species needs distinct:
+Every gameplay species should differ in several ways:
 
 - silhouette;
 - dominant color family;
-- bud shape;
-- bloom motion.
+- bud/locked shape;
+- bloom motion;
+- density/cluster shape where useful.
 
-Examples:
+Examples remain direction only:
 
-### Daisy
+- Daisy — small radial white/yellow, quick opening;
+- Clover — dense rounded carpet identity;
+- Lavender — tall thin purple spikes;
+- Tulip — large cup-shaped saturated bud;
+- Lily — large elegant premium/difficult silhouette.
 
-- small round center;
-- white radial petals;
-- quick multi-flower pop.
+Do not add species that are distinguishable only by minor hue changes.
 
-### Clover
-
-- clustered tiny rounded blossoms/leaves;
-- dense carpet feel.
-
-### Lavender
-
-- tall thin purple spikes;
-- sequential glow/opening from bottom to top.
-
-### Tulip
-
-- large cup-shaped bud;
-- strong single pop/open animation;
-- saturated red/pink/orange variants.
-
-### Lily
-
-- large elegant closed bud;
-- visibly “premium/difficult” scale;
-- slower multi-petal opening;
-- stronger pollen burst.
-
-Later regions follow the same silhouette-first rule.
-
----
-
-## 5. Dormant-to-restored color strategy
-
-Dormant land must not be ugly; it should be intentionally subdued.
+## 6. Dormant -> restored language
 
 ### Dormant
 
 - lower saturation;
 - fewer ground details;
-- closed buds;
-- sparse ambience;
-- less movement.
+- fewer ambient actors;
+- closed/limited flowers;
+- quieter ambience.
 
-### Progressing
+### Waking/Growing
 
-- grass gains saturation;
-- small ground cover appears;
-- ambient pollen/fauna increases;
-- landmarks gain decorative life.
+- richer grass/ground cover;
+- ambient pollen/insects increase;
+- landmark recovery;
+- player-planted choices become more visible where validated.
 
 ### Restored
 
-- full intended color;
-- richer flowers;
-- animated ambient insects;
-- gentle spark/pollen layer;
-- stronger music arrangement.
+- full intended color range;
+- richer vegetation;
+- ambient ecosystem life;
+- strongest local bloom/ambience state.
 
-The restoration effect should be visible even if the HUD is hidden.
-
----
-
-## 6. Palette philosophy
-
-Use a coherent family rather than arbitrary rainbow saturation.
-
-Recommended direction:
-
-- warm grass greens;
-- creamy/off-white UI panels rather than pure white;
-- honey amber/yellow for progression/currency;
-- bee yellow/black softened by brown/dark navy rather than absolute black if visually appropriate;
-- each region has one dominant accent palette.
-
-Do not rely on exact competitor colors.
-
-Color decisions should be validated for readable state contrast and common color-vision deficiencies.
-
----
+Deterministic before/after screenshots must show a meaningful difference without HUD.
 
 ## 7. Terrain
 
-Terrain should support flower visibility.
+Terrain supports gameplay readability.
 
-Good:
+Prefer:
 
 - broad low-frequency shapes;
 - restrained ground texture;
-- soft path edges;
-- clustered decoration at boundaries;
-- landmarks used for navigation.
+- decoration concentrated around boundaries/landmarks;
+- soft route edges;
+- clear local contrast around flower patches.
 
-Bad:
+Avoid:
 
-- equally detailed texture under every patch;
-- tall decoration covering gameplay flowers;
-- high-contrast grass blades everywhere;
-- tiny decorative sprites that look interactable.
+- equally detailed noise everywhere;
+- tall decoration hiding required flowers;
+- tiny decoration that looks interactable;
+- terrain patterns competing with progress feedback.
 
-Interactable patches must remain the visually richest local objects.
+## 8. Pollination/bloom VFX
 
----
+The final effect depends on the validated core verb, but likely layers include:
 
-## 8. Patch composition
+- light pollen around bee/patch;
+- directional relation between bee and flowers;
+- staged flower opening;
+- short completion accent;
+- Honey attribution toward the currency surface.
 
-Each logical patch visually contains multiple flowers.
+Do not bury the bee/flowers under opaque particles.
 
-Composition rules:
+Harder flowers may have richer anticipation/completion, not violent effects.
 
-- irregular organic cluster rather than a perfect grid;
-- center remains readable for progress feedback;
-- patch edge communicates interaction radius approximately;
-- flower count can increase visually as restoration progresses;
-- decorative petals/leaves can extend outside logical trigger without changing gameplay bounds.
+## 9. Honey visual language
 
-Avoid making every flower a separate gameplay entity.
+Honey is the only core currency.
 
----
+Keep a consistent family:
 
-## 9. Pollination VFX
+- amber/golden identity;
+- droplet/honeycomb/pot motifs where appropriate;
+- source-to-counter reward motion;
+- distinct reward sound.
 
-Pollination must feel alive but remain lightweight.
+Do not use coin imagery for the same currency without a specific reason.
 
-Layering:
+## 10. UI direction
 
-1. subtle pollen motes around active bee;
-2. tiny curved particle movement between bee and patch;
-3. flower-by-flower opening feedback;
-4. completion pulse/burst;
-5. honey reward arc toward HUD.
+- rounded, friendly shapes;
+- large clear icons;
+- restrained shadows/outlines;
+- generous spacing;
+- few persistent elements;
+- no generic mobile-dashboard clutter.
 
-Do not cover the bee in opaque particles.
+Exact panel radius, spacing scale, shadow parameters, icon size and typography are produced by `BB-P007` rather than invented per PR.
 
-### Difficulty expression
-
-Harder flowers can show:
-
-- denser/slower pollen response;
-- stronger closed-bud anticipation;
-- richer completion burst;
-
-Difficulty should not require violent effects.
-
----
-
-## 10. Honey visual language
-
-Honey is the only core currency, so it needs consistent identity.
-
-Use:
-
-- droplet/hex/honey-pot icon family;
-- amber/golden movement trail;
-- short elastic counter animation;
-- subtle sticky/sparkle sound character.
-
-Do not introduce coin imagery for the same currency.
-
----
-
-## 11. UI visual style
-
-UI should feel like the same world, not a generic mobile app layered on top.
-
-### Shapes
-
-- rounded cards/buttons;
-- soft shadows/outline;
-- large icons;
-- restrained borders;
-- generous spacing.
-
-### Information density
-
-- one currency persistent;
-- one primary objective persistent;
-- menus show only information necessary for that decision.
-
-### Upgrade icons
-
-- Flight: wing;
-- Buzz: pollen/buzz rings;
-- Yield: honey droplet/honeycomb.
-
-Icons must be recognizable without reading labels after the first few uses.
-
----
-
-## 12. Typography
-
-Use a friendly rounded sans-serif with strong readability at small sizes and broad language support.
+## 11. Typography
 
 Requirements:
 
-- Cyrillic support if Russian localization is planned;
-- Latin/Finnish diacritics support if Finnish localization is planned;
+- high small-size readability;
 - readable numerals;
-- multiple weights only if needed;
-- license compatible with commercial distribution.
+- scripts required by planned localization;
+- commercial redistribution license;
+- license recorded before font files enter repository.
 
-Do not commit font files until license is verified and recorded in `THIRD_PARTY.md`.
+Do not select a font based only on cuteness.
 
----
+## 12. Audio direction
 
-## 13. Screen hierarchy mockups
+Bee:
 
-These are structural wireframes, not pixel-perfect art.
+- soft non-irritating wing buzz;
+- movement intensity may subtly affect it.
 
-### Gameplay
+Pollination/bloom:
 
-```text
-┌─────────────────────────────────────┐
-│ [Objective: Restore meadow 4/6] 🍯185│
-│                                     │
-│          flower patch              │
-│             ◌ 65%                  │
-│                                     │
-│                🐝                   │
-│                                     │
-│  (mobile joystick)                  │
-└─────────────────────────────────────┘
-```
+- light, pleasant repeated feedback;
+- completion distinct from progress ticks.
 
-### Hive
+Honey:
 
-```text
-┌───────────────────────────────┐
-│ Improve your bee        🍯185 │
-│                               │
-│ [Wing] Flight Lv2      🍯56   │
-│ Fly 10% faster        [BUY]   │
-│                               │
-│ [Buzz] Buzz Lv2        🍯68   │
-│ Pollinate faster      [BUY]   │
-│                               │
-│ [Drop] Yield Lv1       🍯40   │
-│ Earn 12% more honey   [BUY]   │
-│                               │
-│             [Back]            │
-└───────────────────────────────┘
-```
+- warm reward identity distinct from bloom.
 
-### Seeds
+Improvement:
 
-```text
-┌───────────────────────────────┐
-│ Plant flowers                 │
-│ [Daisy ✓] [Clover] [Lavender]│
-│ [Tulip 🔒 140] [Lily 🔒]      │
-│                               │
-│        [Plant selected]       │
-└───────────────────────────────┘
-```
+- short upward/positive response.
 
----
+Restoration:
 
-## 14. Audio identity
+- layered world/nature payoff rather than generic coin fanfare.
 
-Sound should make small actions pleasant enough to repeat hundreds of times.
+Audio must remain non-fatiguing over repeated actions.
 
-### Bee
+## 13. Music
 
-- soft wing buzz loop with restrained volume;
-- pitch/intensity can change slightly with movement;
-- avoid realistic loud insect buzzing that becomes irritating.
+- light, loopable, low-fatigue;
+- region identity rather than a new track for every tiny meadow;
+- restoration layers may enrich arrangement if simple enough;
+- menus should not cause unnecessary hard restarts.
 
-### Pollination
+## 14. Haptics
 
-- tiny soft chimes/plucks as flowers open;
-- pollen shimmer texture;
-- completion chord/popup.
+Where supported:
 
-### Honey
+- light completion pulse;
+- slightly stronger major restoration/improvement pulse;
+- no continuous pollination vibration;
+- user can disable haptics.
 
-- warm sticky/plink reward sound;
-- distinct from flower bloom.
+## 15. BB-P007 — Visual Style Bible deliverables
 
-### Upgrade
+Before production art scales, lock or validate these with actual BeBee reference frames:
 
-- short ascending flourish;
-- stronger Buzz purchase can add a brief energetic flutter.
+### World scale
 
-### Restoration
+- target bee screen-height range at gameplay zoom;
+- gameplay camera zoom range;
+- world-unit / sprite-resolution / PPU convention;
+- supported camera crop behavior.
 
-- layered bloom sound with ambient nature entering;
-- region finale has a unique but still gentle musical payoff.
+### Asset rendering
 
----
+- texture filtering choice;
+- atlas/native source resolution rules;
+- outline/no-outline rule;
+- shadow direction/softness/opacity range;
+- foreground/background saturation/contrast hierarchy.
 
-## 15. Music
+### UI tokens
 
-Music should be light, loopable and non-fatiguing.
+- spacing scale;
+- corner-radius scale;
+- panel padding;
+- button heights;
+- icon size family;
+- typography sizes/weights;
+- shadow/border tokens;
+- Honey/progression semantic colors.
 
-Preferred system:
+### Motion tokens
 
-- one base theme per region or small family of themes;
-- optional additional instrumentation layer as restoration advances;
-- music does not restart for every meadow if regions are continuous;
-- menus/hive may duck or lightly filter rather than hard-cut music.
+- ordinary UI transition duration range;
+- reward pop duration range;
+- completion accent duration range;
+- reduced-motion alternatives;
+- camera reveal limits.
 
-Avoid long cinematic tracks that fight short casual sessions.
+### VFX budgets
 
----
+- max normal simultaneous pollination effects;
+- density/opacity targets;
+- particle lifetime bands;
+- low-end fallback rules.
 
-## 16. Haptics
+### Approved frames
 
-Mobile only where supported.
+Create a small set of **our own** approved visual reference frames:
 
-- light pulse: patch completion;
-- slightly stronger pulse: upgrade or meadow restoration;
-- no continuous vibration while pollinating.
+- default gameplay;
+- active pollination;
+- locked harder flower;
+- dormant meadow;
+- restored meadow;
+- improvement/Hive surface;
+- seed choice surface;
+- representative mobile layout.
 
-Haptics must be disableable.
+These become internal visual anchors for later agent work.
 
----
+## 16. Asset production order
 
-## 17. Asset production order
+Do not produce the whole planet first.
 
-Do not commission/create the entire planet before gameplay is validated.
+1. movement-test bee;
+2. one production-quality bee direction;
+3. starter flower + terrain kit;
+4. pollination/Honey feedback;
+5. one improvement surface;
+6. one meadow dormant/restored set;
+7. validated seed-flow visuals;
+8. remaining first-region content;
+9. only after P6 approval, later-region production.
 
-Order:
+## 17. Art acceptance
 
-1. bee placeholder -> production bee;
-2. Daisy production patch;
-3. core terrain kit;
-4. pollen/honey VFX;
-5. Hive/UI production skin;
-6. first meadow restoration set;
-7. Clover/Lavender/Tulip/Lily;
-8. first-region landmarks;
-9. only after vertical-slice approval, remaining regions.
+An art/visual task passes only when:
 
----
+- state remains readable at gameplay zoom;
+- bee remains visually dominant enough to control;
+- interactable vs decorative content is clear;
+- locked/active/completed states do not rely on color alone;
+- mobile/portal crops preserve required information;
+- effects reinforce cause/effect without hiding gameplay;
+- style tokens/approved frames are respected or intentionally updated;
+- all third-party material has verified provenance;
+- `docs/13-visual-qa-scorecard.md` evidence is attached.
 
-## 18. Art acceptance tests
+## 18. Originality
 
-An asset set passes when:
-
-- bee is immediately distinguishable from flowers/terrain;
-- available vs locked vs completed patch can be recognized without relying only on color;
-- flower species are distinguishable at gameplay zoom;
-- dormant vs restored meadow screenshots are clearly different;
-- portrait crop does not hide required interaction behind UI;
-- VFX makes completion feel stronger without hiding gameplay;
-- UI looks coherent with world art;
-- all imported assets have documented licenses.
-
----
-
-## 19. Originality rule
-
-Competitor screenshots may be used internally to understand hierarchy and readability, but production assets must not trace or reconstruct proprietary artwork.
-
-BeBee needs its own:
+BeBee requires its own:
 
 - bee proportions/design;
-- flower sprite language;
+- flower rendering language;
 - terrain shapes;
-- icons;
-- panel skin;
+- UI skin/icons;
 - animations;
-- sound effects;
-- music;
-- world landmarks.
+- VFX treatment;
+- sounds/music;
+- landmarks/world composition.
 
-The goal is to inherit proven **clarity**, not competitor identity.
+Borrow clarity, not identity.
