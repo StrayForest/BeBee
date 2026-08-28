@@ -56,6 +56,26 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def source_commit_sha() -> str:
+    override = os.environ.get("BEBEE_BUILD_COMMIT_SHA", "").strip().lower()
+    if override:
+        if not re.fullmatch(r"[0-9a-f]{40}", override):
+            raise RuntimeError("BEBEE_BUILD_COMMIT_SHA must be a full 40-character Git SHA")
+        return override
+
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    commit_sha = result.stdout.strip().lower()
+    if not re.fullmatch(r"[0-9a-f]{40}", commit_sha):
+        raise RuntimeError(f"Could not resolve exact source Git SHA: {commit_sha!r}")
+    return commit_sha
+
+
 def verify_bob(path: Path, expected_sha256: str) -> None:
     if not path.is_file():
         raise RuntimeError(f"Bob JAR not found: {path}")
@@ -136,7 +156,7 @@ def verify_bob_version(bob: Path, expected_version: str) -> str:
     return output
 
 
-def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
+def build(mode: str, bob: Path, toolchain: dict[str, object], commit_sha: str) -> Path:
     mode_config = MODES[mode]
     settings = Path(mode_config["settings"])
     if not settings.is_file():
@@ -159,7 +179,14 @@ def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
     # refuses to bundle into it directly. Bundle into an external temporary
     # directory first, then copy the completed artifact into our stable CI path.
     with tempfile.TemporaryDirectory(prefix=f"bebee-{mode}-bundle-") as temp_dir:
-        staged_bundle_output = Path(temp_dir)
+        temp_root = Path(temp_dir)
+        staged_bundle_output = temp_root / "bundle"
+        staged_bundle_output.mkdir()
+        provenance_settings = temp_root / "build-provenance.settings"
+        provenance_settings.write_text(
+            "[bebee]\n" f"build_commit_sha = {commit_sha}\n",
+            encoding="utf-8",
+        )
         command = [
             "java",
             "-jar",
@@ -168,6 +195,8 @@ def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
             str(ROOT),
             "--settings",
             str(settings),
+            "--settings",
+            str(provenance_settings),
             "--platform",
             str(toolchain["platform"]),
             "--architectures",
@@ -203,6 +232,8 @@ def build(mode: str, bob: Path, toolchain: dict[str, object]) -> Path:
 
     metadata = {
         "mode": mode,
+        "build_commit_sha": commit_sha,
+        "qa_enabled": mode == "development",
         "defold_version": toolchain["defold_version"],
         "bob_sha256": toolchain["bob_sha256"],
         "java_major": toolchain["java_major"],
@@ -241,6 +272,7 @@ def main() -> int:
             f"Pinned Defold toolchain requires Java {required_java}, got Java {actual_java}"
         )
 
+    commit_sha = source_commit_sha()
     bob = args.bob.expanduser().resolve() if args.bob else cached_bob_path(toolchain)
     if args.bob:
         verify_bob(bob, str(toolchain["bob_sha256"]).lower())
@@ -249,8 +281,8 @@ def main() -> int:
 
     version_output = verify_bob_version(bob, str(toolchain["defold_version"]))
     print(version_output, flush=True)
-    bundle_dir = build(args.mode, bob, toolchain)
-    print(f"HTML5 bundle ready: {bundle_dir}", flush=True)
+    bundle_dir = build(args.mode, bob, toolchain, commit_sha)
+    print(f"HTML5 bundle ready: {bundle_dir} (source {commit_sha})", flush=True)
     return 0
 
 

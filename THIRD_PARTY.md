@@ -42,6 +42,16 @@ If license status is unclear, commercial use is not allowed, redistribution requ
 - Redistribution: allowed; BeBee does not currently redistribute `bob.jar`
 - Compliance note: review Defold tool licenses whenever the pinned engine/tool version changes.
 
+### Playwright for Python
+
+- Source: https://pypi.org/project/playwright/1.62.0/
+- Version: `1.62.0` (pinned in `tools/visual_qa/requirements.txt`)
+- Role: test-only browser automation for deterministic HTML5 visual-QA capture
+- License: Apache-2.0 — https://github.com/microsoft/playwright-python/blob/v1.62.0/LICENSE
+- Commercial use: allowed under Apache-2.0
+- Redistribution: allowed under Apache-2.0; BeBee does not ship the Python package or Playwright browser binaries in game releases
+- Compliance note: `python -m playwright install chromium` installs a Playwright-managed Chromium binary transiently for local/CI QA. Record the exact browser version in capture evidence and review browser/tool licenses when the pin changes.
+
 ## Defold library dependency rule
 
 Any future `game.project` dependency must have a matching `kind: "defold-library"` entry in `config/dependencies.json`, including its exact library URL, pinned version/commit/tag, license source, commercial-use decision, redistribution decision, attribution and review date. The repository standards validator rejects an unregistered Defold library URL or a stale registered library no longer present in `game.project`.
@@ -57,7 +67,7 @@ The documentation references external games/repositories for research only. Thos
 | Project | Purpose | Incorporated? |
 |---|---|---|
 | Cow Bay / 7Spot Games | gameplay/UX research | No |
-| Cow Castle / 7Spot Games | gameplay/UX research | No |
+| Cow Castle / 7Spot Games | progression research | No |
 | Olly the Paw / 7Spot Games | progression research | No |
 | Elixpur Idle / 7Spot Games | automation research | No |
 | My Little Universe | progression/world-restoration research | No |

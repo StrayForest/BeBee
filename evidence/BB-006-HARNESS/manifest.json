@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-006-HARNESS",
+  "change_class": "technical",
+  "problem": "BB-P008 defines a deterministic HTML5 visual-evidence contract, but the production Defold runtime has no development-only state router/readiness bridge, exact-build binding, canonical local server or Playwright capture runner to implement it.",
+  "decision": {
+    "ids": ["T-002", "T-012", "R-001", "R-014"],
+    "status_before": "LOCKED",
+    "status_after": "LOCKED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "playwright-explicit-engine-bridge",
+    "rationale": "Implement the validated BB-P008 contract directly: development-only Defold readiness/state provenance through window.__bebeeQA, exact source SHA injected by the Bob build path, isolated Playwright Chromium contexts and a release-negative check. Use a non-gameplay foundation_probe so the infrastructure can be proven without falsely claiming future movement/HUD/restoration fixtures exist."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "Shipped-game competitor research is not applicable to deterministic build/test infrastructure; the governing evidence is the already-validated BB-P008 contract plus current engine/browser documentation.",
+    "selected_references": [],
+    "reference_exception": "No player-facing interaction or visual-quality decision is made by this harness ticket.",
+    "anti_pattern": {
+      "source": "https://defold.com/manuals/automated-testing/",
+      "observation": "A browser screenshot taken after an arbitrary delay cannot prove application readiness or exact requested state.",
+      "lesson": "Use an explicit engine/browser testing bridge whose captureReady signal is authoritative."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/automated-testing/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Defold documents HTML5 browser automation for readiness, viewport control, console/JavaScript errors and screenshots, and recommends an explicit JavaScript testing bridge for reliable browser tests."
+    },
+    {
+      "source": "https://defold.com/ref/stable/html5-lua/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "html5.run(code) synchronously executes JavaScript from Defold Lua and returns the browser result, providing the engine-to-page bridge used by the QA runtime."
+    },
+    {
+      "source": "https://defold.com/manuals/project-settings/?lang=en",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Custom root game.properties settings are runtime-readable through sys.get_config_* and Bob accepts multiple settings files applied left-to-right, allowing mode flags and exact build provenance to stay explicit."
+    },
+    {
+      "source": "https://playwright.dev/python/docs/browser-contexts",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Playwright BrowserContexts provide isolated clean-slate browser sessions appropriate for order-independent deterministic captures."
+    },
+    {
+      "source": "https://playwright.dev/python/docs/library",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Playwright for Python installs browser binaries separately and exposes Chromium automation through the Python library API."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "playwright-explicit-engine-bridge",
+      "disposition": "selected",
+      "reason": "Matches the validated BB-P008 architecture, provides isolated browser contexts and makes engine-owned capture readiness/state provenance explicit."
+    },
+    {
+      "id": "extend-standard-library-cdp-smoke",
+      "disposition": "rejected",
+      "reason": "The existing CDP utilities remain useful narrow runtime smokes, but using them as the visual-QA framework would duplicate BrowserContext/capture facilities and diverge from the validated Playwright contract."
+    },
+    {
+      "id": "fixed-delay-screenshot",
+      "disposition": "rejected",
+      "reason": "A fixed delay cannot prove fixture readiness, exact state/seed/build provenance or deterministic lifecycle completion."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Development HTML5 has an engine-owned QA request/bridge path while release settings explicitly disable it.",
+      "status": "pass",
+      "evidence": "game.properties defines bebee.qa_enabled; development.settings sets it to 1, release.settings sets it to 0, and app/bootstrap.script only initializes window.__bebeeQA when the runtime flag and HTML5 API are available."
+    },
+    {
+      "criterion": "The HTML5 build path binds runtime evidence to the exact source commit rather than trusting external PR prose.",
+      "status": "pass",
+      "evidence": "tools/defold/bundle_html5.py resolves a full Git HEAD SHA (or validates an explicit full SHA override) and applies it through a second temporary Bob --settings file as bebee.build_commit_sha; the bridge reports that value."
+    },
+    {
+      "criterion": "The capture runner follows the BB-P008 isolation/readiness/provenance contract and can establish unchanged-state stability without inventing a global pixel threshold.",
+      "status": "pass",
+      "evidence": "tools/visual_qa/capture_visual_qa.py uses a fresh Playwright Chromium BrowserContext per capture, waits for engineReady/captureReady, checks state/seed/build SHA, validates exact PNG dimensions, repeats every requested viewport at least twice and requires identical SHA-256 for foundation_probe."
+    },
+    {
+      "criterion": "The foundation does not falsely implement future gameplay QA states and has a reproducible local serve/tool dependency contract.",
+      "status": "pass",
+      "evidence": "config/visual-qa.json adds foundation_probe alongside the unchanged fifteen canonical gameplay/UI states; scripts/serve_html5.py provides the HTTP/wasm server and Playwright 1.62.0 is pinned and license-inventoried as test-only tooling."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "The existing Test and data workflow executes the new app.qa_runtime deterministic cases together with prior suites on the exact PR head.",
+      "Repository standards compile every Python file, validate JSON/text/dependency ledgers and reject source-layout drift on the exact PR head.",
+      "The separate BB-006 CI process PR is required to execute Playwright desktop/mobile captures, repeated stability and release bridge absence before BB-006 can be marked complete."
+    ],
+    "manual": [],
+    "runtime_errors": "This harness PR does not claim retained Playwright runtime evidence by itself. Existing HTML5 CI must still build/smoke the changed bootstrap, while the scoped follow-up process PR supplies exact-head visual capture/runtime-error evidence before BB-006 closeout.",
+    "save_data_impact": "none; QA fixtures do not read player saves and BB-007 owns storage lifecycle proof"
+  },
+  "known_limitations": [
+    "foundation_probe is intentionally infrastructure-only and does not satisfy movement_empty or any future player-facing state assertions.",
+    "Motion capture remains a later implementation item exactly as specified by BB-P008; BB-006 foundation proves still capture only.",
+    "CI workflow installation/execution of Playwright is intentionally isolated into a separate process PR to preserve the trusted governance boundary."
+  ]
+}

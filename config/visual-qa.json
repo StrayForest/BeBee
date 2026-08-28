@@ -41,6 +41,7 @@
     {"id": "mobile_landscape", "width": 844, "height": 390, "role": "representative wide landscape device/container crop and touch-layout QA"}
   ],
   "states": [
+    {"id": "foundation_probe", "route": "?qa=foundation_probe", "category": "foundation", "capture_kind": "still", "default_viewports": ["desktop_reference", "mobile_landscape"], "assertions": ["development-only QA bridge reaches captureReady", "probe marker visible", "exact viewport capture is byte-stable across isolated repeated contexts"]},
     {"id": "movement_empty", "route": "?qa=movement_empty", "category": "movement", "capture_kind": "still", "default_viewports": ["desktop_reference", "mobile_landscape"], "assertions": ["bee visible", "no unrelated objectives", "camera baseline readable"]},
     {"id": "movement_dense", "route": "?qa=movement_dense", "category": "movement", "capture_kind": "still_and_motion", "default_viewports": ["desktop_reference", "poki_small", "mobile_landscape"], "assertions": ["bee remains visually dominant", "decoration does not read as interactable", "camera bounds remain readable"]},
     {"id": "pollination_idle", "route": "?qa=pollination_idle", "category": "pollination", "capture_kind": "still", "default_viewports": ["desktop_reference"], "assertions": ["available patch readable", "no completion feedback active"]},
