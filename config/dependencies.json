@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "dependencies": [
+    {
+      "id": "defold-engine",
+      "name": "Defold Engine",
+      "kind": "engine",
+      "source": "https://github.com/defold/defold/releases/tag/1.13.1",
+      "version": "1.13.1",
+      "license": "Defold License 1.0",
+      "license_source": "https://defold.com/license/",
+      "commercial_use_allowed": true,
+      "redistribution_allowed": true,
+      "runtime_included": true,
+      "attribution": "Comply with Defold and bundled third-party runtime license requirements for shipped builds.",
+      "reviewed_date": "2026-08-28"
+    },
+    {
+      "id": "defold-bob",
+      "name": "Defold Bob",
+      "kind": "build-tool",
+      "source": "https://github.com/defold/defold/releases/tag/1.13.1",
+      "version": "1.13.1",
+      "license": "Defold License 1.0",
+      "license_source": "https://defold.com/license/",
+      "commercial_use_allowed": true,
+      "redistribution_allowed": true,
+      "runtime_included": false,
+      "attribution": "Build-time tool only; review Defold tool licenses when the pinned engine version changes.",
+      "reviewed_date": "2026-08-28"
+    }
+  ]
+}

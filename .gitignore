@@ -1,0 +1,23 @@
+# Defold editor/build generated state
+/.editor_settings
+/.internal
+/build
+
+# BeBee local/generated tooling output
+/.cache
+/.tmp
+/dist
+/out
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
