@@ -1,66 +1,65 @@
 # 02 — Progression & Economy
 
-## 1. Economy goals
+## 1. Authority
 
-The economy exists to support one readable decision:
+This document owns canonical economy values and progression math. Other docs should not duplicate exact costs/rewards.
 
-> Spend honey now to become better at pollinating, or spend some of it to make restored land look the way I want.
+Decision status lives in `DECISIONS.md`. Until `BB-P005` passes, all numeric curves below are balancing hypotheses.
 
-MVP uses one currency: **Honey**.
+## 2. Economy objective
 
-No secondary premium currency, XP currency, energy currency or crafting resource is required for the first release.
+Honey exists to create two understandable categories of choice:
 
----
+1. improve the bee;
+2. unlock/express flower choices.
 
-## 2. Honey sources
+The economy must not punish a player for making the planet prettier.
 
-Primary source:
+MVP uses one core currency: **Honey**.
 
-- completing a flower patch.
+## 3. Locked rules
 
-Secondary milestone sources:
+- Honey cannot become negative.
+- New campaign content should fund progression primarily through new campaign content.
+- Replay/regrowth is optional top-up activity, not the intended funding source.
+- Seed/customization spending must not create an unrecoverable campaign grind.
+- Default world gates do not directly charge Honey in the vertical slice.
+- No premium currency/energy/crafting-resource economy in the vertical slice.
 
-- restoring a meadow;
-- completing the first-time discovery of a flower species;
-- finishing a region.
+## 4. Honey sources
 
-Avoid faucets that bypass gameplay, such as passive login rewards, until the active loop is validated.
+Primary:
 
----
+- first-time completion of meaningful flower/restoration work.
 
-## 3. Honey sinks
+Possible milestone sources:
 
-MVP sinks:
+- meadow restoration;
+- first discovery of a species;
+- region completion.
 
-1. permanent bee upgrades;
-2. permanent seed unlocks;
-3. optional area gates when pacing needs them.
+Avoid login rewards/passive faucets until active gameplay is validated.
 
-The dominant sink should be bee upgrades. Seeds are important but should not make a player regret customizing the world.
+## 5. Honey sinks
 
-Recommended spend share during normal first-region progression:
+Default sinks:
 
-- 65–80% upgrades;
-- 15–30% seeds/customization;
-- 0–15% world unlock gates.
+- validated bee upgrades;
+- seed/species unlocks or other validated flower-expression unlocks.
 
-This is a balancing target, not a hard accounting rule.
+Area/road Honey gates are removed from the default model after the blueprint audit.
 
----
+## 6. Upgrade candidates
 
-## 4. Bee stats
+### Flight — strong candidate
 
-### Flight
-
-Effect: movement speed.
-
-Design purpose:
+Purpose:
 
 - reduces travel friction;
-- creates an immediately perceptible upgrade;
-- makes later, larger meadows comfortable.
+- makes later/larger spaces more comfortable;
+- gives a directly felt improvement.
 
-Suggested multiplier curve:
+Initial hypothesis curve:
 
 | Level | Speed multiplier |
 |---:|---:|
@@ -73,334 +72,174 @@ Suggested multiplier curve:
 | 7 | 1.60x |
 | 8 | 1.70x |
 
-Do not push normal movement much above ~1.7x base without retuning camera/collision.
+Final curve depends on P1 movement/camera validation.
 
-### Buzz
+### Buzz — strong candidate
 
-Effect: pollination progress per second and hard-gate eligibility.
+Purpose:
 
-Suggested multiplier curve:
+- increases pollination capability;
+- provides readable aspiration/gates;
+- makes formerly difficult flowers feel easier.
 
-| Level | Power multiplier | Typical flower access |
+Initial hypothesis curve:
+
+| Level | Power multiplier | Typical access idea |
 |---:|---:|---|
-| 1 | 1.00x | Daisy, Clover |
-| 2 | 1.35x | Lavender |
-| 3 | 1.70x | Tulip, Lily entry |
-| 4 | 2.10x | Sunflower |
-| 5 | 2.55x | Bluebell / Rose |
-| 6 | 3.05x | Lotus |
-| 7 | 3.60x | Orchid |
-| 8 | 4.20x | late-game exotic flowers |
+| 1 | 1.00x | starter flowers |
+| 2 | 1.35x | first medium tier |
+| 3 | 1.70x | Lily-style gate |
+| 4 | 2.10x | later region |
+| 5 | 2.55x | later region |
+| 6 | 3.05x | late game |
 
-Buzz is the main progression gate.
+Exact species mapping belongs to content data after flower progression is validated.
 
-### Yield
+### Yield — HYPOTHESIS
 
-Effect: honey reward multiplier.
+Effect: multiplies Honey reward.
 
-Suggested curve:
+Risk:
 
-| Level | Honey multiplier |
-|---:|---:|
-| 1 | 1.00x |
-| 2 | 1.12x |
-| 3 | 1.25x |
-| 4 | 1.40x |
-| 5 | 1.56x |
-| 6 | 1.73x |
-| 7 | 1.91x |
-| 8 | 2.10x |
+A pure income multiplier can become either mathematically mandatory or obviously inferior. It must pass `BB-P005` economy simulation before shipping.
 
-Yield should compound progression without making old content absurdly profitable relative to new regions.
+If retained, measure payback for every purchase point:
 
----
+```text
+payback_future_base_honey = upgrade_cost / (new_multiplier - old_multiplier)
+```
 
-## 5. Upgrade costs
+A Yield level fails design review if:
 
-Use authored tables for shipped balance, even if a formula generates the starting proposal.
+- rational players are nearly always required to buy it early;
+- it almost never repays before relevant campaign completion;
+- it exists only to fill a third upgrade card.
 
-Starting formula:
+Possible alternatives are researched only if Yield fails. Do not automatically add another stat.
+
+## 7. Upgrade cost scaffolding
+
+Authored tables are the production source of truth. A formula may generate starting proposals:
 
 ```text
 cost(level -> level+1) = round(base_cost * growth^(level-1))
 ```
 
-Initial parameters:
+Old starting proposals remain useful for simulation only:
 
 | Track | Base cost | Growth |
 |---|---:|---:|
 | Flight | 30 | 1.85 |
 | Buzz | 35 | 1.95 |
-| Yield | 40 | 1.90 |
+| Yield (if retained) | 40 | 1.90 |
 
-Example approximate early costs:
+Do not ship these because they were written first. `BB-P005` must produce the actual first-region table.
 
-| Purchase | Flight | Buzz | Yield |
-|---|---:|---:|---:|
-| L1 -> L2 | 30 | 35 | 40 |
-| L2 -> L3 | 56 | 68 | 76 |
-| L3 -> L4 | 103 | 133 | 144 |
-| L4 -> L5 | 190 | 259 | 274 |
+## 8. Flower difficulty/reward model
 
-Final values must be tuned from telemetry/playtests; formulas are scaffolding.
+Flower tiers communicate increasing work/capability.
 
----
+Initial proposal:
 
-## 6. Flower progression
+| Tier | Example families | Relative work | Relative Honey | Buzz behavior |
+|---:|---|---:|---:|---|
+| 1 | Daisy / Clover | low | low | available |
+| 2 | Lavender / Tulip | medium | medium | soft/recommended gate |
+| 3 | Lily / Sunflower | higher | higher | explicit gate candidate |
+| 4+ | later-region species | increasing | increasing | later progression |
 
-Flower species are both content and difficulty vocabulary.
+Exact values are data-owned and simulation-tested.
 
-### Proposed global ladder
+Difficulty must not become a 30-second idle bar. The validated core interaction determines acceptable work duration.
 
-| Tier | Species examples | Pollination required | Base honey | Buzz gate |
-|---:|---|---:|---:|---:|
-| 1 | Daisy, Clover | 3–5 | 8–12 | 1 |
-| 2 | Lavender, Tulip | 7–10 | 16–24 | 2 soft |
-| 3 | Lily, Sunflower | 12–16 | 30–42 | 3 |
-| 4 | Rose, Bluebell | 18–24 | 50–70 | 4 |
-| 5 | Lotus, Hibiscus | 28–36 | 85–115 | 5 |
-| 6 | Orchid, rare alpine/exotic species | 40–52 | 135–180 | 6+ |
+## 9. First-region economy target
 
-These values are deliberately compact. A flower patch should resolve in seconds, not become an idle bar.
+The first region should:
 
-### Species identity
+- fund the first meaningful Buzz improvement early;
+- make Flight attractive when travel grows;
+- let players use seeds without fearing a campaign lock;
+- require no intentional replay grind on a normal route;
+- leave some purchase-order freedom.
 
-Difficulty should not be communicated only by numbers. Each family needs an easy visual/behavior cue.
+The old hand-authored first-region reward/cost table is no longer considered production balance. It becomes an input to `BB-P005`, not a conclusion.
 
-Examples:
+## 10. Seed economy
 
-- Daisy — tiny, quick opening chain.
-- Clover — many small heads, dense patch.
-- Lavender — long stems light sequentially.
-- Tulip — fewer large buds, strong pop animation.
-- Lily — large closed blossoms, strong Buzz-gate icon.
-- Sunflower — broad ring; rotates toward the bee as progress rises.
+Locked principles:
 
-Mechanical differences should remain mild in MVP. Do not create a bespoke minigame for every flower.
+- seeds are affordable enough to be used, not hoarded forever;
+- aesthetic experimentation is encouraged;
+- replanting an already unlocked species should default to free or very cheap unless testing proves a consumable model more enjoyable;
+- native/campaign completion remains separate from current planted species.
 
----
+The exact first seed grant/unlock is not duplicated here until `BB-P004` selects the restoration flow.
 
-## 7. First-region balance proposal
+## 11. Replay/regrowth
 
-The first region should teach the economy without grind.
+Replay income is optional and may be omitted entirely from the vertical slice.
 
-### Meadow 1 — First Patch
+If included:
 
-- 3 Daisy patches.
-- Base rewards: 10 / 10 / 15 honey.
-- Total: 35.
-- First Buzz upgrade costs 35.
-- Player is intentionally able to purchase it immediately.
+- first completion remains the dominant reward;
+- replay reward is intentionally lower;
+- campaign balance assumes the player does not need replay farming;
+- no timer/idle system is added merely to support replay.
 
-### Meadow 2 — Clover Bend
+## 12. Economy simulation — mandatory before production values
 
-- 4 patches: Daisy, Clover, Clover, Daisy.
-- Total base honey target: ~55–65.
-- First seed unlock is introduced at ~20 honey.
+`BB-P005` must be executable/reproducible rather than an intuition-only spreadsheet.
 
-### Meadow 3 — Lavender Bank
+Simulate at minimum:
 
-- 4 patches, including first Tier 2.
-- Base honey target: ~80–95.
-- Demonstrates value of Buzz 2 and begins choice between Flight/Yield/Buzz.
+- minimum required campaign actions;
+- typical campaign path;
+- upgrade-first spending;
+- seed/customization-heavy spending;
+- Flight-first;
+- Buzz-first;
+- every plausible Yield purchase timing if Yield remains;
+- poor-but-valid purchase ordering;
+- replay disabled;
+- replay used as optional top-up.
 
-### Meadow 4 — Creek Garden
+For each path record:
 
-- 5 patches.
-- Base honey target: ~115–135.
-- Slightly longer travel makes Flight attractive.
+- Honey earned;
+- Honey spent;
+- balance before each progression gate;
+- time/actions between meaningful purchases;
+- whether replay becomes required;
+- Yield payback point if applicable.
 
-### Meadow 5 — Tulip Rise
+## 13. Economy acceptance criteria
 
-- 5 patches.
-- Base honey target: ~150–180.
-- Player should be approaching Buzz 3.
+Before P3 values are locked:
 
-### Meadow 6 — Lily Clearing
+- no simulated intended path goes negative;
+- no normal seed-heavy path becomes unable to progress without excessive replay;
+- no single upgrade track is an obvious universal first purchase across all meaningful states unless intentionally designed as tutorial progression;
+- no shipped stat is consistently dominated/ignored;
+- region completion does not depend on farming starter content repeatedly;
+- meaningful upgrades remain affordable within a few minutes of appropriate-tier play rather than arbitrary waiting.
 
-- 6 patches including Lily finale.
-- Hard requirement: Buzz 3 for final Lily cluster.
-- Base honey target: ~230–280 plus region-completion bonus.
+## 14. Telemetry
 
-Total region economy should fund several upgrades plus at least 2–3 seed unlocks without requiring replay grind.
+Track at minimum:
 
----
-
-## 8. Replaying restored patches
-
-A major balance decision: restored patches should not become an infinite high-rate honey exploit.
-
-Recommended MVP behavior:
-
-- first completion grants 100% base reward;
-- after restoration, a patch can periodically become **Ready to Bloom Again**;
-- replay reward is 20–35% of original value;
-- replay exists for relaxing optional activity and small top-ups, not primary progression.
-
-Alternative if even this adds complexity: restored patches stop being an economy source in the vertical slice. Test both versions.
-
----
-
-## 9. Seeds
-
-### Philosophy
-
-Seeds are the expression system. They must be affordable enough that players actually use them.
-
-Recommended MVP: purchasing a seed species permanently unlocks it for restored patches; replanting thereafter is free.
-
-### First seed set
-
-| Seed | Unlock cost | Role |
-|---|---:|---|
-| Daisy | free | starter/native |
-| Clover | 20 honey | first customization choice |
-| Lavender | 70 honey | first aspirational color/style |
-| Tulip | 140 honey | premium first-region choice |
-
-Lily may be unlocked as the region-completion reward rather than purchased.
-
-This gives completion an aesthetic trophy.
-
----
-
-## 10. Flower combinations
-
-The player wants to combine flowers. We should support this without turning BeBee into a tile editor.
-
-### Vertical slice
-
-One primary species per patch.
-
-Different patches in the same meadow can use different species, so the meadow already supports combinations.
-
-### Post-slice expansion
-
-Each patch can optionally have an Accent species. Accent plants occupy ~20–30% of visual spawn points.
-
-Rules:
-
-- Primary controls dominant color/silhouette.
-- Accent is cosmetic first.
-- Any gameplay bonus is small (<=10%) and clearly displayed.
-- No “wrong combination” penalties.
-
-Potential positive bonuses later:
-
-- diverse meadow: +5% replay honey;
-- native + chosen accent: slightly faster regrowth;
-- all-one-species meadow: cosmetic “carpet bloom” effect rather than numerical punishment/reward.
-
-Aesthetic freedom is more important than optimization pressure.
-
----
-
-## 11. Region progression
-
-A region unlocks the next one when its required meadows are restored.
-
-Recommended structure:
-
-```text
-Region 1: Sunny Meadows
-Region 2: Lavender Hills
-Region 3: Wetland Garden
-Region 4: Golden Fields
-Region 5: Alpine Bloom
-Region 6: Moon Garden / Exotic Finale
-```
-
-Each region should introduce:
-
-- 1–2 new flower families;
-- one environmental visual theme;
-- one minor navigation idea;
-- higher Buzz requirement;
-- new seed aesthetics.
-
-Do not introduce a new currency every region.
-
----
-
-## 12. Planet restoration percentage
-
-The percentage should reflect authored restoration work rather than raw flower count.
-
-Simple model:
-
-```text
-planet_progress = completed_required_meadows / total_required_meadows
-```
-
-Optional weighted regions can be introduced only if needed.
-
-Use rounded display values that always move after meaningful completion. Avoid situations where completing a meadow visibly changes 42.1% to 42.2% and feels meaningless.
-
----
-
-## 13. Pacing rules
-
-Healthy progression:
-
-- first reward: <30 seconds;
-- first upgrade: 1–3 minutes;
-- first new flower: 3–6 minutes;
-- first seed customization: 5–10 minutes;
-- first completed meadow transformation: <10 minutes;
-- first region completion: target 25–45 minutes for the slice;
-- first full release should support several hours without artificial waiting.
-
-These are product targets to validate, not promises.
-
----
-
-## 14. Anti-grind rules
-
-- Never require the player to repeat the same early meadow dozens of times to unlock a new region.
-- New content should be funded primarily by progressing through new content.
-- A single upgrade should not require more than a few minutes of appropriate-tier play in the main campaign.
-- Replay farming is optional optimization, not mandatory progression.
-- If telemetry shows players are farming old patches because current-tier rewards are insufficient, rebalance before adding boosters.
-
----
-
-## 15. Economy telemetry requirements
-
-Record at minimum:
-
-- honey earned by source;
-- honey spent by sink;
-- upgrade level purchased;
-- seed unlocked;
-- meadow restored;
-- player honey balance at region gates;
+- Honey earned by source;
+- Honey spent by sink;
+- balances at progression points;
+- upgrade purchased/level;
+- seed unlock/use;
 - time since previous progression event;
-- abandoned session while facing a gate;
+- gate seen / session ended around a gate;
+- replay dependence.
 
-Key diagnostics:
+Interpret telemetry with observed playtests. High session length may mean engagement or confusion; high replay may mean fun or underfunded progression.
 
-```text
-median time to first upgrade
-median time to first customization
-honey earned / honey spent ratio by meadow
-% players blocked at each Buzz gate
-upgrade selection distribution
-seed unlock adoption
-```
+## 15. Monetization boundary
 
-If most players ignore a stat, improve or remove it rather than simply making it mandatory.
+Do not balance core progression around paid acceleration or frustration relief.
 
----
-
-## 16. Monetization boundary
-
-Do not balance the core campaign around paid acceleration.
-
-If ads/IAP are later required for a distribution platform, acceptable directions include:
-
-- optional rewarded cosmetic seed pack;
-- optional temporary convenience bonus;
-- ad-free purchase;
-- cosmetic bee appearances.
-
-Do not make late flowers intentionally miserable to sell power. The game's retention proposition is restoration and ownership, not frustration relief.
+If monetization is later required, it must be researched against the selected distribution platform after the core loop is validated. Cosmetics/convenience may be considered; campaign power must not be intentionally made miserable to sell a solution.
