@@ -15,6 +15,8 @@ For this project, the most serious defects are:
 
 Visual polish issues matter, but they rank below these.
 
+All required QA/release gates must be executable by agents and automation. Human playtests/reviews may add evidence later, but their absence never blocks CI, merge, milestone completion or release readiness under the default process.
+
 ---
 
 ## 2. Test layers
@@ -55,30 +57,34 @@ Run a real build or scripted scene path for critical behavior:
 - meadow restoration;
 - region unlock.
 
-### Layer C — Visual/manual QA
+### Layer C — Rendered/experiential QA
 
-Humans verify what tests cannot reliably judge:
+Agents evaluate what pure logic tests cannot reliably judge by using deterministic captures, motion evidence, objective measurements, reference comparison and a separate evaluation pass:
 
-- movement feel;
-- camera comfort;
+- movement feel proxies such as responsiveness, acceleration and recovery time;
+- camera comfort proxies such as framing, motion and obstruction;
 - flower readability;
-- reward satisfaction;
+- reward feedback strength/timing;
 - before/after restoration impact;
 - UI hierarchy;
-- mobile thumb reach;
-- audio balance;
+- mobile control reach/target geometry;
+- audio-level/trigger consistency where measurable;
 - reduced-motion behavior.
 
-### Layer D — Real-device/browser QA
+Any subjective conclusion must be tied to inspected rendered evidence and anchored criteria. Optional human feedback may be recorded as `PLAYTEST_RESULT`, but is not required.
 
-At minimum before public beta:
+### Layer D — Real-browser/device QA
+
+Before public beta, automate or agent-execute representative coverage where infrastructure permits:
 
 - current Chrome desktop;
 - current Firefox desktop;
-- current Chromium-based Android browser;
-- iOS Safari if iOS/web is a target;
-- representative low/mid Android hardware;
+- current Chromium-based Android browser/emulation;
+- iOS Safari/WebKit automation when iOS/web is a target;
+- representative low/mid hardware or calibrated performance profiles;
 - portrait and landscape phone checks where supported.
+
+If a target cannot be exercised in available automation, record the coverage limitation and use the nearest reproducible environment. Do not replace the missing environment with an invented pass.
 
 ---
 
@@ -145,25 +151,25 @@ A save-loss bug blocks release.
 
 ---
 
-## 5. First-session usability test
+## 5. First-session comprehension test
 
-Give the build to someone who has not read the documentation.
+Use a deterministic clean-save scenario with no hidden debug assistance and evaluate the first-session path from observable game state/captures/telemetry hooks.
 
-Do not explain controls unless they become truly stuck.
+Measure:
 
-Observe:
+- time/actions to first movement;
+- time/actions to first pollination;
+- whether Honey is visibly attributable to the action;
+- whether Hive affordance/current-next upgrade effect is discoverable;
+- whether Buzz gate requirement is explicit;
+- whether seed customization is distinguishable from campaign completion;
+- whether the long-term restoration goal is visible from game presentation.
 
-- time to first movement;
-- time to first pollination;
-- whether they notice honey;
-- whether they understand the hive;
-- whether Buzz gate meaning is clear;
-- whether they understand seed customization;
-- whether they can state the long-term goal.
+Record states where the agent/evaluator cannot infer a unique next action, where pathing loops without progress, or where menus are required only to discover basic intent.
 
-Record where the player pauses, circles aimlessly or opens menus looking for answers.
+The preferred fix is environmental/UI communication, not another paragraph of tutorial text.
 
-The correct fix is usually environmental/UI communication, not another paragraph of tutorial text.
+Optional later playtests with real players may strengthen evidence but are not a prerequisite for autonomous development or release gating.
 
 ---
 
@@ -322,7 +328,7 @@ Examples:
 - high upgrade purchase conversion can mean good clarity or forced choice;
 - low seed spending can mean customization is undiscoverable, unattractive or too expensive.
 
-Use telemetry + observed playtests + qualitative feedback together.
+Before live telemetry exists, combine deterministic simulation, rendered evidence and separate evaluation. After players exist, telemetry and optional playtest feedback may strengthen or overturn earlier conclusions.
 
 ---
 
@@ -358,7 +364,7 @@ Worst representative state:
 
 ### Mobile
 
-- thermal/performance behavior during sustained 15–30 minute play;
+- thermal/performance behavior during sustained 15–30 minute run where measurable;
 - virtual joystick responsiveness;
 - browser UI/resizing/orientation behavior.
 
@@ -366,7 +372,7 @@ Worst representative state:
 
 ## 11. Performance gates
 
-Targets are measured on representative devices and may be refined.
+Targets are measured on representative devices/environments and may be refined.
 
 - 60 FPS target on normal supported devices;
 - stable 30 FPS is preferable to unstable 40–60 on low-end devices;
@@ -388,9 +394,12 @@ Every PR should eventually run:
 3. save migration tests;
 4. HTML5 build;
 5. static checks/lint/format check once tooling is selected;
-6. optionally artifact upload for playable PR build.
+6. artifact upload for playable/evidence builds where relevant;
+7. deterministic capture/evaluation checks for substantial player-facing work.
 
 `main` must not accept a change that knowingly breaks the HTML5 build.
+
+No CI quality gate may depend on a human approval or manual reviewer action.
 
 ---
 
@@ -441,7 +450,7 @@ Prefer build-time failure to a broken late-game meadow.
 - tiny polish discrepancy;
 - noncritical text issue.
 
-Do not ship with known S0. S1 requires explicit release decision and normally blocks public launch.
+Do not ship with known S0. S1 requires an explicit recorded release decision and normally blocks public launch.
 
 ---
 
@@ -481,10 +490,11 @@ Add task-specific checks rather than relying only on this list.
 
 ### UX
 
-- onboarding validated with new players;
+- onboarding passes deterministic first-session comprehension gates;
 - all gates explain requirements;
 - all major screens work at supported resolutions;
-- no forced camera guidance causing disorientation.
+- no forced camera guidance causing disorientation;
+- optional real-player feedback, if available, has no unresolved blocker.
 
 ### Performance
 
@@ -514,7 +524,7 @@ Add task-specific checks rather than relying only on this list.
 Launch quality is not “zero bugs.” It is:
 
 - no known catastrophic failure;
-- core loop is understandable and satisfying;
+- core loop is understandable and satisfying by the defined evidence gates;
 - saves are trustworthy;
 - performance is stable;
 - scope is coherent;
