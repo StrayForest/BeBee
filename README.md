@@ -106,8 +106,11 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/07-qa-analytics-release.md`](docs/07-qa-analytics-release.md)
 - [`docs/12-platform-storage.md`](docs/12-platform-storage.md)
 - [`docs/13-visual-qa-scorecard.md`](docs/13-visual-qa-scorecard.md)
+- [`docs/18-deterministic-visual-qa.md`](docs/18-deterministic-visual-qa.md)
 - [`config/web-targets.json`](config/web-targets.json)
 - [`config/visual-style.json`](config/visual-style.json) — canonical numeric style tokens
+- [`config/visual-qa.json`](config/visual-qa.json) — deterministic QA-state/capture contract
+- [`config/storage-contract.json`](config/storage-contract.json) — HTML5 persistence/recovery contract
 
 ### Research/process
 
@@ -125,15 +128,16 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 ## Current product hypotheses that must not be mistaken for locked design
 
+`D-006` is now `VALIDATED`: default pollination is movement-through/sweep — qualifying movement inside a pollinatable patch advances progress, standing still does not, and the default scheme has no separate high-frequency pollination button. Exact movement/work tuning remains a P2 task.
+
 Before normal production, P-1 still needs product evidence for:
 
-- the best repeatable pollination input model (auto / hold / movement-through);
 - how seed choice participates in restoration;
 - whether `Yield` deserves to remain an upgrade track;
 - first-region pacing/no-grind behavior beyond the current deterministic arithmetic simulation;
-- runtime proof that the validated V-001 style/crop rules survive the deterministic Defold HTML5 capture pipeline.
+- runtime proof that the validated V-001 style/crop rules survive the deterministic Defold HTML5 capture pipeline once P0 creates the production runtime.
 
-The objective-evidence hardening in `BB-P013`–`BB-P017` is already in place. `BB-P006` has validated Poki as the primary external target, with CrazyGames as fallback; see [`docs/research/BB-P006-primary-web-target.md`](docs/research/BB-P006-primary-web-target.md). `BB-P007` now defines the measurable visual baseline in [`docs/17-visual-style-bible.md`](docs/17-visual-style-bible.md) and [`config/visual-style.json`](config/visual-style.json); BB-P008/P0 must prove it against retained runtime captures.
+The objective-evidence hardening in `BB-P013`–`BB-P017` is already in place. `BB-P006` validated Poki as the primary external target, `BB-P007` defined V-001, `BB-P008` defined the deterministic visual-QA runtime contract, and `BB-P009` defined the HTML5 A/B generation storage/recovery contract. See their research/evidence records for scoped limitations.
 
 See [`docs/11-blueprint-hardening.md`](docs/11-blueprint-hardening.md) for the remaining P-1 exit criteria.
 
@@ -144,7 +148,7 @@ The intended slice still aims to prove:
 - controllable expressive bee;
 - several flower difficulty tiers;
 - one compact authored region;
-- satisfying pollination/bloom feedback;
+- satisfying movement-through pollination/bloom feedback;
 - Honey economy;
 - meaningful bee improvement;
 - seeds that let players influence the recovering meadow;
@@ -155,7 +159,7 @@ The intended slice still aims to prove:
 - analytics abstraction;
 - production-quality HTML5 build.
 
-Exact interaction, stat and pacing values are validated through P-1/P2 rather than treated as immutable because they appeared in an early GDD.
+Exact stat/pacing values are validated through P-1/P2 rather than treated as immutable because they appeared in an early GDD.
 
 ## Non-goals for the vertical slice
 
@@ -165,6 +169,6 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 **P-1 — Blueprint Hardening.**
 
-The repository now has enforceable evidence governance, a protected autonomous merge path, disposable BB-P003/BB-P004 product experiment harnesses, a deterministic BB-P005 economy simulator, a validated primary web target, and a BB-P007 measurable visual style contract with deterministic original blocking-frame generation. Remaining P-1 work is to collect/compare the core interaction and seed-flow evidence, settle the upgrade set, and complete deterministic runtime visual-capture proof before normal production begins.
+The repository now has enforceable evidence governance, a protected autonomous merge path, a validated movement-owned pollination verb (`D-006`), a seed/restoration A/B/C experiment harness, a deterministic economy simulator, a validated primary web target, measurable V-001 visual style, deterministic visual-QA design and a validated HTML5 storage/recovery protocol. Remaining product work is to validate the seed/restoration flow, settle the upgrade set (especially Yield), and resolve first-region pacing assumptions before normal production begins. Runtime visual/storage proof executes in P0 when the Defold project exists.
 
 After P-1 exit criteria pass, continue with P0/BB-001 and the production roadmap.
