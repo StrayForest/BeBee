@@ -6,6 +6,8 @@ A player-facing feature is not accepted because the code works or because an age
 
 Use objective measurements before subjective ratings. A subjective score without a concrete note is not evidence.
 
+The deterministic runtime/capture contract is owned by [`config/visual-qa.json`](../config/visual-qa.json) and [`docs/18-deterministic-visual-qa.md`](18-deterministic-visual-qa.md). This scorecard owns evaluation, not independent viewport/state values.
+
 ## 2. Evidence classes
 
 Use the smallest evidence type that proves the behavior:
@@ -17,7 +19,7 @@ Use the smallest evidence type that proves the behavior:
 
 ## 3. Deterministic QA states
 
-Once a runnable HTML5 build exists, create a development-only deterministic state loader. Suggested cases:
+Once a runnable HTML5 build exists, use the canonical state registry in `config/visual-qa.json` rather than inventing per-PR routes. Initial cases are:
 
 ```text
 movement_empty
@@ -35,28 +37,31 @@ seed_unlocked
 meadow_dormant
 meadow_mid
 meadow_restored
-mobile_portrait_hud
 ```
 
-Production builds must not expose unsafe debug controls.
+Production/release builds must not expose QA state injection or the testing bridge.
 
 ## 4. Default capture matrix
 
-Player-facing PRs capture only relevant rows, but omission must be deliberate.
+Player-facing PRs capture only relevant states/viewports, but omission must be deliberate. Exact state-to-viewport defaults are machine-readable in `config/visual-qa.json`.
 
-| State | Desktop | Mobile portrait | Motion evidence |
-|---|---:|---:|---:|
-| Idle/default | yes | when affected | optional |
-| Active interaction | yes | when affected | recommended |
-| Completion/reward | yes | when affected | recommended |
-| Locked/blocked | when applicable | when applicable | optional |
-| Dense/worst case | for HUD/render changes | for HUD changes | optional |
+| State class | Desktop reference | Small/portal case | Mobile landscape | Motion evidence |
+|---|---:|---:|---:|---:|
+| Idle/default | yes | when affected | when affected | optional |
+| Active interaction | yes | when affected | when affected | recommended |
+| Completion/reward | yes | when affected | when affected | recommended |
+| Locked/blocked | when applicable | when applicable | when applicable | optional |
+| Dense/worst case | yes for HUD/render changes | yes for scaling risk | yes for touch/layout risk | optional |
 
-Default comparison viewports until the primary portal overrides them:
+Canonical BB-P008 baseline viewports are:
 
-- desktop development: `1440x900`;
-- mobile portrait development: `390x844`;
-- portal-specific resolutions are added after `BB-P006`.
+- desktop reference: `1280x720`;
+- Poki small: `640x360`;
+- Poki medium: `836x470`;
+- Poki large: `1031x580`;
+- representative mobile landscape: `844x390`.
+
+These values come from V-001/BB-P006 constraints and are validated against `config/visual-style.json`. `hud_default` covers all baseline sizes; other states use the smallest set needed to prove the target problem.
 
 ## 5. Objective comparison metrics
 
@@ -224,4 +229,4 @@ Recommended automated coverage:
 - dormant/restored meadow framing;
 - representative mobile layout.
 
-Large intentional world-art variations may require thresholded or separate evaluation rather than brittle pixel equality.
+P-1 does not invent one universal pixel-diff threshold. P0 first proves stable exact-build capture on a pinned renderer/browser. Large intentional world-art variations may require thresholded or separate evaluation rather than brittle pixel equality.

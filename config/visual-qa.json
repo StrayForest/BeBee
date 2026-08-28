@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P008",
+  "status": "VALIDATED",
+  "purpose": "Define the deterministic state, viewport, capture, provenance and failure contract that P0 must implement for exact-build HTML5 visual evidence.",
+  "runtime_contract": {
+    "enabled_in": ["development", "ci"],
+    "disabled_in_release": true,
+    "query_parameter": "qa",
+    "seed_parameter": "qa_seed",
+    "default_seed": 88008,
+    "javascript_bridge": "window.__bebeeQA",
+    "required_bridge_fields": [
+      "schemaVersion",
+      "stateId",
+      "seed",
+      "engineReady",
+      "captureReady",
+      "simulationFrame",
+      "buildCommitSha"
+    ],
+    "capture_ready_rule": "The engine sets captureReady=true only after the requested state is fully applied, async resources needed by the state are ready, transient setup effects are finished, and the simulation is frozen or at the state's declared deterministic capture frame.",
+    "unknown_state_behavior": "fail_closed",
+    "release_query_behavior": "ignore_qa_parameters_and_do_not_expose_bridge"
+  },
+  "determinism": {
+    "state_source": "repository-authored QA fixtures, never player save data",
+    "rng": "fixed seed supplied by qa_seed",
+    "wall_clock": "not an input to captured state",
+    "network": "no network dependency for required capture states",
+    "storage": "fresh isolated browser context per state unless a storage lifecycle test explicitly requires persistence",
+    "simulation": "state declares a stable frame or frozen checkpoint before capture",
+    "browser_context": "new isolated Playwright BrowserContext per independent state capture",
+    "parallel_order_independent": true
+  },
+  "viewports": [
+    {"id": "desktop_reference", "width": 1280, "height": 720, "role": "canonical V-001 composition"},
+    {"id": "poki_small", "width": 640, "height": 360, "role": "small required 16:9 portal scaling case"},
+    {"id": "poki_medium", "width": 836, "height": 470, "role": "medium required 16:9 portal scaling case"},
+    {"id": "poki_large", "width": 1031, "height": 580, "role": "large required 16:9 portal scaling case"},
+    {"id": "mobile_landscape", "width": 844, "height": 390, "role": "representative wide landscape device/container crop and touch-layout QA"}
+  ],
+  "states": [
+    {"id": "movement_empty", "route": "?qa=movement_empty", "category": "movement", "capture_kind": "still", "default_viewports": ["desktop_reference", "mobile_landscape"], "assertions": ["bee visible", "no unrelated objectives", "camera baseline readable"]},
+    {"id": "movement_dense", "route": "?qa=movement_dense", "category": "movement", "capture_kind": "still_and_motion", "default_viewports": ["desktop_reference", "poki_small", "mobile_landscape"], "assertions": ["bee remains visually dominant", "decoration does not read as interactable", "camera bounds remain readable"]},
+    {"id": "pollination_idle", "route": "?qa=pollination_idle", "category": "pollination", "capture_kind": "still", "default_viewports": ["desktop_reference"], "assertions": ["available patch readable", "no completion feedback active"]},
+    {"id": "pollination_active_50", "route": "?qa=pollination_active_50", "category": "pollination", "capture_kind": "still_and_motion", "default_viewports": ["desktop_reference", "poki_small", "mobile_landscape"], "assertions": ["active state readable", "progress about halfway", "bee not materially occluded"]},
+    {"id": "pollination_complete", "route": "?qa=pollination_complete", "category": "pollination", "capture_kind": "still_and_motion", "default_viewports": ["desktop_reference"], "assertions": ["completion state readable", "Honey attribution readable", "control not hidden by reward feedback"]},
+    {"id": "flower_soft_gate", "route": "?qa=flower_soft_gate", "category": "gating", "capture_kind": "still", "default_viewports": ["desktop_reference"], "assertions": ["near-future requirement readable", "available alternatives remain clear"]},
+    {"id": "flower_hard_gate", "route": "?qa=flower_hard_gate", "category": "gating", "capture_kind": "still", "default_viewports": ["desktop_reference", "poki_small"], "assertions": ["locked state uses more than hue", "requirement readable"]},
+    {"id": "hud_default", "route": "?qa=hud_default", "category": "hud", "capture_kind": "still", "default_viewports": ["desktop_reference", "poki_small", "poki_medium", "poki_large", "mobile_landscape"], "assertions": ["one objective maximum", "Honey visible", "safe margins respected"]},
+    {"id": "hive_affordable", "route": "?qa=hive_affordable", "category": "hive", "capture_kind": "still", "default_viewports": ["desktop_reference", "poki_small", "mobile_landscape"], "assertions": ["affordable action obvious", "cost and effect legible"]},
+    {"id": "hive_unaffordable", "route": "?qa=hive_unaffordable", "category": "hive", "capture_kind": "still", "default_viewports": ["desktop_reference"], "assertions": ["unaffordable state distinct", "player can identify next useful action"]},
+    {"id": "seed_locked", "route": "?qa=seed_locked", "category": "seed", "capture_kind": "still", "default_viewports": ["desktop_reference"], "assertions": ["locked seed distinct", "ownership/progression meaning readable"]},
+    {"id": "seed_unlocked", "route": "?qa=seed_unlocked", "category": "seed", "capture_kind": "still", "default_viewports": ["desktop_reference", "mobile_landscape"], "assertions": ["owned seed and plant action readable", "campaign identity remains distinct from planted expression"]},
+    {"id": "meadow_dormant", "route": "?qa=meadow_dormant", "category": "restoration", "capture_kind": "still", "default_viewports": ["desktop_reference", "poki_small"], "assertions": ["dormant state readable without HUD", "required path remains legible"]},
+    {"id": "meadow_mid", "route": "?qa=meadow_mid", "category": "restoration", "capture_kind": "still", "default_viewports": ["desktop_reference"], "assertions": ["partial restoration readable", "next unfinished area distinguishable"]},
+    {"id": "meadow_restored", "route": "?qa=meadow_restored", "category": "restoration", "capture_kind": "still_and_motion", "default_viewports": ["desktop_reference", "poki_small", "mobile_landscape"], "assertions": ["restored state readable without HUD", "world transformation materially stronger than dormant"]}
+  ],
+  "capture_pipeline": {
+    "builder": "Defold Bob CLI",
+    "bundle_target": "HTML5",
+    "serve_requirement": "HTTP server with correct application/wasm MIME type; file:// is forbidden",
+    "browser_runner": "Playwright Chromium",
+    "browser_version_policy": "pin in P0 CI lockfile/tool setup and record exact version in report",
+    "capture_surface": "full browser viewport including canvas/container layout",
+    "steps": [
+      "checkout exact PR head",
+      "build one HTML5 bundle from that head",
+      "calculate bundle SHA-256/provenance",
+      "serve bundle locally over HTTP",
+      "create isolated browser context for capture",
+      "set exact viewport",
+      "navigate to requested qa route with fixed seed",
+      "wait for JavaScript bridge engineReady and captureReady",
+      "assert bridge stateId, seed and buildCommitSha",
+      "collect page errors and unexpected console errors",
+      "capture PNG and required motion evidence",
+      "write machine-readable capture report",
+      "upload retained CI artifact"
+    ],
+    "readiness_timeout_seconds": 20,
+    "motion_clip_seconds": {"min": 2, "max": 6},
+    "css_animation_policy": "browser chrome/page CSS may be disabled for capture; game-canvas motion must be controlled by the engine QA state rather than hidden by Playwright",
+    "ci_artifact_retention_days_target": 14
+  },
+  "artifact_contract": {
+    "root_pattern": "artifacts/visual-qa/<head_sha>/",
+    "required_files": ["capture-report.json", "console.log"],
+    "still_pattern": "<state_id>/<viewport_id>.png",
+    "motion_pattern": "<state_id>/<viewport_id>.webm",
+    "report_required_fields": [
+      "schema_version",
+      "head_sha",
+      "bundle_sha256",
+      "defold_version",
+      "browser_name",
+      "browser_version",
+      "state_id",
+      "qa_seed",
+      "viewport_id",
+      "viewport_width",
+      "viewport_height",
+      "simulation_frame",
+      "capture_file",
+      "capture_sha256",
+      "console_error_count",
+      "page_error_count"
+    ]
+  },
+  "failure_policy": {
+    "fail_capture_when": [
+      "unknown QA state",
+      "bridge not available in development/CI build",
+      "readiness timeout",
+      "bridge stateId/seed/buildCommitSha mismatch",
+      "required screenshot or motion artifact missing",
+      "capture dimensions differ from configured viewport",
+      "capture/report SHA-256 mismatch",
+      "unexpected page error",
+      "unexpected console error",
+      "release bundle exposes QA bridge or responds to QA state injection"
+    ],
+    "player_facing_pr_gate_after_p0": "A player-facing PR must declare affected QA states. CI fails when any declared required state/viewport evidence is missing from the exact-head artifact package.",
+    "image_regression_policy": "Do not introduce a universal pixel-diff threshold in P-1. P0 establishes stable renderer/browser evidence first; deterministic surfaces may then adopt thresholded golden comparisons while semantic/art changes remain separately evaluated."
+  },
+  "implementation_phases": {
+    "p_minus_1_bbp008": ["contract", "state registry", "viewport matrix", "failure rules", "artifact/provenance schema", "static validator"],
+    "p0_bb006": ["development-only engine QA router", "HTML5 testing bridge", "local serve command", "Playwright capture runner", "one known state captured on desktop and mobile", "retained CI artifact"],
+    "later": ["motion capture where required", "selective visual regression", "portal/device expansion", "runtime artifact hash enforcement in evidence policy"]
+  }
+}

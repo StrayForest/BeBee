@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P008",
+  "change_class": "process",
+  "problem": "BeBee requires rendered evidence for player-facing work, but without a deterministic state registry, exact-build binding, readiness signal, fixed viewport matrix and retained artifact schema, screenshots can silently represent different code, browser state or simulation timing.",
+  "decision": {
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "exact_head_bridge_capture",
+    "rationale": "Define a development-only Defold/HTML5 QA state router and explicit JavaScript readiness bridge, then capture isolated fixed-seed states from one exact-head bundle with pinned browser provenance. This follows current Defold browser-testing guidance and Playwright isolation semantics while leaving runtime implementation to P0."
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/automated-testing/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold currently distinguishes build evidence from runtime/browser evidence, supports browser automation for viewport/error/screenshot checks, and recommends an explicit JavaScript testing bridge for reliable HTML5 browser tests."
+    },
+    {
+      "source": "https://defold.com/manuals/bob/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Bob is Defold's command-line project builder/bundler for CI and supports the wasm-web HTML5 target."
+    },
+    {
+      "source": "https://defold.com/manuals/html5/",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Defold HTML5 bundles must be served through HTTP rather than opened through file://, and WebAssembly requires the correct application/wasm response MIME type."
+    },
+    {
+      "source": "https://playwright.dev/docs/browser-contexts",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "Playwright BrowserContexts provide isolated clean-slate sessions with independent cookies/local storage/session storage, supporting order-independent state capture."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "sleep_then_screenshot",
+      "disposition": "rejected",
+      "reason": "Arbitrary delays do not prove the requested simulation state, resource readiness, seed or exact build and are inherently flaky across CI/browser performance."
+    },
+    {
+      "id": "manual_only_capture",
+      "disposition": "rejected",
+      "reason": "Useful for exploratory inspection but cannot enforce exact-head provenance, state coverage or artifact presence in autonomous PR gates."
+    },
+    {
+      "id": "exact_head_bridge_capture",
+      "disposition": "selected",
+      "reason": "An explicit engine/browser bridge exposes deterministic readiness and state identity, while isolated contexts, fixed viewports and hashed reports bind evidence to one exact-head HTML5 bundle."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "One canonical machine-readable contract defines QA routes, fixed seed behavior, bridge fields, viewports, state registry, capture pipeline, artifact schema and fail-closed rules.",
+      "status": "pass",
+      "evidence": "config/visual-qa.json contains 15 canonical states, five V-001-synchronized viewports and the exact-head capture/failure contract."
+    },
+    {
+      "criterion": "The visual scorecard no longer contains pre-BB-P006 temporary viewport/state guidance that conflicts with V-001/BB-P008.",
+      "status": "pass",
+      "evidence": "docs/13-visual-qa-scorecard.md now delegates state/viewport ownership to config/visual-qa.json and uses the 1280x720/Poki/mobile-landscape baseline."
+    },
+    {
+      "criterion": "The contract is independently checkable for state IDs/routes, viewport drift, exact-head binding and release-QA exposure.",
+      "status": "pass",
+      "evidence": "tools/visual_qa/check_visual_qa_plan.py plus tools/visual_qa/test_visual_qa_plan.py encode positive and adversarial invariant checks."
+    },
+    {
+      "criterion": "P-1 does not pretend a runtime visual pipeline exists before the Defold project and HTML5 CI exist.",
+      "status": "pass",
+      "evidence": "docs/18-deterministic-visual-qa.md and config/visual-qa.json explicitly separate BB-P008 design from P0/BB-006 runtime implementation."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Static validator added at tools/visual_qa/check_visual_qa_plan.py; adversarial unittest coverage added at tools/visual_qa/test_visual_qa_plan.py. Runtime execution is intentionally a P0 responsibility because no Defold/HTML5 build exists in P-1."
+    ],
+    "manual": [
+      "Cross-checked the five configured QA viewports against config/visual-style.json V-001 dimensions.",
+      "Reviewed the capture/failure contract against current Defold automated-testing, Bob, HTML5 and Playwright BrowserContext documentation on 2026-08-28.",
+      "Removed the stale 1440x900/390x844 pre-platform viewport guidance from docs/13-visual-qa-scorecard.md."
+    ],
+    "runtime_errors": "none applicable; BB-P008 is a pre-runtime contract and does not add production game code",
+    "save_data_impact": "none; QA fixtures are explicitly separate from player save data"
+  },
+  "known_limitations": [
+    "The repository still has no production Defold HTML5 runtime, so BB-P008 validates the capture contract rather than an actual screenshot run.",
+    "P0 BB-006 must pin Defold/Bob and Playwright versions, implement the dev-only bridge/router and retain the first exact-build desktop/mobile artifacts.",
+    "A universal pixel-diff threshold remains intentionally unset until repeated production-renderer captures establish a stable baseline."
+  ]
+}
