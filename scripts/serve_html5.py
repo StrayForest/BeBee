@@ -17,6 +17,16 @@ class BeBeeHandler(http.server.SimpleHTTPRequestHandler):
         ".wasm": "application/wasm",
     }
 
+    def do_GET(self) -> None:
+        # Chromium requests a root favicon even when the Defold template does not
+        # declare one. Keep that browser chrome request out of QA console evidence
+        # without masking any game/bundle resource path.
+        if self.path.split("?", 1)[0] == "/favicon.ico":
+            self.send_response(204)
+            self.end_headers()
+            return
+        super().do_GET()
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
