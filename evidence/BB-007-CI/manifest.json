@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-007-CI",
+  "change_class": "process",
+  "problem": "BB-007 runtime storage code is merged, but P0 cannot close until exact-source HTML5 CI executes and retains the real browser persistence lifecycle proof required by BB-P009.",
+  "decision": {
+    "ids": ["BB-P009"],
+    "status_before": "VALIDATED",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "extend-existing-html5-ci",
+    "rationale": "Reuse the already pinned Playwright/Chromium and exact-source development/release bundles in HTML5 CI, execute the BB-007 storage smoke against the same server, and retain a dedicated storage artifact without granting candidate code trusted governance authority."
+  },
+  "research": {
+    "candidate_pool": [],
+    "candidate_pool_exception": "This process change executes an already-implemented and validated BB-P009 test contract; no new player-facing design choice is made.",
+    "selected_references": [],
+    "reference_exception": "No shipped-game comparison is relevant to CI wiring for a previously selected storage protocol.",
+    "anti_pattern": {
+      "source": "https://defold.com/manuals/html5/",
+      "observation": "Treating sys.save return as proof of browser persistence would miss the HTML5 virtual-filesystem to IndexedDB lifecycle window.",
+      "lesson": "Exercise persistence across navigation and browser process restart and retain the machine-readable result."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/html5/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "HTML5 file persistence is browser-backed and may complete after the immediate write call, so browser lifecycle testing is required."
+    },
+    {
+      "source": "https://defold.com/manuals/file-access/",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "Defold HTML5 save files use the virtual filesystem backed by IndexedDB and sys.load may fail on corrupt data."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "extend-existing-html5-ci",
+      "disposition": "selected",
+      "reason": "Uses the same exact-source bundles, server, pinned browser tooling and read-only candidate execution already trusted for P0 browser evidence."
+    },
+    {
+      "id": "new-storage-only-workflow",
+      "disposition": "rejected",
+      "reason": "Would duplicate browser/toolchain setup and create a second evidence path without improving isolation."
+    },
+    {
+      "id": "unit-tests-only",
+      "disposition": "rejected",
+      "reason": "Cannot prove actual Defold HTML5 IndexedDB persistence across reload or browser process restart."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Exact-source HTML5 CI executes the BB-007 Playwright storage smoke against development and release bundles.",
+      "status": "pass",
+      "evidence": ".github/workflows/defold-runtime-evidence.yml invokes tools/visual_qa/storage_html5_smoke.py after exact-source bundles are served."
+    },
+    {
+      "criterion": "Storage proof is retained independently from visual QA and generic HTML5 diagnostics.",
+      "status": "pass",
+      "evidence": "Workflow uploads storage-qa-<sha> from artifacts/storage-qa/<sha> with if-no-files-found=error."
+    },
+    {
+      "criterion": "Trusted pull_request_target governance remains separate from candidate browser execution.",
+      "status": "pass",
+      "evidence": "Only the read-only pull_request/push HTML5 workflow is modified; trusted PR evidence workflow is unchanged."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Exact-head HTML5 CI must complete successfully with storage-report.json before merge.",
+      "Exact-head PR evidence trusted and repository standards checks must pass before merge.",
+      "Post-merge main HTML5 CI must repeat the storage proof."
+    ],
+    "manual": [],
+    "runtime_errors": "The storage smoke fails on page errors, error-level browser console messages, missing/failed storage bridge results, lifecycle persistence failures or release test-bridge exposure.",
+    "save_data_impact": "No save format/runtime behavior changes in this process PR; it executes the merged BB-007 format and recovery implementation."
+  },
+  "visual_evidence": {
+    "required": false,
+    "artifacts": [],
+    "states": [],
+    "viewports": [],
+    "motion_evidence": [],
+    "provenance": {
+      "capture_commit_sha": "not_applicable",
+      "capture_mode": "not_applicable",
+      "artifact_locator": "not_applicable"
+    }
+  },
+  "known_limitations": [
+    "Poki/private-incognito and storage-unavailable portal behavior remain the explicitly later P0_P8 cases in BB-P009 and are not required by p0_exit_requirements.",
+    "Cloud save/cross-device behavior is not inferred from direct-web IndexedDB persistence."
+  ]
+}
