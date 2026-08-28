@@ -5,6 +5,10 @@ version = 0.0.1
 [bootstrap]
 main_collection = /app/bootstrap.collectionc
 
+[input]
+game_binding = /app/empty.input_bindingc
+use_accelerometer = 0
+
 [display]
 width = 1280
 height = 720
