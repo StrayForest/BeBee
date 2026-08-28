@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P003",
+  "change_class": "process",
+  "problem": "BeBee needs one primary pollination ownership rule before permanent FlowerPatch production: it must remain low-friction on touch, avoid passive waiting, preserve deliberate cause/effect and make controlling the bee matter over repeated interactions.",
+  "decision": {
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "EXPERIMENT_RESULT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "movement_through_sweep",
+    "rationale": "The controlled A/B/C browser experiment completed all three fixed patches in every mode. Auto spent 38.1% of the scripted run stationary inside patches. Hold spent 33.1% stationary, required three explicit holds and adds a 108x108 second touch control. Sweep had zero stationary progress and no separate pollination button while completing the same field; its roughly 32.6% extra movement is aligned with the bee-flight fantasy but requires P2 tuning so natural passes work without micro-circling."
+  },
+  "research": {
+    "candidate_pool": [
+      {"name":"Cow Bay","product_id":"cow-bay","source":"https://poki.com/en/g/cow-bay","relevance":"Explicit click/tap collection reference with low control complexity."},
+      {"name":"Dreamdale","product_id":"dreamdale","source":"https://dreamdale.fandom.com/wiki/Game_Mechanics","relevance":"Proximity/automatic harvesting reference for the passive-waiting trade-off."},
+      {"name":"My Little Universe","product_id":"my-little-universe","source":"https://news.xbox.com/en-us/2025/04/07/my-little-universe-survival-guide/","relevance":"Shipped automatic/manual control contrast showing ownership can materially alter gathering feel."},
+      {"name":"Forager","product_id":"forager","source":"https://forager.fandom.com/wiki/How_to_play_guide_for_Forager","relevance":"Movement plus explicit resource-hit action; strong ownership with added high-frequency input."},
+      {"name":"Cow Castle","product_id":"cow-castle","source":"https://poki.com/en/g/cow-castle","relevance":"Movement-centric gathering reference in accessible browser/mobile space."},
+      {"name":"Olly the Paw","product_id":"olly-the-paw","source":"https://poki.com/en/g/olly-the-paw","relevance":"Low-friction movement/input expectations across browser/mobile contexts."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {"name":"Cow Bay explicit action","product_id":"cow-bay","source":"https://poki.com/en/g/cow-bay","platform_version_date":"Poki web page checked 2026-08-28","selection_reason":"Provides a minimal explicit-action comparison for Hold.","observed_behavior":"Poki documents tap/click on objects as the harvest/use action.","inference":"Explicit intent is clear, but a separate repeated action may be unnecessary if bee movement can own pollination.","measurements":{}},
+      {"name":"Dreamdale proximity harvesting","product_id":"dreamdale","source":"https://dreamdale.fandom.com/wiki/Game_Mechanics","platform_version_date":"community mechanics reference checked 2026-08-28","selection_reason":"Closest reference for progress caused by proximity/standing near resources.","observed_behavior":"The mechanics reference describes some harvesting by standing near/walking over resources without idle tapping.","inference":"Low input cost can create passive waiting; BB-P003 measures stationary time directly.","measurements":{}},
+      {"name":"My Little Universe manual controls","product_id":"my-little-universe","source":"https://news.xbox.com/en-us/2025/04/07/my-little-universe-survival-guide/","platform_version_date":"Xbox Wire 2025-04-07 checked 2026-08-28","selection_reason":"Shows a shipped automatic/manual ownership contrast rather than assuming either is universally best.","observed_behavior":"Xbox Wire describes Manual Controls where chopping/mining actions require button presses.","inference":"Ownership can change feel, but BeBee can get ownership from movement rather than another action button.","measurements":{}}
+    ],
+    "reference_exception": "",
+    "anti_pattern": {"source":"https://forager.fandom.com/wiki/How_to_play_guide_for_Forager","observation":"Forager combines movement with a separate explicit resource-hit input.","lesson":"Strong action ownership does not require BeBee to import an attack/tool input; adding a second high-frequency channel should have evidence that movement alone cannot solve the problem."}
+  },
+  "official_docs": [
+    {"source":"https://www.w3.org/TR/pointerevents3/","date_checked":"2026-08-28","verified_constraint":"Pointer Events provide a hardware-agnostic mouse/pen/touch input model and pointer capture can retain an active pointer during a drag; the disposable lab uses this for its touch movement/action boundary."}
+  ],
+  "official_docs_exception": "Production Defold input implementation is intentionally not selected by this browser experiment and must be researched against current Defold input documentation in P0/P1.",
+  "alternatives": [
+    {"id":"proximity_auto","disposition":"rejected","reason":"Lowest explicit input cost, but controlled browser evidence reproduced substantial stationary progress (6.1s / 38.1% of run) and the intrinsic rule continues while standing still."},
+    {"id":"hold_to_pollinate","disposition":"rejected","reason":"Explicit intent, but still allows stationary completion, required three holds in the three-patch run, and adds a second 108x108 touch control occupying about 4.95% of the rendered canvas area."},
+    {"id":"movement_through_sweep","disposition":"selected","reason":"Zero stationary progress, no separate pollination button and direct alignment between the required movement control and pollination progress; exact work-distance tuning remains open to prevent micro-circling."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"All three variants complete the same three fixed patches under real browser input without runtime/browser errors.","status":"pass","evidence":"evidence/BB-P003/browser-run-2026-08-28.json records 3/3 completion for Auto, Hold and Sweep and browser_errors=[]."},
+    {"criterion":"Stationary waiting and extra action cost are measured rather than inferred.","status":"pass","evidence":"Browser run records stationary share 38.1% Auto, 33.1% Hold, 0.0% Sweep; Hold records 3 pollination holds while Auto/Sweep record 0."},
+    {"criterion":"Touch-control cost is observable.","status":"pass","evidence":"640x820 touch-layout measurement records common 120x120 movement stick and Hold-only 108x108 POLLINATE control; raw control overlay area is 11.06% Hold vs 6.11% Auto/Sweep."},
+    {"criterion":"The selected decision does not incorrectly lock disposable pixel-distance balance.","status":"pass","evidence":"D-006 and result research validate movement-owned sweep semantics while explicitly keeping exact movement/work target and accidental fly-through threshold tunable for P2."},
+    {"criterion":"A separate evaluation identifies the main downside of the winner instead of reporting only confirming evidence.","status":"pass","evidence":"docs/research/BB-P003-pollination-result.md records Sweep's ~32.6% extra movement and micro-circling/incidental-progress risks and issues PASS WITH DEVIATION."}
+  ],
+  "verification": {
+    "automated": ["Browser run used Python Playwright with real Arrow/Space events and rendered-canvas bee-position observation; no module state was directly mutated during the measured desktop completion runs."],
+    "manual": ["Inspected final rendered desktop captures for all three complete states and touch layouts; verified Hold adds a second large touch action while Auto/Sweep do not.","Separate evaluator pass reviewed the original problem, pre-implementation references, measured run data and rendered captures before selecting Sweep."],
+    "runtime_errors": "none observed in measured Chromium run",
+    "save_data_impact": "none; product decision/prototype evidence only, no production persistence exists"
+  },
+  "experiment_results": {
+    "report": "evidence/BB-P003/browser-run-2026-08-28.json",
+    "winner": "movement_through_sweep",
+    "evaluation_verdict": "PASS WITH DEVIATION",
+    "validated_scope": "movement-owned progress while inside patch; no stationary progress; no mandatory separate pollination button",
+    "not_validated": ["245px prototype work constant","production world-unit conversion","final touch movement scheme","difficulty multipliers","accessibility alternative input"]
+  },
+  "governance": {
+    "trust_boundary_change": "Updates authoritative D-006 from HYPOTHESIS proximity-auto to VALIDATED movement-through/sweep based on direct experiment evidence. It does not change CI policy, required checks, reviewer requirements or candidate/base authority.",
+    "bypass_analysis": "The change does not classify runtime gameplay code as process: no production runtime is changed. The source-of-truth update carries same-PR evidence, measured counterevidence for rejected variants and a bounded validation scope instead of using the governance class to skip the experiment.",
+    "rollback": "If P2 production evidence shows movement-owned sweep cannot meet touch/repetition requirements without micro-circling, revert D-006 to HYPOTHESIS and reopen A/B/hybrid comparison using the retained experiment report; no production save migration is involved."
+  },
+  "known_limitations": [
+    "The scripted browser pilot is not a human comfort playtest; evidence strength is MEDIUM rather than HIGH.",
+    "Local P-1 screenshots were inspected and hashed but the exact-build CI artifact-retention system does not exist until P0; the manifest does not falsely claim retained CI visual artifacts.",
+    "Small completion-time differences include controller/navigation overhead and are not used as production balance targets."
+  ]
+}
