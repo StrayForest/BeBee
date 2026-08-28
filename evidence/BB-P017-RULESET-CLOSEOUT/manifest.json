@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P017-RULESET-CLOSEOUT",
+  "change_class": "process",
+  "problem": "Repository settings and repository source-of-truth are inconsistent: GitHub now reports the Protect main ruleset as active with strict/up-to-date required checks, while DECISIONS.md, README and governance docs still describe R-019 as an unresolved P-1 blocker. P0 must not start from contradictory phase status.",
+  "decision": {
+    "ids": ["R-010", "R-019", "R-020"],
+    "status_before": "LOCKED requirements with stale blocker text",
+    "status_after": "LOCKED requirements verified satisfied",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "direct_ruleset_api_verification",
+    "rationale": "Use the current GitHub repository ruleset response as the authority for repository-setting state. It reports Protect main active on the default branch, pull requests required, validate-pr-evidence required, strict_required_status_checks_policy=true, zero required approvals, no required reviewers, no bypass actors and current_user_can_bypass=never. This satisfies the repository-enforcement portion of the P-1 exit gate without introducing a human dependency."
+  },
+  "official_docs": [
+    {
+      "source": "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "GitHub distinguishes strict required status checks from loose checks; strict mode requires the topic branch to be up to date with the base branch before merge."
+    },
+    {
+      "source": "https://docs.github.com/en/rest/orgs/rules",
+      "date_checked": "2026-08-28",
+      "verified_constraint": "strict_required_status_checks_policy indicates whether pull requests targeting a matching branch must be tested with the latest code, and required_status_checks lists the contexts that must be present."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "keep_stale_blocker",
+      "disposition": "rejected",
+      "reason": "The live ruleset and already-completed issue #4 contradict the blocker text, so retaining it would intentionally keep repository phase state false."
+    },
+    {
+      "id": "trust_issue_text_only",
+      "disposition": "rejected",
+      "reason": "Issue #4 records completion, but a direct current ruleset read is stronger evidence for a settings-dependent gate."
+    },
+    {
+      "id": "direct_ruleset_api_verification",
+      "disposition": "selected",
+      "reason": "The current repository ruleset response directly exposes enforcement, target, required PR/status rules, strict policy and bypass state."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Protect main is active and targets the default branch.",
+      "status": "pass",
+      "evidence": "evidence/BB-P017-RULESET-CLOSEOUT/ruleset-snapshot.json records enforcement=active and ref include=~DEFAULT_BRANCH from ruleset 21741136."
+    },
+    {
+      "criterion": "Normal changes to main require a pull request and the validate-pr-evidence status check.",
+      "status": "pass",
+      "evidence": "The captured ruleset contains pull_request and required_status_checks rules with context validate-pr-evidence."
+    },
+    {
+      "criterion": "Required status checks are strict/up-to-date rather than loose.",
+      "status": "pass",
+      "evidence": "The captured ruleset reports strict_required_status_checks_policy=true."
+    },
+    {
+      "criterion": "The autonomous path does not require a human approval or maintain a bypass actor.",
+      "status": "pass",
+      "evidence": "The captured ruleset reports required_approving_review_count=0, required_reviewers=[], bypass_actors=[] and current_user_can_bypass=never."
+    },
+    {
+      "criterion": "Repository source-of-truth no longer describes R-019 as unresolved and marks P-1 complete without pretending runtime tuning is already validated.",
+      "status": "pass",
+      "evidence": "Same PR updates DECISIONS.md, README.md, docs/06-production-roadmap.md, docs/11-blueprint-hardening.md and docs/16-ci-trust-boundary.md while retaining downstream HYPOTHESIS/runtime tuning gates."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "GET https://api.github.com/repos/StrayForest/BeBee/rulesets/21741136 -> active ruleset; strict_required_status_checks_policy=true; required validate-pr-evidence context; bypass_actors=[]"
+    ],
+    "manual": [
+      "Cross-checked issue #4 state=closed/state_reason=completed and its recorded repository-protection checklist against the current ruleset response.",
+      "Compared GitHub official strict-vs-loose required-status semantics to the captured strict_required_status_checks_policy value."
+    ],
+    "runtime_errors": "No game runtime change.",
+    "save_data_impact": "none"
+  },
+  "governance": {
+    "trust_boundary_change": "No CI trust-boundary implementation changes. This closeout changes governance/source-of-truth phase status to match an already-active repository ruleset and records that P-1 repository enforcement now passes.",
+    "bypass_analysis": "The closeout does not weaken required checks, add bypass actors, reduce required status contexts, or introduce human exemptions. The evidence snapshot explicitly records bypass_actors=[] and current_user_can_bypass=never; trusted-base validation remains unchanged.",
+    "rollback": "If GitHub later reports strict enforcement disabled or required checks removed, revert the closeout status text or open a new blocker and restore P-1/P0 gating until the ruleset is repaired.",
+    "human_review_required": false
+  },
+  "known_limitations": [
+    "Ruleset configuration is external GitHub repository state and can change independently of repository commits; future audits should re-read the live ruleset rather than trusting this historical snapshot.",
+    "P-1 completion validates blueprint structure and governance, not final movement timing, Honey values, rendered Hybrid seed comprehension or other runtime tuning explicitly assigned to later milestones."
+  ]
+}
