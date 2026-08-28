@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "ticket": "BB-P009",
+  "status": "VALIDATED",
+  "purpose": "Define BeBee's local HTML5 save envelope, two-generation recovery protocol, size budgets, durability semantics and P0/P8 storage test matrix before production persistence code exists.",
+  "domain_boundary": {
+    "gameplay_calls_sys_directly": false,
+    "service_operations": ["load", "save", "has", "delete"],
+    "adapter_result_fields": ["ok", "code", "durability", "recovery", "diagnostics"],
+    "portal_cloud_is_optional_capability": true
+  },
+  "local_adapter": {
+    "defold_path_api": "sys.get_save_file",
+    "serialization_api": "sys.save/sys.load",
+    "load_must_use_pcall": true,
+    "application_id_status": "SET_IN_P0_WITH_STABLE_BUNDLE_ID",
+    "slot_files": {
+      "a": "save_a",
+      "b": "save_b"
+    },
+    "temp_pointer_file": null,
+    "selection_rule": "Load and validate both slots. If both are valid, select the highest generation. If one is valid, recover from it. If valid generations tie with identical canonical payload, either is acceptable; if generations tie with differing payload, report generation_conflict and preserve both before deterministic fallback.",
+    "generation_start": 1,
+    "generation_increment": 1,
+    "write_rule": "Write the next generation to the invalid, missing, or lower-generation slot; never overwrite the sole highest valid generation first.",
+    "readback_verification_required": true,
+    "repair_rule": "Recovery may continue from one valid slot. Do not immediately overwrite the invalid peer during load; repair only through the next explicit successful save/checkpoint so forensic evidence is preserved for diagnostics.",
+    "delete_rule": "Explicit reset/delete removes both generation slots. Partial deletion is reported as an error and retried/diagnosed rather than treated as a complete reset."
+  },
+  "envelope": {
+    "format_version": 1,
+    "required_fields": ["format_version", "generation", "payload"],
+    "generation_type": "positive_integer",
+    "payload_required_fields": ["save_version"],
+    "payload_rules": [
+      "stable authored IDs only",
+      "derived values omitted when safely recomputable",
+      "campaign-native completion separate from planted/customization state",
+      "economy values pass domain invariants before serialization",
+      "unknown optional fields tolerated only when schema validator explicitly allows them"
+    ],
+    "ordering_uses_wall_clock": false,
+    "checksum_status": "OPEN_P0_IF_NEEDED_AFTER_REAL_CORRUPTION_TESTS"
+  },
+  "size_budget": {
+    "defold_documented_output_ceiling_bytes": 524288,
+    "warning_bytes": 131072,
+    "release_gate_bytes": 262144,
+    "gate_scope": "each serialized generation slot",
+    "portal_cloud_limit_note": "Current Poki cloud gamesave limit is 1 MB after gzip, but BeBee must obey the stricter Defold/local budget and may not rely on portal compression to justify large saves.",
+    "policy": "A save at or above the release gate fails release validation unless an explicit evidence-backed technical decision changes the budget. Runtime must never intentionally approach the Defold ceiling."
+  },
+  "durability": {
+    "html5_backend": "browser virtual filesystem backed by IndexedDB",
+    "sys_save_success_semantics": "accepted_by_defold_virtual_filesystem_not_proof_of_immediate_indexeddb_durability",
+    "result_values": ["not_written", "accepted_local_pending_browser_persistence", "durable_confirmed_if_future_adapter_can_prove_it"],
+    "local_html5_default_after_success": "accepted_local_pending_browser_persistence",
+    "gameplay_rule": "A visibly granted durable progression reward triggers a save checkpoint, but UI must not claim browser-durable persistence that the adapter cannot prove.",
+    "navigation_rule": "Do not intentionally navigate/reload immediately after critical progression when avoidable; P0 tests the unavoidable rapid-refresh/close window.",
+    "diagnostics": ["last_save_result", "last_generation", "selected_slot", "recovery_used", "serialized_size_bytes"]
+  },
+  "result_codes": {
+    "success": ["ok", "recovered_single_valid_slot", "recovered_newest_generation"],
+    "nonfatal": ["not_found_clean_start", "generation_conflict_fallback_preserved"],
+    "failure": [
+      "path_error",
+      "serialize_error",
+      "write_error",
+      "readback_error",
+      "schema_invalid",
+      "migration_error",
+      "both_slots_invalid",
+      "size_warning_escalated",
+      "size_release_gate_exceeded",
+      "delete_partial_failure",
+      "storage_unavailable"
+    ]
+  },
+  "load_pipeline": [
+    "resolve both save paths with protected error handling",
+    "pcall sys.load for slot A and slot B independently",
+    "distinguish missing empty table from corrupt/error",
+    "validate envelope format_version and positive generation",
+    "validate payload shape and save_version",
+    "run sequential migrations on a copy/in-memory candidate",
+    "run domain invariants after migration",
+    "select highest valid generation or apply documented conflict/recovery rule",
+    "return state plus recovery/diagnostic metadata without overwriting either slot during load"
+  ],
+  "save_pipeline": [
+    "validate domain state before serialization",
+    "build envelope with next positive generation",
+    "measure/estimate serialized output using the P0 diagnostic path",
+    "reject release-gate violation before replacing a valid generation",
+    "choose invalid/missing/lower-generation target slot",
+    "pcall sys.save to target slot",
+    "pcall sys.load target slot for readback verification",
+    "validate readback envelope/payload/generation",
+    "only then report save accepted; preserve previous valid slot",
+    "on HTML5 report pending browser persistence rather than false durable confirmation"
+  ],
+  "migration": {
+    "required": true,
+    "strategy": "sequential_version_steps",
+    "public_version_rule": "Every previously public save_version must have a tested migration path or an explicit unsupported-version product decision before release.",
+    "idempotence_expectation": "A completed migration result validates consistently when loaded again; migration steps must not duplicate rewards or purchases.",
+    "migration_failure_rule": "Preserve original slot bytes/state evidence and fail to recovery/clean-start policy; never overwrite the only valid pre-migration generation with a failed migration."
+  },
+  "test_matrix": [
+    {"id": "clean_start", "phase": "P0", "required": true},
+    {"id": "normal_save_reload", "phase": "P0", "required": true},
+    {"id": "save_immediate_refresh", "phase": "P0", "required": true},
+    {"id": "save_rapid_close_reopen", "phase": "P0", "required": true},
+    {"id": "multiple_quick_progression_checkpoints", "phase": "P0", "required": true},
+    {"id": "slot_a_corrupt_slot_b_valid", "phase": "P0", "required": true},
+    {"id": "slot_b_corrupt_slot_a_valid", "phase": "P0", "required": true},
+    {"id": "one_missing_one_valid", "phase": "P0", "required": true},
+    {"id": "both_invalid", "phase": "P0", "required": true},
+    {"id": "generation_conflict_different_payload", "phase": "P0", "required": true},
+    {"id": "failed_write_preserves_previous_generation", "phase": "P0", "required": true},
+    {"id": "failed_readback_preserves_previous_generation", "phase": "P0", "required": true},
+    {"id": "old_version_sequential_migration", "phase": "P0", "required": true},
+    {"id": "migration_failure_preserves_original", "phase": "P0", "required": true},
+    {"id": "size_warning", "phase": "P0", "required": true},
+    {"id": "size_release_gate", "phase": "P0", "required": true},
+    {"id": "private_incognito_primary_portal", "phase": "P0_P8", "required": true},
+    {"id": "storage_unavailable_or_quota_failure", "phase": "P0_P8", "required": true},
+    {"id": "portal_cloud_local_interaction", "phase": "P8_IF_CLOUD_USED", "required": false}
+  ],
+  "poki": {
+    "incognito_requirement": "Game remains playable when browser storage is restricted/unavailable; storage operations fail explicitly and gameplay uses the defined degraded behavior rather than crashing.",
+    "current_cloud_gamesave_limit": "1 MB after gzip",
+    "current_cloud_observation": "Poki documents monitoring localStorage and IndexedDB for cloud gamesaves.",
+    "defold_idbfs_cloud_sync_status": "MUST_VERIFY_ON_REAL_POKI_BUILD_BEFORE_RELYING_ON_CROSS_DEVICE_SYNC",
+    "rule": "Portal cloud behavior is an adapter/platform capability; local generation/recovery correctness must work without an account or cloud sync."
+  },
+  "p0_exit_requirements": [
+    "local adapter implemented behind storage service",
+    "two-generation A/B recovery protocol tested",
+    "corrupt sys.load protected with pcall",
+    "serialized size diagnostic enforced",
+    "normal and immediate-refresh HTML5 persistence tests pass",
+    "failed write/readback proves previous valid generation survives",
+    "migration test fixture exists",
+    "storage failure does not crash gameplay",
+    "diagnostics expose generation/recovery/size/save result"
+  ]
+}
