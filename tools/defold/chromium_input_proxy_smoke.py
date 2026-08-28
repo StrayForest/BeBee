@@ -205,6 +205,31 @@ def devtools_target(port: int, timeout: float = 10) -> dict:
     raise RuntimeError(f"Chromium DevTools endpoint did not become ready: {last_error}")
 
 
+def advance_frames(cdp: DevTools, frame_count: int = 2) -> None:
+    if frame_count < 1:
+        return
+    expression = f"""
+        new Promise((resolve) => {{
+            let remaining = {frame_count};
+            const tick = () => {{
+                remaining -= 1;
+                if (remaining <= 0) {{
+                    resolve(true);
+                }} else {{
+                    requestAnimationFrame(tick);
+                }}
+            }};
+            requestAnimationFrame(tick);
+        }})
+    """
+    cdp.call(
+        "Runtime.evaluate",
+        {"expression": expression, "awaitPromise": True, "returnByValue": True},
+        timeout=5,
+    )
+    cdp.drain(0.05)
+
+
 def dispatch_key(cdp: DevTools, *, key: str, code: str, virtual_key: int) -> None:
     common = {
         "key": key,
@@ -212,29 +237,37 @@ def dispatch_key(cdp: DevTools, *, key: str, code: str, virtual_key: int) -> Non
         "windowsVirtualKeyCode": virtual_key,
         "nativeVirtualKeyCode": virtual_key,
     }
+    advance_frames(cdp, 1)
     cdp.call("Input.dispatchKeyEvent", {"type": "keyDown", **common})
+    advance_frames(cdp, 2)
     cdp.call("Input.dispatchKeyEvent", {"type": "keyUp", **common})
-    cdp.drain()
+    advance_frames(cdp, 1)
+    cdp.drain(0.1)
 
 
 def dispatch_escape(cdp: DevTools) -> None:
-    # Match Chromium's own DevTools protocol browsertest exactly. Supplying
-    # key/code/keyIdentifier here changes the synthesized event shape; Chromium
-    # can derive the Escape DOM event from virtual key 27 itself.
+    # Match Chromium's own DevTools protocol browsertest for the Escape event
+    # shape, but hold the state across game frames so Defold can sample edges.
     common = {
         "windowsVirtualKeyCode": 27,
         "nativeVirtualKeyCode": 27,
     }
+    advance_frames(cdp, 1)
     cdp.call("Input.dispatchKeyEvent", {"type": "rawKeyDown", **common})
+    advance_frames(cdp, 2)
     cdp.call("Input.dispatchKeyEvent", {"type": "keyUp", **common})
-    cdp.drain()
+    advance_frames(cdp, 1)
+    cdp.drain(0.1)
 
 
 def dispatch_touch(cdp: DevTools, x: float, y: float) -> None:
     point = {"x": x, "y": y, "radiusX": 1, "radiusY": 1, "force": 1, "id": 1}
+    advance_frames(cdp, 1)
     cdp.call("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [point]})
+    advance_frames(cdp, 2)
     cdp.call("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
-    cdp.drain()
+    advance_frames(cdp, 1)
+    cdp.drain(0.1)
 
 
 def require_marker(lines: list[str], marker: str, context: str) -> None:
@@ -298,6 +331,7 @@ def main() -> int:
 
             cdp.wait_for("BEBEE_INPUT proxy_loaded owner_focus=1", timeout=15)
             cdp.wait_for("BEBEE_INPUT gameplay_focus acquired", timeout=15)
+            advance_frames(cdp, 2)
             observed["checks"].append("proxy_owner_and_gameplay_focus_ready")
 
             before = len(cdp.console)
@@ -309,6 +343,7 @@ def main() -> int:
 
             dispatch_escape(cdp)
             cdp.wait_for("BEBEE_INPUT modal_open focus_acquired", timeout=5)
+            advance_frames(cdp, 2)
 
             before = len(cdp.console)
             dispatch_key(cdp, key="w", code="KeyW", virtual_key=87)
@@ -320,6 +355,7 @@ def main() -> int:
 
             dispatch_escape(cdp)
             cdp.wait_for("BEBEE_INPUT modal_closed focus_released", timeout=5)
+            advance_frames(cdp, 2)
 
             before = len(cdp.console)
             dispatch_key(cdp, key="w", code="KeyW", virtual_key=87)
