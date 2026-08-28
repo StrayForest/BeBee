@@ -4,7 +4,7 @@
 
 This document owns canonical economy values and progression math. Other docs should not duplicate exact costs/rewards.
 
-Decision status lives in `DECISIONS.md`. Until `BB-P005` passes, all numeric curves below are balancing hypotheses.
+Decision status lives in `DECISIONS.md`. `BB-P005` validates the **structural** first-region no-grind envelope and the Flight + Buzz upgrade set. Exact numeric reward/cost curves remain balancing hypotheses until production gameplay timing and playtests calibrate them.
 
 ## 2. Economy objective
 
@@ -44,14 +44,18 @@ Avoid login rewards/passive faucets until active gameplay is validated.
 
 Default sinks:
 
-- validated bee upgrades;
+- **Flight** and **Buzz** upgrades;
 - seed/species unlocks or other validated flower-expression unlocks.
 
 Area/road Honey gates are removed from the default model after the blueprint audit.
 
-## 6. Upgrade candidates
+Yield is not a vertical-slice sink after `BB-P005`.
 
-### Flight — strong candidate
+## 6. Validated upgrade set
+
+`D-007` validates an intentionally small vertical-slice set: **Flight + Buzz**. Validation applies to the role/topology of the tracks, not their final numeric curves.
+
+### Flight — VALIDATED track, tuning open
 
 Purpose:
 
@@ -72,9 +76,9 @@ Initial hypothesis curve:
 | 7 | 1.60x |
 | 8 | 1.70x |
 
-Final curve depends on P1 movement/camera validation.
+Final curve depends on P1 movement/camera validation and P3 direct feel testing.
 
-### Buzz — strong candidate
+### Buzz — VALIDATED track, tuning open
 
 Purpose:
 
@@ -95,27 +99,23 @@ Initial hypothesis curve:
 
 Exact species mapping belongs to content data after flower progression is validated.
 
-### Yield — HYPOTHESIS
+### Yield — EXCLUDED from the vertical slice
 
-Effect: multiplies Honey reward.
+Historical candidate: 40 Honey for a 1.15x Honey multiplier after M03.
 
-Risk:
+`BB-P005` found:
 
-A pure income multiplier can become either mathematically mandatory or obviously inferior. It must pass `BB-P005` economy simulation before shipping.
+- no-Yield comparison final balance: 382;
+- earliest allowed Yield purchase: 393 (**+11**);
+- mid purchase: 381 (**-1**);
+- late purchase: 367 (**-15**);
+- 1.15x mathematical break-even only at M06;
+- 1.10x never repays inside Region 1;
+- 1.20x moves toward a stronger economic opener.
 
-If retained, measure payback for every purchase point:
+Yield is therefore not shipped in the vertical slice. It is not required for no-grind progression and its tested role is primarily purchase-timing/payback optimization rather than a direct change to flying or pollination.
 
-```text
-payback_future_base_honey = upgrade_cost / (new_multiplier - old_multiplier)
-```
-
-A Yield level fails design review if:
-
-- rational players are nearly always required to buy it early;
-- it almost never repays before relevant campaign completion;
-- it exists only to fill a third upgrade card.
-
-Possible alternatives are researched only if Yield fails. Do not automatically add another stat.
+Do **not** replace it with another stat merely to preserve three upgrade cards. A third track must start from a concrete player problem and new evidence.
 
 ## 7. Upgrade cost scaffolding
 
@@ -131,9 +131,10 @@ Old starting proposals remain useful for simulation only:
 |---|---:|---:|
 | Flight | 30 | 1.85 |
 | Buzz | 35 | 1.95 |
-| Yield (if retained) | 40 | 1.90 |
 
-Do not ship these because they were written first. `BB-P005` must produce the actual first-region table.
+The historical Yield proposal (40 / 1.90 growth) is retained only in BB-P005 research evidence for regression comparison, not as production content.
+
+Do not ship these values because they appear in the blueprint. P3 must tune the actual first-region table against production gameplay.
 
 ## 8. Flower difficulty/reward model
 
@@ -152,7 +153,7 @@ Exact values are data-owned and simulation-tested.
 
 Difficulty must not become a 30-second idle bar. The validated core interaction determines acceptable work duration.
 
-## 9. First-region economy target
+## 9. First-region economy — VALIDATED structure, HYPOTHESIS values
 
 The first region should:
 
@@ -160,9 +161,16 @@ The first region should:
 - make Flight attractive when travel grows;
 - let players use seeds without fearing a campaign lock;
 - require no intentional replay grind on a normal route;
-- leave some purchase-order freedom.
+- leave purchase-order freedom.
 
-The old hand-authored first-region reward/cost table is no longer considered production balance. It becomes an input to `BB-P005`, not a conclusion.
+`BB-P005` validates the current **staging shape** as an arithmetic safety envelope after removing Yield from the production set. The deterministic stress run covers every full priority ordering of the seven retained sinks (Buzz 2/3, Flight 2/3 and three seeds):
+
+- **5040 / 5040** orders reach region completion;
+- **0** replay actions;
+- **0** negative-balance paths;
+- after purchasing all seven retained sinks, **271 Honey** remains under the current candidate values.
+
+This proves no-grind arithmetic safety for the candidate structure. It does **not** prove that 45/55/70/etc. Honey rewards feel correctly paced in seconds/minutes.
 
 ## 10. Seed economy
 
@@ -171,9 +179,10 @@ Locked principles:
 - seeds are affordable enough to be used, not hoarded forever;
 - aesthetic experimentation is encouraged;
 - replanting an already unlocked species should default to free or very cheap unless testing proves a consumable model more enjoyable;
-- native/campaign completion remains separate from current planted species.
+- native/campaign completion remains separate from current planted species;
+- Hybrid player-shaped plots may participate before full meadow completion without gating campaign progress.
 
-The exact first seed grant/unlock is not duplicated here until `BB-P004` selects the restoration flow.
+The exact seed grant/unlock/cost table remains tunable in P5 against the rendered Hybrid flow.
 
 ## 11. Replay/regrowth
 
@@ -186,11 +195,21 @@ If included:
 - campaign balance assumes the player does not need replay farming;
 - no timer/idle system is added merely to support replay.
 
-## 12. Economy simulation — mandatory before production values
+## 12. Economy simulation — retained regression gate
 
-`BB-P005` must be executable/reproducible rather than an intuition-only spreadsheet.
+The economy model is executable/reproducible rather than an intuition-only spreadsheet.
 
-Simulate at minimum:
+Run:
+
+```bash
+python3 -m unittest discover -s tools/economy -p 'test_*.py' -v
+python3 tools/economy/simulate.py
+python3 tools/economy/upgrade_set_analysis.py
+```
+
+The historical simulator retains Yield cases only as a regression comparison for the BB-P005 decision. Production P3 scenarios should treat Flight + Buzz as the shipped upgrade set.
+
+When production values move into game data, the simulator should consume those same definitions and continue covering at minimum:
 
 - minimum required campaign actions;
 - typical campaign path;
@@ -198,10 +217,9 @@ Simulate at minimum:
 - seed/customization-heavy spending;
 - Flight-first;
 - Buzz-first;
-- every plausible Yield purchase timing if Yield remains;
 - poor-but-valid purchase ordering;
 - replay disabled;
-- replay used as optional top-up.
+- all relevant purchase-priority stress cases.
 
 For each path record:
 
@@ -209,19 +227,21 @@ For each path record:
 - Honey spent;
 - balance before each progression gate;
 - time/actions between meaningful purchases;
-- whether replay becomes required;
-- Yield payback point if applicable.
+- whether replay becomes required.
 
 ## 13. Economy acceptance criteria
 
-Before P3 values are locked:
+Before P3 numeric values are locked:
 
 - no simulated intended path goes negative;
 - no normal seed-heavy path becomes unable to progress without excessive replay;
 - no single upgrade track is an obvious universal first purchase across all meaningful states unless intentionally designed as tutorial progression;
 - no shipped stat is consistently dominated/ignored;
 - region completion does not depend on farming starter content repeatedly;
-- meaningful upgrades remain affordable within a few minutes of appropriate-tier play rather than arbitrary waiting.
+- meaningful upgrades remain affordable within a few minutes of appropriate-tier play rather than arbitrary waiting;
+- Flight/Buzz effect sizes are noticeable enough to justify purchase without breaking level design.
+
+The first three arithmetic safety requirements already pass for the BB-P005 structural candidate; the time/feel requirements remain P2/P3 runtime work.
 
 ## 14. Telemetry
 

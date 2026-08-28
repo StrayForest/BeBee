@@ -162,20 +162,18 @@ Domain rules:
 
 Exact reward values live in `02-progression-economy.md` / data, not here.
 
-## 11. Bee improvement
+## 11. Bee improvement — VALIDATED two-track vertical-slice set
 
-### Strong candidates
+`BB-P005` validates **Flight + Buzz** as the vertical-slice upgrade set.
 
-- **Flight** — movement/travel feel;
-- **Buzz** — pollination capability / flower access.
+- **Flight** — changes movement/travel feel directly;
+- **Buzz** — changes pollination capability / flower access directly.
 
-### HYPOTHESIS
+**Yield is excluded from the vertical slice.** The historical 1.15x Honey-multiplier candidate was not required for no-grind progression, repaid only at M06 when bought at the earliest allowed point, and changed from weak/trap to increasingly dominant as timing/multiplier tuning moved. Its primary decision was economic payback rather than a directly felt bee capability.
 
-- **Yield** — Honey multiplier.
+Do not add a replacement track merely to keep three upgrade cards. A third track requires a concrete player problem, alternatives and new evidence.
 
-Yield must pass economy/payback validation before shipping. If it becomes mathematically mandatory or consistently unattractive, remove or redesign it. Do not preserve three upgrade tracks for visual symmetry.
-
-Upgrade UI shape/card count follows the validated upgrade set.
+Exact Flight/Buzz effect curves remain tunable in P1/P3. Upgrade UI shape/card count follows the validated two-track set rather than the old fixed-three-card assumption.
 
 ## 12. Meadow restoration
 
@@ -281,7 +279,7 @@ Proposed first region remains six meadows:
 5. Tulip Rise;
 6. Lily Clearing.
 
-This structure is a `HYPOTHESIS` until P-1/P2 pacing evidence supports it.
+This structure is a `HYPOTHESIS` until P2 pacing evidence supports it.
 
 Exact flower roster and canonical region order live in `04-world-content.md` and `DECISIONS.md`.
 
@@ -293,7 +291,7 @@ Before scaling content, answer with evidence:
 - Is movement-through pollination pleasant after many repetitions?
 - Does feedback start fast enough?
 - Does a harder flower create aspiration rather than forced micro-circling?
-- Does upgrading visibly change experience?
+- Do Flight and Buzz upgrades produce clearly felt changes worth their costs?
 - Do seeds feel like ownership during restoration?
 - Can a player distinguish native objectives from player-shaped plots without persistent explanation?
 - Can customization spending ever create grind?
