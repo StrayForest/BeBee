@@ -108,7 +108,7 @@ If official-doc research is not applicable, explain why:
 
 cannot consume text from the next paragraph and pretend to be filled.
 
-## 8. Repository protection after migration
+## 8. Repository protection after migration — VERIFIED
 
 The permanent target configuration for `Protect main` is:
 
@@ -118,11 +118,25 @@ The permanent target configuration for `Protect main` is:
 - non-fast-forward changes blocked;
 - deletion blocked;
 - `validate-pr-evidence` required;
-- branches required to be up to date before merge (`strict` / up-to-date enabled).
+- branches required to be up to date before merge (`strict` / up-to-date enabled);
+- bypass actors: none.
 
-The ruleset was temporarily disabled once to escape the legacy human-approval self-lock. That exception belongs only to this migration and is not part of the ongoing BeBee process.
+This target is no longer a pending migration instruction. On 2026-08-28, GitHub ruleset `21741136` reported:
 
-After migration, re-enable the ruleset with the configuration above. Issue #4 can be closed once GitHub reports strict/up-to-date enforcement active.
+- `enforcement=active`;
+- target `~DEFAULT_BRANCH`;
+- a `pull_request` rule with `required_approving_review_count=0` and no required reviewers;
+- required status context `validate-pr-evidence`;
+- `strict_required_status_checks_policy=true`;
+- deletion and non-fast-forward rules enabled;
+- `bypass_actors=[]`;
+- `current_user_can_bypass=never`.
+
+The exact observed fields are retained in `evidence/BB-P017-RULESET-CLOSEOUT/ruleset-snapshot.json`. Issue #4 is closed as completed.
+
+This satisfies `R-010`, `R-019` and the repository-enforcement portion of the P-1 exit gate while preserving `R-020`: the normal autonomous merge path has no mandatory human approval.
+
+Ruleset state is external repository configuration and can change independently of git history. Any future audit must re-read the live ruleset; if strict enforcement or the required context disappears, reopen a blocker rather than relying on this historical snapshot.
 
 ## 9. Bootstrap cleanup
 
