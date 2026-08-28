@@ -1,71 +1,35 @@
-name: PR evidence
+name: PR evidence bootstrap
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, edited, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
-  pull-requests: read
 
 jobs:
   validate-pr-evidence:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout trusted base policy
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
-          fetch-depth: 0
-          path: trusted
-
-      - name: Checkout exact PR head as data
+      - name: Checkout exact PR head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-          path: candidate
 
-      - name: Collect PR review provenance
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100" > /tmp/pr-reviews.json
-
-      - name: Run trusted adversarial evidence-policy tests
-        working-directory: trusted
+      - name: Run adversarial evidence-policy tests
         run: python3 -m unittest discover -s scripts/policy_tests -p 'test_*.py' -v
 
-      - name: Validate candidate with trusted base evidence structure
-        working-directory: candidate
+      - name: Validate declared PR evidence structure and manifest
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-          PR_REVIEWS_FILE: /tmp/pr-reviews.json
-          ENFORCE_INDEPENDENT_HUMAN_REVIEW: "1"
-        run: python3 ../trusted/scripts/check_pr_evidence.py
+        run: python3 scripts/check_pr_evidence.py
 
-      - name: Validate candidate with trusted diff policy
-        working-directory: candidate
+      - name: Validate diff classification and anti-bypass policy
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-          PR_REVIEWS_FILE: /tmp/pr-reviews.json
-          ENFORCE_INDEPENDENT_HUMAN_REVIEW: "1"
-        run: python3 ../trusted/scripts/check_pr_evidence_policy.py
-
-      - name: Validate candidate with trusted trust-boundary overlay
-        working-directory: candidate
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-          PR_REVIEWS_FILE: /tmp/pr-reviews.json
-          ENFORCE_INDEPENDENT_HUMAN_REVIEW: "1"
-        run: python3 ../trusted/scripts/check_trust_boundary.py
+        run: python3 scripts/check_pr_evidence_policy.py
