@@ -200,6 +200,16 @@ def dispatch_touch(session, event_type: str, points: list[dict[str, object]]) ->
     session.send("Input.dispatchTouchEvent", {"type": event_type, "touchPoints": points})
 
 
+def dispatch_escape(session, page: Page) -> None:
+    """Hold Escape across game frames, matching the proven P0 CDP input shape."""
+    common = {"windowsVirtualKeyCode": 27, "nativeVirtualKeyCode": 27}
+    page.wait_for_timeout(40)
+    session.send("Input.dispatchKeyEvent", {"type": "rawKeyDown", **common})
+    page.wait_for_timeout(80)
+    session.send("Input.dispatchKeyEvent", {"type": "keyUp", **common})
+    page.wait_for_timeout(80)
+
+
 def record_touch_motion(
     browser: Browser,
     *,
@@ -306,6 +316,7 @@ def verify_modal_and_reduced_motion(
         device_scale_factor=1,
     )
     page = context.new_page()
+    session = context.new_cdp_session(page)
     console_errors, page_errors = install_error_capture(page)
     console_lines: list[str] = []
     page.on("console", lambda message: console_lines.append(message.text))
@@ -326,8 +337,7 @@ def verify_modal_and_reduced_motion(
         if abs(float(moving["beeY"]) - float(moving["cameraY"])) > 0.1:
             raise RuntimeError(f"Reduced-motion camera retained vertical lag: {moving!r}")
 
-        page.keyboard.press("Escape")
-        page.wait_for_timeout(150)
+        dispatch_escape(session, page)
         if not any("BEBEE_INPUT modal_open focus_acquired" in line for line in console_lines):
             raise RuntimeError(f"Modal did not acquire focus: {console_lines!r}")
         before_modal = bridge(page)
@@ -340,8 +350,7 @@ def verify_modal_and_reduced_motion(
             raise RuntimeError(
                 f"Movement leaked through modal focus: before={before_modal!r} after={after_modal!r}"
             )
-        page.keyboard.press("Escape")
-        page.wait_for_timeout(100)
+        dispatch_escape(session, page)
         if not any("BEBEE_INPUT modal_closed focus_released" in line for line in console_lines):
             raise RuntimeError(f"Modal did not release focus: {console_lines!r}")
         assert_no_errors(console_errors, page_errors, "modal/reduced-motion")
