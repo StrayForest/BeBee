@@ -1,4 +1,3 @@
-local semantics = require "app.input_semantics"
 local input_model = require "gameplay.bee.input"
 local movement = require "gameplay.bee.movement"
 local follow = require "gameplay.camera.follow"
@@ -95,11 +94,9 @@ function init(self)
     -- and makes the same mode apply in development and release bundles.
     go.set("#camera", "orthographic_zoom", 1.0)
     go.set_position(vmath.vector3(self.camera.x, self.camera.y, 0))
-    msg.post(".", "acquire_input_focus")
 end
 
 function final(self)
-    msg.post(".", "release_input_focus")
     if self.qa_enabled and html5_available() then
         html5.run("delete window.__bebeeMovementQA")
     end
@@ -125,39 +122,32 @@ function update(self, dt)
     end
 end
 
-function on_message(self, message_id)
+function on_message(self, message_id, message)
     if message_id == hash("view_ready") then
         self.view_ready = true
         send_view(self)
-    end
-end
-
-function on_input(self, action_id, action)
-    if semantics.is_movement(action_id) then
-        local action_name = semantics.name(action_id)
-        if action.pressed then
-            input_model.set_key(self.input, action_name, true)
-        elseif action.released then
-            input_model.set_key(self.input, action_name, false)
-        end
-        return false
+        return
     end
 
-    if action_id == semantics.POINTER_PRIMARY then
+    if message_id == hash("movement_key_input") then
+        input_model.set_key(self.input, message.action_name, message.pressed == true and not message.released)
+        return
+    end
+
+    if message_id == hash("movement_pointer_input") then
         local width, height = surface_size()
         input_model.resize(self.input, width, height)
-        if action.pressed then
-            input_model.pointer_press(self.input, action.x, action.y)
-        elseif action.released then
-            input_model.pointer_release(self.input, action.x, action.y)
+        if message.pressed then
+            input_model.pointer_press(self.input, message.x, message.y)
+        elseif message.released then
+            input_model.pointer_release(self.input, message.x, message.y)
         else
-            input_model.pointer_move(self.input, action.x, action.y)
+            input_model.pointer_move(self.input, message.x, message.y)
         end
-        return false
+        return
     end
 
-    if action_id == nil and action.x and action.y then
-        input_model.pointer_move(self.input, action.x, action.y)
+    if message_id == hash("movement_pointer_move") then
+        input_model.pointer_move(self.input, message.x, message.y)
     end
-    return false
 end

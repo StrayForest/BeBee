@@ -1,5 +1,6 @@
 local qa_runtime = require "app.qa_runtime"
 local storage_probe = require "app.storage_probe"
+local input_semantics = require "app.input_semantics"
 
 local function html5_available()
     return html5 ~= nil and html5.run ~= nil
@@ -114,4 +115,33 @@ function on_message(self, message_id, message, sender)
         self.qa_simulation_frame = message.frame or 0
         maybe_mark_ready(self)
     end
+end
+
+function on_input(self, action_id, action)
+    if input_semantics.is_movement(action_id) then
+        msg.post("/movement#controller", "movement_key_input", {
+            action_name = input_semantics.name(action_id),
+            pressed = action.pressed == true,
+            released = action.released == true,
+        })
+        return false
+    end
+
+    if action_id == input_semantics.POINTER_PRIMARY then
+        msg.post("/movement#controller", "movement_pointer_input", {
+            x = action.x or 0,
+            y = action.y or 0,
+            pressed = action.pressed == true,
+            released = action.released == true,
+        })
+        return false
+    end
+
+    if action_id == nil and action.x and action.y then
+        msg.post("/movement#controller", "movement_pointer_move", {
+            x = action.x,
+            y = action.y,
+        })
+    end
+    return false
 end
