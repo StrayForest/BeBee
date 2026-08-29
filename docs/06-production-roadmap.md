@@ -100,10 +100,15 @@ The first fully successful runtime proof was GitHub Actions run `33201017563` on
 Delivered:
 
 - Defold-aware `.gitignore` covering editor/build state plus BeBee generated roots;
-- explicit text/Lua conventions, canonical production resource roots and machine-readable repository rules;
-- machine-readable dependency/license inventory plus synchronized `THIRD_PARTY.md` license process;
-- explicit Defold 1.13.1 engine/Bob provenance;
-- dependency-free repository validator and exact-source PR/main `Repository standards` CI workflow.
+- `.editorconfig` and project-root `.luacheckrc` conventions;
+- machine-readable `config/repository-standards.json` source/text/command contract;
+- stable production runtime roots with misplaced Defold resources rejected by validation;
+- machine-readable `config/dependencies.json` plus synchronized `THIRD_PARTY.md` license process;
+- explicit Defold 1.13.1 engine/Bob provenance instead of treating the toolchain as no third-party technology;
+- bidirectional validation between `game.project` Defold-library URLs and the dependency ledger;
+- dependency-free `scripts/check_repository_standards.py` gate;
+- exact-source PR/main `Repository standards` CI workflow;
+- repository drift found by the new gate was repaired rather than grandfathered.
 
 BB-002 does not implement or claim semantic input/proxy focus, test/data harness, full HTML5 PR artifact CI, deterministic gameplay capture or storage; those remain BB-003 through BB-007.
 
@@ -146,7 +151,7 @@ Delivered:
 - retained BB-003 keyboard/touch/proxy-focus browser smoke against the development bundle;
 - dedicated `html5-playable-<sha>` release artifact separated from build/browser diagnostics;
 - `html5-ci-evidence-<sha>` containing exact source SHA, browser logs/JSON, release screenshot, bundle hashes and Defold build reports;
-- existing `Test and data` kept as an independent PR/main signal;
+- existing `Test and data` kept as an independent PR/main signal instead of rebuilding the BB-004 headless suite inside the browser job;
 - read-only candidate execution kept outside the trusted `pull_request_target` governance authority.
 
 The first strict run `33212975885` stopped on an error-level Chromium message; retained HTTP evidence identified the sole 404 as the browser's automatic `/favicon.ico` request while all Defold game resources, including `BeBee.wasm`, loaded successfully. The smoke was narrowed only for a Network-domain-proven favicon 404 while every other HTTP 4xx/5xx remains fatal. Exact candidate `3c50ca49d1b9fee8e39bac744e7d340e3f419963` then passed `Repository standards` (`33213154277`), `Test and data` (`33213154235`) and `HTML5 CI` (`33213154271`), retaining playable artifact `9702369697` and evidence artifact `9702370265`. Detailed reasoning and closeout proof are retained in `docs/research/BB-005-html5-ci.md` and `evidence/BB-005-CI/manifest.json`.
@@ -333,7 +338,7 @@ Accepted runtime evidence head before closeout-only source-of-truth changes: `bc
 - separate evaluation verdict = PASS;
 - complete evidence = `evidence/P2-POLLINATION-CORE-LOOP/manifest.json` and `evidence/P2-POLLINATION-CORE-LOOP/evaluation.md`.
 
-### autonomous milestone gate
+### Autonomous milestone gate
 
 P2 has the actual build, motion/rendered evidence, objective measurements, structured evidence, reference comparison, passing acceptance/test results and a separate PASS evaluation. The final closeout PR head must still repeat Repository standards, Test/data, HTML5 CI and trusted `validate-pr-evidence`, with a retained non-N/A `movement-qa-$PR_HEAD`, before merge.
 
