@@ -1,6 +1,6 @@
 # P3 — Progression production research
 
-Status: **IMPLEMENTATION CANDIDATE — exact-head runtime/evidence gate pending.**
+Status: **ACCEPTED RUNTIME CANDIDATE — evidence closeout PASS; final exact-head merge gate pending.**
 
 ## Problem
 
@@ -185,6 +185,38 @@ Verified constraint: platform persistence can fail and has size/error constraint
 10. Desktop and 844x390 mobile progression states render without browser console/page errors; P1/P2 movement, modal, pollination and storage proofs remain green.
 11. Separate evidence-first evaluation returns PASS or justified PASS WITH DEVIATION; any ITERATE blocks closeout.
 
-## Current implementation-candidate status
+## Accepted runtime evidence
 
-Local deterministic economy regression: **PASS** for the candidate values above. New Python capture scripts compile and JSON data parses. The authoritative Defold/headless/browser result is intentionally not claimed here yet; it must come from GitHub exact-head CI and a retained `movement-qa-$PR_HEAD` artifact before P3 can be marked COMPLETE.
+The first mechanically complete runtime head `de277105c142d4d251bd8f560fcac162c2a1d164` passed HTML5 CI `33247206190`, but its retained artifact was **rejected** for closeout: the mobile card copy was too small and the Buzz-gate label was too close to the upper HUD. Passing mechanics were not treated as sufficient visual evidence.
+
+The accepted runtime head before closeout-only source-of-truth changes is `3b4b990923851217d9a25e2954a86443dea3916f`.
+
+- Repository standards `33247411592` — PASS.
+- Test/data `33247411586` — PASS.
+- Pages preview `33247411600` — PASS.
+- HTML5 CI `33247411645` — PASS.
+- retained movement/P3 artifact `9713299114` (`movement-qa-3b4b9909…`), digest `sha256:f7e1ce37eba04ecec26a23b42991f7bea4681ecdde64feaec8d225a1f7101ef9`.
+- retained visual artifact `9713298823`, storage artifact `9713299343`, playable artifact `9713298577` and diagnostics artifact `9713299597`.
+
+Exact browser observations on the accepted artifact:
+
+- Flight: Honey `45 -> 15`, Flight `1 -> 2`, real max speed `300 -> 330 u/s`; captured cruise reaches `330/330 u/s`.
+- Hive modal movement displacement is `0.0`; Flight level/max speed and Honey `15` survive reload.
+- Buzz: Honey `100 -> 65`, Buzz `1 -> 2`, work multiplier `1.00x -> 1.35x`.
+- Lavender patch #3 reports `LOCKED / requires_buzz / requirement 2` before the purchase and becomes `AVAILABLE` immediately afterward.
+- Buzz level `2`, `1.35x` multiplier, Honey `65` and Lavender availability survive reload.
+- desktop Hive, Buzz-gate and 844x390 mobile progression captures report zero console/page errors.
+- representative P1 movement remains `60.39 fps`; modal displacement and reduced-motion camera lag remain zero.
+- the retained P2 regression remains PASS with stationary work `0.0`, one-time Honey completion semantics and schema-v2 reload behavior.
+
+## Visual iteration and evaluation
+
+The accepted `3b4b9909…` artifact was inspected after the rejected `de277105…` candidate. The Hive cards now split level/effect/cost into readable rows and the mobile 844x390 panel preserves both complete cards without overlap. The world gate explicitly renders `REQUIRES BUZZ 2` below the upper HUD rather than underneath it. After Buzz purchase the gate disappears because Lavender becomes available; reload preserves that state.
+
+No blocking visual or interaction finding remains. The separate evidence-first record is `evidence/P3-PROGRESSION/evaluation.md` with verdict **PASS**.
+
+## Closeout
+
+All eleven P3 acceptance criteria pass on the accepted runtime evidence plus deterministic Test/data/economy/storage coverage. P3 therefore supports the first production Flight/Buzz level, the Hive purchase surface, the explicit Lavender Buzz gate and save schema v2 as the current validated baseline. These exact values remain tunable by later playtest/telemetry rather than becoming immutable.
+
+The final PR head after this closeout-only documentation/evidence update must still repeat Repository standards, Test/data, HTML5 CI and trusted `validate-pr-evidence`, and must retain a non-N/A `movement-qa-$PR_HEAD` artifact before merge.
