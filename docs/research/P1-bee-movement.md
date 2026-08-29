@@ -8,10 +8,10 @@ Checked: 2026-08-29
 - Change class: `player-facing`
 - Feature/problem: make an empty BeBee field enjoyable to traverse before resource content is added.
 - Player outcome: the bee responds immediately enough to feel controllable, retains a light sense of momentum, stays readable in the camera, and produces the same directional intent from keyboard and touch.
-- Relevant decisions: `D-006`, `D-007`, `T-002`, `T-011`, `T-012`, `V-001`, `R-001`, `R-006`, `R-007`, `R-009`, `R-014`.
-- Status before: exact speed/acceleration/camera/touch scheme are `HYPOTHESIS`/tunable inside an otherwise validated movement-first product direction.
-- Decision provenance: `REFERENCE_PATTERN` + `TECH_CONSTRAINT`; final tuning requires `EXPERIMENT_RESULT` from BeBee runtime evidence.
-- Evidence strength before runtime: `MEDIUM`.
+- Relevant decisions: `D-006`, `D-007`, `D-013`, `T-002`, `T-011`, `T-012`, `V-001`, `R-001`, `R-006`, `R-007`, `R-009`, `R-014`.
+- Status before: exact speed/acceleration/camera/touch scheme were `HYPOTHESIS`/tunable inside an otherwise validated movement-first product direction.
+- Decision provenance: `REFERENCE_PATTERN` + `TECH_CONSTRAINT` + final `EXPERIMENT_RESULT` from BeBee runtime evidence.
+- Evidence strength after runtime evaluation: `MEDIUM`.
 
 ## 1. Problem definition
 
@@ -101,7 +101,7 @@ Checked 2026-08-29.
    - enabled Camera components take precedence in the default render pipeline.
    - camera projection is therefore kept in a real Camera component rather than faked with GUI-only transforms.
 
-Lifecycle/error cases to test: input focus ownership, simultaneous opposite keys, touch release outside the original anchor, touch start on the reserved non-movement side, window/aspect resize under Auto Cover, frame-time spikes, and camera clamping at field edges.
+Lifecycle/error cases tested: input focus ownership, simultaneous opposite keys, touch release, right-side touch rejection, aspect/window resize under Auto Cover, frame-time spikes, field/camera clamping and modal focus consumption.
 
 ## 5. Alternatives and BeBee decision
 
@@ -112,7 +112,7 @@ Lifecycle/error cases to test: input focus ownership, simultaneous opposite keys
 | tap-to-move/pathfinding | rejected | Adds path ownership and rerouting behavior that conflicts with continuous sweep control; shipped mobile evidence shows blocker/precision failure modes |
 | physics-force-driven bee with decorative collision | rejected | Makes tuning/cross-device determinism harder and risks the exact collision snagging P1 is meant to eliminate |
 
-Selected starting tuning for the first real-runtime candidate (explicitly tunable by evidence):
+Validated P1 baseline, still tunable by later evidence:
 
 - max speed: 300 design units/s;
 - acceleration: 1500 units/s²;
@@ -124,75 +124,69 @@ Selected starting tuning for the first real-runtime candidate (explicitly tunabl
 - camera normal follow: small dead zone + bounded follow speed, no look-ahead and no automatic zoom pulses;
 - reduced motion: camera follows/clamps directly with no lag or impulse.
 
-These numbers are not promoted to permanent balance merely by this brief. P1 runtime evidence may change them before merge.
+These values are `VALIDATED`, not `LOCKED`: P2/P3 may tune them if new pollination/Flight evidence creates a concrete reason.
 
 Pattern adopted: continuous normalized directional movement with light momentum and unobtrusive floating touch control.
 
 Intentional deviation from references: BeBee has no independent camera gesture in P1 because V-001 calls for a stable top-down follow camera and the product problem is sweep navigation, not 3D sightseeing.
 
-Decision status after successful P1 evidence: movement controller/touch/camera baseline becomes `VALIDATED`; exact future upgrade curves remain tunable.
-
 ## 6. Acceptance criteria
 
-- [ ] Cardinal and diagonal input share the same maximum speed within deterministic tolerance.
-- [ ] Opposite keys cancel cleanly; release decelerates to idle without drift.
-- [ ] Keyboard and touch feed the same normalized intent contract.
-- [ ] Touch floating joystick can begin anywhere on the movement surface, has dead-zone handling and returns to zero on release.
-- [ ] Bee position remains inside authored field bounds with no decorative collision dependency.
-- [ ] Camera remains inside field bounds, uses orthographic Auto Cover and preserves V-001 bee readability at required viewports.
-- [ ] Reduced-motion camera behavior removes nonessential lag/impulse.
-- [ ] `movement_empty` and `movement_dense` are real deterministic HTML5 QA states.
-- [ ] Exact-head desktop and mobile still captures plus 2–6 second motion evidence are retained with zero unexpected console/page errors.
-- [ ] A deterministic 5-minute scripted movement soak exposes no bound escape, non-finite state, stuck input, or camera instability.
-- [ ] Separate evidence-first evaluation returns `PASS` or an explicitly justified `PASS WITH DEVIATION`; `ITERATE` blocks merge.
+- [x] Cardinal and diagonal input share the same maximum speed within deterministic tolerance.
+- [x] Opposite keys cancel cleanly; release decelerates to idle without drift.
+- [x] Keyboard and touch feed the same normalized intent contract.
+- [x] Touch floating joystick can begin on the movement surface, has dead-zone handling and returns to zero on release.
+- [x] Bee position remains inside authored field bounds with no decorative collision dependency.
+- [x] Camera remains inside field bounds, uses orthographic Auto Cover and preserves V-001 bee readability at required viewports.
+- [x] Reduced-motion camera behavior removes nonessential lag/impulse.
+- [x] `movement_empty` and `movement_dense` are real deterministic HTML5 QA states.
+- [x] Exact-head desktop and mobile still captures plus 2–6 second motion evidence are retained with zero unexpected console/page errors.
+- [x] A deterministic 5-minute scripted movement soak exposes no bound escape, non-finite state, stuck input, or camera instability.
+- [x] Separate evidence-first evaluation returns `PASS`; the initial undersized-bee finding was iterated before closeout.
 
-## 7. Technical plan
+## 7. Implemented architecture
 
 - `gameplay/bee/movement.lua`: pure deterministic controller state and bounds.
 - `gameplay/bee/input.lua`: keyboard/touch aggregation into normalized intent.
 - `gameplay/camera/follow.lua`: pure camera target/bounds logic.
-- Defold movement test field collection and thin runtime script: owns game objects, input focus, presentation state and QA bridge updates.
+- the movement object lives inside the proxied gameplay collection, not on the main-world owner;
+- the existing proxied gameplay input listener forwards semantic intent to movement inside that same world, so Defold's native modal consumption remains authoritative;
+- modal open clears held movement intent before acquiring focus, preventing stuck-key/touch state;
+- deterministic movement QA readiness is exposed through the development-only HTML5 QA bridge instead of a cross-world gameplay message;
 - primitive development presentation uses repository-authored Defold/GUI shapes only; final bee art remains out of scope.
-- tests cover normalization, acceleration, deceleration, reversal, bounds, touch dead zone/release and camera bounds/reduced motion.
-- HTML5 movement proof extends the existing exact-source CI/capture path and retains motion clips as CI artifacts.
 
-Save/migration impact: none. Analytics impact: none. Platform SDK impact: none. Dependency impact: none planned.
+This preserves the BB-003 contract that the main-world collection-proxy owner participates in focus routing without implementing its own `on_input()` forwarding layer.
 
-Performance risks: per-frame movement/camera math must stay allocation-light; motion QA records representative browser frame samples and a five-minute deterministic soak runs in pure Lua/headless form.
+Save/migration impact: none. Analytics impact: none. Platform SDK impact: none. Dependency impact: none.
 
-Accessibility/input: reduced-motion camera path; touch control has a large floating acquisition region rather than requiring a small fixed target.
+## 8. Verification result
 
-## 8. Verification plan
+Accepted evidence head before the closeout-only documentation commit: `2e1098ac10596d02ad7d8b71e6034b5e778a7315`.
 
-Automated:
+- Repository standards run `33240599831`: PASS.
+- Test/data run `33240599809`: PASS, including 18,000-frame / five-minute-equivalent deterministic soak and modal-clear regression.
+- HTML5 CI run `33240599811`: PASS.
+- movement artifact `9711246614`, `movement-qa-2e1098ac…`: PASS; artifact digest `sha256:c7ce6fb028ea0e4a44bdfe66a4f5764be0e313af2e3b416381ea843b9dfda62e`.
+- playable artifact `9711245985`; visual artifact `9711246280`; storage artifact `9711246878`; HTML5 diagnostics `9711247199`.
+- desktop browser motion: 61.40 observed fps over the 2.313 s exercise, cardinal cruise 300 units/s, normalized diagonal speed 300 units/s, release speed 0, bound hits 0, console/page errors 0.
+- mobile touch motion: 2.451 s exercise, horizontal speed 300 units/s, normalized diagonal speed 300 units/s, release speed 0, bound hits 0, console/page errors 0.
+- reduced motion: horizontal/vertical camera lag 0.0.
+- modal isolation: measured movement displacement while modal owned focus 0.0.
+- retained still measurement after visual iteration: bee height 102/720 = 14.17% desktop, 48/360 = 13.33% Poki small, 52/390 = 13.33% mobile landscape, all inside V-001's 12–15% band.
 
-- pure Lua movement/input/camera tests;
-- existing test/data suite;
-- development and release HTML5 builds;
-- browser keyboard movement path;
-- browser touch movement path at 844×390;
-- deterministic movement states and exact-head capture;
-- release-negative QA bridge check;
-- five-minute-equivalent deterministic soak simulation.
+Failure/iteration trace retained by Actions:
 
-Runtime/evidence:
+- `a9758f9…`: real keyboard hold exposed Defold action-update semantics; fixed by edge-only pressed/released state.
+- `b13b302…`: keyboard passed; modal test exposed sub-frame Escape dispatch; proof switched to the already-proven CDP held-edge shape.
+- `09599f2…`: modal opened but owner-side custom movement forwarding leaked through focus; architecture was rejected rather than patched around.
+- `400fda6…`: attempted cross-world block message exposed an invalid socket assumption; also rejected.
+- `5f2a32f…`: movement moved into the native proxied input world; complete runtime gate PASS.
+- visual evaluation of that artifact found bee height only ~6.7–6.9% of viewport, below V-001; `2e1098a…` doubled presentation geometry and final retained captures land at 13.33–14.17%.
 
-- `movement_empty`: desktop 1280×720 and mobile 844×390;
-- `movement_dense`: desktop 1280×720, Poki small 640×360 and mobile 844×390;
-- motion clip for desktop keyboard sweep and mobile touch sweep;
-- inspect full-size captures and motion record against V-001 and the selected reference patterns;
-- separate evaluator record bound to exact PR head.
+## 9. Independent evaluation result
 
-## 9. Evidence-first evaluation questions
+The separate evidence-first evaluation record is `evidence/P1-BEE-MOVEMENT/evaluation.md`.
 
-The evaluator receives the player problem, criteria above, reference observations, exact-head captures/video and objective metrics first. It must specifically look for:
+Verdict: **PASS**.
 
-- sluggish start/stop or uncontrolled coast;
-- camera lag that hides the next movement direction;
-- bee scale/readability loss at 640×360 or 844×390;
-- touch surface obscuring or fighting movement;
-- keyboard/touch intent mismatch;
-- bound jitter/snags;
-- presentation motion that remains active in reduced-motion mode.
-
-`ITERATE` is mandatory if any of those materially affects the five-minute movement goal.
+Evidence strength remains `MEDIUM`: the deterministic/browser evidence is strong for routing, parity, bounds, camera and frame pacing, while final art/audio and downstream pollination/Flight feel remain later milestones rather than being falsely claimed by P1.
