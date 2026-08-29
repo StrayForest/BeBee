@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop and P3 Progression are complete for milestone closeout; the next production handoff after P3 merge is P4 — First Meadow Restoration.**
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression and P4 First Meadow Restoration are complete for milestone closeout; the next production handoff after P4 merge is P5 — Seed Ownership During Restoration.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -348,7 +348,7 @@ P2 has the actual build, motion/rendered evidence, objective measurements, struc
 
 # P3 — Progression
 
-**Status: COMPLETE for closeout — BB-030 through BB-034 complete; exit criteria PASS.**
+**Status: COMPLETE — BB-030 through BB-034 complete; exit criteria PASS.**
 
 ## Goal
 
@@ -422,31 +422,89 @@ P3 has the production runtime effects, deterministic economy/migration coverage,
 
 # P4 — First Meadow Restoration
 
+**Status: COMPLETE for closeout — exit criteria PASS.**
+
 ## Goal
 
 Prove the central visual promise: a weak/dormant space becomes alive because of the player's actions.
 
-### Work
+### Stable Meadow model — COMPLETE
 
-- stable Meadow model;
-- authored dormant/waking/growing/restored stages;
-- compact tutorial layout;
-- minimal objective guidance;
-- restoration celebration;
-- deterministic before/mid/after QA states;
-- save/reload across restoration stages.
+The first authored meadow `r01_m01` has an explicit `restoration_target = 3` and four validated stage definitions. A pure domain module derives stage from authored patch completion contributions; presentation does not own campaign truth.
+
+### Authored dormant/waking/growing/restored stages — COMPLETE
+
+The accepted ladder is:
+
+```text
+DORMANT  contribution 0  ground 0.00  detail 8   ambient life 0
+WAKING   contribution 1  ground 0.35  detail 14  ambient life 1
+GROWING  contribution 2  ground 0.68  detail 22  ambient life 2
+RESTORED contribution 3  ground 1.00  detail 28  ambient life 6
+```
+
+Data validation rejects malformed stage order, thresholds, ranges and final-target mismatches.
+
+### Minimal objective guidance / no modal tutorial — COMPLETE
+
+Ordinary gameplay retains one objective plus Honey and existing patch/gate cues. P4 adds no modal tutorial stack, restoration confirmation or second restoration verb. HUD-hidden proof is a first-class acceptance path rather than a cosmetic optional capture.
+
+### Restoration celebration — COMPLETE
+
+The final transition adds a bounded 1.5-second world-space accent inside V-001's 1.2–2.0-second major-reveal band. Real Chromium input during the accent moves the bee `86.644` design units, proving the celebration does not capture control.
+
+### Deterministic before/mid/after QA — COMPLETE
+
+Canonical clean-context fixtures independently produce:
+
+- `meadow_dormant` → `DORMANT / 0`;
+- `meadow_mid` → `GROWING / 2`;
+- `meadow_restored` → `RESTORED / 3`.
+
+They are intentionally separated from real persistence proof so fixture names cannot inherit whichever browser save happens to exist.
+
+### Save/reload across restoration stages — COMPLETE
+
+P4 does not add save schema v3. Stage is derived from the existing v2 `world.campaign_completion` stable IDs plus authored restoration contributions. Real `p4_storage_lifecycle=reset/reload` browser proof restores `GROWING` at midpoint and `RESTORED` at final state. Reloading an already-restored save does not replay the one-shot celebration.
 
 ## Exit criteria
 
-- new player understands the meadow without external explanation;
-- before/after difference is strong with HUD hidden;
-- no modal tutorial stack is required;
-- restoration state is save-safe;
-- reference/visual scorecard passes.
+- new player understands the meadow without external explanation — PASS for autonomous milestone evidence: one objective plus existing world-space patch/gate cues, no modal tutorial, deterministic in-world staged transformation; no external novice playtest is claimed, so evidence strength remains MEDIUM;
+- before/after difference is strong with HUD hidden — PASS: ground mix `0.00 -> 1.00`, detail count `8 -> 28` (`3.5x`), ambient life `0 -> 6`, retained at desktop and Poki-small;
+- no modal tutorial stack is required — PASS, modal tutorial count `0`, no restoration input action added;
+- restoration state is save-safe — PASS at midpoint/final reload with no duplicate persisted stage and no restored-reload celebration replay;
+- reference/visual scorecard passes — PASS in the separate evidence-first evaluation; no open `ITERATE` finding;
+- desktop/mobile/canonical browser evidence contains no P4 console/page errors — PASS, `0 / 0`;
+- P0/P1/P2/P3 regressions remain green inside the accepted HTML5 run — PASS.
+
+### P4 exit record
+
+Accepted runtime evidence head before closeout-only source-of-truth changes: `a45f9dac2f9d7136c3da51dc5b761eb0c05ce739`.
+
+- Repository standards `33249086788` — PASS;
+- Test/data `33249086793` — PASS;
+- Pages preview `33249086822` — PASS;
+- HTML5 CI `33249086913` — PASS;
+- movement/P4 artifact `9713808008` (`movement-qa-a45f9dac2f9d7136c3da51dc5b761eb0c05ce739`), digest `sha256:7385f1161ad2c68a91027bbc5585b6246abb14fdc56c42929ade4f158d8369ec`;
+- storage artifact `9713808284` — retained;
+- playable artifact `9713807374` — retained;
+- visual artifact `9713807618` — retained;
+- HTML5 diagnostics artifact `9713808576` — retained;
+- restoration ladder measurements: ground `0.00 -> 0.35 -> 0.68 -> 1.00`, detail `8 -> 14 -> 22 -> 28`, ambient life `0 -> 1 -> 2 -> 6`;
+- final reveal control displacement `86.644` design units;
+- midpoint reload `GROWING`, final reload `RESTORED`, restored reload celebration `false`;
+- canonical clean fixtures `DORMANT/0`, `GROWING/2`, `RESTORED/3`;
+- desktop/Poki-small/mobile P4 browser errors `0 / 0`;
+- earlier candidate lifecycle defect that replayed final celebration after restored reload was fixed before acceptance;
+- earlier canonical-fixture contract defect that allowed storage inheritance was fixed before acceptance;
+- separate evaluation verdict = PASS;
+- complete evidence = `evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json` and `evidence/P4-FIRST-MEADOW-RESTORATION/evaluation.md`.
 
 ### autonomous milestone gate
 
-Before more meadows are authored, P4 requires deterministic before/mid/after evidence, objective comparison, passing acceptance/test results and a separate evaluation verdict. `ITERATE` blocks progression. Human approval is not required.
+P4 has the production runtime transformation, deterministic clean fixtures, real lifecycle persistence proof, HUD-hidden desktop/Poki-small/mobile rendered evidence, objective measurements, structured evidence, reference comparison and a separate PASS evaluation. The final closeout PR head must still repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted `validate-pr-evidence`, with a retained non-N/A `movement-qa-$PR_HEAD`, before merge.
+
+**P4 exit: PASS. Production advances to P5 — Seed Ownership During Restoration after the merge gate completes.**
 
 ---
 

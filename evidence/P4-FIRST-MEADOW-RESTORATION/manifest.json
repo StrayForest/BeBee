@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "ticket": "P4-FIRST-MEADOW-RESTORATION",
+  "change_class": "player-facing",
+  "problem": "Prove BeBee's central restoration promise in the first production meadow: existing pollination/progression actions must visibly change the same world from dormant through recovery to restored, remain understandable without a modal tutorial or extra restoration action, stay readable with the HUD hidden, survive reload, and retain P0-P3 runtime behavior on desktop and touch.",
+  "decision": {
+    "ids": ["D-001", "D-004", "D-008", "D-009", "T-003", "T-004", "T-006", "T-012", "V-001"],
+    "status_before": "VALIDATED",
+    "status_after": "VALIDATED",
+    "provenance_type": "REFERENCE_PATTERN",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "derived_multichannel_in_world_restoration",
+    "rationale": "Keep restoration as the automatic world payoff of the already validated movement-through pollination loop. Derive the stage from stable completed patch IDs rather than persist a duplicate meadow-stage field, and change several visible channels together: ground mix, detail density and ambient life, with a bounded non-blocking final accent. Exact-head Chromium evidence shows the dormant/mid/restored ladder, HUD-hidden before/after, reload safety, independent deterministic fixtures and retained P1-P3 behavior."
+  },
+  "research": {
+    "candidate_pool": [
+      {"product_id":"terra-nil","name":"Terra Nil ecosystem restoration","source":"https://www.terranil.com/","relevance":"Direct reference for a barren-to-thriving transformation expressed by the environment itself through multiple ecological channels."},
+      {"product_id":"the-gunk","name":"The Gunk corruption and regrowth","source":"https://www.xbox.com/en-US/games/store/the-gunk/9p008l2ls87f","relevance":"Direct reference for restoration occurring in the traversed world rather than on a separate results screen."},
+      {"product_id":"flower","name":"Flower landscape revival","source":"https://store.playstation.com/fi-fi/product/EP9000-CUSA00077_00-FLOWERPS4000FULL","relevance":"Movement-driven world reaction with little mandatory explanatory UI."},
+      {"product_id":"okami","name":"Okami nature restoration","source":"https://static.capcom.com/okami/manuals/PS2_Okami_Manual.pdf","relevance":"Staged nature restoration attached to existing player powers rather than a separate meta interaction."},
+      {"product_id":"alba","name":"Alba environmental repair tasks","source":"https://apps.apple.com/us/app/alba-a-wildlife-adventure/id1528014682","relevance":"Materially different small-scale environmental-repair model and a useful anti-pattern for administrative one-tap repair actions."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {
+        "product_id":"terra-nil",
+        "name":"Terra Nil multi-channel ecosystem transformation",
+        "source":"https://www.terranil.com/",
+        "platform_version_date":"official product reference checked 2026-08-29",
+        "selection_reason":"Closest structural reference for making restoration legible through the state of the environment itself.",
+        "observed_behavior":"The product premise and official presentation show barren/dead terrain becoming grassland, forest, habitat and a visibly living ecosystem.",
+        "inference":"BeBee P4 should not rely on a completion label or recolored flower alone; ground state, vegetation/detail density and signs of life should move together.",
+        "measurements":{"bebee_world_channels_changed":3,"bebee_restoration_stage_count":4}
+      },
+      {
+        "product_id":"the-gunk",
+        "name":"The Gunk in-world corruption/regrowth payoff",
+        "source":"https://www.xbox.com/en-US/games/store/the-gunk/9p008l2ls87f",
+        "platform_version_date":"official Xbox reference checked 2026-08-29",
+        "selection_reason":"Useful direct reference for the payoff occurring in the same traversed space where the player acted.",
+        "observed_behavior":"The official description frames removal of corruption as restoring nature and transforming the world around the player.",
+        "inference":"BeBee should apply restoration automatically in the gameplay meadow after pollination completion, not cut to a results surface or add a second restore verb.",
+        "measurements":{"bebee_extra_restore_actions":0,"bebee_modal_tutorial_count":0}
+      },
+      {
+        "product_id":"flower",
+        "name":"Flower movement-linked landscape revival",
+        "source":"https://store.playstation.com/fi-fi/product/EP9000-CUSA00077_00-FLOWERPS4000FULL",
+        "platform_version_date":"official PlayStation reference checked 2026-08-29",
+        "selection_reason":"Supports a low-instruction relationship between movement and visible environmental reaction.",
+        "observed_behavior":"The player carries petals through landscapes and sees them come alive as part of traversal.",
+        "inference":"Retain BeBee's movement-through pollination verb and make restoration a consequence rather than a confirmation interaction.",
+        "measurements":{"bebee_persistent_objective_count":1}
+      }
+    ],
+    "reference_exception": "",
+    "anti_pattern": {
+      "source":"https://apps.apple.com/us/app/alba-a-wildlife-adventure/id1528014682",
+      "observation":"A surfaced App Store review criticizes some environmental repair tasks for collapsing into a single icon tap instead of letting the player perform the meaningful activity; this is anecdotal user evidence, not a universal product finding.",
+      "lesson":"Do not add a hammer/restore/confirm action after BeBee pollination. The pollination traversal is already the meaningful activity; the world should react automatically."
+    }
+  },
+  "official_docs": [
+    {"source":"https://defold.com/ref/stable/gui-lua/","date_checked":"2026-08-29","verified_constraint":"The current Defold GUI API supports creating box/text nodes and updating node color, position, size and enabled state at runtime, so P4 can express the authored restoration ladder inside the existing renderer without a parallel scene system."},
+    {"source":"https://defold.com/manuals/gui/","date_checked":"2026-08-29","verified_constraint":"GUI owns presentation while gameplay/domain state remains separate; P4 therefore derives restoration status in a pure domain module/data model instead of persisting or authoring campaign truth in GUI nodes."},
+    {"source":"https://defold.com/ref/stable/sys/","date_checked":"2026-08-29","verified_constraint":"Persistence continues through the existing protected versioned storage abstraction. P4 adds no new persisted meadow-stage field and therefore requires no save-schema version increase."}
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {"id":"derived_multichannel_in_world_restoration","disposition":"selected","reason":"Uses existing validated pollination completion as the cause, gives a HUD-independent multi-channel world payoff, avoids duplicated save state and adds no new player verb."},
+    {"id":"completion_banner_or_hud_meter_only","disposition":"rejected","reason":"Would report restoration instead of showing it and fails the explicit HUD-hidden before/after criterion."},
+    {"id":"separate_restore_interaction_after_pollination","disposition":"rejected","reason":"Adds an unvalidated administrative action after the meaningful pollination action and weakens cause/effect."},
+    {"id":"new_restoration_currency_or_seed_gate","disposition":"rejected","reason":"Overlaps P5 and introduces a new economy/gate where P4 only needs to prove the payoff from existing P2/P3 systems."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"The first Meadow has authored Dormant, Waking, Growing and Restored stages derived from stable completed patch IDs rather than a duplicate persisted meadow-stage field.","status":"pass","evidence":"Pure meadow model/data validation and Test/data 33249086793 PASS; exact-head canonical fixtures report DORMANT/0, GROWING/2 and RESTORED/3 independently of player storage."},
+    {"criterion":"The before/after difference is materially readable with the HUD hidden.","status":"pass","evidence":"Accepted exact-head 1280x720 and Poki-small HUD-hidden captures show ground mix 0.00->1.00, detail count 8->28 (3.5x) and ambient life 0->6 while preserving the same meadow geography."},
+    {"criterion":"Intermediate restoration is visible rather than a binary completion jump.","status":"pass","evidence":"Accepted motion report records WAKING at contribution 1 with 14 details/1 ambient-life cue and GROWING at contribution 2 with ground mix 0.68, 22 details and 2 ambient-life cues."},
+    {"criterion":"No modal tutorial stack or second restoration control is required; ordinary gameplay retains sparse objective guidance.","status":"pass","evidence":"P4 browser contract reports modal_tutorial_count=0 and persistent_objective_count=1; implementation adds no restoration input action, confirmation or results modal."},
+    {"criterion":"Final restoration feedback is bounded and never blocks movement.","status":"pass","evidence":"RESTORED stage uses authored 1.5 s celebration and accepted real-browser input during the reveal produces 86.644 design-units displacement."},
+    {"criterion":"Restoration is save-safe through midpoint and final reload and does not replay the one-shot final reveal.","status":"pass","evidence":"Real p4_storage_lifecycle reset/reload path restores GROWING at contribution 2 and RESTORED at contribution 3; restored reload reports celebrationActive=false and retains Buzz 2 needed for the Lavender completion path."},
+    {"criterion":"Deterministic named meadow QA fixtures are independent of persistence state.","status":"pass","evidence":"Clean-context canonical fixtures separately capture meadow_dormant DORMANT/0, meadow_mid GROWING/2 and meadow_restored RESTORED/3 with zero console/page errors."},
+    {"criterion":"Desktop, Poki-small and mobile-landscape restoration evidence remains readable without browser errors.","status":"pass","evidence":"Accepted desktop/Poki-small before/after and 844x390 mobile restored captures inspected; P4 desktop/mobile/canonical fixture exercises report console/page errors 0/0."},
+    {"criterion":"P0/P1/P2/P3 runtime regressions remain green.","status":"pass","evidence":"HTML5 CI 33249086913 PASS includes storage smoke, movement proof, P2 pollination PASS, P3 progression PASS and P4 restoration PASS; Repository standards/Test-data/Pages preview are also PASS on accepted runtime head."},
+    {"criterion":"Separate evidence-first evaluation has no open ITERATE finding.","status":"pass","evidence":"evidence/P4-FIRST-MEADOW-RESTORATION/evaluation.md verdict PASS after inspecting exact-head retained frames and objective motion-report measurements; previous reload-replay and canonical-fixture contract defects were fixed before acceptance."}
+  ],
+  "verification": {
+    "automated": [
+      "Accepted runtime head a45f9dac2f9d7136c3da51dc5b761eb0c05ce739: Repository standards 33249086788 PASS.",
+      "Accepted runtime head a45f9dac2f9d7136c3da51dc5b761eb0c05ce739: Test/data 33249086793 PASS.",
+      "Accepted runtime head a45f9dac2f9d7136c3da51dc5b761eb0c05ce739: Pages preview 33249086822 PASS.",
+      "Accepted runtime head a45f9dac2f9d7136c3da51dc5b761eb0c05ce739: HTML5 CI 33249086913 PASS.",
+      "Accepted movement/P4 artifact 9713808008 (movement-qa-a45f9dac2f9d7136c3da51dc5b761eb0c05ce739), digest sha256:7385f1161ad2c68a91027bbc5585b6246abb14fdc56c42929ade4f158d8369ec.",
+      "Closeout candidate b3881c2ccbdf4dd0ddae97848c802c9c6924bb5f repeated Repository standards 33249594700 PASS, Test/data 33249594682 PASS, Pages preview 33249594684 PASS and HTML5 CI 33249594686 PASS with movement artifact 9713952182 before the governance-manifest-only correction.",
+      "Motion report schema 3 result PASS; P2=PASS, P3=PASS, P4=PASS; canonical restoration fixtures=3.",
+      "Final closeout head must repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted validate-pr-evidence before merge and retain movement-qa-$PR_HEAD."
+    ],
+    "manual": [
+      "Inspected accepted desktop HUD-hidden dormant, waking, growing, restored reveal and restored-reloaded frames; the environment itself changes materially across the ladder.",
+      "Inspected accepted Poki-small dormant/restored pair; state difference remains legible at 640x360.",
+      "Inspected accepted 844x390 mobile restored frame; meadow/bee/detail remain readable and no new touch/modal interaction is introduced.",
+      "Verified from motion report that reveal movement displacement is 86.644, midpoint/final reload restore the same derived stage, restored reload does not replay celebration, and all P4 browser error counts are zero.",
+      "Rejected/fixed earlier lifecycle behavior that replayed celebration on already-restored reload and earlier QA contract behavior where canonical meadow state names could inherit storage instead of clean fixtures."
+    ],
+    "runtime_errors": "none on accepted runtime evidence head; P4 desktop, mobile and canonical fixture exercises report zero console and page errors, and the overall HTML5 CI completed successfully",
+    "save_data_impact": "No schema change. P4 derives meadow restoration stage from the existing v2 world.campaign_completion stable IDs and authored restoration_contribution values. Existing Honey/upgrades/completions continue through the same A/B storage abstraction; browser lifecycle evidence proves midpoint/final restoration recovery without a duplicate persisted stage."
+  },
+  "visual_evidence": {
+    "required": true,
+    "artifacts": [
+      "accepted runtime: run 33249086913 artifact 9713808008 movement-qa-a45f9dac2f9d7136c3da51dc5b761eb0c05ce739",
+      "accepted runtime: run 33249086913 artifact 9713807618 visual-qa-a45f9dac2f9d7136c3da51dc5b761eb0c05ce739",
+      "final exact-head: movement-qa-$PR_HEAD"
+    ],
+    "states": ["meadow_dormant", "meadow_mid", "meadow_restored", "waking", "growing_before_reload", "growing_reloaded", "restored_reveal", "restored_reloaded", "restored_objective"],
+    "viewports": ["1280x720", "640x360", "844x390"],
+    "motion_evidence": ["p4_restoration/desktop_reference.webm", "p4_restoration/desktop_reference_frames/", "p4_restoration/poki_small/", "p4_restoration/mobile_landscape/"],
+    "provenance": {
+      "capture_commit_sha":"$PR_HEAD",
+      "capture_mode":"ci",
+      "artifact_locator":"HTML5 CI movement-qa-$PR_HEAD; accepted pre-closeout artifact 9713808008 from run 33249086913"
+    }
+  },
+  "comparison": {
+    "measurements": {
+      "restoration_stage_count": 4,
+      "canonical_fixture_count": 3,
+      "dormant_ground_mix": 0.0,
+      "growing_ground_mix": 0.68,
+      "restored_ground_mix": 1.0,
+      "dormant_detail_count": 8,
+      "growing_detail_count": 22,
+      "restored_detail_count": 28,
+      "detail_count_ratio_restored_to_dormant": 3.5,
+      "dormant_ambient_life_count": 0,
+      "growing_ambient_life_count": 2,
+      "restored_ambient_life_count": 6,
+      "celebration_seconds": 1.5,
+      "reveal_control_displacement": 86.644,
+      "modal_tutorial_count": 0,
+      "persistent_objective_count": 1,
+      "hud_hidden_before_after": true,
+      "mid_reload_stage": "GROWING",
+      "final_reload_stage": "RESTORED",
+      "restored_reload_celebration_active": false,
+      "p4_browser_console_errors": 0,
+      "p4_browser_page_errors": 0
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": [
+      "HUD-hidden dormant/restored difference is materially readable through ground value, 3.5x detail density and ambient-life return, including the Poki-small comparison.",
+      "Intermediate WAKING/GROWING stages provide progressive recovery cues instead of a binary completion jump.",
+      "The 1.5-second final accent remains world-space and non-blocking; real input during it moves the bee 86.644 units.",
+      "Earlier restored-reload celebration replay was a real lifecycle defect and was fixed before accepted evidence; accepted reload has celebrationActive=false.",
+      "Earlier deterministic-fixture contract ambiguity was fixed by separating clean canonical fixtures from p4_storage_lifecycle persistence proof.",
+      "Non-blocking limitation: no external novice playtest was run, so comprehension evidence remains autonomous rendered/runtime evidence with MEDIUM strength.",
+      "Non-blocking limitation: current restoration art/audio is primitive development presentation; P6 owns production illustration/animation/audio polish."
+    ],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha":"$PR_HEAD",
+      "evaluator_id":"p4-evidence-evaluator-pass-2026-08-29",
+      "implementation_author_id":"p4-implementation-agent",
+      "input_artifacts":["accepted runtime run 33249086913 artifact 9713808008", "movement-qa-$PR_HEAD", "evidence/P4-FIRST-MEADOW-RESTORATION/evaluation.md"],
+      "record_locator":"evidence/P4-FIRST-MEADOW-RESTORATION/evaluation.md"
+    }
+  },
+  "governance": {
+    "trust_boundary_change": "The P4 closeout updates player-facing/gameplay source-of-truth in DECISIONS.md plus P4 evidence, README and roadmap. It does not modify trusted validators, workflow authority, branch/ruleset requirements, required status checks, permissions, reviewer requirements or any GitHub security boundary.",
+    "bypass_analysis": "The diff contains player-facing meadow data/runtime/UI plus DECISIONS.md source-of-truth changes, so the PR remains classified player-facing and carries the same-PR structured evidence and independent evaluation instead of being downgraded to process/trivial. Candidate policy files are not used as trusted authority; the pull_request_target validator continues to execute policy from the protected base/default branch. The final merge still requires exact-head runtime artifacts and the trusted gate.",
+    "rollback": "If P4 evidence is later invalidated, revert the P4 runtime/data/QA changes together with the P4 README/roadmap/DECISIONS/evidence closeout. No save schema v3 or destructive migration exists: restoration is derived from existing v2 stable campaign completion IDs, so rollback does not require rewriting persisted Honey/upgrades/completions."
+  },
+  "known_limitations": [
+    "No external novice playtest/telemetry is claimed by P4; autonomous rendered/runtime evidence supports the milestone with MEDIUM strength.",
+    "P4 proves restoration structure and visual hierarchy using repository-authored primitive development art. Production illustration, animation, typography and audio remain P6 work.",
+    "P4 covers only the first authored meadow and does not mass-author later meadows; expansion is deliberately blocked until this milestone closes."
+  ]
+}

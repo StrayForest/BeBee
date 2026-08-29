@@ -33,7 +33,17 @@ local function valid_catalog()
         },
         seeds = { { id = "seed_daisy", flower_id = "flower_daisy" } },
         regions = { { id = "region_01", meadow_ids = { "r01_m01" } } },
-        meadows = { { id = "r01_m01", region_id = "region_01" } },
+        meadows = {
+            {
+                id = "r01_m01", region_id = "region_01", restoration_target = 3,
+                restoration_stages = {
+                    { id = "DORMANT", min_contribution = 0, ground_mix = 0.0, detail_count = 4, ambient_life_count = 0 },
+                    { id = "WAKING", min_contribution = 1, ground_mix = 0.35, detail_count = 6, ambient_life_count = 1 },
+                    { id = "GROWING", min_contribution = 2, ground_mix = 0.68, detail_count = 8, ambient_life_count = 2 },
+                    { id = "RESTORED", min_contribution = 3, ground_mix = 1.0, detail_count = 10, ambient_life_count = 4, celebration_seconds = 1.5 },
+                },
+            },
+        },
     }
 end
 
@@ -131,6 +141,30 @@ local function missing_required_track_fails()
     test.assert_contains(errors, "upgrades must define buzz")
 end
 
+local function invalid_restoration_order_fails()
+    local catalog = valid_catalog()
+    catalog.meadows[1].restoration_stages[3].min_contribution = 1
+    local ok, errors = validator.validate(catalog)
+    test.assert_false(ok)
+    test.assert_contains(errors, "min_contribution must be strictly increasing")
+end
+
+local function invalid_restoration_target_fails()
+    local catalog = valid_catalog()
+    catalog.meadows[1].restoration_target = 4
+    local ok, errors = validator.validate(catalog)
+    test.assert_false(ok)
+    test.assert_contains(errors, "restoration_target must equal RESTORED min_contribution")
+end
+
+local function invalid_restoration_mix_fails()
+    local catalog = valid_catalog()
+    catalog.meadows[1].restoration_stages[2].ground_mix = 1.4
+    local ok, errors = validator.validate(catalog)
+    test.assert_false(ok)
+    test.assert_contains(errors, "ground_mix must be between 0 and 1")
+end
+
 return {
     name = "data_validation",
     cases = {
@@ -146,5 +180,8 @@ return {
         { name = "invalid_upgrade_price_fails_closed", run = invalid_upgrade_price_fails_closed },
         { name = "broken_upgrade_unlock_reference_fails", run = broken_upgrade_unlock_reference_fails },
         { name = "missing_required_track_fails", run = missing_required_track_fails },
+        { name = "invalid_restoration_order_fails", run = invalid_restoration_order_fails },
+        { name = "invalid_restoration_target_fails", run = invalid_restoration_target_fails },
+        { name = "invalid_restoration_mix_fails", run = invalid_restoration_mix_fails },
     },
 }

@@ -1,8 +1,13 @@
+local catalog = require "data.catalog"
+local meadow = require "gameplay.world.meadow"
+
 local DESIGN_W = 1280
 local DESIGN_H = 720
 local BEE_SCALE = 2.0
+local FIRST_MEADOW = catalog.meadows[1]
 
 local COLOR_GREEN = vmath.vector4(0.475, 0.788, 0.396, 1)
+local COLOR_DORMANT = vmath.vector4(0.588, 0.643, 0.478, 1)
 local COLOR_DARK = vmath.vector4(0.286, 0.231, 0.196, 1)
 local COLOR_CREAM = vmath.vector4(1.0, 0.969, 0.91, 1)
 local COLOR_HONEY = vmath.vector4(0.965, 0.718, 0.235, 1)
@@ -44,6 +49,59 @@ end
 
 local function world_to_screen(wx, wy, camera_x, camera_y)
     return DESIGN_W * 0.5 + wx - camera_x, DESIGN_H * 0.5 + wy - camera_y
+end
+
+local function html5_available()
+    return html5 ~= nil and html5.run ~= nil
+end
+
+local function query_value(name)
+    if not html5_available() then return "" end
+    return html5.run("new URLSearchParams(window.location.search).get(" .. json.encode(name) .. ") || ''") or ""
+end
+
+local function mix_color(a, b, amount)
+    amount = math.max(0, math.min(1, amount or 0))
+    return vmath.vector4(
+        a.x + (b.x - a.x) * amount,
+        a.y + (b.y - a.y) * amount,
+        a.z + (b.z - a.z) * amount,
+        1
+    )
+end
+
+local function stage_definition(stage_id)
+    for _, definition in ipairs(FIRST_MEADOW.restoration_stages or {}) do
+        if definition.id == stage_id then return definition end
+    end
+    return FIRST_MEADOW.restoration_stages[1]
+end
+
+local function completed(state)
+    return state == "COMPLETED" and 1 or 0
+end
+
+local function restoration_status(self, message)
+    local contribution = completed(message.patch1_state) + completed(message.patch2_state)
+    if self.patch3_completed then contribution = contribution + 1 end
+    return meadow.stage_for_contribution(FIRST_MEADOW, contribution)
+end
+
+local function publish_restoration_bridge(self, status, stage, detail_count, objective_text)
+    if not self.qa_enabled or not html5_available() then return end
+    html5.run("window.__bebeeRestorationQA = Object.assign(window.__bebeeRestorationQA || {}, " .. json.encode({
+        schemaVersion = 1,
+        meadowId = FIRST_MEADOW.id,
+        stageId = status.stage_id,
+        stageIndex = status.stage_index,
+        contribution = status.contribution,
+        restorationTarget = status.target,
+        restorationProgress = status.progress,
+        groundMix = stage.ground_mix or 0,
+        detailCount = detail_count,
+        hudHidden = self.hud_hidden,
+        objectiveText = objective_text,
+    }) .. ")")
 end
 
 local function create_flower()
@@ -112,12 +170,12 @@ local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, 
 
     local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
     local locked = state == "LOCKED"
-    local completed = state == "COMPLETED"
-    local bloom = completed and 1 or math.max(0.18, progress)
+    local completed_state = state == "COMPLETED"
+    local bloom = completed_state and 1 or math.max(0.18, progress)
     local halo_color
     if locked then
         halo_color = vmath.vector4(0.482,0.431,0.557,0.20)
-    elseif completed then
+    elseif completed_state then
         halo_color = vmath.vector4(COLOR_SUCCESS.x,COLOR_SUCCESS.y,COLOR_SUCCESS.z,0.20)
     elseif state == "ACTIVE" then
         halo_color = vmath.vector4(COLOR_ACTIVE.x,COLOR_ACTIVE.y,COLOR_ACTIVE.z,0.20)
@@ -149,6 +207,9 @@ local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, 
 end
 
 function init(self)
+    self.qa_enabled = sys.get_config_boolean("bebee.qa_enabled", false)
+    self.hud_hidden = self.qa_enabled and query_value("hud_hidden") == "1"
+    self.patch3_completed = false
     self.background = box(640, 360, 1280, 720, COLOR_GREEN)
 
     self.decorations = {}
@@ -204,18 +265,55 @@ function init(self)
     msg.post("#controller", "view_ready")
 end
 
+function final(self)
+    if self.qa_enabled and html5_available() then
+        html5.run("delete window.__bebeeRestorationQA")
+    end
+end
+
 function on_message(self, message_id, message)
+    if message_id == hash("restoration_patch3") then
+        self.patch3_completed = message.completed == true
+        return
+    end
     if message_id ~= hash("view_state") then return end
 
     local camera_x = message.camera_x or 1200
     local camera_y = message.camera_y or 800
     local dense = message.dense == true
+    local pollination_visible = message.pollination_visible == true
+    local status = restoration_status(self, message)
+    local stage = stage_definition(status.stage_id)
+    local detail_count
+    local objective_text = "POLLINATE THE FLOWERS"
 
-    for _, decoration in ipairs(self.decorations) do
+    if pollination_visible then
+        detail_count = math.min(#self.decorations, stage.detail_count or 8)
+        gui.set_color(self.background, mix_color(COLOR_DORMANT, COLOR_GREEN, stage.ground_mix or 0))
+        if status.stage_id == meadow.STAGE_RESTORED then
+            objective_text = "MEADOW RESTORED"
+        elseif status.stage_id == meadow.STAGE_GROWING then
+            objective_text = "ONE PATCH LEFT"
+        elseif status.stage_id == meadow.STAGE_WAKING then
+            objective_text = "MEADOW WAKING  ·  NEXT PATCH"
+        end
+    else
+        detail_count = dense and #self.decorations or 12
+        gui.set_color(self.background, COLOR_GREEN)
+    end
+
+    for index, decoration in ipairs(self.decorations) do
         local x, y = world_to_screen(decoration.x, decoration.y, camera_x, camera_y)
         set_xy(decoration.node, x, y)
-        gui.set_enabled(decoration.node, (not decoration.dense_only) or dense)
+        gui.set_enabled(decoration.node, index <= detail_count)
     end
+
+    msg.post("/progression#view", "restoration_base", {
+        contribution = status.contribution,
+        stage_id = status.stage_id,
+        frame = message.frame or 0,
+        hud_hidden = self.hud_hidden,
+    })
 
     local lx, ly = world_to_screen(0, 800, camera_x, camera_y)
     local rx, ry = world_to_screen(2400, 800, camera_x, camera_y)
@@ -226,7 +324,6 @@ function on_message(self, message_id, message)
     set_xy(self.edge_bottom, bx, by)
     set_xy(self.edge_top, tx, ty)
 
-    local pollination_visible = message.pollination_visible == true
     render_patch(
         self.patch1,
         message.patch1_x or 1550,
@@ -248,27 +345,21 @@ function on_message(self, message_id, message)
         pollination_visible
     )
 
-    gui.set_enabled(self.objective_bg, pollination_visible)
-    gui.set_enabled(self.objective, pollination_visible)
-    gui.set_enabled(self.honey_bg, pollination_visible)
-    gui.set_enabled(self.honey_icon, pollination_visible)
-    gui.set_enabled(self.honey_text, pollination_visible)
-    if pollination_visible then
+    local hud_visible = pollination_visible and not self.hud_hidden
+    gui.set_enabled(self.objective_bg, hud_visible)
+    gui.set_enabled(self.objective, hud_visible)
+    gui.set_enabled(self.honey_bg, hud_visible)
+    gui.set_enabled(self.honey_icon, hud_visible)
+    gui.set_enabled(self.honey_text, hud_visible)
+    if hud_visible then
         gui.set_text(self.honey_text, "HONEY " .. tostring(math.floor(message.honey or 0)))
-        local p1 = message.patch1_state or "LOCKED"
-        local p2 = message.patch2_state or "LOCKED"
-        if p1 == "COMPLETED" and p2 == "COMPLETED" then
-            gui.set_text(self.objective, "FLOWERS BLOOMING")
-        elseif p1 == "COMPLETED" then
-            gui.set_text(self.objective, "NEXT PATCH UNLOCKED")
-        elseif p1 == "ACTIVE" then
-            gui.set_text(self.objective, "POLLINATION IN PROGRESS")
-        else
-            gui.set_text(self.objective, "POLLINATE THE FLOWERS")
+        if message.patch1_state == "ACTIVE" or message.patch2_state == "ACTIVE" then
+            objective_text = "POLLINATION IN PROGRESS"
         end
+        gui.set_text(self.objective, objective_text)
     end
 
-    local reward_visible = pollination_visible and (message.reward_timer or 0) > 0
+    local reward_visible = hud_visible and (message.reward_timer or 0) > 0
     gui.set_enabled(self.reward_text, reward_visible)
     if reward_visible then
         gui.set_text(self.reward_text, "+" .. tostring(math.floor(message.reward_amount or 0)) .. " HONEY")
@@ -315,4 +406,6 @@ function on_message(self, message_id, message)
         set_xy(self.joy_base, message.touch_anchor_x or 0, message.touch_anchor_y or 0)
         set_xy(self.joy_knob, message.touch_knob_x or 0, message.touch_knob_y or 0)
     end
+
+    publish_restoration_bridge(self, status, stage, detail_count, objective_text)
 end

@@ -15,6 +15,9 @@ local POLLINATION_COMPLETE = "pollination_complete"
 local HUD_DEFAULT = "hud_default"
 local PROGRESSION_HIVE = "progression_hive"
 local PROGRESSION_GATE = "progression_buzz_gate"
+local MEADOW_DORMANT = "meadow_dormant"
+local MEADOW_MID = "meadow_mid"
+local MEADOW_RESTORED = "meadow_restored"
 
 local HIVE_X = 1120
 local HIVE_Y = 800
@@ -22,6 +25,8 @@ local HIVE_RADIUS = 190
 local HIVE_BUTTON = { x1 = 1000, x2 = 1240, y1 = 45, y2 = 125 }
 local FLIGHT_CARD = { x1 = 270, x2 = 600, y1 = 235, y2 = 465 }
 local BUZZ_CARD = { x1 = 680, x2 = 1010, y1 = 235, y2 = 465 }
+local MEADOW_CENTER_X = 1800
+local MEADOW_CENTER_Y = 950
 
 local function html5_available()
     return html5 ~= nil and html5.run ~= nil
@@ -48,12 +53,17 @@ local function progression_qa(state_id)
     return state_id == PROGRESSION_HIVE or state_id == PROGRESSION_GATE
 end
 
+local function restoration_qa(state_id)
+    return state_id == MEADOW_DORMANT or state_id == MEADOW_MID or state_id == MEADOW_RESTORED
+end
+
 local function canonical_visual_fixture(state_id)
     return state_id == POLLINATION_IDLE
         or state_id == POLLINATION_ACTIVE
         or state_id == POLLINATION_COMPLETE
         or state_id == HUD_DEFAULT
         or progression_qa(state_id)
+        or restoration_qa(state_id)
 end
 
 local function clean_progression(self, persistence_enabled)
@@ -65,6 +75,7 @@ end
 
 local function lifecycle_value(self)
     if progression_qa(self.qa_state) then return query_value("p3_storage_lifecycle") end
+    if restoration_qa(self.qa_state) then return query_value("p4_storage_lifecycle") end
     return query_value("p2_storage_lifecycle")
 end
 
@@ -145,6 +156,20 @@ local function mark_completed_fixture(self, patch_index)
     state.state = flower_patch.STATE_COMPLETED
 end
 
+local function prepare_restoration_fixture(self, completed_count)
+    mark_completed_fixture(self, 1)
+    self.save_state.player.honey = 100
+    local purchased = progression.purchase_upgrade(self.save_state, "upgrade_buzz")
+    if not purchased.ok then error("P4 QA fixture could not purchase Buzz 2: " .. tostring(purchased.code)) end
+    if completed_count >= 2 then mark_completed_fixture(self, 2) end
+    if completed_count >= 3 then mark_completed_fixture(self, 3) end
+    refresh_patch_eligibility(self)
+    self.motion.x = MEADOW_CENTER_X
+    self.motion.y = MEADOW_CENTER_Y
+    self.camera.x = MEADOW_CENTER_X
+    self.camera.y = MEADOW_CENTER_Y
+end
+
 local function apply_visual_fixture(self)
     local lifecycle = lifecycle_value(self)
     if not self.qa_enabled or lifecycle == "reload" then return end
@@ -189,6 +214,15 @@ local function apply_visual_fixture(self)
         -- shows both the purchase source and the world-space requirement.
         self.camera.x = (HIVE_X + third.definition.x) * 0.5
         self.camera.y = (HIVE_Y + third.definition.y) * 0.5
+    elseif self.qa_state == MEADOW_DORMANT then
+        self.motion.x = MEADOW_CENTER_X
+        self.motion.y = MEADOW_CENTER_Y
+        self.camera.x = MEADOW_CENTER_X
+        self.camera.y = MEADOW_CENTER_Y
+    elseif self.qa_state == MEADOW_MID then
+        prepare_restoration_fixture(self, 2)
+    elseif self.qa_state == MEADOW_RESTORED then
+        prepare_restoration_fixture(self, 3)
     end
 end
 
@@ -557,7 +591,8 @@ function update(self, dt)
     send_view(self)
     update_runtime_bridge(self, false)
 
-    local required_views_ready = self.view_ready and (not progression_qa(self.qa_state) or self.progression_view_ready)
+    local needs_progression_view = progression_qa(self.qa_state) or restoration_qa(self.qa_state)
+    local required_views_ready = self.view_ready and (not needs_progression_view or self.progression_view_ready)
     if required_views_ready and self.qa_enabled
         and qa_runtime.requires_gameplay_capture(self.qa_state)
         and not self.qa_ready_sent and self.frame >= 2 then

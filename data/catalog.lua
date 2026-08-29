@@ -1,5 +1,6 @@
 -- Canonical production content catalog used by runtime and deterministic validation.
--- P3 adds the first permanent Flight/Buzz upgrade slice and the first explicit Buzz gate.
+-- P4 adds the first authored Meadow restoration ladder while keeping save state derived
+-- from stable patch completion IDs rather than duplicating a persisted meadow stage.
 return {
     schema_version = 1,
     flowers = {
@@ -84,6 +85,16 @@ return {
         { id = "region_01", meadow_ids = { "r01_m01" } },
     },
     meadows = {
-        { id = "r01_m01", region_id = "region_01" },
+        {
+            id = "r01_m01",
+            region_id = "region_01",
+            restoration_target = 3,
+            restoration_stages = {
+                { id = "DORMANT", min_contribution = 0, ground_mix = 0.00, detail_count = 8, ambient_life_count = 0 },
+                { id = "WAKING", min_contribution = 1, ground_mix = 0.35, detail_count = 14, ambient_life_count = 1 },
+                { id = "GROWING", min_contribution = 2, ground_mix = 0.68, detail_count = 22, ambient_life_count = 2 },
+                { id = "RESTORED", min_contribution = 3, ground_mix = 1.00, detail_count = 28, ambient_life_count = 6, celebration_seconds = 1.5 },
+            },
+        },
     },
 }
