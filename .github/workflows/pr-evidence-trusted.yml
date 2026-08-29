@@ -43,7 +43,7 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: python3 ../trusted/scripts/check_pr_evidence_policy.py
+        run: python3 ../trusted/scripts/check_pr_evidence_policy_v2.py
 
       - name: Validate candidate with trusted trust-boundary overlay
         working-directory: candidate
