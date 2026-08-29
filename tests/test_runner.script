@@ -12,6 +12,7 @@ local suites = {
     require "tests.test_flower_patch",
     require "tests.test_economy",
     require "tests.test_progression",
+    require "tests.test_meadow",
 }
 
 local function emit(event)
