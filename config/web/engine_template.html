@@ -61,6 +61,18 @@
     }
 
     {{{DEFOLD_CUSTOM_CSS_INLINE}}}
+
+    /* BeBee uses stretch mode and must cover the complete portal frame. Defold's built-in theme retains footer-era sizing assumptions, so force both wrapper and canvas to the engine-sized app container. */
+    #canvas-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    #canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
     </style>
 </head>
 
@@ -78,7 +90,7 @@
         <div id="canvas-container" class="canvas-app-canvas-container">
             <canvas id="canvas" class="canvas-app-canvas" tabindex="1" width="{{display.width}}" height="{{display.height}}"></canvas>
         </div>
-        <!-- Defold 1.13.1 always emits a 42 px buttons-background element even when both footer controls are disabled. BeBee omits that empty shell chrome so portal/direct-web canvas can cover the full frame. -->
+        <!-- Defold 1.13.1 always emits footer theme CSS even when both footer controls are disabled. BeBee omits the empty footer DOM and explicitly stretches the canvas wrapper above. -->
     </div>
 
     <script>
