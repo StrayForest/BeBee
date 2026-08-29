@@ -18,6 +18,8 @@ local PROGRESSION_GATE = "progression_buzz_gate"
 local MEADOW_DORMANT = "meadow_dormant"
 local MEADOW_MID = "meadow_mid"
 local MEADOW_RESTORED = "meadow_restored"
+local SEED_LOCKED = "seed_locked"
+local SEED_UNLOCKED = "seed_unlocked"
 
 local HIVE_X = 1120
 local HIVE_Y = 800
@@ -27,6 +29,7 @@ local FLIGHT_CARD = { x1 = 270, x2 = 600, y1 = 235, y2 = 465 }
 local BUZZ_CARD = { x1 = 680, x2 = 1010, y1 = 235, y2 = 465 }
 local MEADOW_CENTER_X = 1800
 local MEADOW_CENTER_Y = 950
+local PLOT_POINTER_RADIUS = 96
 
 local function html5_available()
     return html5 ~= nil and html5.run ~= nil
@@ -57,6 +60,10 @@ local function restoration_qa(state_id)
     return state_id == MEADOW_DORMANT or state_id == MEADOW_MID or state_id == MEADOW_RESTORED
 end
 
+local function seed_qa(state_id)
+    return state_id == SEED_LOCKED or state_id == SEED_UNLOCKED
+end
+
 local function canonical_visual_fixture(state_id)
     return state_id == POLLINATION_IDLE
         or state_id == POLLINATION_ACTIVE
@@ -64,6 +71,7 @@ local function canonical_visual_fixture(state_id)
         or state_id == HUD_DEFAULT
         or progression_qa(state_id)
         or restoration_qa(state_id)
+        or seed_qa(state_id)
 end
 
 local function clean_progression(self, persistence_enabled)
@@ -74,6 +82,7 @@ local function clean_progression(self, persistence_enabled)
 end
 
 local function lifecycle_value(self)
+    if seed_qa(self.qa_state) then return query_value("p5_storage_lifecycle") end
     if progression_qa(self.qa_state) then return query_value("p3_storage_lifecycle") end
     if restoration_qa(self.qa_state) then return query_value("p4_storage_lifecycle") end
     return query_value("p2_storage_lifecycle")
@@ -114,10 +123,11 @@ local function load_progression(self)
         self.last_save_code = loaded.code
         self.last_save_durability = loaded.durability or "not_written"
         print(string.format(
-            "BEBEE_PROGRESS save_loaded code=%s honey=%d flight=%d buzz=%d",
-            tostring(loaded.code), self.save_state.player.honey,
+            "BEBEE_PROGRESS save_loaded code=%s version=%d honey=%d flight=%d buzz=%d seeds=%d",
+            tostring(loaded.code), self.save_state.save_version, self.save_state.player.honey,
             progression.current_upgrade_level(self.save_state, "upgrade_flight"),
-            progression.current_upgrade_level(self.save_state, "upgrade_buzz")
+            progression.current_upgrade_level(self.save_state, "upgrade_buzz"),
+            #progression.owned_seed_ids(self.save_state)
         ))
         return
     end
@@ -170,6 +180,23 @@ local function prepare_restoration_fixture(self, completed_count)
     self.camera.y = MEADOW_CENTER_Y
 end
 
+local function prepare_seed_fixture(self, unlocked)
+    local plot = catalog.player_plots[1]
+    self.motion.x = plot.x - 80
+    self.motion.y = plot.y
+    self.camera.x = (plot.x + catalog.patches[1].x) * 0.5
+    self.camera.y = (plot.y + catalog.patches[1].y) * 0.5
+    if not unlocked then return end
+
+    mark_completed_fixture(self, 1)
+    self.save_state.player.honey = catalog.patches[1].honey_reward
+    refresh_patch_eligibility(self)
+    local planted = progression.interact_player_plot(self.save_state, plot.id)
+    if not planted.ok or not planted.changed then
+        error("P5 QA fixture could not unlock/plant Daisy: " .. tostring(planted.code))
+    end
+end
+
 local function apply_visual_fixture(self)
     local lifecycle = lifecycle_value(self)
     if not self.qa_enabled or lifecycle == "reload" then return end
@@ -210,8 +237,6 @@ local function apply_visual_fixture(self)
         local third = self.patches[3]
         self.motion.x = HIVE_X
         self.motion.y = HIVE_Y
-        -- Start between the Hive and Lavender so the deterministic gate still
-        -- shows both the purchase source and the world-space requirement.
         self.camera.x = (HIVE_X + third.definition.x) * 0.5
         self.camera.y = (HIVE_Y + third.definition.y) * 0.5
     elseif self.qa_state == MEADOW_DORMANT then
@@ -223,6 +248,10 @@ local function apply_visual_fixture(self)
         prepare_restoration_fixture(self, 2)
     elseif self.qa_state == MEADOW_RESTORED then
         prepare_restoration_fixture(self, 3)
+    elseif self.qa_state == SEED_LOCKED then
+        prepare_seed_fixture(self, false)
+    elseif self.qa_state == SEED_UNLOCKED then
+        prepare_seed_fixture(self, true)
     end
 end
 
@@ -308,6 +337,81 @@ local function hive_nearby(self)
     local dx = self.motion.x - HIVE_X
     local dy = self.motion.y - HIVE_Y
     return dx * dx + dy * dy <= HIVE_RADIUS * HIVE_RADIUS
+end
+
+local function player_plot_nearby(self, definition)
+    local dx = self.motion.x - definition.x
+    local dy = self.motion.y - definition.y
+    local radius = definition.interaction_radius or 180
+    return dx * dx + dy * dy <= radius * radius
+end
+
+local function seed_action_text(interaction)
+    if interaction.code == "plot_locked" then return "RESTORE NATIVE PATCH FIRST" end
+    if interaction.action == "unlock_and_plant" then
+        if interaction.affordable then
+            return string.format("SPACE / TAP · PLANT %s · %d HONEY", interaction.label or "SEED", interaction.cost or 0)
+        end
+        return string.format("NEED %d HONEY · %s", interaction.cost or 0, interaction.label or "SEED")
+    end
+    if interaction.action == "plant_owned" then
+        if interaction.current_flower_id then return "SPACE / TAP · REPLANT " .. tostring(interaction.label or "SEED") end
+        return "SPACE / TAP · PLANT " .. tostring(interaction.label or "SEED")
+    end
+    if interaction.code == "waiting_for_more_seeds" then return "MORE SEEDS AFTER NEXT NATIVE PATCH" end
+    return ""
+end
+
+local function seed_payload_for(self, definition)
+    local available, reason, requirement = progression.player_plot_availability(self.save_state, definition.id)
+    local interaction = progression.player_plot_interaction(self.save_state, definition.id)
+    return {
+        id = definition.id,
+        x = definition.x,
+        y = definition.y,
+        visible = self.pollination_enabled,
+        available = available,
+        availabilityReason = reason,
+        requirement = requirement,
+        nearby = player_plot_nearby(self, definition),
+        currentFlowerId = progression.current_planted_flower(self.save_state, definition.id),
+        action = interaction.action,
+        actionCode = interaction.code,
+        nextSeedId = interaction.seed_id,
+        nextFlowerId = interaction.flower_id,
+        nextLabel = interaction.label,
+        cost = interaction.cost or 0,
+        affordable = interaction.affordable ~= false,
+        actionText = seed_action_text(interaction),
+    }
+end
+
+local function send_seed_view(self)
+    local plot1 = catalog.player_plots[1]
+    local plot2 = catalog.player_plots[2]
+    if not plot1 or not plot2 then return end
+    local p1 = seed_payload_for(self, plot1)
+    local p2 = seed_payload_for(self, plot2)
+    msg.post("/seeds#view", "seed_view", {
+        camera_x = self.camera.x,
+        camera_y = self.camera.y,
+        plot1_x = p1.x,
+        plot1_y = p1.y,
+        plot1_visible = p1.visible,
+        plot1_available = p1.available,
+        plot1_nearby = p1.nearby,
+        plot1_flower_id = p1.currentFlowerId or "",
+        plot1_action_text = p1.actionText,
+        plot1_affordable = p1.affordable,
+        plot2_x = p2.x,
+        plot2_y = p2.y,
+        plot2_visible = p2.visible,
+        plot2_available = p2.available,
+        plot2_nearby = p2.nearby,
+        plot2_flower_id = p2.currentFlowerId or "",
+        plot2_action_text = p2.actionText,
+        plot2_affordable = p2.affordable,
+    })
 end
 
 local function upgrade_view(self, upgrade_id)
@@ -421,6 +525,23 @@ local function update_runtime_bridge(self, force)
             saveCode = self.last_save_code,
             saveDurability = self.last_save_durability,
         }))
+        local seed1 = seed_payload_for(self, catalog.player_plots[1])
+        local seed2 = seed_payload_for(self, catalog.player_plots[2])
+        html5.run("window.__bebeeSeedQA = " .. json.encode({
+            schemaVersion = 1,
+            stateId = self.qa_state,
+            frame = self.frame,
+            saveVersion = self.save_state.save_version,
+            honey = self.save_state.player.honey,
+            ownedSeedIds = progression.owned_seed_ids(self.save_state),
+            plot1 = seed1,
+            plot2 = seed2,
+            nativePatch1Completed = progression.is_patch_completed(self.save_state, catalog.patches[1].id),
+            nativePatch2Completed = progression.is_patch_completed(self.save_state, catalog.patches[2].id),
+            nativePatch3Completed = progression.is_patch_completed(self.save_state, catalog.patches[3].id),
+            saveCode = self.last_save_code,
+            saveDurability = self.last_save_durability,
+        }))
     end
 end
 
@@ -489,6 +610,7 @@ local function send_view(self)
         frame = self.frame,
     })
     send_progression_view(self)
+    send_seed_view(self)
 end
 
 local function open_progression(self)
@@ -516,6 +638,7 @@ local function purchase_selected(self, upgrade_id)
         print(string.format("BEBEE_P3 upgrade_rejected id=%s code=%s honey=%d", upgrade_id, tostring(result.code), self.save_state.player.honey))
     end
     send_progression_view(self)
+    send_seed_view(self)
     update_runtime_bridge(self, true)
     return result.ok
 end
@@ -527,6 +650,61 @@ end
 
 local function inside(rect, x, y)
     return x >= rect.x1 and x <= rect.x2 and y >= rect.y1 and y <= rect.y2
+end
+
+local function screen_to_world(self, x, y)
+    local dx, dy = design_point(x, y)
+    return self.camera.x + dx - 640, self.camera.y + dy - 360
+end
+
+local function nearest_player_plot(self)
+    local nearest = nil
+    local nearest_distance = math.huge
+    for _, definition in ipairs(catalog.player_plots or {}) do
+        local dx = self.motion.x - definition.x
+        local dy = self.motion.y - definition.y
+        local distance_sq = dx * dx + dy * dy
+        local radius = definition.interaction_radius or 180
+        if distance_sq <= radius * radius and distance_sq < nearest_distance then
+            nearest = definition
+            nearest_distance = distance_sq
+        end
+    end
+    return nearest
+end
+
+local function pointer_player_plot(self, x, y)
+    local wx, wy = screen_to_world(self, x, y)
+    for _, definition in ipairs(catalog.player_plots or {}) do
+        local dx = wx - definition.x
+        local dy = wy - definition.y
+        if dx * dx + dy * dy <= PLOT_POINTER_RADIUS * PLOT_POINTER_RADIUS and player_plot_nearby(self, definition) then
+            return definition
+        end
+    end
+    return nil
+end
+
+local function interact_player_plot(self, definition)
+    if not definition then return false end
+    local result = progression.interact_player_plot(self.save_state, definition.id)
+    if result.changed then save_progression(self) end
+    send_seed_view(self)
+    send_progression_view(self)
+    update_runtime_bridge(self, true)
+    print(string.format(
+        "BEBEE_P5 plot_interaction plot=%s code=%s changed=%s seed=%s flower=%s cost=%s honey=%d",
+        definition.id, tostring(result.code), tostring(result.changed == true), tostring(result.seed_id),
+        tostring(result.flower_id or result.current_flower_id), tostring(result.cost or 0), self.save_state.player.honey
+    ))
+    return true
+end
+
+local function primary_action(self)
+    if self.progression_open then return false end
+    local plot = nearest_player_plot(self)
+    if plot then return interact_player_plot(self, plot) end
+    return open_progression(self)
 end
 
 function init(self)
@@ -545,6 +723,7 @@ function init(self)
     self.frame = 0
     self.view_ready = false
     self.progression_view_ready = false
+    self.seed_view_ready = false
     self.qa_ready_sent = false
     self.pollination_completion_count = 0
     self.reward_transactions = 0
@@ -567,7 +746,7 @@ end
 
 function final(self)
     if self.qa_enabled and html5_available() then
-        html5.run("delete window.__bebeeMovementQA; delete window.__bebeePollinationQA; delete window.__bebeeProgressionQA")
+        html5.run("delete window.__bebeeMovementQA; delete window.__bebeePollinationQA; delete window.__bebeeProgressionQA; delete window.__bebeeSeedQA")
     end
 end
 
@@ -592,7 +771,10 @@ function update(self, dt)
     update_runtime_bridge(self, false)
 
     local needs_progression_view = progression_qa(self.qa_state) or restoration_qa(self.qa_state)
-    local required_views_ready = self.view_ready and (not needs_progression_view or self.progression_view_ready)
+    local needs_seed_view = seed_qa(self.qa_state)
+    local required_views_ready = self.view_ready
+        and (not needs_progression_view or self.progression_view_ready)
+        and (not needs_seed_view or self.seed_view_ready)
     if required_views_ready and self.qa_enabled
         and qa_runtime.requires_gameplay_capture(self.qa_state)
         and not self.qa_ready_sent and self.frame >= 2 then
@@ -613,6 +795,11 @@ function on_message(self, message_id, message)
         send_progression_view(self)
         return
     end
+    if message_id == hash("seed_view_ready") then
+        self.seed_view_ready = true
+        send_seed_view(self)
+        return
+    end
     if message_id == hash("movement_input_clear") then
         input_model.clear(self.input)
         return
@@ -623,13 +810,14 @@ function on_message(self, message_id, message)
         return
     end
     if message_id == hash("progression_primary") then
-        open_progression(self)
+        primary_action(self)
         return
     end
     if message_id == hash("progression_modal_closed") then
         self.progression_open = false
         input_model.clear(self.input)
         send_progression_view(self)
+        send_seed_view(self)
         update_runtime_bridge(self, true)
         print("BEBEE_P3 hive_closed")
         return
@@ -660,6 +848,8 @@ function on_message(self, message_id, message)
         local width, height = surface_size()
         input_model.resize(self.input, width, height)
         if message.pressed then
+            local plot = pointer_player_plot(self, message.x, message.y)
+            if plot and interact_player_plot(self, plot) then return end
             local x, y = design_point(message.x, message.y)
             if hive_nearby(self) and inside(HIVE_BUTTON, x, y) and open_progression(self) then return end
             input_model.pointer_press(self.input, message.x, message.y)
