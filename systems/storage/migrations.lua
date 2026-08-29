@@ -2,11 +2,30 @@ local table_utils = require "systems.storage.table_utils"
 
 local M = {}
 
-M.CURRENT_SAVE_VERSION = 1
+M.CURRENT_SAVE_VERSION = 2
 
 local steps = {
     [0] = function(payload)
         payload.save_version = 1
+        return payload
+    end,
+    [1] = function(payload)
+        if type(payload.player) == "table" then
+            if type(payload.player.upgrades) ~= "table" then
+                payload.player.upgrades = {
+                    upgrade_flight = 1,
+                    upgrade_buzz = 1,
+                }
+            else
+                if payload.player.upgrades.upgrade_flight == nil then
+                    payload.player.upgrades.upgrade_flight = 1
+                end
+                if payload.player.upgrades.upgrade_buzz == nil then
+                    payload.player.upgrades.upgrade_buzz = 1
+                end
+            end
+        end
+        payload.save_version = 2
         return payload
     end,
 }

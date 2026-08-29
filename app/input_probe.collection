@@ -11,4 +11,8 @@ instances {
   id: "movement"
   prototype: "/gameplay/bee/movement_field.go"
 }
+instances {
+  id: "progression"
+  prototype: "/gameplay/progression/hive_panel.go"
+}
 scale_along_z: 0

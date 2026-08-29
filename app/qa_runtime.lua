@@ -9,6 +9,8 @@ M.POLLINATION_IDLE_STATE = "pollination_idle"
 M.POLLINATION_ACTIVE_STATE = "pollination_active_50"
 M.POLLINATION_COMPLETE_STATE = "pollination_complete"
 M.HUD_DEFAULT_STATE = "hud_default"
+M.PROGRESSION_HIVE_STATE = "progression_hive"
+M.PROGRESSION_BUZZ_GATE_STATE = "progression_buzz_gate"
 
 local SUPPORTED_STATES = {
     [M.FOUNDATION_STATE] = true,
@@ -18,26 +20,22 @@ local SUPPORTED_STATES = {
     [M.POLLINATION_ACTIVE_STATE] = true,
     [M.POLLINATION_COMPLETE_STATE] = true,
     [M.HUD_DEFAULT_STATE] = true,
+    [M.PROGRESSION_HIVE_STATE] = true,
+    [M.PROGRESSION_BUZZ_GATE_STATE] = true,
 }
 
 function M.normalize_seed(value)
     local seed = tonumber(value)
-    if seed == nil then
-        return M.DEFAULT_SEED
-    end
+    if seed == nil then return M.DEFAULT_SEED end
     seed = math.floor(seed)
-    if seed < 0 then
-        seed = -seed
-    end
+    if seed < 0 then seed = -seed end
     return seed
 end
 
 function M.resolve_request(state_id, seed_value)
     state_id = tostring(state_id or "")
     local seed = M.normalize_seed(seed_value)
-    if state_id == "" then
-        return { state_id = "", seed = seed, supported = false, error = nil }
-    end
+    if state_id == "" then return { state_id = "", seed = seed, supported = false, error = nil } end
     if not SUPPORTED_STATES[state_id] then
         return { state_id = state_id, seed = seed, supported = false, error = "unknown_state" }
     end
@@ -58,9 +56,14 @@ function M.is_pollination_state(state_id)
         or state_id == M.POLLINATION_COMPLETE_STATE
 end
 
+function M.is_progression_state(state_id)
+    return state_id == M.PROGRESSION_HIVE_STATE or state_id == M.PROGRESSION_BUZZ_GATE_STATE
+end
+
 function M.requires_gameplay_capture(state_id)
     return M.is_movement_state(state_id)
         or M.is_pollination_state(state_id)
+        or M.is_progression_state(state_id)
         or state_id == M.HUD_DEFAULT_STATE
 end
 

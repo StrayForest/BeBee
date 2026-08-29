@@ -135,6 +135,8 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`evidence/P1-BEE-MOVEMENT/manifest.json`](evidence/P1-BEE-MOVEMENT/manifest.json) — P1 movement closeout evidence
 - [`docs/research/P2-pollination-core-loop.md`](docs/research/P2-pollination-core-loop.md) — P2 pollination production research, tuning and iteration trace
 - [`evidence/P2-POLLINATION-CORE-LOOP/manifest.json`](evidence/P2-POLLINATION-CORE-LOOP/manifest.json) — P2 pollination/economy closeout evidence
+- [`docs/research/P3-progression.md`](docs/research/P3-progression.md) — P3 Flight/Buzz production research, economy and visual iteration trace
+- [`evidence/P3-PROGRESSION/manifest.json`](evidence/P3-PROGRESSION/manifest.json) — P3 progression/economy closeout evidence
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -151,14 +153,14 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 `D-005` is `VALIDATED`: seed ownership uses a Hybrid restoration topology. Authored native campaign plots keep their native identity during restoration, dedicated player-shaped plots allow seed ownership before full completion, and campaign/native state remains separate from planted species. P5 still must prove that the two roles are understandable in the rendered game and tune the exact plot count, placement, planting input and seed economy.
 
-`D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks. Yield is excluded rather than preserved as a third card. BB-P005 showed that the current no-Yield structure reaches region completion across all **5040 / 5040** full retained-sink purchase-priority orders with zero replay and non-negative balance. P1/P2 now supply the validated traversal and pollination baseline; exact Flight/Buzz effects, Honey costs/rewards and real-time purchase cadence remain P3 tuning work.
+`D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks and Yield remains excluded. P3 productionizes the first level as Flight `300 → 330 u/s` for `30 Honey` and Buzz `1.00× → 1.35×` pollination work for `35 Honey`. Both choices are affordable from the first 45-Honey reward; runtime evidence proves the real movement/work effects, and Lavender becomes the first explicit `REQUIRES BUZZ 2` capability gate. Later levels and final pacing remain tunable rather than locked.
 
-`D-013` is `VALIDATED`: P1 uses one normalized direct-intent movement controller for keyboard and floating touch, with bounded acceleration/deceleration, authored bounds, bounded orthographic follow and a reduced-motion direct-follow path. The accepted baseline reaches the same 300-unit/s maximum on keyboard/touch cardinal/diagonal evidence, releases to zero, preserves native proxy/modal focus and renders the bee inside V-001's 12–15% readability band. P2 retained representative desktop movement at 60.98 fps; these values remain tunable by new P3 evidence rather than immutable constants.
+`D-013` is `VALIDATED`: P1 uses one normalized direct-intent movement controller for keyboard and floating touch, with bounded acceleration/deceleration, authored bounds, bounded orthographic follow and a reduced-motion direct-follow path. The 300-unit/s value is now explicitly the Flight-level-1 baseline; P3 Flight 2 raises the computed maximum to 330 u/s without changing controller semantics. The accepted P3 runtime captures 330/330 u/s after purchase while retaining zero modal displacement and zero reduced-motion camera lag.
 
 Still open/tunable before downstream milestones lock production values:
 
-- exact Honey reward/cost table and minutes/actions between meaningful purchases;
-- final Flight/Buzz effect curves and flower-gate tuning;
+- later Honey reward/cost tables and minutes/actions between meaningful purchases;
+- later Flight/Buzz effect curves and Buzz-gate cadence beyond the first P3 level/gate;
 - rendered comprehension/input/seed pacing for the Hybrid restoration flow;
 - final production illustration/animation/audio and later full-scene visual polish.
 
@@ -220,4 +222,10 @@ P2 turns traversal into the first complete production loop: data-driven flowers/
 
 Accepted runtime head `bc3f878254d800063822377d57e99e7e5d42efd7` passed Repository standards (`33244624975`), Test/data (`33244624972`) and HTML5 CI (`33244624996`). Retained movement/P2 artifact `9712446750` records desktop straight pass `337.56/410 = 82.33%`, mobile `339.99/410 = 82.92%`, stationary work `0.0`, Honey `+45` exactly once, patch #2 unlock, zero replayed reward after reload, representative movement `60.98 fps`, modal displacement `0.0`, reduced-motion camera lag `0.0/0.0` and zero P2 browser errors. Two green-CI visual candidates were deliberately rejected before acceptance: first for flowers hidden by the bee, then for mobile `LOCKED` overlapping the Honey HUD. The final retained stills resolve both. Complete evidence and independent PASS are in [`evidence/P2-POLLINATION-CORE-LOOP/manifest.json`](evidence/P2-POLLINATION-CORE-LOOP/manifest.json) and `evaluation.md`.
 
-**Next production task: `P3 — Progression`.**
+**P3 — Progression is COMPLETE for closeout; `BB-030` through `BB-034` pass the P3 milestone gate.**
+
+P3 turns Honey into permanent, immediately observable power without reopening Yield: the Hive contains exactly two upgrade cards; Flight level 2 costs 30 Honey and raises real movement from 300 to 330 u/s; Buzz level 2 costs 35 Honey and raises pollination work from 1.00× to 1.35×; Lavender is the first explicit `REQUIRES BUZZ 2` gate; purchase input is isolated; save schema v2 migrates P2 v1 state and persists upgrades/gate eligibility; economy regression covers both purchase orders plus minimal-required/customization-heavy paths.
+
+Accepted runtime head before closeout-only source-of-truth changes is `3b4b990923851217d9a25e2954a86443dea3916f`. It passed Repository standards (`33247411592`), Test/data (`33247411586`), Pages preview (`33247411600`) and HTML5 CI (`33247411645`). Retained movement/P3 artifact `9713299114`, digest `sha256:f7e1ce37eba04ecec26a23b42991f7bea4681ecdde64feaec8d225a1f7101ef9`, proves Flight `45→15 Honey / 330 u/s`, modal displacement `0.0`, Flight reload, Buzz `100→65 Honey / 1.35×`, Lavender `LOCKED requires_buzz 2 → AVAILABLE`, Buzz/gate reload and zero P3 browser errors. The previous mechanically green head was deliberately rejected for mobile card/gate readability; the accepted head resolves both findings. Complete evidence and independent PASS are in [`evidence/P3-PROGRESSION/manifest.json`](evidence/P3-PROGRESSION/manifest.json) and `evaluation.md`.
+
+**Next production task after P3 merge: `P4 — First Meadow Restoration`.**

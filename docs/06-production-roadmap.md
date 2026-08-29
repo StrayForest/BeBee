@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement and P2 Pollination Core Loop are complete; the current production handoff is P3 — Progression.**
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop and P3 Progression are complete for milestone closeout; the next production handoff after P3 merge is P4 — First Meadow Restoration.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -348,40 +348,75 @@ P2 has the actual build, motion/rendered evidence, objective measurements, struc
 
 # P3 — Progression
 
+**Status: COMPLETE for closeout — BB-030 through BB-034 complete; exit criteria PASS.**
+
 ## Goal
 
 Create a reward-to-power loop with meaningful choices and no mathematically compulsory filler stat.
 
-### BB-030 — Validated upgrade set
+### BB-030 — Validated upgrade set — COMPLETE
 
-- implement **Flight + Buzz** as the validated vertical-slice upgrade tracks (`D-007`);
-- Yield is excluded from the vertical slice unless a new player problem and new evidence explicitly reopen the decision;
-- do not add a replacement third track merely to fill a screen;
-- tune final effect curves and costs against production movement/pollination feel.
+- the vertical slice keeps exactly **Flight + Buzz** (`D-007`); Yield remains excluded;
+- Flight level 2: `300 -> 330 u/s`, cost `30 Honey`;
+- Buzz level 2: `1.00x -> 1.35x` pollination work, cost `35 Honey`;
+- later levels and final effect curves remain tunable rather than silently locked by P3.
 
-### BB-031 — Hive/progression interaction
+### BB-031 — Hive/progression interaction — COMPLETE
 
-Research the relevant competitor upgrade interaction, then implement one-action purchasing with clear current/next effect and input isolation.
+A dedicated Hive surface implements one-action purchasing with two selectable cards, explicit current/next effect and Honey cost, atomic economy/progression ownership outside GUI, and modal input isolation. Purchase effects apply immediately.
 
-### BB-032 — Progression UI
+### BB-032 — Progression UI — COMPLETE for P3 scope
 
-Number/layout of cards follows the validated two-track set, not the original fixed three-card assumption.
+The Hive renders exactly the two validated tracks rather than preserving the original three-card assumption. The accepted 1280x720 and 844x390 captures keep both cards complete and readable after a rejected mobile-readability iteration.
 
-### BB-033 — Flower gates
+### BB-033 — Flower gates — COMPLETE for first production gate
 
-Use soft/hard Buzz/progression gates only where they create aspiration and remain explicit.
+Lavender patch #3 is the first explicit progression gate. After patch #2 it reports `LOCKED / requires_buzz / requirement 2` and visibly states `REQUIRES BUZZ 2`; buying Buzz 2 changes it immediately to `AVAILABLE`. The gate checks permanent capability rather than charging Honey directly, preserving D-010.
 
-### BB-034 — Economy regression simulation
+### BB-034 — Economy regression simulation — COMPLETE
 
-CI/dev command re-runs key no-grind scenarios when values change.
+CI/Test-data re-runs the candidate values across Flight-first, Buzz-first, the complete two-upgrade ordering, minimal-required progression and a customization-heavy shadow-spend path. The accepted candidate has no negative Honey, unintended replay requirement or progression dead-end.
 
 ## Exit criteria
 
-- each shipped stat has an obvious experiential/economic purpose;
-- no upgrade is consistently mandatory or consistently ignored in simulation/playtest;
-- no negative Honey;
-- customization spending cannot create a progression dead-end;
-- reload preserves progression.
+- each shipped stat has an obvious experiential/economic purpose — PASS; Flight changes real traversal and Buzz changes real pollination capability/work;
+- no upgrade is consistently mandatory or consistently ignored in the P3 choice slice — PASS; both are individually affordable from the first 45 Honey and both orderings progress safely;
+- no negative Honey — PASS in atomic purchase invariants and deterministic economy regression;
+- customization spending cannot create a progression dead-end — PASS in the customization-heavy regression;
+- reload preserves progression — PASS for Flight level/speed, Buzz level/multiplier and resulting Lavender eligibility;
+- P2 v1 saves migrate to v2 without losing Honey/campaign completion — PASS;
+- Hive input isolation remains correct — PASS, modal movement displacement `0.0`;
+- desktop/mobile progression surfaces and first Buzz gate are readable without browser errors — PASS after the blocking visual iteration;
+- separate evidence-first evaluation has no open `ITERATE` — PASS.
+
+### P3 exit record
+
+Accepted runtime evidence head before closeout-only source-of-truth changes: `3b4b990923851217d9a25e2954a86443dea3916f`.
+
+- Repository standards `33247411592` — PASS;
+- Test/data `33247411586` — PASS;
+- Pages preview `33247411600` — PASS;
+- HTML5 CI `33247411645` — PASS;
+- movement/P3 artifact `9713299114` (`movement-qa-3b4b9909…`), digest `sha256:f7e1ce37eba04ecec26a23b42991f7bea4681ecdde64feaec8d225a1f7101ef9`;
+- Flight purchase: Honey `45 -> 15`, level `1 -> 2`, captured real cruise `330/330 u/s`;
+- Flight reload: level 2, max speed 330 u/s, Honey 15;
+- Hive modal movement displacement `0.0`;
+- Buzz purchase: Honey `100 -> 65`, level `1 -> 2`, work multiplier `1.35x`;
+- Lavender: `LOCKED / requires_buzz / 2 -> AVAILABLE` after Buzz purchase;
+- Buzz reload: level 2, multiplier `1.35x`, Honey 65, Lavender `AVAILABLE`;
+- representative P1 movement `60.39 fps`, modal/reduced-motion invariants remain zero;
+- P2 pollination regression remains PASS, including zero stationary work and one-time reward semantics under save schema v2;
+- P3 desktop Hive, Buzz-gate and 844x390 mobile panel report zero console/page errors;
+- previous mechanically green head `de277105…` was rejected because mobile card copy was too small and the Buzz-gate label was poorly positioned;
+- accepted `3b4b9909…` captures split card copy into readable rows and place `REQUIRES BUZZ 2` safely below the HUD;
+- separate evaluation verdict = PASS;
+- complete evidence = `evidence/P3-PROGRESSION/manifest.json` and `evidence/P3-PROGRESSION/evaluation.md`.
+
+### autonomous milestone gate
+
+P3 has the production runtime effects, deterministic economy/migration coverage, desktop/mobile rendered evidence, objective measurements, structured evidence, reference comparison and separate PASS evaluation. The final closeout PR head must still repeat Repository standards, Test/data, HTML5 CI and trusted `validate-pr-evidence`, with a retained non-N/A `movement-qa-$PR_HEAD`, before merge.
+
+**P3 exit: PASS. Production advances to P4 — First Meadow Restoration after the merge gate completes.**
 
 ---
 

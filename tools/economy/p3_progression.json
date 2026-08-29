@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "status": "P3_PRODUCTION_FIRST_SLICE",
+  "starting_honey": 0,
+  "milestones": [
+    {"id": "M01", "honey": 45, "requires_buzz": 1},
+    {"id": "M02", "honey": 55, "requires_buzz": 1},
+    {"id": "M03", "honey": 70, "requires_buzz": 2}
+  ],
+  "upgrades": {
+    "flight_2": {"kind": "flight", "level": 2, "cost": 30, "available_after": "M01", "max_speed": 330},
+    "buzz_2": {"kind": "buzz", "level": 2, "cost": 35, "available_after": "M01", "work_multiplier": 1.35}
+  },
+  "optional_customization_shadow_costs": [15, 18, 22],
+  "replay_reward": 0
+}
