@@ -1,0 +1,39 @@
+name: P6 fix runtime helper
+
+on:
+  push:
+    branches:
+      - codex/p6-first-region-vertical-slice
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch exact P6 helper regression
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('gameplay/bee/movement_field.script')
+          text = path.read_text()
+          old_decl = 'local function patch_view_fields(payload, index, state)'
+          new_decl = 'local function patch_view_fields(self, payload, index, state)'
+          old_call = 'for index, state in ipairs(self.patches) do patch_view_fields(payload, index, state) end'
+          new_call = 'for index, state in ipairs(self.patches) do patch_view_fields(self, payload, index, state) end'
+          assert text.count(old_decl) == 1, text.count(old_decl)
+          assert text.count(old_call) == 1, text.count(old_call)
+          text = text.replace(old_decl, new_decl, 1).replace(old_call, new_call, 1)
+          path.write_text(text)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gameplay/bee/movement_field.script
+          git commit -m "P6: fix data-driven patch view state"
+          git push origin HEAD:codex/p6-first-region-vertical-slice
