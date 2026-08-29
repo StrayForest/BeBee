@@ -40,13 +40,13 @@ local function authored_stage_ladder_is_deterministic()
     test.assert_true(meadow.is_restored(restored))
 end
 
-local function stage_is_derived_from_existing_save_v2_completion_ids()
+local function stage_is_derived_from_current_save_completion_ids()
     local save = progression.new_save()
     save.world.campaign_completion[catalog.patches[1].id] = true
     save.world.campaign_completion[catalog.patches[2].id] = true
     local ok, error_code = progression.validate_save(save)
     test.assert_true(ok, error_code)
-    test.assert_equal(2, save.save_version)
+    test.assert_equal(3, save.save_version)
     local reloaded_status = status(save)
     test.assert_equal(meadow.STAGE_GROWING, reloaded_status.stage_id)
     test.assert_equal(2, reloaded_status.contribution)
@@ -69,7 +69,7 @@ return {
     name = "meadow",
     cases = {
         { name = "authored_stage_ladder_is_deterministic", run = authored_stage_ladder_is_deterministic },
-        { name = "stage_is_derived_from_existing_save_v2_completion_ids", run = stage_is_derived_from_existing_save_v2_completion_ids },
+        { name = "stage_is_derived_from_current_save_completion_ids", run = stage_is_derived_from_current_save_completion_ids },
         { name = "unrelated_completion_does_not_change_meadow", run = unrelated_completion_does_not_change_meadow },
         { name = "contribution_is_clamped_at_restored_progress", run = contribution_is_clamped_at_restored_progress },
     },
