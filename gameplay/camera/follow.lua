@@ -44,10 +44,8 @@ function M.new(config)
 end
 
 function M.step(state, target_x, target_y, dt, reduced_motion, config)
-    target_x, target_y = clamp_camera(target_x, target_y, config)
     if reduced_motion then
-        state.x = target_x
-        state.y = target_y
+        state.x, state.y = clamp_camera(target_x, target_y, config)
         return state
     end
 

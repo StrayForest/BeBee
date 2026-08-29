@@ -14,5 +14,7 @@ embedded_components {
   "near_z: -1.0\n"
   "far_z: 1.0\n"
   "orthographic_projection: 1\n"
+  "orthographic_zoom: 1.0\n"
+  "orthographic_mode: ORTHO_MODE_AUTO_COVER\n"
   ""
 }

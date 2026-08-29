@@ -1,9 +1,11 @@
 local qa = require "app.qa_runtime"
 local test = require "tests.testlib"
 
-local function supported_foundation_state()
+local function supported_runtime_states()
     test.assert_true(qa.is_supported_state("foundation_probe"))
-    test.assert_false(qa.is_supported_state("movement_empty"))
+    test.assert_true(qa.is_supported_state("movement_empty"))
+    test.assert_true(qa.is_supported_state("movement_dense"))
+    test.assert_false(qa.is_supported_state("not_a_state"))
 end
 
 local function default_seed()
@@ -22,11 +24,17 @@ local function supported_request()
     test.assert_equal(123, request.seed)
     test.assert_true(request.supported)
     test.assert_equal(nil, request.error)
+
+    local movement_request = qa.resolve_request("movement_dense", "456")
+    test.assert_equal("movement_dense", movement_request.state_id)
+    test.assert_equal(456, movement_request.seed)
+    test.assert_true(movement_request.supported)
+    test.assert_true(qa.is_movement_state(movement_request.state_id))
 end
 
 local function unknown_state_fails_closed()
-    local request = qa.resolve_request("movement_empty", "5")
-    test.assert_equal("movement_empty", request.state_id)
+    local request = qa.resolve_request("not_a_state", "5")
+    test.assert_equal("not_a_state", request.state_id)
     test.assert_equal(5, request.seed)
     test.assert_false(request.supported)
     test.assert_equal("unknown_state", request.error)
@@ -35,7 +43,7 @@ end
 return {
     name = "qa_runtime",
     cases = {
-        { name = "supported_foundation_state", run = supported_foundation_state },
+        { name = "supported_runtime_states", run = supported_runtime_states },
         { name = "default_seed", run = default_seed },
         { name = "normalized_seed", run = normalized_seed },
         { name = "supported_request", run = supported_request },

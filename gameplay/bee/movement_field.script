@@ -90,7 +90,9 @@ function init(self)
     self.view_ready = false
     self.qa_ready_sent = false
 
-    camera.set_orthographic_mode("#camera", camera.ORTHO_MODE_AUTO_COVER)
+    -- Auto Cover is authored on the Camera component itself. Keeping projection
+    -- configuration in the resource avoids relying on optional Lua camera globals
+    -- and makes the same mode apply in development and release bundles.
     go.set("#camera", "orthographic_zoom", 1.0)
     go.set_position(vmath.vector3(self.camera.x, self.camera.y, 0))
     msg.post(".", "acquire_input_focus")
