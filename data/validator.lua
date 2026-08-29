@@ -5,6 +5,7 @@ local COLLECTIONS = {
     { name = "patches", pattern = "^r%d%d_m%d%d_patch_%d%d$" },
     { name = "upgrades", pattern = "^upgrade_[a-z0-9_]+$" },
     { name = "seeds", pattern = "^seed_[a-z0-9_]+$" },
+    { name = "player_plots", pattern = "^r%d%d_m%d%d_player_plot_%d%d$" },
     { name = "regions", pattern = "^region_%d%d$" },
     { name = "meadows", pattern = "^r%d%d_m%d%d$" },
 }
@@ -153,6 +154,28 @@ local function validate_upgrade_fields(catalog, errors)
     if not kinds.buzz then add_error(errors, "upgrades must define buzz") end
 end
 
+local function validate_seed_fields(catalog, errors)
+    for index, seed in ipairs(catalog.seeds or {}) do
+        if type(seed) == "table" then
+            local prefix = string.format("seeds[%d]", index)
+            if type(seed.label) ~= "string" or seed.label == "" then add_error(errors, prefix .. ".label must be non-empty") end
+            non_negative_number(prefix .. ".cost", seed.cost, errors)
+            if finite_number(seed.cost) and seed.cost % 1 ~= 0 then add_error(errors, prefix .. ".cost must be an integer") end
+        end
+    end
+end
+
+local function validate_player_plot_fields(catalog, errors)
+    for index, plot in ipairs(catalog.player_plots or {}) do
+        if type(plot) == "table" then
+            local prefix = string.format("player_plots[%d]", index)
+            if not finite_number(plot.x) then add_error(errors, prefix .. ".x must be a finite number") end
+            if not finite_number(plot.y) then add_error(errors, prefix .. ".y must be a finite number") end
+            positive_number(prefix .. ".interaction_radius", plot.interaction_radius, errors)
+        end
+    end
+end
+
 local function validate_meadow_fields(catalog, errors)
     for index, definition in ipairs(catalog.meadows or {}) do
         if type(definition) == "table" then
@@ -203,10 +226,25 @@ end
 
 local function validate_references(catalog, by_collection, errors)
     for index, seed in ipairs(catalog.seeds or {}) do
-        if type(seed) == "table" and seed.flower_id ~= nil then
+        if type(seed) == "table" then
             local flower_id = seed.flower_id
             if type(flower_id) ~= "string" or not by_collection.flowers[flower_id] then
                 add_error(errors, string.format("seeds[%d].flower_id references unknown flower: %s", index, tostring(flower_id)))
+            end
+            if seed.available_after_patch_id ~= nil and not by_collection.patches[seed.available_after_patch_id] then
+                add_error(errors, string.format("seeds[%d].available_after_patch_id references unknown patch: %s", index, tostring(seed.available_after_patch_id)))
+            end
+        end
+    end
+
+    for index, plot in ipairs(catalog.player_plots or {}) do
+        if type(plot) == "table" then
+            local meadow_id = plot.meadow_id
+            if type(meadow_id) ~= "string" or not by_collection.meadows[meadow_id] then
+                add_error(errors, string.format("player_plots[%d].meadow_id references unknown meadow: %s", index, tostring(meadow_id)))
+            end
+            if plot.available_after_patch_id ~= nil and not by_collection.patches[plot.available_after_patch_id] then
+                add_error(errors, string.format("player_plots[%d].available_after_patch_id references unknown patch: %s", index, tostring(plot.available_after_patch_id)))
             end
         end
     end
@@ -273,6 +311,8 @@ function M.validate(catalog)
     validate_flower_fields(catalog, errors)
     validate_patch_fields(catalog, errors)
     validate_upgrade_fields(catalog, errors)
+    validate_seed_fields(catalog, errors)
+    validate_player_plot_fields(catalog, errors)
     validate_meadow_fields(catalog, errors)
     validate_references(catalog, by_collection, errors)
     table.sort(errors)
