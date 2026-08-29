@@ -130,7 +130,11 @@ function on_message(self, message_id, message)
     end
 
     if message_id == hash("movement_key_input") then
-        input_model.set_key(self.input, message.action_name, message.pressed == true and not message.released)
+        if message.pressed then
+            input_model.set_key(self.input, message.action_name, true)
+        elseif message.released then
+            input_model.set_key(self.input, message.action_name, false)
+        end
         return
     end
 

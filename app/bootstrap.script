@@ -119,11 +119,13 @@ end
 
 function on_input(self, action_id, action)
     if input_semantics.is_movement(action_id) then
-        msg.post("/movement#controller", "movement_key_input", {
-            action_name = input_semantics.name(action_id),
-            pressed = action.pressed == true,
-            released = action.released == true,
-        })
+        if action.pressed or action.released then
+            msg.post("/movement#controller", "movement_key_input", {
+                action_name = input_semantics.name(action_id),
+                pressed = action.pressed == true,
+                released = action.released == true,
+            })
+        end
         return false
     end
 
