@@ -51,6 +51,22 @@ local function update_runtime_bridge(self, force)
     html5.run("window.__bebeeMovementQA = " .. json.encode(payload))
 end
 
+local function mark_capture_ready(self)
+    if not self.qa_enabled or not html5_available() then return end
+    local state_json = json.encode(self.qa_state)
+    local frame = self.frame
+    html5.run([[
+        (() => {
+            const qa = window.__bebeeQA;
+            if (!qa || qa.stateId !== ]] .. state_json .. [[) return "missing";
+            qa.captureReady = true;
+            qa.simulationFrame = ]] .. tostring(frame) .. [[;
+            return "ok";
+        })()
+    ]])
+    print(string.format("BEBEE_QA capture_ready state=%s seed=88008 frame=%d", self.qa_state, self.frame))
+end
+
 local function send_view(self)
     local touch = input_model.touch_visual(self.input)
     local width, height = surface_size()
@@ -89,9 +105,6 @@ function init(self)
     self.view_ready = false
     self.qa_ready_sent = false
 
-    -- Auto Cover is authored on the Camera component itself. Keeping projection
-    -- configuration in the resource avoids relying on optional Lua camera globals
-    -- and makes the same mode apply in development and release bundles.
     go.set("#camera", "orthographic_zoom", 1.0)
     go.set_position(vmath.vector3(self.camera.x, self.camera.y, 0))
 end
@@ -118,7 +131,7 @@ function update(self, dt)
         and not self.qa_ready_sent and self.frame >= 2 then
         self.qa_ready_sent = true
         update_runtime_bridge(self, true)
-        msg.post("/bootstrap#controller", "movement_qa_ready", { frame = self.frame })
+        mark_capture_ready(self)
     end
 end
 

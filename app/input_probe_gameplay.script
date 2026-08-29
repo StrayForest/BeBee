@@ -11,23 +11,50 @@ end
 
 function on_input(self, action_id, action)
     local action_name = input.name(action_id)
+
+    if action_id == nil and action.x and action.y then
+        msg.post("/movement#controller", "movement_pointer_move", {
+            x = action.x,
+            y = action.y,
+        })
+        return false
+    end
+
     if not action_name then
         return false
     end
 
     if action_id == input.MODAL_TOGGLE and action.pressed then
         print("BEBEE_INPUT gameplay modal_toggle pressed")
+        msg.post("/movement#controller", "movement_input_clear")
         msg.post("/modal#controller", "open_modal")
         return false
     end
 
-    if input.is_movement(action_id) and action.pressed then
-        print("BEBEE_INPUT gameplay " .. action_name .. " pressed")
+    if input.is_movement(action_id) then
+        if action.pressed or action.released then
+            msg.post("/movement#controller", "movement_key_input", {
+                action_name = action_name,
+                pressed = action.pressed == true,
+                released = action.released == true,
+            })
+        end
+        if action.pressed then
+            print("BEBEE_INPUT gameplay " .. action_name .. " pressed")
+        end
     elseif action_id == input.PRIMARY_ACTION and action.pressed then
         print("BEBEE_INPUT gameplay primary_action pressed")
-    elseif action_id == input.POINTER_PRIMARY and action.pressed then
+    elseif action_id == input.POINTER_PRIMARY then
         local pointer = input.pointer(action)
-        print(string.format("BEBEE_INPUT gameplay pointer_primary pressed x=%.1f y=%.1f", pointer.x, pointer.y))
+        msg.post("/movement#controller", "movement_pointer_input", {
+            x = pointer.x,
+            y = pointer.y,
+            pressed = action.pressed == true,
+            released = action.released == true,
+        })
+        if action.pressed then
+            print(string.format("BEBEE_INPUT gameplay pointer_primary pressed x=%.1f y=%.1f", pointer.x, pointer.y))
+        end
     end
 
     return false

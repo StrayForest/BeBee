@@ -4,10 +4,6 @@ instances {
   prototype: "/app/bootstrap.go"
 }
 instances {
-  id: "movement"
-  prototype: "/gameplay/bee/movement_field.go"
-}
-instances {
   id: "sentinel"
   prototype: "/app/input_probe_main_sentinel.go"
 }

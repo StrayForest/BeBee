@@ -1,16 +1,11 @@
 local input = require "app.input_semantics"
 
-local function set_movement_blocked(blocked)
-    msg.post("main:/bootstrap#controller", "modal_input_blocked", { blocked = blocked == true })
-end
-
 function init(self)
     self.open = false
 end
 
 function final(self)
     if self.open then
-        set_movement_blocked(false)
         msg.post(".", "release_input_focus")
     end
 end
@@ -18,7 +13,7 @@ end
 function on_message(self, message_id)
     if message_id == hash("open_modal") and not self.open then
         self.open = true
-        set_movement_blocked(true)
+        msg.post("/movement#controller", "movement_input_clear")
         msg.post(".", "acquire_input_focus")
         print("BEBEE_INPUT modal_open focus_acquired")
     end
@@ -33,7 +28,6 @@ function on_input(self, action_id, action)
 
     if action_id == input.MODAL_TOGGLE and action.pressed then
         self.open = false
-        set_movement_blocked(false)
         msg.post(".", "release_input_focus")
         print("BEBEE_INPUT modal_closed focus_released")
         return true
