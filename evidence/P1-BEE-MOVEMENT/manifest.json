@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "ticket": "P1-BEE-MOVEMENT",
-  "change_class": "technical",
+  "change_class": "player-facing",
   "problem": "BeBee's validated sweep-pollination direction requires continuous traversal, but P0 intentionally shipped no production movement controller, touch scheme or camera-follow baseline.",
   "decision": {
     "ids": ["D-013", "D-006", "D-007", "T-011", "V-001"],
@@ -148,7 +148,7 @@
   },
   "governance": {
     "trust_boundary_change": "The PR updates DECISIONS.md/README/roadmap only to record the evidence-backed P1 result. It does not change evidence validators, workflow authority, branch/ruleset enforcement, required status checks or reviewer requirements.",
-    "bypass_analysis": "High-risk runtime changes are classified as technical as required by trusted diff policy; no trusted-base policy code is modified; no required checks or approvals are removed; failed runtime candidates remain recorded rather than rewritten as successful evidence.",
+    "bypass_analysis": "The diff includes player-facing presentation and high-risk runtime files. Trusted classification gives player-facing precedence; the full same-PR manifest, official-doc constraints, runtime verification, visual provenance and independent evaluation remain present. No trusted-base policy code or required check is changed.",
     "rollback": "Revert D-013, P1 source-of-truth status and the P1 runtime/evidence together if later evidence invalidates the baseline. There is no save migration or persistent-data rollback."
   },
   "known_limitations": [
