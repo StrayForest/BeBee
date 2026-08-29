@@ -8,6 +8,7 @@ local function supported_runtime_states()
         "progression_hive", "progression_buzz_gate",
         "meadow_dormant", "meadow_mid", "meadow_restored",
         "seed_locked", "seed_unlocked",
+        "region_start", "region_mid", "region_complete", "settings_accessibility",
     }) do test.assert_true(qa.is_supported_state(state), state) end
     test.assert_false(qa.is_supported_state("not_a_state"))
 end
@@ -46,6 +47,15 @@ local function supported_request()
     test.assert_true(seed_request.supported)
     test.assert_true(qa.is_seed_state(seed_request.state_id))
     test.assert_true(qa.requires_gameplay_capture(seed_request.state_id))
+
+    local region_request = qa.resolve_request("region_complete", "88008")
+    test.assert_true(region_request.supported)
+    test.assert_true(qa.is_region_state(region_request.state_id))
+    test.assert_true(qa.requires_gameplay_capture(region_request.state_id))
+
+    local settings_request = qa.resolve_request("settings_accessibility", "88008")
+    test.assert_true(settings_request.supported)
+    test.assert_true(qa.is_region_state(settings_request.state_id))
 end
 
 local function unknown_state_fails_closed()
