@@ -97,3 +97,34 @@ Would overlap P5 and contradict the milestone boundary. P4 needs payoff from the
 5. Ordinary gameplay retains one objective plus Honey; no modal tutorial or second restoration control is added.
 6. Exact-head browser evidence must capture HUD-hidden dormant/mid/restored states, desktop + small/mobile restored coverage, movement during the reveal and reload persistence.
 7. P4 cannot close until the separate evidence-first evaluation returns PASS or PASS WITH DEVIATION.
+
+## Implementation and evidence outcome
+
+Accepted runtime head before closeout-only source-of-truth changes: `a45f9dac2f9d7136c3da51dc5b761eb0c05ce739`.
+
+- Repository standards `33249086788` — PASS;
+- Test/data `33249086793` — PASS;
+- Pages preview `33249086822` — PASS;
+- HTML5 CI `33249086913` — PASS;
+- retained movement/P4 artifact `9713808008`, digest `sha256:7385f1161ad2c68a91027bbc5585b6246abb14fdc56c42929ade4f158d8369ec`;
+- canonical fixtures independently produce `DORMANT/0`, `GROWING/2`, `RESTORED/3` from clean contexts;
+- ground mix `0.00 → 0.68 → 1.00`;
+- detail count `8 → 22 → 28` and full ladder `8 → 14 → 22 → 28`;
+- ambient-life count `0 → 2 → 6` and full ladder `0 → 1 → 2 → 6`;
+- HUD-hidden before/after remains readable at 1280×720 and 640×360;
+- final 1.5 s accent permits `86.644` design units of movement during the reveal;
+- midpoint reload returns `GROWING`, final reload returns `RESTORED`;
+- final reload does not replay the one-shot celebration;
+- desktop/mobile/canonical P4 browser errors are zero;
+- P1 movement, P2 pollination, P3 progression and storage regressions remain green inside the same HTML5 run.
+
+Two evidence/runtime defects were found and fixed before acceptance rather than normalized:
+
+1. an already-restored save initially replayed the final celebration on reload;
+2. canonical `meadow_*` QA state names initially could inherit storage state instead of guaranteeing a clean deterministic fixture.
+
+The accepted implementation separates canonical clean fixtures from the real `p4_storage_lifecycle=reset/reload` path, so deterministic visual evidence cannot substitute for persistence evidence.
+
+Independent evaluation: `evidence/P4-FIRST-MEADOW-RESTORATION/evaluation.md` — **PASS**, no open `ITERATE` finding. Evidence strength remains **MEDIUM** because P4 has autonomous rendered/runtime evidence but does not claim an external novice playtest or final production art/audio.
+
+Complete machine-readable evidence: `evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json`.
