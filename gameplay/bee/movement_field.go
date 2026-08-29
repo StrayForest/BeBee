@@ -18,3 +18,21 @@ embedded_components {
   "orthographic_mode: ORTHO_MODE_AUTO_COVER\n"
   ""
 }
+embedded_components {
+  id: "pollination_complete"
+  type: "sound"
+  data: "sound: \"/assets/audio/pollination_complete.wav\"\n"
+  "looping: 0\n"
+  "group: \"master\"\n"
+  "gain: 0.75\n"
+  ""
+}
+embedded_components {
+  id: "region_complete"
+  type: "sound"
+  data: "sound: \"/assets/audio/region_complete.wav\"\n"
+  "looping: 0\n"
+  "group: \"master\"\n"
+  "gain: 0.85\n"
+  ""
+}
