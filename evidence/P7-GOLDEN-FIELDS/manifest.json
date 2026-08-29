@@ -12,6 +12,11 @@
     "selected_alternative": "continuous_authored_multi_region_world_with_bounded_visual_pool",
     "rationale": "Golden Fields validates the first production-expansion step as data-driven authored content inside the proven continuous world. Exact-head deterministic tests and Chromium evidence derive region_02 after persisted region_01 completion, complete four new Meadows through the same movement-through pollination verb, retain the one-Honey/Flight/Buzz/save/analytics architecture, and pass reload/browser/performance budgets. The first browser attempt exposed a real linear GUI-node allocation failure; the accepted repair keeps max_nodes=512 and uses six reusable patch-visual slots instead of one permanent subtree per authored patch. The independent visual evaluation records PASS WITH DEVIATION because final rounded character/species illustration and typography remain below release-art target. P7 overall remains IN PROGRESS after this Golden Fields slice."
   },
+  "governance": {
+    "trust_boundary_change": "DECISIONS.md is changed only to record validated P6/P7 multi-region evidence and the current architecture decision. This PR does not change workflows, rulesets, required checks, permissions, trusted validators, merge policy or repository trust-boundary semantics.",
+    "bypass_analysis": "No governance bypass is introduced or used. The decision-registry update and this manifest are changed in the same PR and remain subject to the trusted-base structure, diff-policy and trust-boundary validators.",
+    "rollback": "If the decision-registry closeout is found incorrect, revert the DECISIONS.md/source-of-truth closeout and matching evidence change together. No repository enforcement setting or bypass permission needs restoration because none is changed by this PR."
+  },
   "research": {
     "candidate_pool": [
       {"product_id": "garden-life", "name": "Garden Life: A Cozy Simulator", "source": "https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/", "relevance": "Authored restoration expands through areas while seeds and planting reuse a stable interaction vocabulary."},
