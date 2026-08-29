@@ -137,6 +137,8 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`evidence/P2-POLLINATION-CORE-LOOP/manifest.json`](evidence/P2-POLLINATION-CORE-LOOP/manifest.json) — P2 pollination/economy closeout evidence
 - [`docs/research/P3-progression.md`](docs/research/P3-progression.md) — P3 Flight/Buzz production research, economy and visual iteration trace
 - [`evidence/P3-PROGRESSION/manifest.json`](evidence/P3-PROGRESSION/manifest.json) — P3 progression/economy closeout evidence
+- [`docs/research/P4-first-meadow-restoration.md`](docs/research/P4-first-meadow-restoration.md) — P4 restoration reference analysis, implementation contract and accepted runtime trace
+- [`evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json`](evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json) — P4 restoration closeout evidence and independent evaluation provenance
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -149,19 +151,22 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 `D-006` is `VALIDATED`: default pollination is movement-through/sweep — qualifying movement inside a pollinatable patch advances progress, standing still does not, and the default scheme has no separate high-frequency pollination button. P2 productionizes this with forgiving authored bounds and work targets above one full forgiving-zone diameter; the first Daisy straight pass reaches 82.33% desktop / 82.92% mobile rather than completing incidentally. These values remain tunable rather than LOCKED.
 
-`D-008` is `VALIDATED`: the default persistent HUD remains one objective plus Honey, while pollination state/progress lives in world space with redundant cues. P2 exact-head desktop/Poki/mobile evidence specifically iterated a mobile `LOCKED`/Honey overlap before accepting the baseline.
+`D-008` is `VALIDATED`: the default persistent HUD remains one objective plus Honey, while pollination state/progress lives in world space with redundant cues. P2 exact-head desktop/Poki/mobile evidence specifically iterated a mobile `LOCKED`/Honey overlap before accepting the baseline. P4 retains the same density and proves the restoration change remains legible with the HUD hidden.
 
-`D-005` is `VALIDATED`: seed ownership uses a Hybrid restoration topology. Authored native campaign plots keep their native identity during restoration, dedicated player-shaped plots allow seed ownership before full completion, and campaign/native state remains separate from planted species. P5 still must prove that the two roles are understandable in the rendered game and tune the exact plot count, placement, planting input and seed economy.
+`D-005` is `VALIDATED`: seed ownership uses a Hybrid restoration topology. Authored native campaign plots keep their native identity during restoration, dedicated player-shaped plots allow seed ownership before full completion, and campaign/native state remains separate from planted species. P5 still must prove that the two roles are understandable in the rendered game and tune the exact plot count, placement, planting input and seed economy against the now-productionized restoration states.
 
 `D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks and Yield remains excluded. P3 productionizes the first level as Flight `300 → 330 u/s` for `30 Honey` and Buzz `1.00× → 1.35×` pollination work for `35 Honey`. Both choices are affordable from the first 45-Honey reward; runtime evidence proves the real movement/work effects, and Lavender becomes the first explicit `REQUIRES BUZZ 2` capability gate. Later levels and final pacing remain tunable rather than locked.
 
-`D-013` is `VALIDATED`: P1 uses one normalized direct-intent movement controller for keyboard and floating touch, with bounded acceleration/deceleration, authored bounds, bounded orthographic follow and a reduced-motion direct-follow path. The 300-unit/s value is now explicitly the Flight-level-1 baseline; P3 Flight 2 raises the computed maximum to 330 u/s without changing controller semantics. The accepted P3 runtime captures 330/330 u/s after purchase while retaining zero modal displacement and zero reduced-motion camera lag.
+`D-013` is `VALIDATED`: P1 uses one normalized direct-intent movement controller for keyboard and floating touch, with bounded acceleration/deceleration, authored bounds, bounded orthographic follow and a reduced-motion direct-follow path. The 300-unit/s value is now explicitly the Flight-level-1 baseline; P3 Flight 2 raises the computed maximum to 330 u/s without changing controller semantics. P4 retains that controller and proves the final restoration reveal is non-blocking: browser input moves the bee 86.644 design units during the 1.5-second accent.
+
+P4 productionizes the first visible restoration ladder without adding a new currency, restoration button or save field. `r01_m01` derives `DORMANT → WAKING → GROWING → RESTORED` from stable completed patch IDs. Accepted HUD-hidden evidence measures ground mix `0.00 → 0.68 → 1.00`, detail count `8 → 22 → 28`, ambient life `0 → 2 → 6`, midpoint/final reload safety and zero P4 browser errors. Evidence strength is MEDIUM because this is autonomous runtime/rendered proof, not an external novice playtest or final production-art evaluation.
 
 Still open/tunable before downstream milestones lock production values:
 
 - later Honey reward/cost tables and minutes/actions between meaningful purchases;
 - later Flight/Buzz effect curves and Buzz-gate cadence beyond the first P3 level/gate;
-- rendered comprehension/input/seed pacing for the Hybrid restoration flow;
+- rendered comprehension/input/seed pacing for the Hybrid restoration flow in P5;
+- external novice comprehension evidence where later milestone scope requires it;
 - final production illustration/animation/audio and later full-scene visual polish.
 
 The objective-evidence hardening in `BB-P013`–`BB-P017` is in place. `BB-P006` validated Poki as the primary external target, `BB-P007` defined V-001, `BB-P008` defined the deterministic visual-QA runtime contract, and `BB-P009` defined the HTML5 A/B generation storage/recovery contract.
@@ -222,10 +227,16 @@ P2 turns traversal into the first complete production loop: data-driven flowers/
 
 Accepted runtime head `bc3f878254d800063822377d57e99e7e5d42efd7` passed Repository standards (`33244624975`), Test/data (`33244624972`) and HTML5 CI (`33244624996`). Retained movement/P2 artifact `9712446750` records desktop straight pass `337.56/410 = 82.33%`, mobile `339.99/410 = 82.92%`, stationary work `0.0`, Honey `+45` exactly once, patch #2 unlock, zero replayed reward after reload, representative movement `60.98 fps`, modal displacement `0.0`, reduced-motion camera lag `0.0/0.0` and zero P2 browser errors. Two green-CI visual candidates were deliberately rejected before acceptance: first for flowers hidden by the bee, then for mobile `LOCKED` overlapping the Honey HUD. The final retained stills resolve both. Complete evidence and independent PASS are in [`evidence/P2-POLLINATION-CORE-LOOP/manifest.json`](evidence/P2-POLLINATION-CORE-LOOP/manifest.json) and `evaluation.md`.
 
-**P3 — Progression is COMPLETE for closeout; `BB-030` through `BB-034` pass the P3 milestone gate.**
+**P3 — Progression is COMPLETE; `BB-030` through `BB-034` pass the P3 milestone gate.**
 
 P3 turns Honey into permanent, immediately observable power without reopening Yield: the Hive contains exactly two upgrade cards; Flight level 2 costs 30 Honey and raises real movement from 300 to 330 u/s; Buzz level 2 costs 35 Honey and raises pollination work from 1.00× to 1.35×; Lavender is the first explicit `REQUIRES BUZZ 2` gate; purchase input is isolated; save schema v2 migrates P2 v1 state and persists upgrades/gate eligibility; economy regression covers both purchase orders plus minimal-required/customization-heavy paths.
 
 Accepted runtime head before closeout-only source-of-truth changes is `3b4b990923851217d9a25e2954a86443dea3916f`. It passed Repository standards (`33247411592`), Test/data (`33247411586`), Pages preview (`33247411600`) and HTML5 CI (`33247411645`). Retained movement/P3 artifact `9713299114`, digest `sha256:f7e1ce37eba04ecec26a23b42991f7bea4681ecdde64feaec8d225a1f7101ef9`, proves Flight `45→15 Honey / 330 u/s`, modal displacement `0.0`, Flight reload, Buzz `100→65 Honey / 1.35×`, Lavender `LOCKED requires_buzz 2 → AVAILABLE`, Buzz/gate reload and zero P3 browser errors. The previous mechanically green head was deliberately rejected for mobile card/gate readability; the accepted head resolves both findings. Complete evidence and independent PASS are in [`evidence/P3-PROGRESSION/manifest.json`](evidence/P3-PROGRESSION/manifest.json) and `evaluation.md`.
 
-**Next production task after P3 merge: `P4 — First Meadow Restoration`.**
+**P4 — First Meadow Restoration is COMPLETE for milestone closeout; the P4 exit criteria pass.**
+
+P4 turns the existing P2/P3 journey into a visible world payoff. The first authored meadow now derives four stages — `DORMANT → WAKING → GROWING → RESTORED` — from stable campaign patch completion IDs, with no schema v3 and no duplicated persisted meadow-stage field. The environment changes through ground mix, detail density and ambient life; the final 1.5-second accent remains non-blocking; no modal tutorial or second restoration button is introduced.
+
+Accepted runtime head before closeout-only source-of-truth changes is `a45f9dac2f9d7136c3da51dc5b761eb0c05ce739`. It passed Repository standards (`33249086788`), Test/data (`33249086793`), Pages preview (`33249086822`) and HTML5 CI (`33249086913`). Retained movement/P4 artifact `9713808008`, digest `sha256:7385f1161ad2c68a91027bbc5585b6246abb14fdc56c42929ade4f158d8369ec`, records ground mix `0.00→0.68→1.00`, details `8→22→28`, ambient life `0→2→6`, HUD-hidden desktop/Poki-small readability, mobile restored coverage, `86.644` units of movement during the reveal, midpoint/final reload safety, no replayed celebration after restored reload, deterministic clean canonical fixtures and zero P4 browser errors. Two pre-acceptance defects — restored-reload celebration replay and storage-dependent canonical fixture ambiguity — were fixed before evidence acceptance. Complete evidence and independent PASS are in [`evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json`](evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json) and `evaluation.md`.
+
+**Next production task after P4 merge: `P5 — Seed Ownership During Restoration`.**
