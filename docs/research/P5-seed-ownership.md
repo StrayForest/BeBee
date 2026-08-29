@@ -1,6 +1,6 @@
 # P5 — Seed Ownership During Restoration
 
-Checked: 2026-08-29  
+Checked: 2026-08-29
 Status: production implementation contract
 
 ## Problem
