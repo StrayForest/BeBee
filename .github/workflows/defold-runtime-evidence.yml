@@ -48,7 +48,7 @@ jobs:
           test -f build/html5/release/BeBee/index.html
           find build/html5/release/BeBee -type f -name '*.wasm' -print -quit | grep -q .
 
-      - name: Smoke bundles and capture deterministic visual/storage QA
+      - name: Smoke bundles and capture deterministic visual/storage/movement QA
         run: |
           set -euo pipefail
 
@@ -89,6 +89,32 @@ jobs:
             --repeat 2 \
             --output-root "artifacts/visual-qa/${head_sha}"
 
+          mkdir -p "artifacts/movement-qa/${head_sha}"
+          if [ -f tools/visual_qa/capture_movement_qa.py ]; then
+            python3 tools/visual_qa/capture_visual_qa.py \
+              --head-sha "${head_sha}" \
+              --state movement_empty \
+              --viewports desktop_reference,mobile_landscape \
+              --repeat 2 \
+              --output-root "artifacts/movement-qa/${head_sha}/still-empty"
+            python3 tools/visual_qa/capture_visual_qa.py \
+              --head-sha "${head_sha}" \
+              --state movement_dense \
+              --viewports desktop_reference,poki_small,mobile_landscape \
+              --repeat 2 \
+              --output-root "artifacts/movement-qa/${head_sha}/still-dense"
+            python3 tools/visual_qa/capture_movement_qa.py \
+              --head-sha "${head_sha}" \
+              --output-root "artifacts/movement-qa/${head_sha}"
+            test -s "artifacts/movement-qa/${head_sha}/still-empty/movement_empty/desktop_reference.png"
+            test -s "artifacts/movement-qa/${head_sha}/still-dense/movement_dense/poki_small.png"
+            test -s "artifacts/movement-qa/${head_sha}/movement_dense/desktop_reference.webm"
+            test -s "artifacts/movement-qa/${head_sha}/movement_dense/mobile_landscape.webm"
+            test -s "artifacts/movement-qa/${head_sha}/motion-report.json"
+          else
+            printf '%s\n' '{"schema_version":1,"result":"not_applicable","reason":"movement QA producer not present on this source revision"}' > "artifacts/movement-qa/${head_sha}/not-applicable.json"
+          fi
+
           mkdir -p "artifacts/storage-qa/${head_sha}"
           python3 tools/visual_qa/storage_html5_smoke.py \
             --development-url http://127.0.0.1:8000/development/BeBee/ \
@@ -120,6 +146,14 @@ jobs:
           if-no-files-found: error
           retention-days: 14
           path: artifacts/visual-qa/${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Upload movement QA evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: movement-qa-${{ github.event.pull_request.head.sha || github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: artifacts/movement-qa/${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Upload storage persistence QA evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
