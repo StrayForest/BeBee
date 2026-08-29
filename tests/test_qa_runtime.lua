@@ -5,6 +5,10 @@ local function supported_runtime_states()
     test.assert_true(qa.is_supported_state("foundation_probe"))
     test.assert_true(qa.is_supported_state("movement_empty"))
     test.assert_true(qa.is_supported_state("movement_dense"))
+    test.assert_true(qa.is_supported_state("pollination_idle"))
+    test.assert_true(qa.is_supported_state("pollination_active_50"))
+    test.assert_true(qa.is_supported_state("pollination_complete"))
+    test.assert_true(qa.is_supported_state("hud_default"))
     test.assert_false(qa.is_supported_state("not_a_state"))
 end
 
@@ -30,6 +34,16 @@ local function supported_request()
     test.assert_equal(456, movement_request.seed)
     test.assert_true(movement_request.supported)
     test.assert_true(qa.is_movement_state(movement_request.state_id))
+    test.assert_true(qa.requires_gameplay_capture(movement_request.state_id))
+
+    local pollination_request = qa.resolve_request("pollination_active_50", "789")
+    test.assert_true(pollination_request.supported)
+    test.assert_true(qa.is_pollination_state(pollination_request.state_id))
+    test.assert_true(qa.requires_gameplay_capture(pollination_request.state_id))
+
+    local hud_request = qa.resolve_request("hud_default", "321")
+    test.assert_true(hud_request.supported)
+    test.assert_true(qa.requires_gameplay_capture(hud_request.state_id))
 end
 
 local function unknown_state_fails_closed()

@@ -1,9 +1,18 @@
+local qa_runtime = require "app.qa_runtime"
+local catalog = require "data.catalog"
 local input_model = require "gameplay.bee.input"
 local movement = require "gameplay.bee.movement"
 local follow = require "gameplay.camera.follow"
+local flower_patch = require "gameplay.flowers.flower_patch"
+local progression = require "systems.progression"
+local storage_service = require "systems.storage.storage_service"
 
 local MOVEMENT_EMPTY = "movement_empty"
 local MOVEMENT_DENSE = "movement_dense"
+local POLLINATION_IDLE = "pollination_idle"
+local POLLINATION_ACTIVE = "pollination_active_50"
+local POLLINATION_COMPLETE = "pollination_complete"
+local HUD_DEFAULT = "hud_default"
 
 local function html5_available()
     return html5 ~= nil and html5.run ~= nil
@@ -22,6 +31,194 @@ end
 local function query_value(name)
     if not html5_available() then return "" end
     return html5.run("new URLSearchParams(window.location.search).get(" .. json.encode(name) .. ") || ''") or ""
+end
+
+local function movement_only_qa(state_id)
+    return state_id == MOVEMENT_EMPTY or state_id == MOVEMENT_DENSE
+end
+
+local function canonical_visual_fixture(state_id)
+    return state_id == POLLINATION_IDLE
+        or state_id == POLLINATION_ACTIVE
+        or state_id == POLLINATION_COMPLETE
+        or state_id == HUD_DEFAULT
+end
+
+local function clean_progression(self, persistence_enabled)
+    self.save_state = progression.new_save()
+    self.persistence_enabled = persistence_enabled == true
+    self.last_save_code = self.persistence_enabled and "clean_start" or "not_applicable"
+    self.last_save_durability = "not_written"
+end
+
+local function load_progression(self)
+    self.storage = storage_service.new({ domain_validator = progression.validate_save })
+    local storage_test = query_value("storage_test")
+    local lifecycle = query_value("p2_storage_lifecycle")
+
+    if storage_test ~= "" or movement_only_qa(self.qa_state) then
+        clean_progression(self, false)
+        return
+    end
+
+    if self.qa_enabled and canonical_visual_fixture(self.qa_state) and lifecycle == "" then
+        clean_progression(self, false)
+        return
+    end
+
+    if self.qa_enabled and self.qa_state == POLLINATION_IDLE and lifecycle == "reset" then
+        local deleted = self.storage.delete()
+        if not deleted.ok then
+            clean_progression(self, false)
+            self.last_save_code = "reset_failed:" .. tostring(deleted.code)
+            print("BEBEE_P2 storage_reset_failed code=" .. tostring(deleted.code))
+            return
+        end
+        clean_progression(self, true)
+        self.last_save_code = "reset_clean"
+        return
+    end
+
+    local loaded = self.storage.load()
+    if loaded.ok and loaded.value ~= nil then
+        self.save_state = loaded.value
+        self.persistence_enabled = true
+        self.last_save_code = loaded.code
+        self.last_save_durability = loaded.durability or "not_written"
+        print(string.format("BEBEE_P2 save_loaded code=%s honey=%d", tostring(loaded.code), self.save_state.player.honey))
+        return
+    end
+    if loaded.ok then
+        clean_progression(self, true)
+        self.last_save_code = loaded.code
+        return
+    end
+
+    clean_progression(self, false)
+    self.last_save_code = "load_failed:" .. tostring(loaded.code)
+    print("BEBEE_P2 save_load_failed code=" .. tostring(loaded.code))
+end
+
+local function build_patch_states(self)
+    self.patches = {}
+    for index, definition in ipairs(catalog.patches) do
+        self.patches[index] = flower_patch.new(definition, {
+            completed = progression.is_patch_completed(self.save_state, definition.id),
+            eligible = progression.is_patch_eligible(self.save_state, definition),
+        })
+    end
+end
+
+local function refresh_patch_eligibility(self)
+    for _, state in ipairs(self.patches) do
+        flower_patch.set_eligible(
+            state,
+            progression.is_patch_eligible(self.save_state, state.definition)
+        )
+    end
+end
+
+local function apply_visual_fixture(self)
+    if not self.qa_enabled or query_value("p2_storage_lifecycle") ~= "" then return end
+
+    local first = self.patches[1]
+    if self.qa_state == POLLINATION_ACTIVE then
+        first.work = first.work_target * 0.5
+        first.state = flower_patch.STATE_ACTIVE
+        self.motion.x = first.definition.x
+        self.motion.y = first.definition.y
+        self.camera.x = self.motion.x
+        self.camera.y = self.motion.y
+    elseif self.qa_state == POLLINATION_COMPLETE then
+        self.save_state.world.campaign_completion[first.definition.id] = true
+        self.save_state.player.honey = first.definition.honey_reward
+        first.work = first.work_target
+        first.completed = true
+        first.state = flower_patch.STATE_COMPLETED
+        refresh_patch_eligibility(self)
+        self.reward_amount = first.definition.honey_reward
+        self.reward_feedback_remaining = 1000
+        self.reward_patch_x = first.definition.x
+        self.reward_patch_y = first.definition.y
+        self.motion.x = first.definition.x
+        self.motion.y = first.definition.y
+        self.camera.x = self.motion.x
+        self.camera.y = self.motion.y
+    end
+end
+
+local function save_progression(self)
+    if not self.persistence_enabled then
+        self.last_save_code = "not_applicable"
+        self.last_save_durability = "not_written"
+        return false
+    end
+    local saved = self.storage.save(self.save_state)
+    self.last_save_code = saved.code or "save_error"
+    self.last_save_durability = saved.durability or "not_written"
+    if not saved.ok then
+        print("BEBEE_P2 save_failed code=" .. tostring(saved.code))
+        return false
+    end
+    print(string.format(
+        "BEBEE_P2 save_accepted code=%s durability=%s bytes=%s",
+        tostring(saved.code),
+        tostring(saved.durability),
+        tostring(saved.diagnostics and saved.diagnostics.serialized_size_bytes or "n/a")
+    ))
+    return true
+end
+
+local function complete_patch(self, state)
+    local result = progression.complete_patch(self.save_state, state.definition)
+    if not result.ok then
+        print("BEBEE_P2 reward_failed code=" .. tostring(result.code))
+        return
+    end
+    if result.awarded > 0 then
+        self.reward_amount = result.awarded
+        self.reward_feedback_remaining = 0.38
+        self.reward_patch_x = state.definition.x
+        self.reward_patch_y = state.definition.y
+        self.reward_transactions = self.reward_transactions + 1
+    end
+    self.pollination_completion_count = self.pollination_completion_count + 1
+    self.audio_hook_count = self.audio_hook_count + 1
+    refresh_patch_eligibility(self)
+    save_progression(self)
+    print(string.format(
+        "BEBEE_P2 patch_completed id=%s honey_awarded=%d honey_total=%d audio_hook=pollination_complete",
+        state.definition.id,
+        result.awarded,
+        result.honey
+    ))
+end
+
+local function update_pollination(self, movement_distance)
+    if not self.pollination_enabled then return end
+    for _, state in ipairs(self.patches) do
+        local event = flower_patch.step(state, self.motion.x, self.motion.y, movement_distance)
+        if event.just_completed then
+            complete_patch(self, state)
+        end
+    end
+end
+
+local function patch_payload(state)
+    return {
+        id = state.definition.id,
+        x = state.definition.x,
+        y = state.definition.y,
+        radius = state.definition.radius,
+        edgeForgiveness = state.definition.edge_forgiveness or 0,
+        work = state.work,
+        workTarget = state.work_target,
+        progress = flower_patch.progress_ratio(state),
+        state = state.state,
+        inside = state.inside,
+        qualifying = state.qualifying,
+        workAddedLastStep = state.work_added_last_step,
+    }
 end
 
 local function update_runtime_bridge(self, force)
@@ -49,6 +246,24 @@ local function update_runtime_bridge(self, force)
         distanceTravelled = self.motion.distance_travelled,
     }
     html5.run("window.__bebeeMovementQA = " .. json.encode(payload))
+
+    if self.pollination_enabled then
+        local pollination = {
+            schemaVersion = 1,
+            stateId = self.qa_state,
+            frame = self.frame,
+            honey = self.save_state.player.honey,
+            patch1 = patch_payload(self.patches[1]),
+            patch2 = patch_payload(self.patches[2]),
+            completionCount = self.pollination_completion_count,
+            rewardTransactions = self.reward_transactions,
+            audioHookCount = self.audio_hook_count,
+            extraPollinationInput = false,
+            saveCode = self.last_save_code,
+            saveDurability = self.last_save_durability,
+        }
+        html5.run("window.__bebeePollinationQA = " .. json.encode(pollination))
+    end
 end
 
 local function mark_capture_ready(self)
@@ -67,11 +282,23 @@ local function mark_capture_ready(self)
     print(string.format("BEBEE_QA capture_ready state=%s seed=88008 frame=%d", self.qa_state, self.frame))
 end
 
+local function active_patch_position(self)
+    for _, state in ipairs(self.patches) do
+        if state.qualifying then
+            return state.definition.x, state.definition.y
+        end
+    end
+    return 0, 0
+end
+
 local function send_view(self)
     local touch = input_model.touch_visual(self.input)
     local width, height = surface_size()
     local sx = 1280 / width
     local sy = 720 / height
+    local patch1 = self.patches[1]
+    local patch2 = self.patches[2]
+    local active_x, active_y = active_patch_position(self)
     msg.post("#view", "view_state", {
         bee_x = self.motion.x,
         bee_y = self.motion.y,
@@ -85,6 +312,25 @@ local function send_view(self)
         touch_anchor_y = (touch.anchor_y or 0) * sy,
         touch_knob_x = (touch.knob_x or 0) * sx,
         touch_knob_y = (touch.knob_y or 0) * sy,
+        pollination_visible = self.pollination_enabled,
+        patch1_x = patch1.definition.x,
+        patch1_y = patch1.definition.y,
+        patch1_state = patch1.state,
+        patch1_progress = flower_patch.progress_ratio(patch1),
+        patch1_qualifying = patch1.qualifying,
+        patch2_x = patch2.definition.x,
+        patch2_y = patch2.definition.y,
+        patch2_state = patch2.state,
+        patch2_progress = flower_patch.progress_ratio(patch2),
+        patch2_qualifying = patch2.qualifying,
+        honey = self.save_state.player.honey,
+        reward_amount = self.reward_amount,
+        reward_timer = self.reward_feedback_remaining,
+        reward_patch_x = self.reward_patch_x,
+        reward_patch_y = self.reward_patch_y,
+        active_patch_x = active_x,
+        active_patch_y = active_y,
+        frame = self.frame,
     })
 end
 
@@ -104,6 +350,18 @@ function init(self)
     self.frame = 0
     self.view_ready = false
     self.qa_ready_sent = false
+    self.pollination_completion_count = 0
+    self.reward_transactions = 0
+    self.audio_hook_count = 0
+    self.reward_amount = 0
+    self.reward_feedback_remaining = 0
+    self.reward_patch_x = 0
+    self.reward_patch_y = 0
+    self.pollination_enabled = not movement_only_qa(self.qa_state) and query_value("storage_test") == ""
+
+    load_progression(self)
+    build_patch_states(self)
+    apply_visual_fixture(self)
 
     go.set("#camera", "orthographic_zoom", 1.0)
     go.set_position(vmath.vector3(self.camera.x, self.camera.y, 0))
@@ -111,7 +369,7 @@ end
 
 function final(self)
     if self.qa_enabled and html5_available() then
-        html5.run("delete window.__bebeeMovementQA")
+        html5.run("delete window.__bebeeMovementQA; delete window.__bebeePollinationQA")
     end
 end
 
@@ -120,14 +378,22 @@ function update(self, dt)
     local width, height = surface_size()
     input_model.resize(self.input, width, height)
     local ix, iy = input_model.intent(self.input)
+    local distance_before = self.motion.distance_travelled
     movement.step(self.motion, ix, iy, dt)
+    local movement_distance = self.motion.distance_travelled - distance_before
+    update_pollination(self, movement_distance)
     follow.step(self.camera, self.motion.x, self.motion.y, dt, self.reduced_motion)
     go.set_position(vmath.vector3(self.camera.x, self.camera.y, 0))
+
+    if self.reward_feedback_remaining > 0 and self.reward_feedback_remaining < 900 then
+        self.reward_feedback_remaining = math.max(0, self.reward_feedback_remaining - dt)
+    end
+
     send_view(self)
     update_runtime_bridge(self, false)
 
     if self.view_ready and self.qa_enabled
-        and (self.qa_state == MOVEMENT_EMPTY or self.qa_state == MOVEMENT_DENSE)
+        and qa_runtime.requires_gameplay_capture(self.qa_state)
         and not self.qa_ready_sent and self.frame >= 2 then
         self.qa_ready_sent = true
         update_runtime_bridge(self, true)

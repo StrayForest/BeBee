@@ -5,11 +5,19 @@ M.DEFAULT_SEED = 88008
 M.FOUNDATION_STATE = "foundation_probe"
 M.MOVEMENT_EMPTY_STATE = "movement_empty"
 M.MOVEMENT_DENSE_STATE = "movement_dense"
+M.POLLINATION_IDLE_STATE = "pollination_idle"
+M.POLLINATION_ACTIVE_STATE = "pollination_active_50"
+M.POLLINATION_COMPLETE_STATE = "pollination_complete"
+M.HUD_DEFAULT_STATE = "hud_default"
 
 local SUPPORTED_STATES = {
     [M.FOUNDATION_STATE] = true,
     [M.MOVEMENT_EMPTY_STATE] = true,
     [M.MOVEMENT_DENSE_STATE] = true,
+    [M.POLLINATION_IDLE_STATE] = true,
+    [M.POLLINATION_ACTIVE_STATE] = true,
+    [M.POLLINATION_COMPLETE_STATE] = true,
+    [M.HUD_DEFAULT_STATE] = true,
 }
 
 function M.normalize_seed(value)
@@ -42,6 +50,18 @@ end
 
 function M.is_movement_state(state_id)
     return state_id == M.MOVEMENT_EMPTY_STATE or state_id == M.MOVEMENT_DENSE_STATE
+end
+
+function M.is_pollination_state(state_id)
+    return state_id == M.POLLINATION_IDLE_STATE
+        or state_id == M.POLLINATION_ACTIVE_STATE
+        or state_id == M.POLLINATION_COMPLETE_STATE
+end
+
+function M.requires_gameplay_capture(state_id)
+    return M.is_movement_state(state_id)
+        or M.is_pollination_state(state_id)
+        or state_id == M.HUD_DEFAULT_STATE
 end
 
 return M

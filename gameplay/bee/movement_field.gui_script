@@ -2,9 +2,32 @@ local DESIGN_W = 1280
 local DESIGN_H = 720
 local BEE_SCALE = 2.0
 
+local COLOR_GREEN = vmath.vector4(0.475, 0.788, 0.396, 1)
+local COLOR_DARK = vmath.vector4(0.286, 0.231, 0.196, 1)
+local COLOR_CREAM = vmath.vector4(1.0, 0.969, 0.91, 1)
+local COLOR_HONEY = vmath.vector4(0.965, 0.718, 0.235, 1)
+local COLOR_ACTIVE = vmath.vector4(0.471, 0.839, 0.910, 1)
+local COLOR_SUCCESS = vmath.vector4(0.416, 0.796, 0.463, 1)
+local COLOR_LOCKED = vmath.vector4(0.482, 0.431, 0.557, 0.86)
+local COLOR_DAISY = vmath.vector4(1.0, 0.94, 0.82, 1)
+local COLOR_CLOVER = vmath.vector4(0.82, 0.93, 0.72, 1)
+local COLOR_POLLEN = vmath.vector4(0.965, 0.718, 0.235, 0.62)
+
+local FLOWER_OFFSETS = {
+    { -82, -30 }, { -28, 24 }, { 38, -24 }, { 84, 30 },
+}
+
 local function box(x, y, w, h, color)
     local node = gui.new_box_node(vmath.vector3(x, y, 0), vmath.vector3(w, h, 0))
     gui.set_color(node, color)
+    return node
+end
+
+local function text_node(x, y, value, scale)
+    local node = gui.new_text_node(vmath.vector3(x, y, 0), value)
+    gui.set_font(node, "default")
+    gui.set_color(node, COLOR_CREAM)
+    gui.set_scale(node, vmath.vector3(scale or 1, scale or 1, 1))
     return node
 end
 
@@ -12,12 +35,118 @@ local function set_xy(node, x, y)
     gui.set_position(node, vmath.vector3(x, y, 0))
 end
 
+local function set_size(node, w, h)
+    gui.set_size(node, vmath.vector3(w, h, 0))
+end
+
 local function world_to_screen(wx, wy, camera_x, camera_y)
     return DESIGN_W * 0.5 + wx - camera_x, DESIGN_H * 0.5 + wy - camera_y
 end
 
+local function create_flower()
+    return {
+        stem = box(0, 0, 6, 34, vmath.vector4(0.243,0.510,0.278,0.92)),
+        center = box(0, 0, 13, 13, COLOR_HONEY),
+        petal_left = box(0, 0, 9, 12, COLOR_DAISY),
+        petal_right = box(0, 0, 9, 12, COLOR_DAISY),
+        petal_top = box(0, 0, 12, 9, COLOR_DAISY),
+        petal_bottom = box(0, 0, 12, 9, COLOR_DAISY),
+    }
+end
+
+local function create_patch(petal_color)
+    local patch = {
+        petal_color = petal_color,
+        halo = box(0, 0, 250, 150, vmath.vector4(1,1,1,0.05)),
+        progress_bg = box(0, 0, 184, 16, vmath.vector4(0.12,0.18,0.12,0.36)),
+        progress_fill = box(0, 0, 180, 10, COLOR_ACTIVE),
+        lock_text = text_node(0, 0, "LOCKED", 0.88),
+        flowers = {},
+    }
+    for index = 1, #FLOWER_OFFSETS do
+        patch.flowers[index] = create_flower()
+    end
+    return patch
+end
+
+local function set_flower_visual(flower, wx, wy, camera_x, camera_y, bloom, locked, petal_color)
+    local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
+    local petal = locked and COLOR_LOCKED or petal_color
+    local center = locked and COLOR_LOCKED or COLOR_HONEY
+    local stem = locked and COLOR_LOCKED or vmath.vector4(0.243,0.510,0.278,0.92)
+    local petal_size = 5 + 12 * bloom
+    local spread = 8 + 6 * bloom
+
+    gui.set_color(flower.stem, stem)
+    gui.set_color(flower.center, center)
+    gui.set_color(flower.petal_left, petal)
+    gui.set_color(flower.petal_right, petal)
+    gui.set_color(flower.petal_top, petal)
+    gui.set_color(flower.petal_bottom, petal)
+
+    set_xy(flower.stem, sx, sy - 18)
+    set_xy(flower.center, sx, sy)
+    set_xy(flower.petal_left, sx - spread, sy)
+    set_xy(flower.petal_right, sx + spread, sy)
+    set_xy(flower.petal_top, sx, sy + spread)
+    set_xy(flower.petal_bottom, sx, sy - spread)
+
+    set_size(flower.petal_left, petal_size, petal_size * 1.3)
+    set_size(flower.petal_right, petal_size, petal_size * 1.3)
+    set_size(flower.petal_top, petal_size * 1.3, petal_size)
+    set_size(flower.petal_bottom, petal_size * 1.3, petal_size)
+end
+
+local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, visible)
+    gui.set_enabled(patch.halo, visible)
+    gui.set_enabled(patch.progress_bg, visible and state == "ACTIVE")
+    gui.set_enabled(patch.progress_fill, visible and state == "ACTIVE")
+    gui.set_enabled(patch.lock_text, visible and state == "LOCKED")
+    for _, flower in ipairs(patch.flowers) do
+        for _, node in pairs(flower) do gui.set_enabled(node, visible) end
+    end
+    if not visible then return end
+
+    local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
+    local locked = state == "LOCKED"
+    local completed = state == "COMPLETED"
+    local bloom = completed and 1 or math.max(0.18, progress)
+    local halo_color
+    if locked then
+        halo_color = vmath.vector4(0.482,0.431,0.557,0.20)
+    elseif completed then
+        halo_color = vmath.vector4(COLOR_SUCCESS.x,COLOR_SUCCESS.y,COLOR_SUCCESS.z,0.20)
+    elseif state == "ACTIVE" then
+        halo_color = vmath.vector4(COLOR_ACTIVE.x,COLOR_ACTIVE.y,COLOR_ACTIVE.z,0.20)
+    else
+        halo_color = vmath.vector4(1.0,1.0,1.0,0.08)
+    end
+    gui.set_color(patch.halo, halo_color)
+    set_xy(patch.halo, sx, sy)
+
+    for index, offset in ipairs(FLOWER_OFFSETS) do
+        set_flower_visual(
+            patch.flowers[index],
+            wx + offset[1],
+            wy + offset[2],
+            camera_x,
+            camera_y,
+            bloom,
+            locked,
+            patch.petal_color
+        )
+    end
+
+    local bar_y = sy + 105
+    local width = 180 * math.max(0, math.min(1, progress))
+    set_xy(patch.progress_bg, sx, bar_y)
+    set_size(patch.progress_fill, math.max(1, width), 10)
+    set_xy(patch.progress_fill, sx - 90 + math.max(1, width) * 0.5, bar_y)
+    set_xy(patch.lock_text, sx, bar_y)
+end
+
 function init(self)
-    self.background = box(640, 360, 1280, 720, vmath.vector4(0.475, 0.788, 0.396, 1))
+    self.background = box(640, 360, 1280, 720, COLOR_GREEN)
 
     self.decorations = {}
     local points = {
@@ -38,13 +167,31 @@ function init(self)
     self.edge_bottom = box(0, 0, 2400, 18, vmath.vector4(0.243,0.510,0.278,0.75))
     self.edge_top = box(0, 0, 2400, 18, vmath.vector4(0.243,0.510,0.278,0.75))
 
+    self.patch1 = create_patch(COLOR_DAISY)
+    self.patch2 = create_patch(COLOR_CLOVER)
+
     self.shadow = box(640, 340, 76 * BEE_SCALE, 22 * BEE_SCALE, vmath.vector4(0.12,0.18,0.12,0.20))
     self.wing_left = box(612, 375, 38 * BEE_SCALE, 34 * BEE_SCALE, vmath.vector4(1.0,0.969,0.91,0.70))
     self.wing_right = box(668, 375, 38 * BEE_SCALE, 34 * BEE_SCALE, vmath.vector4(1.0,0.969,0.91,0.70))
-    self.body = box(640, 360, 66 * BEE_SCALE, 54 * BEE_SCALE, vmath.vector4(0.965,0.718,0.235,1))
-    self.stripe_left = box(627, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, vmath.vector4(0.286,0.231,0.196,1))
-    self.stripe_right = box(648, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, vmath.vector4(0.286,0.231,0.196,1))
-    self.head = box(674, 360, 27 * BEE_SCALE, 42 * BEE_SCALE, vmath.vector4(0.286,0.231,0.196,1))
+    self.body = box(640, 360, 66 * BEE_SCALE, 54 * BEE_SCALE, COLOR_HONEY)
+    self.stripe_left = box(627, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, COLOR_DARK)
+    self.stripe_right = box(648, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, COLOR_DARK)
+    self.head = box(674, 360, 27 * BEE_SCALE, 42 * BEE_SCALE, COLOR_DARK)
+
+    self.objective_bg = box(218, 664, 370, 48, vmath.vector4(0.12,0.18,0.12,0.58))
+    self.objective = text_node(218, 664, "POLLINATE THE FLOWERS", 0.92)
+    self.honey_bg = box(1120, 664, 220, 48, vmath.vector4(0.12,0.18,0.12,0.58))
+    self.honey_icon = box(1048, 664, 24, 24, COLOR_HONEY)
+    self.honey_text = text_node(1135, 664, "HONEY 0", 1.0)
+    self.reward_text = text_node(0, 0, "+0 HONEY", 1.1)
+    gui.set_color(self.reward_text, COLOR_HONEY)
+    gui.set_enabled(self.reward_text, false)
+
+    self.pollen = {}
+    for index = 1, 6 do
+        self.pollen[index] = box(0, 0, 8, 8, COLOR_POLLEN)
+        gui.set_enabled(self.pollen[index], false)
+    end
 
     self.joy_base = box(0, 0, 118, 118, vmath.vector4(1,1,1,0.13))
     self.joy_knob = box(0, 0, 42, 42, vmath.vector4(1,0.969,0.91,0.38))
@@ -75,6 +222,74 @@ function on_message(self, message_id, message)
     set_xy(self.edge_right, rx, ry)
     set_xy(self.edge_bottom, bx, by)
     set_xy(self.edge_top, tx, ty)
+
+    local pollination_visible = message.pollination_visible == true
+    render_patch(
+        self.patch1,
+        message.patch1_x or 1550,
+        message.patch1_y or 800,
+        message.patch1_state or "LOCKED",
+        message.patch1_progress or 0,
+        camera_x,
+        camera_y,
+        pollination_visible
+    )
+    render_patch(
+        self.patch2,
+        message.patch2_x or 1950,
+        message.patch2_y or 1050,
+        message.patch2_state or "LOCKED",
+        message.patch2_progress or 0,
+        camera_x,
+        camera_y,
+        pollination_visible
+    )
+
+    gui.set_enabled(self.objective_bg, pollination_visible)
+    gui.set_enabled(self.objective, pollination_visible)
+    gui.set_enabled(self.honey_bg, pollination_visible)
+    gui.set_enabled(self.honey_icon, pollination_visible)
+    gui.set_enabled(self.honey_text, pollination_visible)
+    if pollination_visible then
+        gui.set_text(self.honey_text, "HONEY " .. tostring(math.floor(message.honey or 0)))
+        local p1 = message.patch1_state or "LOCKED"
+        local p2 = message.patch2_state or "LOCKED"
+        if p1 == "COMPLETED" and p2 == "COMPLETED" then
+            gui.set_text(self.objective, "FLOWERS BLOOMING")
+        elseif p1 == "COMPLETED" then
+            gui.set_text(self.objective, "NEXT PATCH UNLOCKED")
+        elseif p1 == "ACTIVE" then
+            gui.set_text(self.objective, "POLLINATION IN PROGRESS")
+        else
+            gui.set_text(self.objective, "POLLINATE THE FLOWERS")
+        end
+    end
+
+    local reward_visible = pollination_visible and (message.reward_timer or 0) > 0
+    gui.set_enabled(self.reward_text, reward_visible)
+    if reward_visible then
+        gui.set_text(self.reward_text, "+" .. tostring(math.floor(message.reward_amount or 0)) .. " HONEY")
+        local reward_x, reward_y = world_to_screen(message.reward_patch_x or 0, (message.reward_patch_y or 0) + 135, camera_x, camera_y)
+        set_xy(self.reward_text, reward_x, reward_y)
+    end
+
+    local active_x = message.active_patch_x or 0
+    local active_y = message.active_patch_y or 0
+    local pollen_active = pollination_visible and (message.patch1_qualifying == true or message.patch2_qualifying == true)
+    for index, node in ipairs(self.pollen) do
+        gui.set_enabled(node, pollen_active)
+        if pollen_active then
+            local angle = (message.frame or 0) * 0.10 + index * 1.047
+            local radius = 52 + (index % 2) * 18
+            local px, py = world_to_screen(
+                active_x + math.cos(angle) * radius,
+                active_y + math.sin(angle) * radius,
+                camera_x,
+                camera_y
+            )
+            set_xy(node, px, py)
+        end
+    end
 
     local bee_x, bee_y = world_to_screen(message.bee_x or 1200, message.bee_y or 800, camera_x, camera_y)
     local speed_ratio = math.min(1, (message.speed or 0) / 300)

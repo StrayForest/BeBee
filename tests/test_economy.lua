@@ -1,0 +1,33 @@
+local economy = require "systems.economy"
+local test = require "tests.testlib"
+
+local function credit_updates_balance()
+    local state = economy.new(0)
+    local result = economy.credit(state, 45, "test")
+    test.assert_true(result.ok)
+    test.assert_equal(45, state.honey)
+end
+
+local function negative_credit_is_rejected()
+    local state = economy.new(10)
+    local result = economy.credit(state, -1, "test")
+    test.assert_false(result.ok)
+    test.assert_equal(10, state.honey)
+end
+
+local function spend_never_goes_negative()
+    local state = economy.new(10)
+    local result = economy.spend(state, 11, "test")
+    test.assert_false(result.ok)
+    test.assert_equal("insufficient_honey", result.code)
+    test.assert_equal(10, state.honey)
+end
+
+return {
+    name = "economy",
+    cases = {
+        { name = "credit_updates_balance", run = credit_updates_balance },
+        { name = "negative_credit_is_rejected", run = negative_credit_is_rejected },
+        { name = "spend_never_goes_negative", run = spend_never_goes_negative },
+    },
+}
