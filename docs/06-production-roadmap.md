@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration, P5 Seed Ownership During Restoration and P6 First Region Vertical Slice are complete for milestone closeout; the next production handoff after P6 merge is P7 — Production Expansion.**
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration, P5 Seed Ownership During Restoration and P6 First Region Vertical Slice are complete for milestone closeout. P7 — Production Expansion is IN PROGRESS: Golden Fields is the first accepted slice and Wetland Garden is the next production handoff.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -123,7 +123,7 @@ Delivered:
 - a lower main-world sentinel plus proxied gameplay/modal listeners that expose the actual nested Defold input-stack behavior;
 - modal focus acquisition, cross-stack consumption, release and restoration proof;
 - frame-synchronized dependency-free Chromium CDP input injection retained in exact-head runtime evidence;
-- `T-011` runtime behavior proven while `T-010` correctly remains `HYPOTHESIS` because proxy memory and complete region/screen lifecycle are not covered by this ticket.
+- `T-011` runtime behavior proven. BB-003 did not itself decide full region lifecycle; later P6/P7 multi-region evidence deprecates the old `T-010` per-major-region proxy hypothesis in favor of `T-013`.
 
 The first fully successful behavioral runtime proof was GitHub Actions run `33205217201` on head `797271f19251529dfed5970d8b189ca0a1aa34bb`; the final merge head must repeat development/release builds, browser input/proxy smoke and repository/trusted evidence gates successfully. Detailed reasoning and scope boundaries are retained in `docs/research/BB-003-input-proxy-focus.md` and `evidence/BB-003/manifest.json`.
 
@@ -706,6 +706,8 @@ P6 has the complete playable journey, critical-surface captures, objective measu
 
 # P7 — Production Expansion
 
+**Status: IN PROGRESS — Golden Fields accepted; Wetland Garden next.**
+
 Scale proven content/system patterns only.
 
 Rules:
@@ -717,6 +719,91 @@ Rules:
 - P6's explicit geometric-illustration deviation must be reduced while content scales; do not mass-produce final assets on the assumption that the current geometric presentation is release-certified art.
 
 Potential cut-first items remain: accent species, helper insects, replay economy, advanced fast travel, cosmetics/live content.
+
+## Golden Fields — ACCEPTED SLICE, PASS WITH DEVIATION
+
+The first P7 slice proves that the P6 architecture scales into a second authored region without another core verb, currency, mandatory sink, world-management screen or per-region game-world lifecycle.
+
+### Authored content — COMPLETE for Golden Fields
+
+`region_02` contains four Meadows:
+
+1. Sun Gate — Sunflower, Buzz-3 continuation;
+2. Poppy Run — Poppy;
+3. Windmill Loop — Sunflower + Windmill landmark;
+4. Harvest Crown — Poppy + Golden Wind Vane identity.
+
+The active region is derived from the first incomplete authored region. P6 QA fixtures remain pinned to `region_01`; production runtime continues to Golden Fields automatically after Sunny Meadows completion.
+
+### Economy / progression reuse — COMPLETE
+
+Golden Fields adds no new currency, upgrade branch or required spend. The accepted P6 max-first-sink state begins at `346 Honey`; four first-time Golden Fields rewards total `545`, ending at `891 Honey`. Deterministic and browser evidence both pass without replay or progression dead-end.
+
+### Browser journey / persistence — COMPLETE
+
+The retained journey starts from the P6 region-complete fixture only long enough to persist that state through the real save/settings path, then removes the QA route. Ordinary runtime derives Golden Fields at `0/4`, completes it to `4/4`, records region-scoped analytics and reloads with both campaign regions complete.
+
+Accepted runtime evidence head before closeout-only source-of-truth changes: `8d9640522ffc742ffe79178718fa2df0517dd6bc`.
+
+- Repository standards `33271607224` — PASS;
+- Test/data `33271607179` — PASS, `108/108`;
+- Pages preview `33271607241` — PASS;
+- HTML5 CI `33271607193` — PASS;
+- movement/P7 artifact `9720322590` (`movement-qa-8d9640522ffc742ffe79178718fa2df0517dd6bc`), digest `sha256:b58dc0c217aa1845a3f42a2b1cf2fcb4685f2a548f452d09be50d00cbeb0fd80`;
+- storage artifact `9720322807`, digest `sha256:7101d69c975e8543fe1babf7e7b835826408ce73fb3e489a5fb0d8537354ce6a`;
+- visual artifact `9720322272`, digest `sha256:02fec4d9a4b5ad298c83bb72211c6a600093bd1ef3a335decbc58fe964e53a44`;
+- playable artifact `9720322102`, digest `sha256:8c8c5fed6235c72460485ad235c7110e59b42998e11a3be3a31dce48da45bd3e`;
+- HTML5 diagnostics artifact `9720323006`, digest `sha256:66c7580f97f7ba00ee1a1e27fa5c6ec493e8941e82c696906e0aebddd0c3f682`;
+- Test/data artifact `9720268026`, digest `sha256:ed82ab40085d5bbf226f7fb7d341cdcb0a329133c11c4858d993aac251b4f987`;
+- Golden Fields `0/4 -> 4/4`;
+- campaign `region_01 6/6 + region_02 4/4`, `2/2` complete after reload;
+- Honey `346 -> 891` with no new mandatory spend/replay;
+- 11 P7 analytics events through `region_completed`;
+- P7 browser console/page errors `0 / 0`, external requests `0`;
+- desktop canvas `1280x720`, mobile canvas `844x390`;
+- current combined engine FPS `59.87` against `>=50`;
+- current release bundle `2,815,539` bytes against `12,582,912` bytes.
+
+### GUI scalability repair — COMPLETE for current two-region catalog
+
+The first Golden Fields HTML5 candidate `ba4c4be33f7353944a5ff5ea1389e04948a79eb4` failed with `ERROR:GUI: Could not create the node since the buffer is full (512)` / `Out of nodes (max 512)`. This is retained as a real P7 architecture finding, not normalized as flaky CI.
+
+The accepted repair:
+
+- keeps `movement_field.gui` at `max_nodes: 512`;
+- removes one permanent flower-GUI subtree per authored patch;
+- allocates six reusable patch-visual slots;
+- rebinds those slots to nearby authored patches from camera distance;
+- keeps gameplay/campaign state in the controller/domain layer; GUI remains presentation-only.
+
+The exact accepted HTML5 run passes after this repair, so rendering cost is now bounded by visible complexity instead of total authored patch count for the current architecture.
+
+### Golden Fields independent evaluation
+
+Verdict: **PASS WITH DEVIATION**.
+
+Functional/multi-region architecture is accepted: the second region derives from persisted campaign state, reuses the core verb/economy/save/analytics seams, completes without replay, survives reload, retains P1-P6 regressions and passes current browser/performance budgets. The original 512-node failure is fixed architecturally rather than by raising the budget.
+
+The deviation remains visual finish. Golden Fields has a distinct palette, landmarks and Sunflower/Poppy presentation, but the bee, flower illustration, typography and full-scene composition remain intentionally geometric and below the long-term release-art target. Some wide-view edge framing is also sparse despite correct full-canvas sizing. This is not a hidden placeholder dependency and does not block the content-scaling proof, but it may not be relabeled release-candidate art.
+
+Complete Golden Fields records:
+
+- `docs/research/P7-golden-fields-production-expansion.md`;
+- `evidence/P7-GOLDEN-FIELDS/manifest.json`;
+- `evidence/P7-GOLDEN-FIELDS/evaluation.md`.
+
+### Golden Fields autonomous merge gate
+
+The accepted runtime evidence is complete. The final closeout PR head must still repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted `validate-pr-evidence`, and retain a non-N/A `movement-qa-$PR_HEAD`, before merge.
+
+**Golden Fields slice: PASS WITH DEVIATION. P7 milestone remains IN PROGRESS. Next production slice after merge: Wetland Garden.**
+
+Remaining P7 region sequence:
+
+1. Wetland Garden;
+2. Rosewood;
+3. Alpine Bloom;
+4. Moon Garden.
 
 ---
 
@@ -736,7 +823,7 @@ The **primary distribution target is selected in P-1**, not here. P8 integrates 
 - browser/device QA;
 - production telemetry dashboard;
 - store/portal metadata and capture set;
-- final production illustration/animation/typography certification, including closure of the P6 visual-finish deviation;
+- final production illustration/animation/typography certification, including closure of the P6/P7 visual-finish deviation;
 - verify no debug QA state injection is exposed unsafely in release.
 
 ## Release gates
@@ -748,7 +835,7 @@ The **primary distribution target is selected in P-1**, not here. P8 integrates 
 - analytics/privacy behavior approved;
 - third-party inventory complete;
 - stable player-visible performance/load behavior;
-- P6 visual-finish deviation closed or replaced by an explicitly approved release-quality art decision;
+- P6/P7 visual-finish deviation closed or replaced by an explicitly approved release-quality art decision;
 - production build contains no secrets or unsafe dev tools.
 
 ---
