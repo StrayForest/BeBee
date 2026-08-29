@@ -572,14 +572,9 @@ end
 
 local function patch_view_fields(self, payload, index, state)
     local prefix = "patch" .. tostring(index) .. "_"
-    payload[prefix .. "x"] = state.definition.x
-    payload[prefix .. "y"] = state.definition.y
     payload[prefix .. "state"] = state.state
     payload[prefix .. "progress"] = flower_patch.progress_ratio(state)
     payload[prefix .. "qualifying"] = state.qualifying
-    payload[prefix .. "flower_id"] = state.definition.flower_id
-    payload[prefix .. "meadow_id"] = state.definition.meadow_id
-    payload[prefix .. "eligible"] = progression.is_patch_eligible(self.save_state, state.definition)
 end
 
 local function send_view(self)
