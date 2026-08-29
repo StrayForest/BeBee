@@ -11,6 +11,9 @@ M.POLLINATION_COMPLETE_STATE = "pollination_complete"
 M.HUD_DEFAULT_STATE = "hud_default"
 M.PROGRESSION_HIVE_STATE = "progression_hive"
 M.PROGRESSION_BUZZ_GATE_STATE = "progression_buzz_gate"
+M.MEADOW_DORMANT_STATE = "meadow_dormant"
+M.MEADOW_MID_STATE = "meadow_mid"
+M.MEADOW_RESTORED_STATE = "meadow_restored"
 
 local SUPPORTED_STATES = {
     [M.FOUNDATION_STATE] = true,
@@ -22,6 +25,9 @@ local SUPPORTED_STATES = {
     [M.HUD_DEFAULT_STATE] = true,
     [M.PROGRESSION_HIVE_STATE] = true,
     [M.PROGRESSION_BUZZ_GATE_STATE] = true,
+    [M.MEADOW_DORMANT_STATE] = true,
+    [M.MEADOW_MID_STATE] = true,
+    [M.MEADOW_RESTORED_STATE] = true,
 }
 
 function M.normalize_seed(value)
@@ -60,10 +66,17 @@ function M.is_progression_state(state_id)
     return state_id == M.PROGRESSION_HIVE_STATE or state_id == M.PROGRESSION_BUZZ_GATE_STATE
 end
 
+function M.is_restoration_state(state_id)
+    return state_id == M.MEADOW_DORMANT_STATE
+        or state_id == M.MEADOW_MID_STATE
+        or state_id == M.MEADOW_RESTORED_STATE
+end
+
 function M.requires_gameplay_capture(state_id)
     return M.is_movement_state(state_id)
         or M.is_pollination_state(state_id)
         or M.is_progression_state(state_id)
+        or M.is_restoration_state(state_id)
         or state_id == M.HUD_DEFAULT_STATE
 end
 
