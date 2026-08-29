@@ -31,7 +31,12 @@ local function valid_catalog()
                 },
             },
         },
-        seeds = { { id = "seed_daisy", flower_id = "flower_daisy" } },
+        seeds = {
+            { id = "seed_daisy", flower_id = "flower_daisy", label = "DAISY", cost = 15, available_after_patch_id = "r01_m01_patch_01" },
+        },
+        player_plots = {
+            { id = "r01_m01_player_plot_01", meadow_id = "r01_m01", x = 140, y = 160, interaction_radius = 80, available_after_patch_id = "r01_m01_patch_01" },
+        },
         regions = { { id = "region_01", meadow_ids = { "r01_m01" } } },
         meadows = {
             {
@@ -88,6 +93,38 @@ local function broken_seed_reference_fails()
     local ok, errors = validator.validate(catalog)
     test.assert_false(ok)
     test.assert_contains(errors, "references unknown flower: flower_missing")
+end
+
+local function broken_seed_unlock_reference_fails()
+    local catalog = valid_catalog()
+    catalog.seeds[1].available_after_patch_id = "r01_m01_patch_99"
+    local ok, errors = validator.validate(catalog)
+    test.assert_false(ok)
+    test.assert_contains(errors, "seeds[1].available_after_patch_id references unknown patch: r01_m01_patch_99")
+end
+
+local function invalid_seed_cost_fails()
+    local catalog = valid_catalog()
+    catalog.seeds[1].cost = -1
+    local ok, errors = validator.validate(catalog)
+    test.assert_false(ok)
+    test.assert_contains(errors, "seeds[1].cost must be a non-negative finite number")
+end
+
+local function broken_player_plot_reference_fails()
+    local catalog = valid_catalog()
+    catalog.player_plots[1].meadow_id = "r01_m99"
+    local ok, errors = validator.validate(catalog)
+    test.assert_false(ok)
+    test.assert_contains(errors, "player_plots[1].meadow_id references unknown meadow: r01_m99")
+end
+
+local function invalid_player_plot_radius_fails()
+    local catalog = valid_catalog()
+    catalog.player_plots[1].interaction_radius = 0
+    local ok, errors = validator.validate(catalog)
+    test.assert_false(ok)
+    test.assert_contains(errors, "player_plots[1].interaction_radius must be a positive finite number")
 end
 
 local function broken_patch_reference_fails()
@@ -174,6 +211,10 @@ return {
         { name = "invalid_id_format_fails", run = invalid_id_format_fails },
         { name = "broken_region_reference_fails", run = broken_region_reference_fails },
         { name = "broken_seed_reference_fails", run = broken_seed_reference_fails },
+        { name = "broken_seed_unlock_reference_fails", run = broken_seed_unlock_reference_fails },
+        { name = "invalid_seed_cost_fails", run = invalid_seed_cost_fails },
+        { name = "broken_player_plot_reference_fails", run = broken_player_plot_reference_fails },
+        { name = "invalid_player_plot_radius_fails", run = invalid_player_plot_radius_fails },
         { name = "broken_patch_reference_fails", run = broken_patch_reference_fails },
         { name = "invalid_patch_work_fails", run = invalid_patch_work_fails },
         { name = "sparse_collection_fails", run = sparse_collection_fails },
