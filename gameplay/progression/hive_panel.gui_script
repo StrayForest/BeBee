@@ -98,7 +98,11 @@ local function apply_restoration(self)
     local previous = self.restoration_stage_id
     self.restoration_stage_id = status.stage_id
 
-    if previous ~= nil and previous ~= meadow.STAGE_RESTORED and status.stage_id == meadow.STAGE_RESTORED then
+    local initial_restore_window = (self.restoration_frame or 0) < 60
+    if previous ~= nil
+        and previous ~= meadow.STAGE_RESTORED
+        and status.stage_id == meadow.STAGE_RESTORED
+        and not initial_restore_window then
         local seconds = stage.celebration_seconds or 1.5
         self.celebration_until_frame = (self.restoration_frame or 0) + math.floor(seconds * 60 + 0.5)
     end
