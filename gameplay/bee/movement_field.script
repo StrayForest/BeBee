@@ -4,7 +4,10 @@ local input_model = require "gameplay.bee.input"
 local movement = require "gameplay.bee.movement"
 local follow = require "gameplay.camera.follow"
 local flower_patch = require "gameplay.flowers.flower_patch"
+local region = require "gameplay.world.region"
 local progression = require "systems.progression"
+local analytics = require "systems.analytics"
+local analytics_adapter = require "adapters.analytics.console_adapter"
 local storage_service = require "systems.storage.storage_service"
 
 local MOVEMENT_EMPTY = "movement_empty"
@@ -20,6 +23,10 @@ local MEADOW_MID = "meadow_mid"
 local MEADOW_RESTORED = "meadow_restored"
 local SEED_LOCKED = "seed_locked"
 local SEED_UNLOCKED = "seed_unlocked"
+local REGION_START = "region_start"
+local REGION_MID = "region_mid"
+local REGION_COMPLETE = "region_complete"
+local SETTINGS_ACCESSIBILITY = "settings_accessibility"
 
 local HIVE_X = 1120
 local HIVE_Y = 800
@@ -27,9 +34,12 @@ local HIVE_RADIUS = 190
 local HIVE_BUTTON = { x1 = 1000, x2 = 1240, y1 = 45, y2 = 125 }
 local FLIGHT_CARD = { x1 = 270, x2 = 600, y1 = 235, y2 = 465 }
 local BUZZ_CARD = { x1 = 680, x2 = 1010, y1 = 235, y2 = 465 }
+local SETTINGS_REDUCED_ROW = { x1 = 330, x2 = 950, y1 = 350, y2 = 440 }
+local SETTINGS_AUDIO_ROW = { x1 = 330, x2 = 950, y1 = 235, y2 = 325 }
 local MEADOW_CENTER_X = 1800
 local MEADOW_CENTER_Y = 950
 local PLOT_POINTER_RADIUS = 96
+local REGION_ID = "region_01"
 
 local function html5_available()
     return html5 ~= nil and html5.run ~= nil
@@ -64,6 +74,10 @@ local function seed_qa(state_id)
     return state_id == SEED_LOCKED or state_id == SEED_UNLOCKED
 end
 
+local function region_qa(state_id)
+    return state_id == REGION_START or state_id == REGION_MID or state_id == REGION_COMPLETE or state_id == SETTINGS_ACCESSIBILITY
+end
+
 local function canonical_visual_fixture(state_id)
     return state_id == POLLINATION_IDLE
         or state_id == POLLINATION_ACTIVE
@@ -72,6 +86,7 @@ local function canonical_visual_fixture(state_id)
         or progression_qa(state_id)
         or restoration_qa(state_id)
         or seed_qa(state_id)
+        or region_qa(state_id)
 end
 
 local function clean_progression(self, persistence_enabled)
@@ -82,6 +97,7 @@ local function clean_progression(self, persistence_enabled)
 end
 
 local function lifecycle_value(self)
+    if region_qa(self.qa_state) then return query_value("p6_storage_lifecycle") end
     if seed_qa(self.qa_state) then return query_value("p5_storage_lifecycle") end
     if progression_qa(self.qa_state) then return query_value("p3_storage_lifecycle") end
     if restoration_qa(self.qa_state) then return query_value("p4_storage_lifecycle") end
@@ -142,6 +158,23 @@ local function load_progression(self)
     print("BEBEE_PROGRESS save_load_failed code=" .. tostring(loaded.code))
 end
 
+local function apply_audio_setting(self)
+    local muted = progression.get_setting(self.save_state, "audio_muted") == true
+    pcall(sound.set_group_gain, "master", muted and 0 or 1)
+end
+
+local function track(self, name, properties)
+    if not self.analytics then return end
+    local _, error_code = analytics.track(self.analytics, name, properties)
+    if error_code then print("BEBEE_ANALYTICS rejected=" .. tostring(error_code)) end
+end
+
+local function mark_first_input(self, input_name)
+    if self.first_input_seen then return end
+    self.first_input_seen = true
+    track(self, "first_input", { input = input_name or "unknown", region_id = REGION_ID })
+end
+
 local function build_patch_states(self)
     self.patches = {}
     for index, definition in ipairs(catalog.patches) do
@@ -195,6 +228,42 @@ local function prepare_seed_fixture(self, unlocked)
     if not planted.ok or not planted.changed then
         error("P5 QA fixture could not unlock/plant Daisy: " .. tostring(planted.code))
     end
+end
+
+local function prepare_region_fixture(self, completed_meadows)
+    if completed_meadows >= 1 then
+        mark_completed_fixture(self, 1)
+        mark_completed_fixture(self, 2)
+        mark_completed_fixture(self, 3)
+    end
+    if completed_meadows >= 2 then mark_completed_fixture(self, 4) end
+    if completed_meadows >= 3 then mark_completed_fixture(self, 5) end
+    if completed_meadows >= 4 then mark_completed_fixture(self, 6) end
+    if completed_meadows >= 5 then mark_completed_fixture(self, 7) end
+    if completed_meadows >= 6 then mark_completed_fixture(self, 8) end
+
+    if completed_meadows >= 1 then
+        self.save_state.player.upgrades.upgrade_flight = 2
+        self.save_state.player.upgrades.upgrade_buzz = 2
+    end
+    if completed_meadows >= 4 then
+        self.save_state.player.upgrades.upgrade_flight = 3
+        self.save_state.player.upgrades.upgrade_buzz = 3
+    end
+    if completed_meadows >= 6 then
+        self.save_state.player.seed_unlocks.seed_daisy = true
+        self.save_state.world.player_plants[catalog.player_plots[1].id] = "flower_daisy"
+        self.save_state.player.honey = 346
+    else
+        self.save_state.player.honey = 120
+    end
+    refresh_patch_eligibility(self)
+
+    local target = catalog.meadows[math.min(6, math.max(1, completed_meadows + 1))]
+    self.motion.x = target.center_x
+    self.motion.y = target.center_y
+    self.camera.x = target.center_x
+    self.camera.y = target.center_y
 end
 
 local function apply_visual_fixture(self)
@@ -252,6 +321,21 @@ local function apply_visual_fixture(self)
         prepare_seed_fixture(self, false)
     elseif self.qa_state == SEED_UNLOCKED then
         prepare_seed_fixture(self, true)
+    elseif self.qa_state == REGION_START then
+        prepare_region_fixture(self, 0)
+    elseif self.qa_state == REGION_MID then
+        prepare_region_fixture(self, 3)
+    elseif self.qa_state == REGION_COMPLETE then
+        prepare_region_fixture(self, 6)
+    elseif self.qa_state == SETTINGS_ACCESSIBILITY then
+        prepare_region_fixture(self, 3)
+        progression.set_setting(self.save_state, "reduced_motion", true)
+        progression.set_setting(self.save_state, "audio_muted", true)
+        self.reduced_motion = true
+        self.settings_open = true
+        self.selected_setting = "reduced_motion"
+        apply_audio_setting(self)
+        msg.post("/modal#controller", "open_modal", { mode = "settings" })
     end
 end
 
@@ -277,6 +361,8 @@ local function save_progression(self)
 end
 
 local function complete_patch(self, state)
+    local meadow_before = region.meadow_status(self.save_state, state.definition.meadow_id)
+    local region_before = region.summary(self.save_state, REGION_ID)
     local result = progression.complete_patch(self.save_state, state.definition)
     if not result.ok then
         print("BEBEE_POLLINATION reward_failed code=" .. tostring(result.code))
@@ -288,10 +374,29 @@ local function complete_patch(self, state)
         self.reward_patch_x = state.definition.x
         self.reward_patch_y = state.definition.y
         self.reward_transactions = self.reward_transactions + 1
+        track(self, "patch_completed", {
+            patch_id = state.definition.id,
+            meadow_id = state.definition.meadow_id,
+            honey_awarded = result.awarded,
+            honey_total = result.honey,
+        })
     end
     self.pollination_completion_count = self.pollination_completion_count + 1
     self.audio_hook_count = self.audio_hook_count + 1
     refresh_patch_eligibility(self)
+
+    local meadow_after = region.meadow_status(self.save_state, state.definition.meadow_id)
+    local region_after = region.summary(self.save_state, REGION_ID)
+    if meadow_before and meadow_after and meadow_before.stage_id ~= "RESTORED" and meadow_after.stage_id == "RESTORED" then
+        track(self, "meadow_restored", { meadow_id = state.definition.meadow_id, restored_count = region_after.restored_count })
+    end
+    if region_before and region_after and not region_before.complete and region_after.complete then
+        track(self, "region_completed", { region_id = REGION_ID, honey_total = result.honey })
+        pcall(sound.play, "#region_complete")
+    else
+        pcall(sound.play, "#pollination_complete")
+    end
+
     save_progression(self)
     print(string.format(
         "BEBEE_POLLINATION patch_completed id=%s honey_awarded=%d honey_total=%d audio_hook=pollination_complete",
@@ -300,7 +405,7 @@ local function complete_patch(self, state)
 end
 
 local function update_pollination(self, movement_distance)
-    if not self.pollination_enabled or self.progression_open then return end
+    if not self.pollination_enabled or self.progression_open or self.settings_open then return end
     local work_multiplier = progression.buzz_work_multiplier(self.save_state)
     for _, state in ipairs(self.patches) do
         local event = flower_patch.step(state, self.motion.x, self.motion.y, movement_distance, work_multiplier)
@@ -311,6 +416,8 @@ end
 local function patch_payload_for(self, state)
     local payload = {
         id = state.definition.id,
+        meadowId = state.definition.meadow_id,
+        flowerId = state.definition.flower_id,
         x = state.definition.x,
         y = state.definition.y,
         radius = state.definition.radius,
@@ -456,6 +563,69 @@ local function send_progression_view(self)
     })
 end
 
+local function active_patch_position(self)
+    for _, state in ipairs(self.patches) do
+        if state.qualifying then return state.definition.x, state.definition.y end
+    end
+    return 0, 0
+end
+
+local function patch_view_fields(payload, index, state)
+    local prefix = "patch" .. tostring(index) .. "_"
+    payload[prefix .. "x"] = state.definition.x
+    payload[prefix .. "y"] = state.definition.y
+    payload[prefix .. "state"] = state.state
+    payload[prefix .. "progress"] = flower_patch.progress_ratio(state)
+    payload[prefix .. "qualifying"] = state.qualifying
+    payload[prefix .. "flower_id"] = state.definition.flower_id
+    payload[prefix .. "meadow_id"] = state.definition.meadow_id
+    payload[prefix .. "eligible"] = progression.is_patch_eligible(self.save_state, state.definition)
+end
+
+local function send_view(self)
+    local touch = input_model.touch_visual(self.input)
+    local width, height = surface_size()
+    local sx = 1280 / width
+    local sy = 720 / height
+    local active_x, active_y = active_patch_position(self)
+    local summary = region.summary(self.save_state, REGION_ID)
+    local payload = {
+        bee_x = self.motion.x,
+        bee_y = self.motion.y,
+        camera_x = self.camera.x,
+        camera_y = self.camera.y,
+        speed = self.motion.speed,
+        facing_x = self.motion.facing_x,
+        dense = self.dense,
+        touch_active = touch.active == true and not self.progression_open and not self.settings_open,
+        touch_anchor_x = (touch.anchor_x or 0) * sx,
+        touch_anchor_y = (touch.anchor_y or 0) * sy,
+        touch_knob_x = (touch.knob_x or 0) * sx,
+        touch_knob_y = (touch.knob_y or 0) * sy,
+        pollination_visible = self.pollination_enabled,
+        honey = self.save_state.player.honey,
+        reward_amount = self.reward_amount,
+        reward_timer = self.reward_feedback_remaining,
+        reward_patch_x = self.reward_patch_x,
+        reward_patch_y = self.reward_patch_y,
+        active_patch_x = active_x,
+        active_patch_y = active_y,
+        frame = self.frame,
+        region_restored_count = summary and summary.restored_count or 0,
+        region_total = summary and summary.total or 6,
+        region_complete = summary and summary.complete or false,
+        objective_text = region.objective_text(self.save_state, REGION_ID),
+        settings_open = self.settings_open,
+        selected_setting = self.selected_setting,
+        reduced_motion = progression.get_setting(self.save_state, "reduced_motion") == true,
+        audio_muted = progression.get_setting(self.save_state, "audio_muted") == true,
+    }
+    for index, state in ipairs(self.patches) do patch_view_fields(payload, index, state) end
+    msg.post("#view", "view_state", payload)
+    send_progression_view(self)
+    send_seed_view(self)
+end
+
 local function update_runtime_bridge(self, force)
     if not self.qa_enabled or not html5_available() then return end
     if not force and self.frame % 6 ~= 0 then return end
@@ -484,14 +654,17 @@ local function update_runtime_bridge(self, force)
     }))
 
     if self.pollination_enabled then
+        local patch_payloads = {}
+        for index, state in ipairs(self.patches) do patch_payloads[index] = patch_payload_for(self, state) end
         html5.run("window.__bebeePollinationQA = " .. json.encode({
-            schemaVersion = 2,
+            schemaVersion = 3,
             stateId = self.qa_state,
             frame = self.frame,
             honey = self.save_state.player.honey,
-            patch1 = patch_payload_for(self, self.patches[1]),
-            patch2 = patch_payload_for(self, self.patches[2]),
-            patch3 = patch_payload_for(self, self.patches[3]),
+            patch1 = patch_payloads[1],
+            patch2 = patch_payloads[2],
+            patch3 = patch_payloads[3],
+            patches = patch_payloads,
             completionCount = self.pollination_completion_count,
             rewardTransactions = self.reward_transactions,
             audioHookCount = self.audio_hook_count,
@@ -502,7 +675,7 @@ local function update_runtime_bridge(self, force)
         local flight, flight_next, flight_available, flight_code = upgrade_view(self, "upgrade_flight")
         local buzz, buzz_next, buzz_available, buzz_code = upgrade_view(self, "upgrade_buzz")
         html5.run("window.__bebeeProgressionQA = " .. json.encode({
-            schemaVersion = 1,
+            schemaVersion = 2,
             stateId = self.qa_state,
             frame = self.frame,
             modalOpen = self.progression_open,
@@ -521,14 +694,14 @@ local function update_runtime_bridge(self, force)
             buzzNextCost = buzz_next and buzz_next.cost or nil,
             buzzAvailable = buzz_available,
             buzzAvailabilityCode = buzz_code,
-            patch3 = patch_payload_for(self, self.patches[3]),
+            patch3 = patch_payloads[3],
             saveCode = self.last_save_code,
             saveDurability = self.last_save_durability,
         }))
         local seed1 = seed_payload_for(self, catalog.player_plots[1])
         local seed2 = seed_payload_for(self, catalog.player_plots[2])
         html5.run("window.__bebeeSeedQA = " .. json.encode({
-            schemaVersion = 1,
+            schemaVersion = 2,
             stateId = self.qa_state,
             frame = self.frame,
             saveVersion = self.save_state.save_version,
@@ -539,6 +712,26 @@ local function update_runtime_bridge(self, force)
             nativePatch1Completed = progression.is_patch_completed(self.save_state, catalog.patches[1].id),
             nativePatch2Completed = progression.is_patch_completed(self.save_state, catalog.patches[2].id),
             nativePatch3Completed = progression.is_patch_completed(self.save_state, catalog.patches[3].id),
+            saveCode = self.last_save_code,
+            saveDurability = self.last_save_durability,
+        }))
+        local summary = region.summary(self.save_state, REGION_ID)
+        html5.run("window.__bebeeRegionQA = " .. json.encode({
+            schemaVersion = 1,
+            stateId = self.qa_state,
+            frame = self.frame,
+            region = summary,
+            objectiveText = region.objective_text(self.save_state, REGION_ID),
+            saveVersion = self.save_state.save_version,
+            honey = self.save_state.player.honey,
+            flightLevel = progression.current_upgrade_level(self.save_state, "upgrade_flight"),
+            buzzLevel = progression.current_upgrade_level(self.save_state, "upgrade_buzz"),
+            ownedSeedIds = progression.owned_seed_ids(self.save_state),
+            playerPlants = self.save_state.world.player_plants,
+            settings = self.save_state.player.settings,
+            settingsOpen = self.settings_open,
+            selectedSetting = self.selected_setting,
+            analyticsEvents = analytics.snapshot(self.analytics),
             saveCode = self.last_save_code,
             saveDurability = self.last_save_durability,
         }))
@@ -561,60 +754,8 @@ local function mark_capture_ready(self)
     print(string.format("BEBEE_QA capture_ready state=%s seed=88008 frame=%d", self.qa_state, self.frame))
 end
 
-local function active_patch_position(self)
-    for _, state in ipairs(self.patches) do
-        if state.qualifying then return state.definition.x, state.definition.y end
-    end
-    return 0, 0
-end
-
-local function send_view(self)
-    local touch = input_model.touch_visual(self.input)
-    local width, height = surface_size()
-    local sx = 1280 / width
-    local sy = 720 / height
-    local patch1 = self.patches[1]
-    local patch2 = self.patches[2]
-    local active_x, active_y = active_patch_position(self)
-    msg.post("#view", "view_state", {
-        bee_x = self.motion.x,
-        bee_y = self.motion.y,
-        camera_x = self.camera.x,
-        camera_y = self.camera.y,
-        speed = self.motion.speed,
-        facing_x = self.motion.facing_x,
-        dense = self.dense,
-        touch_active = touch.active == true and not self.progression_open,
-        touch_anchor_x = (touch.anchor_x or 0) * sx,
-        touch_anchor_y = (touch.anchor_y or 0) * sy,
-        touch_knob_x = (touch.knob_x or 0) * sx,
-        touch_knob_y = (touch.knob_y or 0) * sy,
-        pollination_visible = self.pollination_enabled,
-        patch1_x = patch1.definition.x,
-        patch1_y = patch1.definition.y,
-        patch1_state = patch1.state,
-        patch1_progress = flower_patch.progress_ratio(patch1),
-        patch1_qualifying = patch1.qualifying,
-        patch2_x = patch2.definition.x,
-        patch2_y = patch2.definition.y,
-        patch2_state = patch2.state,
-        patch2_progress = flower_patch.progress_ratio(patch2),
-        patch2_qualifying = patch2.qualifying,
-        honey = self.save_state.player.honey,
-        reward_amount = self.reward_amount,
-        reward_timer = self.reward_feedback_remaining,
-        reward_patch_x = self.reward_patch_x,
-        reward_patch_y = self.reward_patch_y,
-        active_patch_x = active_x,
-        active_patch_y = active_y,
-        frame = self.frame,
-    })
-    send_progression_view(self)
-    send_seed_view(self)
-end
-
 local function open_progression(self)
-    if self.progression_open or not hive_nearby(self) then return false end
+    if self.progression_open or self.settings_open or not hive_nearby(self) then return false end
     self.progression_open = true
     self.selected_upgrade = "flight"
     input_model.clear(self.input)
@@ -701,20 +842,47 @@ local function interact_player_plot(self, definition)
 end
 
 local function primary_action(self)
-    if self.progression_open then return false end
+    if self.progression_open or self.settings_open then return false end
     local plot = nearest_player_plot(self)
     if plot then return interact_player_plot(self, plot) end
     return open_progression(self)
+end
+
+local function open_settings(self)
+    if self.settings_open or self.progression_open then return false end
+    mark_first_input(self, "modal_toggle")
+    self.settings_open = true
+    self.selected_setting = "reduced_motion"
+    input_model.clear(self.input)
+    self.motion.vx = 0
+    self.motion.vy = 0
+    msg.post("/modal#controller", "open_modal", { mode = "settings" })
+    send_view(self)
+    update_runtime_bridge(self, true)
+    print("BEBEE_P6 settings_open")
+    return true
+end
+
+local function toggle_selected_setting(self, setting_id)
+    setting_id = setting_id or self.selected_setting
+    local result = progression.toggle_setting(self.save_state, setting_id)
+    if not result.ok then return false end
+    if setting_id == "reduced_motion" then self.reduced_motion = result.value end
+    if setting_id == "audio_muted" then apply_audio_setting(self) end
+    if result.changed then
+        track(self, "settings_changed", { setting_id = setting_id, value = result.value })
+        save_progression(self)
+    end
+    send_view(self)
+    update_runtime_bridge(self, true)
+    print(string.format("BEBEE_P6 setting id=%s value=%s", setting_id, tostring(result.value)))
+    return true
 end
 
 function init(self)
     self.qa_enabled = sys.get_config_boolean("bebee.qa_enabled", false)
     self.qa_state = query_value("qa")
     self.dense = self.qa_state == MOVEMENT_DENSE
-    self.reduced_motion = query_value("reduced_motion") == "1"
-    if html5_available() and query_value("reduced_motion") == "" then
-        self.reduced_motion = html5.run("window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches") == true
-    end
 
     local width, height = surface_size()
     self.input = input_model.new({ surface_width = width, surface_height = height })
@@ -733,12 +901,32 @@ function init(self)
     self.reward_patch_x = 0
     self.reward_patch_y = 0
     self.progression_open = false
+    self.settings_open = false
     self.selected_upgrade = "flight"
+    self.selected_setting = "reduced_motion"
+    self.first_input_seen = false
     self.pollination_enabled = not movement_only_qa(self.qa_state) and query_value("storage_test") == ""
+    self.analytics = analytics.new(analytics_adapter)
 
     load_progression(self)
+
+    local query_reduced = query_value("reduced_motion")
+    if query_reduced == "1" then
+        self.reduced_motion = true
+    elseif query_reduced == "0" then
+        self.reduced_motion = false
+    elseif progression.get_setting(self.save_state, "reduced_motion") == true then
+        self.reduced_motion = true
+    elseif html5_available() then
+        self.reduced_motion = html5.run("window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches") == true
+    else
+        self.reduced_motion = false
+    end
+
+    apply_audio_setting(self)
     build_patch_states(self)
     apply_visual_fixture(self)
+    track(self, "session_start", { region_id = REGION_ID, save_version = self.save_state.save_version })
 
     go.set("#camera", "orthographic_zoom", 1.0)
     go.set_position(vmath.vector3(self.camera.x, self.camera.y, 0))
@@ -746,7 +934,7 @@ end
 
 function final(self)
     if self.qa_enabled and html5_available() then
-        html5.run("delete window.__bebeeMovementQA; delete window.__bebeePollinationQA; delete window.__bebeeProgressionQA; delete window.__bebeeSeedQA")
+        html5.run("delete window.__bebeeMovementQA; delete window.__bebeePollinationQA; delete window.__bebeeProgressionQA; delete window.__bebeeSeedQA; delete window.__bebeeRegionQA")
     end
 end
 
@@ -755,7 +943,7 @@ function update(self, dt)
     local width, height = surface_size()
     input_model.resize(self.input, width, height)
     local ix, iy = input_model.intent(self.input)
-    if self.progression_open then ix, iy = 0, 0 end
+    if self.progression_open or self.settings_open then ix, iy = 0, 0 end
     local distance_before = self.motion.distance_travelled
     movement.step(self.motion, ix, iy, dt, { max_speed = progression.flight_max_speed(self.save_state) })
     local movement_distance = self.motion.distance_travelled - distance_before
@@ -805,12 +993,51 @@ function on_message(self, message_id, message)
         return
     end
     if message_id == hash("movement_key_input") then
-        if message.pressed then input_model.set_key(self.input, message.action_name, true)
-        elseif message.released then input_model.set_key(self.input, message.action_name, false) end
+        if message.pressed then
+            input_model.set_key(self.input, message.action_name, true)
+            mark_first_input(self, message.action_name)
+        elseif message.released then
+            input_model.set_key(self.input, message.action_name, false)
+        end
         return
     end
     if message_id == hash("progression_primary") then
+        mark_first_input(self, "primary_action")
         primary_action(self)
+        return
+    end
+    if message_id == hash("settings_open_request") then
+        open_settings(self)
+        return
+    end
+    if message_id == hash("settings_modal_closed") then
+        self.settings_open = false
+        input_model.clear(self.input)
+        send_view(self)
+        update_runtime_bridge(self, true)
+        print("BEBEE_P6 settings_closed")
+        return
+    end
+    if message_id == hash("settings_modal_navigation") and self.settings_open then
+        if message.action_name == "move_up" or message.action_name == "move_left" then self.selected_setting = "reduced_motion" end
+        if message.action_name == "move_down" or message.action_name == "move_right" then self.selected_setting = "audio_muted" end
+        send_view(self)
+        update_runtime_bridge(self, true)
+        return
+    end
+    if message_id == hash("settings_modal_toggle") and self.settings_open then
+        toggle_selected_setting(self)
+        return
+    end
+    if message_id == hash("settings_modal_pointer") and self.settings_open then
+        local x, y = design_point(message.x, message.y)
+        if inside(SETTINGS_REDUCED_ROW, x, y) then
+            self.selected_setting = "reduced_motion"
+            toggle_selected_setting(self, "reduced_motion")
+        elseif inside(SETTINGS_AUDIO_ROW, x, y) then
+            self.selected_setting = "audio_muted"
+            toggle_selected_setting(self, "audio_muted")
+        end
         return
     end
     if message_id == hash("progression_modal_closed") then
@@ -848,6 +1075,7 @@ function on_message(self, message_id, message)
         local width, height = surface_size()
         input_model.resize(self.input, width, height)
         if message.pressed then
+            mark_first_input(self, "pointer_primary")
             local plot = pointer_player_plot(self, message.x, message.y)
             if plot and interact_player_plot(self, plot) then return end
             local x, y = design_point(message.x, message.y)
