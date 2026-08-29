@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "ticket": "POLICY-HTML5-PAGES-PREVIEW",
+  "change_class": "process",
+  "problem": "The accepted BeBee HTML5 main build is retained only as a downloadable Actions artifact, so manual testing requires downloading and serving files locally instead of opening the current main revision in a browser.",
+  "decision": {
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "github_pages_actions_preview",
+    "rationale": "Publish the same pinned Defold release bundle through GitHub Pages from main. Pull requests build and package the preview but never deploy it; only main receives pages:write and id-token:write in the deploy job. This keeps the preview reproducible, browser-accessible and isolated from gameplay scope."
+  },
+  "research": {
+    "candidate_pool": [
+      {
+        "name": "GitHub Pages custom workflows",
+        "source": "https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages",
+        "relevance": "Defines the supported artifact and deploy-pages flow and deployment permissions."
+      },
+      {
+        "name": "GitHub Pages publishing source",
+        "source": "https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site",
+        "relevance": "Defines GitHub Actions as a supported Pages publishing source and the main-branch deployment model."
+      },
+      {
+        "name": "Existing BeBee HTML5 CI",
+        "source": "https://github.com/StrayForest/BeBee/blob/main/.github/workflows/defold-runtime-evidence.yml",
+        "relevance": "Provides the already accepted pinned checkout, Java setup and Defold release-build path that the preview reuses."
+      }
+    ],
+    "selected_references": [
+      {
+        "name": "GitHub Pages custom workflows",
+        "source": "https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages",
+        "platform_version_date": "checked 2026-08-29",
+        "selection_reason": "Primary official deployment contract.",
+        "observed_behavior": "Pages custom workflows upload a static artifact and deploy it with deploy-pages; the deployment job requires pages:write and id-token:write.",
+        "inference": "Keep elevated permissions scoped to the main-only deploy job rather than the PR build job."
+      },
+      {
+        "name": "Existing BeBee HTML5 CI",
+        "source": "https://github.com/StrayForest/BeBee/blob/main/.github/workflows/defold-runtime-evidence.yml",
+        "platform_version_date": "main at 82c0541 / checked 2026-08-29",
+        "selection_reason": "Canonical BeBee release-bundle implementation.",
+        "observed_behavior": "The release bundle is produced by tools/defold/bundle_html5.py --mode release and contains index.html plus WebAssembly.",
+        "inference": "The Pages preview should publish that exact release directory rather than introduce a second build implementation."
+      }
+    ]
+  },
+  "official_docs": [
+    {
+      "source": "https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "A custom Pages workflow uploads a Pages artifact and deploys it with deploy-pages; the deploy job requires pages:write and id-token:write and should use the github-pages environment."
+    },
+    {
+      "source": "https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site",
+      "date_checked": "2026-08-29",
+      "verified_constraint": "GitHub Actions is a supported Pages publishing source; the site must have Pages publishing enabled before a custom deployment can become live."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "github_pages_actions_preview",
+      "disposition": "selected",
+      "reason": "Publishes the existing Defold release output on the same GitHub repository, keeps a stable browser URL and avoids committing generated build files."
+    },
+    {
+      "id": "gh_pages_generated_branch",
+      "disposition": "rejected",
+      "reason": "Would commit generated HTML5 output to a dedicated branch, duplicate artifact state in Git and require credentialed branch writes from CI."
+    },
+    {
+      "id": "actions_artifact_only",
+      "disposition": "rejected",
+      "reason": "This is the current state and still requires users to download and locally serve the build."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Pull requests build the exact PR-head release bundle without deploying it.",
+      "status": "pass",
+      "evidence": "The build job checks out github.event.pull_request.head.sha, runs the canonical release bundler and the deploy job is explicitly skipped for pull_request events."
+    },
+    {
+      "criterion": "Only main can deploy the browser preview and elevated Pages permissions are isolated to that deploy job.",
+      "status": "pass",
+      "evidence": "The deploy condition requires a non-PR event on refs/heads/main; pages:write and id-token:write exist only on the deploy job."
+    },
+    {
+      "criterion": "The published artifact has a top-level index.html, WebAssembly payload and no symbolic links.",
+      "status": "pass",
+      "evidence": "The build step fails unless index.html and a .wasm file exist, rejects symbolic links and uploads build/html5/release/BeBee as the Pages artifact root."
+    },
+    {
+      "criterion": "Preview infrastructure does not change gameplay runtime or save-data semantics.",
+      "status": "pass",
+      "evidence": "The diff adds only a GitHub workflow and its process evidence manifest."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "The PR-head Pages workflow must build and package the release artifact successfully.",
+      "Repository standards, Test/data, HTML5 CI and trusted PR evidence must pass on the exact PR head before merge.",
+      "After merge, the main Pages workflow deployment result and public URL are checked separately."
+    ],
+    "manual": [
+      "Compared the workflow against GitHub's current custom Pages deployment documentation and the existing BeBee HTML5 release-build path."
+    ],
+    "runtime_errors": "No game-runtime code is changed; deployment/runtime browser errors are checked after the first main publish.",
+    "save_data_impact": "None; the preview publishes the existing HTML5 application and does not alter the storage schema or application id."
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": [
+      "The preview reuses the canonical release bundler instead of creating a separate website build path.",
+      "PR execution remains read-only while Pages/OIDC authority is isolated to the main-only deploy job.",
+      "Generated HTML5 files remain out of Git history."
+    ],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "pages-preview-process-evaluator-2026-08-29",
+      "implementation_author_id": "pages-preview-process-implementation-2026-08-29",
+      "input_artifacts": [
+        "GitHub Pages custom workflow documentation checked 2026-08-29",
+        "BeBee defold-runtime-evidence.yml at main 82c0541",
+        ".github/workflows/pages-preview.yml"
+      ],
+      "record_locator": "evidence/POLICY-HTML5-PAGES-PREVIEW/manifest.json"
+    }
+  },
+  "governance": {
+    "trust_boundary_change": "Adds a new GitHub Actions workflow capable of publishing only the generated HTML5 release artifact to the repository's GitHub Pages environment. Pull-request build execution has contents:read only; Pages and OIDC write authority exists only in the main-only deploy job.",
+    "bypass_analysis": "The workflow does not modify trusted evidence validators, branch protection, repository contents or game state. PRs cannot execute the deploy job, and the deploy input is produced from the exact checked-out source revision by the repository-owned pinned Defold bundler. All external actions are pinned to immutable commit SHAs.",
+    "rollback": "Revert pages-preview.yml and this manifest, then disable the repository Pages publishing source if desired. Existing HTML5 CI artifacts and the game runtime remain unchanged."
+  },
+  "known_limitations": [
+    "GitHub Pages must be enabled with GitHub Actions as the publishing source before the first deployment can become live; the standard GITHUB_TOKEN is intentionally not used to self-enable repository Pages settings."
+  ]
+}
