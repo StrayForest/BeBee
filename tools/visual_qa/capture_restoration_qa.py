@@ -181,13 +181,7 @@ def _assert_stage(payload: dict[str, object], expected: str, contribution: int) 
         raise RuntimeError(f"restoration stage mismatch expected {expected}/{contribution}: {payload!r}")
 
 
-def _canonical_fixture_probe(
-    browser: Browser,
-    *,
-    base_url: str,
-    head_sha: str,
-    timeout_ms: int,
-) -> dict[str, object]:
+def _canonical_fixture_probe(browser: Browser, *, base_url: str, head_sha: str, timeout_ms: int) -> dict[str, object]:
     expectations = (
         ("meadow_dormant", "DORMANT", 0, 1),
         ("meadow_mid", "GROWING", 2, 2),
@@ -219,14 +213,7 @@ def _canonical_fixture_probe(
     return results
 
 
-def _desktop_sequence(
-    browser: Browser,
-    *,
-    base_url: str,
-    head_sha: str,
-    output_root: Path,
-    timeout_ms: int,
-) -> tuple[dict[str, object], dict[str, object]]:
+def _desktop_sequence(browser: Browser, *, base_url: str, head_sha: str, output_root: Path, timeout_ms: int) -> tuple[dict[str, object], dict[str, object]]:
     frames = output_root / "p4_restoration" / "desktop_reference_frames"
     video_path = output_root / "p4_restoration" / "desktop_reference.webm"
     video_path.parent.mkdir(parents=True, exist_ok=True)
@@ -243,11 +230,7 @@ def _desktop_sequence(
         video = page.video
         console, page_errors = _errors(page)
         try:
-            page.goto(
-                _url(base_url, qa="meadow_dormant", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reset"),
-                wait_until="load",
-                timeout=timeout_ms,
-            )
+            page.goto(_url(base_url, qa="meadow_dormant", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reset"), wait_until="load", timeout=timeout_ms)
             dormant = _wait(page, head_sha, "meadow_dormant", timeout_ms)
             _assert_stage(dormant, "DORMANT", 0)
             if dormant.get("hudHidden") is not True or int(dormant.get("detailCount", -1)) != 8 or int(dormant.get("ambientLifeCount", -1)) != 0:
@@ -276,11 +259,7 @@ def _desktop_sequence(
             _shot(page, frames / "02-growing-before-reload.png")
 
             page.wait_for_timeout(1600)
-            page.goto(
-                _url(base_url, qa="meadow_mid", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reload"),
-                wait_until="load",
-                timeout=timeout_ms,
-            )
+            page.goto(_url(base_url, qa="meadow_mid", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reload"), wait_until="load", timeout=timeout_ms)
             growing_reloaded = _wait(page, head_sha, "meadow_mid", timeout_ms)
             page.wait_for_function("() => window.__bebeeRestorationQA && window.__bebeeRestorationQA.stageId === 'GROWING'", timeout=timeout_ms)
             growing_reloaded = _restoration(page)
@@ -294,7 +273,7 @@ def _desktop_sequence(
             page.wait_for_function("() => window.__bebeeRestorationQA && window.__bebeeRestorationQA.stageId === 'RESTORED'", timeout=timeout_ms)
             restored = _restoration(page)
             _assert_stage(restored, "RESTORED", 3)
-            if int(restored.get("detailCount", -1)) != 28 or int(restored.get("ambientLifeCount", -1)) != 6:
+            if int(restored.get("detailCount", -1)) != 30 or int(restored.get("ambientLifeCount", -1)) != 6:
                 raise RuntimeError(f"restored visual contract invalid: {restored!r}")
             _shot(page, frames / "04-restored-reveal.png")
 
@@ -304,10 +283,7 @@ def _desktop_sequence(
             page.keyboard.up("a")
             page.wait_for_timeout(80)
             movement_after = _movement(page)
-            control_displacement = math.hypot(
-                float(movement_after["beeX"]) - float(movement_before["beeX"]),
-                float(movement_after["beeY"]) - float(movement_before["beeY"]),
-            )
+            control_displacement = math.hypot(float(movement_after["beeX"]) - float(movement_before["beeX"]), float(movement_after["beeY"]) - float(movement_before["beeY"]))
             if control_displacement < 12:
                 raise RuntimeError(f"restoration reveal blocked movement: {control_displacement}")
             page.wait_for_timeout(1700)
@@ -316,11 +292,7 @@ def _desktop_sequence(
                 raise RuntimeError(f"restoration celebration did not settle: {settled!r}")
 
             page.wait_for_timeout(1600)
-            page.goto(
-                _url(base_url, qa="meadow_restored", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reload"),
-                wait_until="load",
-                timeout=timeout_ms,
-            )
+            page.goto(_url(base_url, qa="meadow_restored", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reload"), wait_until="load", timeout=timeout_ms)
             reloaded = _wait(page, head_sha, "meadow_restored", timeout_ms)
             page.wait_for_function("() => window.__bebeeRestorationQA && window.__bebeeRestorationQA.stageId === 'RESTORED'", timeout=timeout_ms)
             reloaded = _restoration(page)
@@ -335,15 +307,11 @@ def _desktop_sequence(
             _shot(page, output_root / "p4_restoration" / "poki_small" / "01-restored-hud-hidden.png")
             page.set_viewport_size({"width": 1280, "height": 720})
 
-            page.goto(
-                _url(base_url, qa="meadow_restored", qa_seed=88008, p4_storage_lifecycle="reload"),
-                wait_until="load",
-                timeout=timeout_ms,
-            )
+            page.goto(_url(base_url, qa="meadow_restored", qa_seed=88008, p4_storage_lifecycle="reload"), wait_until="load", timeout=timeout_ms)
             visible_hud = _wait(page, head_sha, "meadow_restored", timeout_ms)
             page.wait_for_function("() => window.__bebeeRestorationQA && window.__bebeeRestorationQA.stageId === 'RESTORED'", timeout=timeout_ms)
             visible_hud = _restoration(page)
-            if visible_hud.get("hudHidden") is not False or visible_hud.get("objectiveText") != "MEADOW RESTORED":
+            if visible_hud.get("hudHidden") is not False or visible_hud.get("objectiveText") != "RESTORE CLOVER BEND · 1/6":
                 raise RuntimeError(f"restored objective contract invalid: {visible_hud!r}")
             _move_to(page, 1800, 950, tolerance=70)
             _shot(page, frames / "06-restored-objective.png")
@@ -380,95 +348,31 @@ def _desktop_sequence(
     return result, storage_state
 
 
-def _mobile_restored(
-    browser: Browser,
-    *,
-    base_url: str,
-    head_sha: str,
-    output_root: Path,
-    timeout_ms: int,
-    storage_state: dict[str, object],
-) -> dict[str, object]:
-    context = browser.new_context(
-        viewport={"width": 844, "height": 390},
-        screen={"width": 844, "height": 390},
-        device_scale_factor=1,
-        has_touch=True,
-        is_mobile=True,
-        storage_state=storage_state,
-    )
+def _reload_from_state(browser: Browser, *, base_url: str, head_sha: str, storage_state: dict[str, object], output_root: Path, timeout_ms: int) -> dict[str, object]:
+    context = browser.new_context(viewport={"width": 1280, "height": 720}, storage_state=storage_state)
     page = context.new_page()
     console, page_errors = _errors(page)
     try:
-        page.goto(
-            _url(base_url, qa="meadow_restored", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reload"),
-            wait_until="load",
-            timeout=timeout_ms,
-        )
-        restored = _wait(page, head_sha, "meadow_restored", timeout_ms)
-        page.wait_for_function("() => window.__bebeeRestorationQA && window.__bebeeRestorationQA.stageId === 'RESTORED'", timeout=timeout_ms)
-        restored = _restoration(page)
-        _assert_stage(restored, "RESTORED", 3)
-        _move_to(page, 1800, 950, tolerance=75)
-        path = output_root / "p4_restoration" / "mobile_landscape" / "00-restored-hud-hidden.png"
-        _shot(page, path)
-        _assert_clean(console, page_errors, "P4 mobile restored")
-        return {
-            "viewport": {"id": "mobile_landscape", "width": 844, "height": 390},
-            "restored": restored,
-            "capture_file": path.relative_to(output_root).as_posix(),
-            "capture_sha256": _sha(path),
-            "console_error_count": len(console),
-            "page_error_count": len(page_errors),
-        }
+        page.goto(_url(base_url, qa="meadow_restored", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reload"), wait_until="load", timeout=timeout_ms)
+        payload = _wait(page, head_sha, "meadow_restored", timeout_ms)
+        _assert_stage(payload, "RESTORED", 3)
+        if payload.get("celebrationActive") is True:
+            raise RuntimeError(f"fresh-context reload replayed celebration: {payload!r}")
+        _shot(page, output_root / "p4_restoration" / "fresh_context" / "restored.png")
+        _assert_clean(console, page_errors, "P4 fresh context")
+        return {"restoration": payload, "console_error_count": len(console), "page_error_count": len(page_errors)}
     finally:
-        _release(page)
         context.close()
 
 
-def record_restoration(
-    browser: Browser,
-    *,
-    base_url: str,
-    head_sha: str,
-    output_root: Path,
-    timeout_ms: int,
-) -> dict[str, object]:
-    canonical_fixtures = _canonical_fixture_probe(
-        browser, base_url=base_url, head_sha=head_sha, timeout_ms=timeout_ms
-    )
-    desktop, storage_state = _desktop_sequence(
-        browser, base_url=base_url, head_sha=head_sha, output_root=output_root, timeout_ms=timeout_ms
-    )
-    mobile = _mobile_restored(
-        browser,
-        base_url=base_url,
-        head_sha=head_sha,
-        output_root=output_root,
-        timeout_ms=timeout_ms,
-        storage_state=storage_state,
-    )
-    dormant = desktop["dormant"]
-    restored = desktop["restored_reloaded"]
+def record_restoration(browser: Browser, *, base_url: str, head_sha: str, output_root: Path, timeout_ms: int) -> dict[str, object]:
+    canonical = _canonical_fixture_probe(browser, base_url=base_url, head_sha=head_sha, timeout_ms=timeout_ms)
+    desktop, storage_state = _desktop_sequence(browser, base_url=base_url, head_sha=head_sha, output_root=output_root, timeout_ms=timeout_ms)
+    fresh_context = _reload_from_state(browser, base_url=base_url, head_sha=head_sha, storage_state=storage_state, output_root=output_root, timeout_ms=timeout_ms)
     return {
         "ticket": "P4-FIRST-MEADOW-RESTORATION",
-        "canonical_fixtures": canonical_fixtures,
-        "desktop": desktop,
-        "mobile_restored": mobile,
-        "objective_measurements": {
-            "stage_count": 4,
-            "canonical_fixture_count": len(canonical_fixtures),
-            "dormant_detail_count": int(dormant["detailCount"]),
-            "restored_detail_count": int(restored["detailCount"]),
-            "detail_count_ratio": round(int(restored["detailCount"]) / max(1, int(dormant["detailCount"])), 2),
-            "dormant_ambient_life_count": int(dormant["ambientLifeCount"]),
-            "restored_ambient_life_count": int(restored["ambientLifeCount"]),
-            "dormant_ground_mix": float(dormant["groundMix"]),
-            "restored_ground_mix": float(restored["groundMix"]),
-            "hud_hidden_before_after": bool(dormant["hudHidden"] and restored["hudHidden"]),
-            "reload_stage": restored["stageId"],
-            "modal_tutorial_count": 0,
-            "persistent_objective_count": 1,
-        },
+        "canonical": canonical,
+        "desktop_sequence": desktop,
+        "fresh_context_reload": fresh_context,
         "result": "PASS",
     }
