@@ -2,7 +2,7 @@
   "schema_version": 1,
   "ticket": "BB-007-CLOSEOUT",
   "change_class": "process",
-  "problem": "BB-007 runtime and lifecycle corrections are merged, but P0 Foundation must not close until the corrected real-browser storage lifecycle smoke runs on exact source and is retained as dedicated CI evidence.",
+  "problem": "BB-007 runtime and lifecycle corrections are merged, and P0 Foundation closes only after the corrected real-browser storage lifecycle smoke passes on exact candidate source and repeats successfully on merged main with retained dedicated CI evidence.",
   "decision": {
     "ids": ["BB-P009"],
     "status_before": "VALIDATED",
@@ -13,13 +13,13 @@
     "rationale": "Run the merged schema-v2 BB-007 browser lifecycle smoke inside the existing read-only exact-source HTML5 pipeline and retain its machine-readable report independently from visual QA and generic diagnostics."
   },
   "governance": {
-    "trust_boundary_change": "This PR modifies only the read-only pull_request/push HTML5 evidence workflow. The base-controlled pull_request_target trusted evidence workflow, ruleset, permissions, secrets, reviewers and merge authority are unchanged.",
-    "bypass_analysis": "No bypass is introduced. Candidate code may execute browser tests but cannot redefine validate-pr-evidence or write repository state. Merge remains subject to the trusted base workflow and protected-main rules.",
+    "trust_boundary_change": "The BB-007 process PR modified only the read-only pull_request/push HTML5 evidence workflow. The base-controlled pull_request_target trusted evidence workflow, ruleset, permissions, secrets, reviewers and merge authority remained unchanged.",
+    "bypass_analysis": "No bypass was introduced. Candidate code executes browser tests but cannot redefine validate-pr-evidence or write repository state. PR #38 merged only after the trusted base workflow and protected-main rules passed on the exact head.",
     "rollback": "Revert the HTML5 workflow invocation/upload of storage_html5_smoke.py. The already-merged BB-007 runtime and lifecycle implementation remains independently intact."
   },
   "research": {
     "candidate_pool": [],
-    "candidate_pool_exception": "This PR only executes and retains the already-validated BB-P009 storage lifecycle contract; it makes no player-facing design choice.",
+    "candidate_pool_exception": "This closeout only executes and retains the already-validated BB-P009 storage lifecycle contract; it makes no player-facing design choice.",
     "selected_references": [],
     "reference_exception": "No shipped-game reference is relevant to CI execution of an existing technical contract.",
     "anti_pattern": {
@@ -87,19 +87,26 @@
     {
       "criterion": "Trusted governance authority remains outside candidate workflow execution.",
       "status": "pass",
-      "evidence": "The pull_request_target PR evidence workflow is unchanged and protected-main still requires validate-pr-evidence."
+      "evidence": "The pull_request_target PR evidence workflow is unchanged; trusted run 33238419907 passed before PR #38 merged."
+    },
+    {
+      "criterion": "Merged main repeats the storage lifecycle proof before P0 is declared complete.",
+      "status": "pass",
+      "evidence": "Main HTML5 run 33238436135 passed on merge SHA 4bd31d40515772775a575762206a8c707b8a6fbc and retained storage artifact 9710629332."
     }
   ],
   "verification": {
     "automated": [
-      "Candidate HTML5 CI run 33238242196 passed on source SHA 50ad67cf34c387c25f4f4d5da62f62ec0e5998f6, including the corrected visual/storage QA smoke and dedicated storage artifact upload.",
-      "Candidate Repository standards run 33238242191 and Test and data run 33238242205 passed on the same source SHA.",
-      "The PR-body comparison marker was corrected after trusted run 33238242208 rejected the initial ITERATE marker; the resulting synchronize commit intentionally requires a fresh final exact-head run before merge.",
-      "Post-merge main HTML5 CI must repeat the storage lifecycle proof."
+      "Historical corrected candidate HTML5 CI run 33238242196 passed on source SHA 50ad67cf34c387c25f4f4d5da62f62ec0e5998f6, including visual/storage QA smoke and dedicated storage artifact upload.",
+      "Final exact candidate SHA 5efabc3b24b6524984a452fbc1e8f9bd4afd1b3d passed Repository standards run 33238316582, Test and data run 33238316615 and HTML5 CI run 33238316601; storage artifact 9710600382 was retained.",
+      "Trusted PR evidence run 33238419907 passed on the same final exact candidate head after the PR schema was corrected without weakening policy.",
+      "PR #38 merged as 4bd31d40515772775a575762206a8c707b8a6fbc.",
+      "Post-merge main Repository standards run 33238436244, Test and data run 33238436138 and HTML5 CI run 33238436135 all passed.",
+      "Post-merge main storage artifact 9710629332 (storage-qa-4bd31d40515772775a575762206a8c707b8a6fbc) was retained with digest sha256:77d7d1e2393f44c90b79dbb4fc2736be2fdeb9beec2e5d98fb3a6711488359e7."
     ],
     "manual": [],
     "runtime_errors": "storage_html5_smoke.py fails on browser console/page errors, failed settled latest-generation persistence, invalid rapid-window recovery, persistent-delete resurrection, corruption-recovery mismatch or release storage-bridge exposure.",
-    "save_data_impact": "No save-format/runtime mutation is made by this process PR. It executes the merged BB-007 A/B implementation and lifecycle semantics."
+    "save_data_impact": "No save-format/runtime mutation is made by the process closeout. It executes the merged BB-007 A/B implementation and lifecycle semantics."
   },
   "candidate_evidence_history": [
     {
@@ -109,9 +116,31 @@
       "test_data_run_id": 33238242205,
       "storage_artifact": "storage-qa-50ad67cf34c387c25f4f4d5da62f62ec0e5998f6",
       "result": "PASS",
-      "scope": "Corrected real-browser storage lifecycle smoke, deterministic visual QA, release/input smoke, dedicated storage artifact upload, repository standards and test/data checks all passed. This is retained as historical candidate evidence; the final synchronize commit still requires a fresh exact-head rerun."
+      "scope": "First corrected real-browser storage lifecycle candidate. Retained as historical evidence before final synchronization."
+    },
+    {
+      "source_sha": "5efabc3b24b6524984a452fbc1e8f9bd4afd1b3d",
+      "html5_run_id": 33238316601,
+      "repository_standards_run_id": 33238316582,
+      "test_data_run_id": 33238316615,
+      "trusted_pr_evidence_run_id": 33238419907,
+      "storage_artifact_id": 9710600382,
+      "storage_artifact": "storage-qa-5efabc3b24b6524984a452fbc1e8f9bd4afd1b3d",
+      "storage_artifact_digest": "sha256:826d9e5314e8cc862c241d067ba5650a05a6718fb2b775dd05ced3e3f1636c44",
+      "result": "PASS",
+      "scope": "Final exact PR #38 head passed candidate runtime/data/repository checks and trusted governance before merge."
     }
   ],
+  "post_merge_evidence": {
+    "merge_sha": "4bd31d40515772775a575762206a8c707b8a6fbc",
+    "html5_run_id": 33238436135,
+    "repository_standards_run_id": 33238436244,
+    "test_data_run_id": 33238436138,
+    "storage_artifact_id": 9710629332,
+    "storage_artifact": "storage-qa-4bd31d40515772775a575762206a8c707b8a6fbc",
+    "storage_artifact_digest": "sha256:77d7d1e2393f44c90b79dbb4fc2736be2fdeb9beec2e5d98fb3a6711488359e7",
+    "result": "PASS"
+  },
   "visual_evidence": {
     "required": false,
     "artifacts": [],
