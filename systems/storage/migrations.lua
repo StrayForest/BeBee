@@ -2,7 +2,7 @@ local table_utils = require "systems.storage.table_utils"
 
 local M = {}
 
-M.CURRENT_SAVE_VERSION = 3
+M.CURRENT_SAVE_VERSION = 4
 
 local steps = {
     [0] = function(payload)
@@ -32,6 +32,19 @@ local steps = {
             payload.world.player_plants = {}
         end
         payload.save_version = 3
+        return payload
+    end,
+    [3] = function(payload)
+        if type(payload.player) == "table" and type(payload.player.settings) ~= "table" then
+            payload.player.settings = {
+                reduced_motion = false,
+                audio_muted = false,
+            }
+        elseif type(payload.player) == "table" then
+            if type(payload.player.settings.reduced_motion) ~= "boolean" then payload.player.settings.reduced_motion = false end
+            if type(payload.player.settings.audio_muted) ~= "boolean" then payload.player.settings.audio_muted = false end
+        end
+        payload.save_version = 4
         return payload
     end,
 }
