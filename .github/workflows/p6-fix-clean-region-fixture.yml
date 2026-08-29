@@ -1,0 +1,41 @@
+name: P6 fix clean region fixture
+
+on:
+  push:
+    branches:
+      - codex/p6-first-region-vertical-slice
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Keep P6 reset lifecycle clean
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('gameplay/bee/movement_field.script')
+          text = path.read_text()
+          old = '''    elseif self.qa_state == REGION_START then
+              prepare_region_fixture(self, 0)
+          elseif self.qa_state == REGION_MID then'''
+          new = '''    elseif self.qa_state == REGION_START then
+              if lifecycle ~= "reset" then
+                  prepare_region_fixture(self, 0)
+              end
+          elseif self.qa_state == REGION_MID then'''
+          assert text.count(old) == 1, text.count(old)
+          path.write_text(text.replace(old, new, 1))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gameplay/bee/movement_field.script
+          git commit -m "P6: keep clean-save region journey unseeded"
+          git push origin HEAD:codex/p6-first-region-vertical-slice
