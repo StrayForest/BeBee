@@ -12,10 +12,11 @@ from __future__ import annotations
 import check_trust_boundary as policy
 
 PROCESS_ONLY_ERROR = "Governance-critical files must use Change class `process`."
+_BASE_VALIDATE = policy.validate
 
 
 def validate(*, body: str, changed_files: set[str]) -> list[str]:
-    errors = policy.validate(body=body, changed_files=changed_files)
+    errors = _BASE_VALIDATE(body=body, changed_files=changed_files)
     governance_files = {path for path in changed_files if policy.is_governance(path)}
     change_class = policy.field_from_body(body, "Change class")
 
