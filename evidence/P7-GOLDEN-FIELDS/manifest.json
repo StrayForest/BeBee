@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "ticket": "P7-GOLDEN-FIELDS",
-  "change_class": "economy",
+  "change_class": "player-facing",
   "problem": "Prove that the validated P1-P6 movement, pollination, Honey, progression, restoration, seed, settings, analytics and save architecture scales into a second authored region without adding another core verb, currency, mandatory sink, world-management screen or per-region game-world lifecycle, while repairing any concrete content-scaling defect exposed by real HTML5 execution.",
   "decision": {
     "ids": ["D-004", "D-006", "D-009", "D-010", "D-012", "T-004", "T-005", "T-010", "T-012", "V-001"],
@@ -14,36 +14,11 @@
   },
   "research": {
     "candidate_pool": [
-      {
-        "product_id": "garden-life",
-        "name": "Garden Life: A Cozy Simulator",
-        "source": "https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/",
-        "relevance": "Authored restoration expands through areas while seeds and planting reuse a stable interaction vocabulary."
-      },
-      {
-        "product_id": "loddlenaut",
-        "name": "Loddlenaut",
-        "source": "https://store.steampowered.com/app/1644940/Loddlenaut/",
-        "relevance": "Multiple ecological spaces reuse familiar movement and cleanup interactions while gaining biome identity."
-      },
-      {
-        "product_id": "alba",
-        "name": "Alba: A Wildlife Adventure",
-        "source": "https://www.albawildlife.com/?lang=en",
-        "relevance": "Compact handcrafted areas use landmarks and local identity rather than heavy navigation systems."
-      },
-      {
-        "product_id": "a-short-hike",
-        "name": "A Short Hike",
-        "source": "https://ashorthike.com/",
-        "relevance": "Authored traversal and landmarks support readable routes with minimal meta-UI."
-      },
-      {
-        "product_id": "grow-evertree",
-        "name": "Grow: Song of the Evertree",
-        "source": "https://www.playstation.com/en-fi/games/grow-song-of-the-evertree/",
-        "relevance": "Materially different generative and world-management counter-model whose scope is intentionally rejected for P7."
-      }
+      {"product_id": "garden-life", "name": "Garden Life: A Cozy Simulator", "source": "https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/", "relevance": "Authored restoration expands through areas while seeds and planting reuse a stable interaction vocabulary."},
+      {"product_id": "loddlenaut", "name": "Loddlenaut", "source": "https://store.steampowered.com/app/1644940/Loddlenaut/", "relevance": "Multiple ecological spaces reuse familiar movement and cleanup interactions while gaining biome identity."},
+      {"product_id": "alba", "name": "Alba: A Wildlife Adventure", "source": "https://www.albawildlife.com/?lang=en", "relevance": "Compact handcrafted areas use landmarks and local identity rather than heavy navigation systems."},
+      {"product_id": "a-short-hike", "name": "A Short Hike", "source": "https://ashorthike.com/", "relevance": "Authored traversal and landmarks support readable routes with minimal meta-UI."},
+      {"product_id": "grow-evertree", "name": "Grow: Song of the Evertree", "source": "https://www.playstation.com/en-fi/games/grow-song-of-the-evertree/", "relevance": "Materially different generative and world-management counter-model whose scope is intentionally rejected for P7."}
     ],
     "candidate_pool_exception": "",
     "selected_references": [
@@ -55,10 +30,7 @@
         "selection_reason": "Closest structural reference for scaling authored restoration areas while retaining planting and seed expression instead of replacing the core activity.",
         "observed_behavior": "Progression opens and restores authored garden areas while seeds and planting continue inside the same broader gardening loop.",
         "inference": "Golden Fields should add authored Meadows, species and landmarks while preserving native campaign truth and existing player-owned planting, not add a second inventory, currency or world-management architecture.",
-        "measurements": {
-          "bebee_new_regions": 1,
-          "bebee_new_meadows": 4
-        }
+        "measurements": {"bebee_new_regions": 1, "bebee_new_meadows": 4}
       },
       {
         "product_id": "loddlenaut",
@@ -68,10 +40,7 @@
         "selection_reason": "Useful comparison for giving multiple ecological spaces distinct identity while keeping a small interaction vocabulary.",
         "observed_behavior": "Different biomes change ecological presentation and local goals while the player's basic movement, cleanup and upgrade vocabulary remains familiar.",
         "inference": "Golden Fields should differentiate itself through layout, flower silhouettes, palette and landmarks rather than a new primary input or progression branch.",
-        "measurements": {
-          "bebee_new_core_verbs": 0,
-          "bebee_new_currencies": 0
-        }
+        "measurements": {"bebee_new_core_verbs": 0, "bebee_new_currencies": 0}
       }
     ],
     "reference_exception": "",
@@ -82,116 +51,29 @@
     }
   },
   "official_docs": [
-    {
-      "source": "https://defold.com/manuals/collection-proxy/",
-      "date_checked": "2026-08-29",
-      "verified_constraint": "A collection proxy loads a separate game world and lifecycle; Golden Fields has no proven need for a second game world, so P7 does not create one proxy per region or Meadow."
-    },
-    {
-      "source": "https://defold.com/manuals/collection-factory/",
-      "date_checked": "2026-08-29",
-      "verified_constraint": "Collection factories can spawn content into the current world; authored expansion can remain current-world content until a concrete lifecycle or memory requirement proves otherwise."
-    },
-    {
-      "source": "https://defold.com/manuals/gui/",
-      "date_checked": "2026-08-29",
-      "verified_constraint": "GUI scenes have Current Nodes and Max Nodes budgets. The real first Golden Fields run exhausted max_nodes=512, so acceptance requires bounded node use rather than merely raising the configured budget."
-    },
-    {
-      "source": "https://defold.com/manuals/optimization-memory/",
-      "date_checked": "2026-08-29",
-      "verified_constraint": "Runtime resource and node budgets should be measured and bounded; P7 replaces linear per-authored-patch GUI allocation with a six-slot nearby-patch pool."
-    }
+    {"source": "https://defold.com/manuals/collection-proxy/", "date_checked": "2026-08-29", "verified_constraint": "A collection proxy loads a separate game world and lifecycle; Golden Fields has no proven need for a second game world, so P7 does not create one proxy per region or Meadow."},
+    {"source": "https://defold.com/manuals/collection-factory/", "date_checked": "2026-08-29", "verified_constraint": "Collection factories can spawn content into the current world; authored expansion can remain current-world content until a concrete lifecycle or memory requirement proves otherwise."},
+    {"source": "https://defold.com/manuals/gui/", "date_checked": "2026-08-29", "verified_constraint": "GUI scenes have Current Nodes and Max Nodes budgets. The real first Golden Fields run exhausted max_nodes=512, so acceptance requires bounded node use rather than merely raising the configured budget."},
+    {"source": "https://defold.com/manuals/optimization-memory/", "date_checked": "2026-08-29", "verified_constraint": "Runtime resource and node budgets should be measured and bounded; P7 replaces linear per-authored-patch GUI allocation with a six-slot nearby-patch pool."}
   ],
   "official_docs_exception": "",
   "alternatives": [
-    {
-      "id": "continuous_authored_multi_region_world_with_bounded_visual_pool",
-      "disposition": "selected",
-      "reason": "Directly tests the P7 content-scaling premise while preserving the validated movement, input, save and analytics architecture and bounding rendering by visible complexity."
-    },
-    {
-      "id": "collection_proxy_per_region",
-      "disposition": "rejected",
-      "reason": "Golden Fields does not require an independent game-world lifecycle; per-region proxies would multiply lifecycle, input and resource surfaces before a concrete need exists."
-    },
-    {
-      "id": "world_map_region_selection",
-      "disposition": "rejected",
-      "reason": "Adds a new screen and navigation verb before continuous traversal has failed."
-    },
-    {
-      "id": "new_currency_or_upgrade_track",
-      "disposition": "rejected",
-      "reason": "No second-region requirement justifies a new economy branch; existing Honey and Buzz/Flight capability gates are sufficient."
-    },
-    {
-      "id": "raise_gui_max_nodes",
-      "disposition": "rejected",
-      "reason": "Would mask linear one-subtree-per-patch allocation and postpone the same failure to a later region instead of repairing scaling architecture."
-    }
+    {"id": "continuous_authored_multi_region_world_with_bounded_visual_pool", "disposition": "selected", "reason": "Directly tests the P7 content-scaling premise while preserving the validated movement, input, save and analytics architecture and bounding rendering by visible complexity."},
+    {"id": "collection_proxy_per_region", "disposition": "rejected", "reason": "Golden Fields does not require an independent game-world lifecycle; per-region proxies would multiply lifecycle, input and resource surfaces before a concrete need exists."},
+    {"id": "world_map_region_selection", "disposition": "rejected", "reason": "Adds a new screen and navigation verb before continuous traversal has failed."},
+    {"id": "new_currency_or_upgrade_track", "disposition": "rejected", "reason": "No second-region requirement justifies a new economy branch; existing Honey and Buzz/Flight capability gates are sufficient."},
+    {"id": "raise_gui_max_nodes", "disposition": "rejected", "reason": "Would mask linear one-subtree-per-patch allocation and postpone the same failure to a later region instead of repairing scaling architecture."}
   ],
   "acceptance_criteria": [
-    {
-      "criterion": "P1-P6 deterministic and browser regressions remain green on the accepted P7 runtime head.",
-      "status": "pass",
-      "evidence": "Test/data 33271607179 passes 108/108 and HTML5 CI 33271607193 retains a combined movement-qa artifact with overall result PASS and P1-P7 proof families."
-    },
-    {
-      "criterion": "Completing Sunny Meadows activates region_02 automatically from derived campaign state.",
-      "status": "pass",
-      "evidence": "The retained P7 journey persists the P6 region-complete fixture through the real settings/save path, removes the QA route, then records active region_02 with 0/4 restored and next Meadow r02_m01."
-    },
-    {
-      "criterion": "Golden Fields begins at 0/4 with Sun Gate as the next authored objective.",
-      "status": "pass",
-      "evidence": "motion-report p7_golden_fields.start_region is GOLDEN FIELDS, restored_count=0, total=4, next_meadow_id=r02_m01; the retained start frame renders RESTORE SUN GATE at 0/4."
-    },
-    {
-      "criterion": "Sun Gate continues the Buzz-3 capability path and Sunflower/Poppy have species-specific presentation.",
-      "status": "pass",
-      "evidence": "All four recorded Golden Fields patches require Buzz level 3; retained Sunflower and Poppy frames use distinct flower shapes as well as distinct palette treatment."
-    },
-    {
-      "criterion": "All four Golden Fields Meadows complete through the existing movement-through pollination verb.",
-      "status": "pass",
-      "evidence": "The retained journey completes r02_m01 through r02_m04 with the existing patch work/distance model; complete_region reports 4/4."
-    },
-    {
-      "criterion": "The P6 max-first-sink state completes Golden Fields with no mandatory replay or spend and ends at 891 Honey.",
-      "status": "pass",
-      "evidence": "Deterministic economy regression and retained browser journey both prove Honey 346 -> 891, exactly +545 from the four first-time rewards, with no new required sink."
-    },
-    {
-      "criterion": "Golden Fields completion, Honey and campaign state survive a real browser reload through the existing save abstraction.",
-      "status": "pass",
-      "evidence": "Retained reload frame and motion-report keep region_02 at 4/4, campaign at 2/2 complete and Honey 891; no save schema change is introduced."
-    },
-    {
-      "criterion": "Analytics attributes Golden Fields completion without a platform SDK dependency.",
-      "status": "pass",
-      "evidence": "The retained P7 journey records 11 semantic events through region_completed and reports external_request_count=0."
-    },
-    {
-      "criterion": "Desktop/mobile canvas coverage, errors, requests and performance remain within current web budgets.",
-      "status": "pass",
-      "evidence": "P7 records canvas 1280x720 and 844x390 exactly matching viewports, console/page errors 0/0 and external requests 0. Combined exact-head performance records 59.87 fps and a 2,815,539-byte release bundle."
-    },
-    {
-      "criterion": "GUI patch rendering scales without increasing max_nodes=512 or allocating a permanent flower subtree per authored patch.",
-      "status": "pass",
-      "evidence": "Naive head ba4c4be33f7353944a5ff5ea1389e04948a79eb4 failed HTML5 with Out of nodes (max 512). The accepted implementation keeps movement_field.gui max_nodes=512 and replaces per-patch GUI trees with six reusable nearby-patch visual slots; HTML5 run 33271607193 passes."
-    },
-    {
-      "criterion": "The retained evidence is a real region_01 -> region_02 continuation rather than only injected Golden Fields fixtures.",
-      "status": "pass",
-      "evidence": "motion-report fixture_source records P6 region_complete persisted through a real settings save and QA route removal before ordinary Golden Fields runtime traversal."
-    },
-    {
-      "criterion": "Remaining art-direction debt is explicitly evaluated and Golden Fields is not mislabeled final production art or full P7 completion.",
-      "status": "pass",
-      "evidence": "Independent evaluation verdict is PASS WITH DEVIATION: Golden Fields scaling is accepted, geometric character/species/typography/full-scene polish remains open, and P7 overall stays IN PROGRESS with Wetland Garden next."
-    }
+    {"criterion": "P1-P6 deterministic and browser regressions remain green on the accepted P7 runtime head.", "status": "pass", "evidence": "Test/data 33271607179 passes 108/108 and HTML5 CI 33271607193 retains a combined movement-qa artifact with overall result PASS and P1-P7 proof families."},
+    {"criterion": "Completing Sunny Meadows activates region_02 automatically from derived campaign state.", "status": "pass", "evidence": "The retained P7 journey persists the P6 region-complete fixture through the real settings/save path, removes the QA route, then records active region_02 with 0/4 restored and next Meadow r02_m01."},
+    {"criterion": "Golden Fields starts at 0/4 and all four Meadows complete through the existing movement-through pollination verb.", "status": "pass", "evidence": "The retained journey starts at Sun Gate 0/4 and completes r02_m01 through r02_m04 with the existing patch work/distance model; complete_region reports 4/4."},
+    {"criterion": "Sunflower/Poppy and Golden Fields landmarks/palette provide distinct authored regional identity without a new core interaction.", "status": "pass", "evidence": "Retained Sunflower and Poppy frames use distinct flower shapes and palette treatment, while region landmarks distinguish Sun Gate, Windmill Loop and Harvest Crown."},
+    {"criterion": "The P6 max-first-sink state completes Golden Fields with no mandatory replay or spend and ends at 891 Honey.", "status": "pass", "evidence": "Deterministic economy regression and retained browser journey both prove Honey 346 -> 891, exactly +545 from four first-time rewards, with no new required sink."},
+    {"criterion": "Golden Fields completion, Honey and campaign state survive a real browser reload through the existing save abstraction.", "status": "pass", "evidence": "Retained reload frame and motion-report keep region_02 at 4/4, campaign at 2/2 complete and Honey 891; no save schema change is introduced."},
+    {"criterion": "Analytics and browser/platform budgets remain valid.", "status": "pass", "evidence": "The P7 journey records 11 semantic events, console/page errors 0/0, external requests 0, exact 1280x720 and 844x390 canvases, 59.87 fps and a 2,815,539-byte release bundle."},
+    {"criterion": "GUI patch rendering scales without increasing max_nodes=512 or allocating a permanent flower subtree per authored patch.", "status": "pass", "evidence": "Naive head ba4c4be33f7353944a5ff5ea1389e04948a79eb4 failed HTML5 with Out of nodes (max 512). The accepted implementation keeps max_nodes=512 and uses six reusable nearby-patch visual slots; HTML5 run 33271607193 passes."},
+    {"criterion": "Remaining art-direction debt is explicitly evaluated and Golden Fields is not mislabeled final production art or full P7 completion.", "status": "pass", "evidence": "Independent evaluation verdict is PASS WITH DEVIATION: Golden Fields scaling is accepted, geometric character/species/typography/full-scene polish remains open, and P7 stays IN PROGRESS with Wetland Garden next."}
   ],
   "verification": {
     "automated": [
@@ -204,7 +86,6 @@
       "Accepted visual artifact 9720322272, digest sha256:02fec4d9a4b5ad298c83bb72211c6a600093bd1ef3a335decbc58fe964e53a44.",
       "Accepted playable artifact 9720322102, digest sha256:8c8c5fed6235c72460485ad235c7110e59b42998e11a3be3a31dce48da45bd3e.",
       "Accepted HTML5 diagnostics artifact 9720323006, digest sha256:66c7580f97f7ba00ee1a1e27fa5c6ec493e8941e82c696906e0aebddd0c3f682.",
-      "Accepted Test/data artifact 9720268026, digest sha256:ed82ab40085d5bbf226f7fb7d341cdcb0a329133c11c4858d993aac251b4f987.",
       "Final closeout head must repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted validate-pr-evidence before merge and retain non-N/A movement-qa-$PR_HEAD."
     ],
     "manual": [
@@ -224,20 +105,10 @@
       "accepted runtime: run 33271607193 artifact 9720322272 visual-qa-8d9640522ffc742ffe79178718fa2df0517dd6bc",
       "final exact-head: movement-qa-$PR_HEAD"
     ],
-    "states": [
-      "golden_fields_start",
-      "golden_fields_mid",
-      "golden_fields_complete",
-      "golden_fields_reloaded",
-      "golden_fields_complete_mobile_landscape"
-    ],
+    "states": ["golden_fields_start", "golden_fields_mid", "golden_fields_complete", "golden_fields_reloaded", "golden_fields_complete_mobile_landscape"],
     "viewports": ["1280x720", "844x390"],
     "motion_evidence": ["p7_golden_fields/", "motion-report.json"],
-    "provenance": {
-      "capture_commit_sha": "$PR_HEAD",
-      "capture_mode": "ci",
-      "artifact_locator": "HTML5 CI movement-qa-$PR_HEAD; accepted pre-closeout artifact 9720322590 from run 33271607193"
-    }
+    "provenance": {"capture_commit_sha": "$PR_HEAD", "capture_mode": "ci", "artifact_locator": "HTML5 CI movement-qa-$PR_HEAD; accepted pre-closeout artifact 9720322590 from run 33271607193"}
   },
   "comparison": {
     "measurements": {
@@ -270,11 +141,10 @@
     "implementation_author_id": "p7-golden-fields-implementation-agent",
     "findings": [
       "Golden Fields is reached through persisted P6 completion and ordinary runtime region derivation, not only a region_02 QA injection.",
-      "All four new Meadows reuse the movement-through pollination, Honey, Buzz, save and analytics architecture and complete 346 -> 891 Honey without a new mandatory sink or replay requirement.",
-      "The first HTML5 attempt exposed a real 512-node scalability defect. The accepted repair keeps max_nodes=512 and bounds patch rendering to six reusable visual slots rather than total authored patch count.",
+      "All four new Meadows reuse the existing core verb/economy/save/analytics architecture and complete 346 -> 891 Honey without a new mandatory sink or replay requirement.",
+      "The first HTML5 attempt exposed a real 512-node scalability defect; the accepted repair keeps max_nodes=512 and bounds patch rendering to six reusable visual slots.",
       "Exact-head browser evidence retains P1-P6 regressions, reloads region_02 at 4/4, makes zero external requests, reports zero P7 browser errors and passes current FPS/bundle budgets.",
-      "Sunflower/Poppy and Golden Fields landmarks/palette provide sufficient authored regional identity for the expansion proof.",
-      "PASS WITH DEVIATION: the runtime remains geometric and below the long-term rounded bee, richer species illustration, typography and full-scene composition target. It is not release-candidate art.",
+      "PASS WITH DEVIATION: the runtime remains geometric and below the long-term rounded bee, richer species illustration, typography and full-scene composition target; it is not release-candidate art.",
       "Golden Fields closes only the first P7 slice; P7 remains IN PROGRESS and Wetland Garden is the next production region."
     ],
     "verdict": "PASS WITH DEVIATION",
