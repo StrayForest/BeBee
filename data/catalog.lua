@@ -1,6 +1,5 @@
 -- Canonical production content catalog used by runtime and deterministic validation.
--- P4 adds the first authored Meadow restoration ladder while keeping save state derived
--- from stable patch completion IDs rather than duplicating a persisted meadow stage.
+-- P5 keeps authored campaign/native patches separate from dedicated player-shaped plots.
 return {
     schema_version = 1,
     flowers = {
@@ -80,7 +79,47 @@ return {
             },
         },
     },
-    seeds = {},
+    seeds = {
+        {
+            id = "seed_daisy",
+            flower_id = "flower_daisy",
+            label = "DAISY",
+            cost = 15,
+            available_after_patch_id = "r01_m01_patch_01",
+        },
+        {
+            id = "seed_clover",
+            flower_id = "flower_clover",
+            label = "CLOVER",
+            cost = 18,
+            available_after_patch_id = "r01_m01_patch_02",
+        },
+        {
+            id = "seed_lavender",
+            flower_id = "flower_lavender",
+            label = "LAVENDER",
+            cost = 22,
+            available_after_patch_id = "r01_m01_patch_03",
+        },
+    },
+    player_plots = {
+        {
+            id = "r01_m01_player_plot_01",
+            meadow_id = "r01_m01",
+            x = 1410,
+            y = 1110,
+            interaction_radius = 185,
+            available_after_patch_id = "r01_m01_patch_01",
+        },
+        {
+            id = "r01_m01_player_plot_02",
+            meadow_id = "r01_m01",
+            x = 1780,
+            y = 1310,
+            interaction_radius = 185,
+            available_after_patch_id = "r01_m01_patch_02",
+        },
+    },
     regions = {
         { id = "region_01", meadow_ids = { "r01_m01" } },
     },
