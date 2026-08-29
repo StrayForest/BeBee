@@ -1,0 +1,147 @@
+local DESIGN_W = 1280
+local DESIGN_H = 720
+
+local CREAM = vmath.vector4(1.0, 0.969, 0.91, 1)
+local DARK = vmath.vector4(0.16, 0.13, 0.12, 0.94)
+local DARK_SOFT = vmath.vector4(0.16, 0.13, 0.12, 0.72)
+local HONEY = vmath.vector4(0.965, 0.718, 0.235, 1)
+local ACTIVE = vmath.vector4(0.471, 0.839, 0.910, 1)
+local SUCCESS = vmath.vector4(0.416, 0.796, 0.463, 1)
+local LOCKED = vmath.vector4(0.482, 0.431, 0.557, 0.92)
+local LAVENDER = vmath.vector4(0.73, 0.63, 0.91, 1)
+
+local function box(x, y, w, h, color)
+    local node = gui.new_box_node(vmath.vector3(x, y, 0), vmath.vector3(w, h, 0))
+    gui.set_color(node, color)
+    return node
+end
+
+local function text(x, y, value, scale)
+    local node = gui.new_text_node(vmath.vector3(x, y, 0), value)
+    gui.set_font(node, "default")
+    gui.set_color(node, CREAM)
+    gui.set_scale(node, vmath.vector3(scale or 1, scale or 1, 1))
+    return node
+end
+
+local function enable(nodes, value)
+    for _, node in ipairs(nodes) do gui.set_enabled(node, value) end
+end
+
+local function world_to_screen(wx, wy, camera_x, camera_y)
+    return DESIGN_W * 0.5 + wx - camera_x, DESIGN_H * 0.5 + wy - camera_y
+end
+
+local function set_xy(node, x, y)
+    gui.set_position(node, vmath.vector3(x, y, 0))
+end
+
+local function card_text(message, kind)
+    local level = message[kind .. "_level"] or 1
+    local cost = message[kind .. "_cost"] or 0
+    local available = message[kind .. "_available"] == true
+    local affordable = message[kind .. "_affordable"] == true
+    if not available then return "LEVEL " .. level .. "  ·  MAX/LOCKED" end
+    if kind == "flight" then
+        return string.format("LEVEL %d  ·  %d → %d U/S  ·  %d HONEY%s", level, message.flight_speed or 300, message.flight_next_speed or 300, cost, affordable and "" or "  ·  NEED MORE")
+    end
+    return string.format("LEVEL %d  ·  %.2f× → %.2f× WORK  ·  %d HONEY%s", level, message.buzz_multiplier or 1, message.buzz_next_multiplier or 1, cost, affordable and "" or "  ·  NEED MORE")
+end
+
+function init(self)
+    self.hive_body = box(0, 0, 116, 90, HONEY)
+    self.hive_door = box(0, 0, 34, 42, DARK)
+    self.hive_label = text(0, 0, "HIVE", 0.82)
+    self.hive_hint_bg = box(1120, 84, 230, 58, DARK_SOFT)
+    self.hive_hint = text(1120, 84, "HIVE  ·  SPACE / TAP", 0.78)
+
+    self.lavender_halo = box(0, 0, 330, 290, vmath.vector4(0.73, 0.63, 0.91, 0.12))
+    self.lavender_label = text(0, 0, "BUZZ 2", 0.82)
+    self.lavender_flowers = {}
+    local offsets = {{-110,-45},{-85,75},{0,115},{85,75},{110,-45}}
+    for index, offset in ipairs(offsets) do
+        self.lavender_flowers[index] = {
+            node = box(0, 0, 28, 28, LAVENDER),
+            x = offset[1],
+            y = offset[2],
+        }
+    end
+
+    self.world_nodes = {
+        self.hive_body, self.hive_door, self.hive_label,
+        self.lavender_halo, self.lavender_label,
+    }
+    for _, flower in ipairs(self.lavender_flowers) do
+        self.world_nodes[#self.world_nodes + 1] = flower.node
+    end
+    enable(self.world_nodes, false)
+    self.world_ready = false
+
+    self.modal_nodes = {}
+    self.dim = box(640, 360, 1280, 720, vmath.vector4(0.04, 0.03, 0.03, 0.62))
+    self.panel = box(640, 360, 820, 430, DARK)
+    self.title = text(640, 535, "HIVE IMPROVEMENTS", 1.28)
+    self.balance = text(640, 493, "HONEY 0", 0.92)
+    self.help = text(640, 192, "← / → SELECT   ·   SPACE / ENTER BUY   ·   ESC CLOSE", 0.72)
+    self.flight_card = box(435, 350, 330, 230, vmath.vector4(0.22,0.25,0.26,0.96))
+    self.flight_title = text(435, 420, "FLIGHT", 1.15)
+    self.flight_body = text(435, 345, "LEVEL 1", 0.70)
+    self.flight_note = text(435, 285, "TRAVEL FASTER", 0.72)
+    self.buzz_card = box(845, 350, 330, 230, vmath.vector4(0.22,0.25,0.26,0.96))
+    self.buzz_title = text(845, 420, "BUZZ", 1.15)
+    self.buzz_body = text(845, 345, "LEVEL 1", 0.70)
+    self.buzz_note = text(845, 285, "POLLINATE HARDER FLOWERS", 0.72)
+    self.modal_nodes = {
+        self.dim, self.panel, self.title, self.balance, self.help,
+        self.flight_card, self.flight_title, self.flight_body, self.flight_note,
+        self.buzz_card, self.buzz_title, self.buzz_body, self.buzz_note,
+    }
+    enable(self.modal_nodes, false)
+    gui.set_enabled(self.hive_hint_bg, false)
+    gui.set_enabled(self.hive_hint, false)
+    msg.post("/movement#controller", "progression_view_ready")
+end
+
+function on_message(self, message_id, message)
+    if message_id ~= hash("progression_view") then return end
+
+    if not self.world_ready then
+        self.world_ready = true
+        for _, node in ipairs(self.world_nodes) do gui.set_enabled(node, true) end
+    end
+
+    local camera_x = message.camera_x or 1200
+    local camera_y = message.camera_y or 800
+    local hx, hy = world_to_screen(message.hive_x or 1120, message.hive_y or 800, camera_x, camera_y)
+    set_xy(self.hive_body, hx, hy)
+    set_xy(self.hive_door, hx, hy - 18)
+    set_xy(self.hive_label, hx, hy + 66)
+
+    local nearby = message.hive_nearby == true and message.modal_open ~= true
+    gui.set_enabled(self.hive_hint_bg, nearby)
+    gui.set_enabled(self.hive_hint, nearby)
+
+    local px, py = world_to_screen(message.patch3_x or 2070, message.patch3_y or 1160, camera_x, camera_y)
+    set_xy(self.lavender_halo, px, py)
+    local locked = message.patch3_state == "LOCKED"
+    local completed = message.patch3_state == "COMPLETED"
+    gui.set_color(self.lavender_halo, completed and vmath.vector4(SUCCESS.x,SUCCESS.y,SUCCESS.z,0.18) or (locked and vmath.vector4(LOCKED.x,LOCKED.y,LOCKED.z,0.18) or vmath.vector4(LAVENDER.x,LAVENDER.y,LAVENDER.z,0.18)))
+    set_xy(self.lavender_label, px, py + 160)
+    gui.set_text(self.lavender_label, locked and "BUZZ 2" or (completed and "RESTORED" or "LAVENDER"))
+    gui.set_color(self.lavender_label, locked and LOCKED or CREAM)
+    for _, flower in ipairs(self.lavender_flowers) do
+        set_xy(flower.node, px + flower.x, py + flower.y)
+        gui.set_color(flower.node, locked and LOCKED or LAVENDER)
+    end
+
+    local open = message.modal_open == true
+    enable(self.modal_nodes, open)
+    if not open then return end
+
+    gui.set_text(self.balance, "HONEY " .. tostring(math.floor(message.honey or 0)))
+    gui.set_text(self.flight_body, card_text(message, "flight"))
+    gui.set_text(self.buzz_body, card_text(message, "buzz"))
+    local selected = message.selected_upgrade or "flight"
+    gui.set_color(self.flight_card, selected == "flight" and vmath.vector4(ACTIVE.x,ACTIVE.y,ACTIVE.z,0.42) or vmath.vector4(0.22,0.25,0.26,0.96))
+    gui.set_color(self.buzz_card, selected == "buzz" and vmath.vector4(ACTIVE.x,ACTIVE.y,ACTIVE.z,0.42) or vmath.vector4(0.22,0.25,0.26,0.96))
+end

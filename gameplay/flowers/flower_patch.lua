@@ -43,6 +43,8 @@ function M.new(definition, options)
         inside = false,
         qualifying = false,
         work_added_last_step = 0,
+        movement_distance_last_step = 0,
+        work_multiplier_last_step = 1,
         completion_count = 0,
     }
 end
@@ -51,12 +53,17 @@ function M.set_eligible(state, eligible)
     if state.completed then return state end
     if eligible == true and state.state == M.STATE_LOCKED then
         state.state = M.STATE_AVAILABLE
+    elseif eligible ~= true and state.state ~= M.STATE_LOCKED then
+        state.state = M.STATE_LOCKED
+        state.qualifying = false
     end
     return state
 end
 
-function M.step(state, bee_x, bee_y, movement_distance)
+function M.step(state, bee_x, bee_y, movement_distance, work_multiplier)
     movement_distance = tonumber(movement_distance) or 0
+    work_multiplier = tonumber(work_multiplier) or 1
+    if work_multiplier < 0 then work_multiplier = 0 end
     local definition = state.definition
     local effective_radius = definition.radius + (definition.edge_forgiveness or 0)
     local dx = (tonumber(bee_x) or 0) - definition.x
@@ -66,12 +73,16 @@ function M.step(state, bee_x, bee_y, movement_distance)
     state.inside = inside
     state.qualifying = false
     state.work_added_last_step = 0
+    state.movement_distance_last_step = movement_distance
+    state.work_multiplier_last_step = work_multiplier
 
     local event = {
         patch_id = definition.id,
         inside = inside,
         qualifying = false,
         work_added = 0,
+        movement_distance = movement_distance,
+        work_multiplier = work_multiplier,
         just_completed = false,
     }
 
@@ -87,7 +98,7 @@ function M.step(state, bee_x, bee_y, movement_distance)
         end
 
         local remaining = math.max(0, state.work_target - state.work)
-        local added = math.min(remaining, movement_distance)
+        local added = math.min(remaining, movement_distance * work_multiplier)
         state.work = state.work + added
         state.work_added_last_step = added
         event.work_added = added

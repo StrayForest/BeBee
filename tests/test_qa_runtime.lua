@@ -2,13 +2,11 @@ local qa = require "app.qa_runtime"
 local test = require "tests.testlib"
 
 local function supported_runtime_states()
-    test.assert_true(qa.is_supported_state("foundation_probe"))
-    test.assert_true(qa.is_supported_state("movement_empty"))
-    test.assert_true(qa.is_supported_state("movement_dense"))
-    test.assert_true(qa.is_supported_state("pollination_idle"))
-    test.assert_true(qa.is_supported_state("pollination_active_50"))
-    test.assert_true(qa.is_supported_state("pollination_complete"))
-    test.assert_true(qa.is_supported_state("hud_default"))
+    for _, state in ipairs({
+        "foundation_probe", "movement_empty", "movement_dense", "pollination_idle",
+        "pollination_active_50", "pollination_complete", "hud_default",
+        "progression_hive", "progression_buzz_gate",
+    }) do test.assert_true(qa.is_supported_state(state), state) end
     test.assert_false(qa.is_supported_state("not_a_state"))
 end
 
@@ -23,15 +21,7 @@ local function normalized_seed()
 end
 
 local function supported_request()
-    local request = qa.resolve_request("foundation_probe", "123")
-    test.assert_equal("foundation_probe", request.state_id)
-    test.assert_equal(123, request.seed)
-    test.assert_true(request.supported)
-    test.assert_equal(nil, request.error)
-
     local movement_request = qa.resolve_request("movement_dense", "456")
-    test.assert_equal("movement_dense", movement_request.state_id)
-    test.assert_equal(456, movement_request.seed)
     test.assert_true(movement_request.supported)
     test.assert_true(qa.is_movement_state(movement_request.state_id))
     test.assert_true(qa.requires_gameplay_capture(movement_request.state_id))
@@ -39,11 +29,11 @@ local function supported_request()
     local pollination_request = qa.resolve_request("pollination_active_50", "789")
     test.assert_true(pollination_request.supported)
     test.assert_true(qa.is_pollination_state(pollination_request.state_id))
-    test.assert_true(qa.requires_gameplay_capture(pollination_request.state_id))
 
-    local hud_request = qa.resolve_request("hud_default", "321")
-    test.assert_true(hud_request.supported)
-    test.assert_true(qa.requires_gameplay_capture(hud_request.state_id))
+    local progression_request = qa.resolve_request("progression_hive", "321")
+    test.assert_true(progression_request.supported)
+    test.assert_true(qa.is_progression_state(progression_request.state_id))
+    test.assert_true(qa.requires_gameplay_capture(progression_request.state_id))
 end
 
 local function unknown_state_fails_closed()

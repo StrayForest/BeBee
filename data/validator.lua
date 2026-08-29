@@ -14,31 +14,23 @@ local function add_error(errors, message)
 end
 
 local function is_dense_array(value)
-    if type(value) ~= "table" then
-        return false
-    end
-
+    if type(value) ~= "table" then return false end
     local count = 0
     local max_index = 0
     for key in pairs(value) do
-        if type(key) ~= "number" or key < 1 or key % 1 ~= 0 then
-            return false
-        end
+        if type(key) ~= "number" or key < 1 or key % 1 ~= 0 then return false end
         count = count + 1
         max_index = math.max(max_index, key)
     end
-
     return max_index == count
 end
 
 local function collect_ids(catalog, errors)
     local ids = {}
     local by_collection = {}
-
     for _, definition in ipairs(COLLECTIONS) do
         local collection = catalog[definition.name]
         by_collection[definition.name] = {}
-
         if not is_dense_array(collection) then
             add_error(errors, definition.name .. " must be a dense array")
         else
@@ -51,25 +43,9 @@ local function collect_ids(catalog, errors)
                     if type(id) ~= "string" or id == "" then
                         add_error(errors, item_path .. ".id must be a non-empty string")
                     elseif not id:match(definition.pattern) then
-                        add_error(
-                            errors,
-                            string.format(
-                                "%s.id has invalid format for %s: %s",
-                                item_path,
-                                definition.name,
-                                id
-                            )
-                        )
+                        add_error(errors, string.format("%s.id has invalid format for %s: %s", item_path, definition.name, id))
                     elseif ids[id] then
-                        add_error(
-                            errors,
-                            string.format(
-                                "duplicate stable id %s at %s and %s",
-                                id,
-                                ids[id],
-                                item_path
-                            )
-                        )
+                        add_error(errors, string.format("duplicate stable id %s at %s and %s", id, ids[id], item_path))
                     else
                         ids[id] = item_path
                         by_collection[definition.name][id] = item
@@ -78,7 +54,6 @@ local function collect_ids(catalog, errors)
             end
         end
     end
-
     return by_collection
 end
 
@@ -89,10 +64,7 @@ local function validate_string_array(path, values, errors)
     end
     for index, value in ipairs(values) do
         if type(value) ~= "string" or value == "" then
-            add_error(
-                errors,
-                string.format("%s[%d] must be a non-empty string", path, index)
-            )
+            add_error(errors, string.format("%s[%d] must be a non-empty string", path, index))
         end
     end
     return true
@@ -103,27 +75,21 @@ local function finite_number(value)
 end
 
 local function positive_number(path, value, errors)
-    if not finite_number(value) or value <= 0 then
-        add_error(errors, path .. " must be a positive finite number")
-    end
+    if not finite_number(value) or value <= 0 then add_error(errors, path .. " must be a positive finite number") end
 end
 
 local function non_negative_number(path, value, errors)
-    if not finite_number(value) or value < 0 then
-        add_error(errors, path .. " must be a non-negative finite number")
-    end
+    if not finite_number(value) or value < 0 then add_error(errors, path .. " must be a non-negative finite number") end
+end
+
+local function positive_integer(path, value, errors)
+    if not finite_number(value) or value < 1 or value % 1 ~= 0 then add_error(errors, path .. " must be a positive integer") end
 end
 
 local function validate_flower_fields(catalog, errors)
     for index, flower in ipairs(catalog.flowers or {}) do
         if type(flower) == "table" then
-            local difficulty = flower.pollination_difficulty
-            if type(difficulty) ~= "number" or difficulty < 1 or difficulty % 1 ~= 0 then
-                add_error(
-                    errors,
-                    string.format("flowers[%d].pollination_difficulty must be a positive integer", index)
-                )
-            end
+            positive_integer(string.format("flowers[%d].pollination_difficulty", index), flower.pollination_difficulty, errors)
         end
     end
 end
@@ -139,11 +105,46 @@ local function validate_patch_fields(catalog, errors)
             non_negative_number(prefix .. ".restoration_contribution", patch.restoration_contribution, errors)
             if not finite_number(patch.x) then add_error(errors, prefix .. ".x must be a finite number") end
             if not finite_number(patch.y) then add_error(errors, prefix .. ".y must be a finite number") end
-            if finite_number(patch.honey_reward) and patch.honey_reward % 1 ~= 0 then
-                add_error(errors, prefix .. ".honey_reward must be an integer")
+            if finite_number(patch.honey_reward) and patch.honey_reward % 1 ~= 0 then add_error(errors, prefix .. ".honey_reward must be an integer") end
+            if patch.requires_buzz_level ~= nil then positive_integer(prefix .. ".requires_buzz_level", patch.requires_buzz_level, errors) end
+        end
+    end
+end
+
+local function validate_upgrade_fields(catalog, errors)
+    local kinds = {}
+    for index, upgrade in ipairs(catalog.upgrades or {}) do
+        if type(upgrade) == "table" then
+            local prefix = string.format("upgrades[%d]", index)
+            if upgrade.kind ~= "flight" and upgrade.kind ~= "buzz" then
+                add_error(errors, prefix .. ".kind must be flight or buzz")
+            elseif kinds[upgrade.kind] then
+                add_error(errors, prefix .. ".kind duplicates " .. upgrade.kind)
+            else
+                kinds[upgrade.kind] = true
+            end
+            if type(upgrade.label) ~= "string" or upgrade.label == "" then add_error(errors, prefix .. ".label must be non-empty") end
+            if not is_dense_array(upgrade.levels) or #upgrade.levels < 2 then
+                add_error(errors, prefix .. ".levels must contain at least levels 1 and 2")
+            else
+                for level_index, level in ipairs(upgrade.levels) do
+                    local level_prefix = string.format("%s.levels[%d]", prefix, level_index)
+                    if level.level ~= level_index then add_error(errors, level_prefix .. ".level must match dense level index") end
+                    non_negative_number(level_prefix .. ".cost", level.cost, errors)
+                    if finite_number(level.cost) and level.cost % 1 ~= 0 then add_error(errors, level_prefix .. ".cost must be an integer") end
+                    if level_index == 1 and level.cost ~= 0 then add_error(errors, level_prefix .. ".cost must be zero for baseline") end
+                    if upgrade.kind == "flight" then
+                        positive_number(level_prefix .. ".multiplier", level.multiplier, errors)
+                        positive_number(level_prefix .. ".max_speed", level.max_speed, errors)
+                    elseif upgrade.kind == "buzz" then
+                        positive_number(level_prefix .. ".work_multiplier", level.work_multiplier, errors)
+                    end
+                end
             end
         end
     end
+    if not kinds.flight then add_error(errors, "upgrades must define flight") end
+    if not kinds.buzz then add_error(errors, "upgrades must define buzz") end
 end
 
 local function validate_references(catalog, by_collection, errors)
@@ -151,14 +152,7 @@ local function validate_references(catalog, by_collection, errors)
         if type(seed) == "table" and seed.flower_id ~= nil then
             local flower_id = seed.flower_id
             if type(flower_id) ~= "string" or not by_collection.flowers[flower_id] then
-                add_error(
-                    errors,
-                    string.format(
-                        "seeds[%d].flower_id references unknown flower: %s",
-                        index,
-                        tostring(flower_id)
-                    )
-                )
+                add_error(errors, string.format("seeds[%d].flower_id references unknown flower: %s", index, tostring(flower_id)))
             end
         end
     end
@@ -167,39 +161,28 @@ local function validate_references(catalog, by_collection, errors)
         if type(patch) == "table" then
             local flower_id = patch.flower_id
             if type(flower_id) ~= "string" or not by_collection.flowers[flower_id] then
-                add_error(
-                    errors,
-                    string.format(
-                        "patches[%d].flower_id references unknown flower: %s",
-                        index,
-                        tostring(flower_id)
-                    )
-                )
+                add_error(errors, string.format("patches[%d].flower_id references unknown flower: %s", index, tostring(flower_id)))
             end
             local meadow_id = patch.meadow_id
             if type(meadow_id) ~= "string" or not by_collection.meadows[meadow_id] then
-                add_error(
-                    errors,
-                    string.format(
-                        "patches[%d].meadow_id references unknown meadow: %s",
-                        index,
-                        tostring(meadow_id)
-                    )
-                )
+                add_error(errors, string.format("patches[%d].meadow_id references unknown meadow: %s", index, tostring(meadow_id)))
             end
             if patch.requires_patch_id ~= nil then
                 local required = patch.requires_patch_id
                 if type(required) ~= "string" or not by_collection.patches[required] then
-                    add_error(
-                        errors,
-                        string.format(
-                            "patches[%d].requires_patch_id references unknown patch: %s",
-                            index,
-                            tostring(required)
-                        )
-                    )
+                    add_error(errors, string.format("patches[%d].requires_patch_id references unknown patch: %s", index, tostring(required)))
                 elseif required == patch.id then
                     add_error(errors, string.format("patches[%d] cannot require itself", index))
+                end
+            end
+        end
+    end
+
+    for index, upgrade in ipairs(catalog.upgrades or {}) do
+        if type(upgrade) == "table" and is_dense_array(upgrade.levels) then
+            for level_index, level in ipairs(upgrade.levels) do
+                if level.available_after_patch_id ~= nil and not by_collection.patches[level.available_after_patch_id] then
+                    add_error(errors, string.format("upgrades[%d].levels[%d].available_after_patch_id references unknown patch: %s", index, level_index, tostring(level.available_after_patch_id)))
                 end
             end
         end
@@ -209,14 +192,7 @@ local function validate_references(catalog, by_collection, errors)
         if type(meadow) == "table" and meadow.region_id ~= nil then
             local region_id = meadow.region_id
             if type(region_id) ~= "string" or not by_collection.regions[region_id] then
-                add_error(
-                    errors,
-                    string.format(
-                        "meadows[%d].region_id references unknown region: %s",
-                        index,
-                        tostring(region_id)
-                    )
-                )
+                add_error(errors, string.format("meadows[%d].region_id references unknown region: %s", index, tostring(region_id)))
             end
         end
     end
@@ -227,15 +203,7 @@ local function validate_references(catalog, by_collection, errors)
             if validate_string_array(path, region.meadow_ids, errors) then
                 for meadow_index, meadow_id in ipairs(region.meadow_ids) do
                     if not by_collection.meadows[meadow_id] then
-                        add_error(
-                            errors,
-                            string.format(
-                                "%s[%d] references unknown meadow: %s",
-                                path,
-                                meadow_index,
-                                meadow_id
-                            )
-                        )
+                        add_error(errors, string.format("%s[%d] references unknown meadow: %s", path, meadow_index, meadow_id))
                     end
                 end
             end
@@ -245,20 +213,13 @@ end
 
 function M.validate(catalog)
     local errors = {}
-
-    if type(catalog) ~= "table" then
-        return false, { "catalog must be a table" }
-    end
-
-    if catalog.schema_version ~= 1 then
-        add_error(errors, "catalog.schema_version must equal 1")
-    end
-
+    if type(catalog) ~= "table" then return false, { "catalog must be a table" } end
+    if catalog.schema_version ~= 1 then add_error(errors, "catalog.schema_version must equal 1") end
     local by_collection = collect_ids(catalog, errors)
     validate_flower_fields(catalog, errors)
     validate_patch_fields(catalog, errors)
+    validate_upgrade_fields(catalog, errors)
     validate_references(catalog, by_collection, errors)
-
     table.sort(errors)
     return #errors == 0, errors
 end
