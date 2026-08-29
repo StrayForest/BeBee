@@ -96,7 +96,7 @@ function on_message(self, message_id, message, sender)
         msg.post(sender, "enable")
         self.proxy_ready = true
         print("BEBEE_INPUT proxy_loaded owner_focus=1")
-        if not self.qa_request or not qa_runtime.is_movement_state(self.qa_request.state_id) then
+        if not self.qa_request or not qa_runtime.requires_gameplay_capture(self.qa_request.state_id) then
             mark_qa_capture_ready(self)
         end
     end

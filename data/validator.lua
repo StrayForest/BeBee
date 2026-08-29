@@ -2,6 +2,7 @@ local M = {}
 
 local COLLECTIONS = {
     { name = "flowers", pattern = "^flower_[a-z0-9_]+$" },
+    { name = "patches", pattern = "^r%d%d_m%d%d_patch_%d%d$" },
     { name = "upgrades", pattern = "^upgrade_[a-z0-9_]+$" },
     { name = "seeds", pattern = "^seed_[a-z0-9_]+$" },
     { name = "regions", pattern = "^region_%d%d$" },
@@ -97,13 +98,59 @@ local function validate_string_array(path, values, errors)
     return true
 end
 
+local function finite_number(value)
+    return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
+end
+
+local function positive_number(path, value, errors)
+    if not finite_number(value) or value <= 0 then
+        add_error(errors, path .. " must be a positive finite number")
+    end
+end
+
+local function non_negative_number(path, value, errors)
+    if not finite_number(value) or value < 0 then
+        add_error(errors, path .. " must be a non-negative finite number")
+    end
+end
+
+local function validate_flower_fields(catalog, errors)
+    for index, flower in ipairs(catalog.flowers or {}) do
+        if type(flower) == "table" then
+            local difficulty = flower.pollination_difficulty
+            if type(difficulty) ~= "number" or difficulty < 1 or difficulty % 1 ~= 0 then
+                add_error(
+                    errors,
+                    string.format("flowers[%d].pollination_difficulty must be a positive integer", index)
+                )
+            end
+        end
+    end
+end
+
+local function validate_patch_fields(catalog, errors)
+    for index, patch in ipairs(catalog.patches or {}) do
+        if type(patch) == "table" then
+            local prefix = string.format("patches[%d]", index)
+            positive_number(prefix .. ".radius", patch.radius, errors)
+            non_negative_number(prefix .. ".edge_forgiveness", patch.edge_forgiveness, errors)
+            positive_number(prefix .. ".pollination_work", patch.pollination_work, errors)
+            non_negative_number(prefix .. ".honey_reward", patch.honey_reward, errors)
+            non_negative_number(prefix .. ".restoration_contribution", patch.restoration_contribution, errors)
+            if not finite_number(patch.x) then add_error(errors, prefix .. ".x must be a finite number") end
+            if not finite_number(patch.y) then add_error(errors, prefix .. ".y must be a finite number") end
+            if finite_number(patch.honey_reward) and patch.honey_reward % 1 ~= 0 then
+                add_error(errors, prefix .. ".honey_reward must be an integer")
+            end
+        end
+    end
+end
+
 local function validate_references(catalog, by_collection, errors)
     for index, seed in ipairs(catalog.seeds or {}) do
         if type(seed) == "table" and seed.flower_id ~= nil then
             local flower_id = seed.flower_id
-            if type(flower_id) ~= "string"
-                or not by_collection.flowers[flower_id]
-            then
+            if type(flower_id) ~= "string" or not by_collection.flowers[flower_id] then
                 add_error(
                     errors,
                     string.format(
@@ -116,12 +163,52 @@ local function validate_references(catalog, by_collection, errors)
         end
     end
 
+    for index, patch in ipairs(catalog.patches or {}) do
+        if type(patch) == "table" then
+            local flower_id = patch.flower_id
+            if type(flower_id) ~= "string" or not by_collection.flowers[flower_id] then
+                add_error(
+                    errors,
+                    string.format(
+                        "patches[%d].flower_id references unknown flower: %s",
+                        index,
+                        tostring(flower_id)
+                    )
+                )
+            end
+            local meadow_id = patch.meadow_id
+            if type(meadow_id) ~= "string" or not by_collection.meadows[meadow_id] then
+                add_error(
+                    errors,
+                    string.format(
+                        "patches[%d].meadow_id references unknown meadow: %s",
+                        index,
+                        tostring(meadow_id)
+                    )
+                )
+            end
+            if patch.requires_patch_id ~= nil then
+                local required = patch.requires_patch_id
+                if type(required) ~= "string" or not by_collection.patches[required] then
+                    add_error(
+                        errors,
+                        string.format(
+                            "patches[%d].requires_patch_id references unknown patch: %s",
+                            index,
+                            tostring(required)
+                        )
+                    )
+                elseif required == patch.id then
+                    add_error(errors, string.format("patches[%d] cannot require itself", index))
+                end
+            end
+        end
+    end
+
     for index, meadow in ipairs(catalog.meadows or {}) do
         if type(meadow) == "table" and meadow.region_id ~= nil then
             local region_id = meadow.region_id
-            if type(region_id) ~= "string"
-                or not by_collection.regions[region_id]
-            then
+            if type(region_id) ~= "string" or not by_collection.regions[region_id] then
                 add_error(
                     errors,
                     string.format(
@@ -168,6 +255,8 @@ function M.validate(catalog)
     end
 
     local by_collection = collect_ids(catalog, errors)
+    validate_flower_fields(catalog, errors)
+    validate_patch_fields(catalog, errors)
     validate_references(catalog, by_collection, errors)
 
     table.sort(errors)

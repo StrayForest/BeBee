@@ -6,7 +6,21 @@ local function valid_catalog()
     return {
         schema_version = 1,
         flowers = {
-            { id = "flower_daisy" },
+            { id = "flower_daisy", pollination_difficulty = 1 },
+        },
+        patches = {
+            {
+                id = "r01_m01_patch_01",
+                meadow_id = "r01_m01",
+                flower_id = "flower_daisy",
+                x = 100,
+                y = 100,
+                radius = 50,
+                edge_forgiveness = 10,
+                pollination_work = 140,
+                honey_reward = 10,
+                restoration_contribution = 1,
+            },
         },
         upgrades = {
             { id = "upgrade_flight" },
@@ -36,7 +50,7 @@ end
 
 local function duplicate_ids_fail()
     local catalog = valid_catalog()
-    catalog.flowers[2] = { id = "flower_daisy" }
+    catalog.flowers[2] = { id = "flower_daisy", pollination_difficulty = 1 }
 
     local ok, errors = validator.validate(catalog)
     test.assert_false(ok)
@@ -70,11 +84,29 @@ local function broken_seed_reference_fails()
     test.assert_contains(errors, "references unknown flower: flower_missing")
 end
 
+local function broken_patch_reference_fails()
+    local catalog = valid_catalog()
+    catalog.patches[1].flower_id = "flower_missing"
+
+    local ok, errors = validator.validate(catalog)
+    test.assert_false(ok)
+    test.assert_contains(errors, "patches[1].flower_id references unknown flower: flower_missing")
+end
+
+local function invalid_patch_work_fails()
+    local catalog = valid_catalog()
+    catalog.patches[1].pollination_work = 0
+
+    local ok, errors = validator.validate(catalog)
+    test.assert_false(ok)
+    test.assert_contains(errors, "patches[1].pollination_work must be a positive finite number")
+end
+
 local function sparse_collection_fails()
     local catalog = valid_catalog()
     catalog.flowers = {
-        [1] = { id = "flower_daisy" },
-        [3] = { id = "flower_clover" },
+        [1] = { id = "flower_daisy", pollination_difficulty = 1 },
+        [3] = { id = "flower_clover", pollination_difficulty = 1 },
     }
 
     local ok, errors = validator.validate(catalog)
@@ -91,6 +123,8 @@ return {
         { name = "invalid_id_format_fails", run = invalid_id_format_fails },
         { name = "broken_region_reference_fails", run = broken_region_reference_fails },
         { name = "broken_seed_reference_fails", run = broken_seed_reference_fails },
+        { name = "broken_patch_reference_fails", run = broken_patch_reference_fails },
+        { name = "invalid_patch_work_fails", run = invalid_patch_work_fails },
         { name = "sparse_collection_fails", run = sparse_collection_fails },
     },
 }

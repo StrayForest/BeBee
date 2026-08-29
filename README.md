@@ -133,6 +133,8 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`evidence/BB-007-CLOSEOUT/manifest.json`](evidence/BB-007-CLOSEOUT/manifest.json) — P0 storage lifecycle/browser closeout evidence
 - [`docs/research/P1-bee-movement.md`](docs/research/P1-bee-movement.md) — P1 movement research, implementation and failure/iteration trace
 - [`evidence/P1-BEE-MOVEMENT/manifest.json`](evidence/P1-BEE-MOVEMENT/manifest.json) — P1 movement closeout evidence
+- [`docs/research/P2-pollination-core-loop.md`](docs/research/P2-pollination-core-loop.md) — P2 pollination production research, tuning and iteration trace
+- [`evidence/P2-POLLINATION-CORE-LOOP/manifest.json`](evidence/P2-POLLINATION-CORE-LOOP/manifest.json) — P2 pollination/economy closeout evidence
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -143,17 +145,18 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 ## Validated product structure vs open tuning
 
-`D-006` is `VALIDATED`: default pollination is movement-through/sweep — qualifying movement inside a pollinatable patch advances progress, standing still does not, and the default scheme has no separate high-frequency pollination button. Exact movement/work tuning remains a P2 task.
+`D-006` is `VALIDATED`: default pollination is movement-through/sweep — qualifying movement inside a pollinatable patch advances progress, standing still does not, and the default scheme has no separate high-frequency pollination button. P2 productionizes this with forgiving authored bounds and work targets above one full forgiving-zone diameter; the first Daisy straight pass reaches 82.33% desktop / 82.92% mobile rather than completing incidentally. These values remain tunable rather than LOCKED.
+
+`D-008` is `VALIDATED`: the default persistent HUD remains one objective plus Honey, while pollination state/progress lives in world space with redundant cues. P2 exact-head desktop/Poki/mobile evidence specifically iterated a mobile `LOCKED`/Honey overlap before accepting the baseline.
 
 `D-005` is `VALIDATED`: seed ownership uses a Hybrid restoration topology. Authored native campaign plots keep their native identity during restoration, dedicated player-shaped plots allow seed ownership before full completion, and campaign/native state remains separate from planted species. P5 still must prove that the two roles are understandable in the rendered game and tune the exact plot count, placement, planting input and seed economy.
 
-`D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks. Yield is excluded rather than preserved as a third card. BB-P005 showed that the current no-Yield structure reaches region completion across all **5040 / 5040** full retained-sink purchase-priority orders with zero replay and non-negative balance. P1 now supplies the validated traversal baseline; exact Flight/Buzz effects, Honey costs/rewards and real-time purchase cadence remain P3 tuning work.
+`D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks. Yield is excluded rather than preserved as a third card. BB-P005 showed that the current no-Yield structure reaches region completion across all **5040 / 5040** full retained-sink purchase-priority orders with zero replay and non-negative balance. P1/P2 now supply the validated traversal and pollination baseline; exact Flight/Buzz effects, Honey costs/rewards and real-time purchase cadence remain P3 tuning work.
 
-`D-013` is `VALIDATED`: P1 uses one normalized direct-intent movement controller for keyboard and floating touch, with bounded acceleration/deceleration, authored bounds, bounded orthographic follow and a reduced-motion direct-follow path. The accepted baseline reaches the same 300-unit/s maximum on keyboard/touch cardinal/diagonal evidence, releases to zero, preserves native proxy/modal focus and renders the bee inside V-001's 12–15% readability band. These values remain tunable by new P2/P3 evidence rather than becoming immutable constants.
+`D-013` is `VALIDATED`: P1 uses one normalized direct-intent movement controller for keyboard and floating touch, with bounded acceleration/deceleration, authored bounds, bounded orthographic follow and a reduced-motion direct-follow path. The accepted baseline reaches the same 300-unit/s maximum on keyboard/touch cardinal/diagonal evidence, releases to zero, preserves native proxy/modal focus and renders the bee inside V-001's 12–15% readability band. P2 retained representative desktop movement at 60.98 fps; these values remain tunable by new P3 evidence rather than immutable constants.
 
 Still open/tunable before downstream milestones lock production values:
 
-- exact P2 pollination work target, forgiving patch bounds and incidental fly-through behavior;
 - exact Honey reward/cost table and minutes/actions between meaningful purchases;
 - final Flight/Buzz effect curves and flower-gate tuning;
 - rendered comprehension/input/seed pacing for the Hybrid restoration flow;
@@ -211,4 +214,10 @@ P1 implements the first production traversal slice: a pure-Lua normalized contro
 
 The accepted runtime evidence head `2e1098ac10596d02ad7d8b71e6034b5e778a7315` passed Repository standards (`33240599831`), Test/data (`33240599809`) and HTML5 CI (`33240599811`). Retained movement artifact `9711246614` records desktop 61.40 fps, keyboard/touch normalized 300-unit/s movement, zero release speed, zero bound hits in the central exercises, zero modal displacement, zero reduced-motion camera lag and zero browser errors. A first successful-motion artifact was deliberately rejected by evaluation because the bee rendered at only ~6.7–6.9% viewport height; the final presentation iteration measures 13.33–14.17%, inside V-001's 12–15% band. The complete evidence and independent PASS are in [`evidence/P1-BEE-MOVEMENT/manifest.json`](evidence/P1-BEE-MOVEMENT/manifest.json).
 
-**Next production task: `P2 — Pollination Core Loop`.**
+**P2 — Pollination Core Loop is COMPLETE; `BB-020` through `BB-025` pass the P2 milestone gate.**
+
+P2 turns traversal into the first complete production loop: data-driven flowers/patches; deterministic `LOCKED → AVAILABLE → ACTIVE → COMPLETED`; work from actual distance travelled inside forgiving bounds; zero work while stationary; one Honey transaction and one completion/audio event; dependent patch unlock; and durable completion/Honey through the existing A/B storage abstraction. No separate high-frequency pollination control was added.
+
+Accepted runtime head `bc3f878254d800063822377d57e99e7e5d42efd7` passed Repository standards (`33244624975`), Test/data (`33244624972`) and HTML5 CI (`33244624996`). Retained movement/P2 artifact `9712446750` records desktop straight pass `337.56/410 = 82.33%`, mobile `339.99/410 = 82.92%`, stationary work `0.0`, Honey `+45` exactly once, patch #2 unlock, zero replayed reward after reload, representative movement `60.98 fps`, modal displacement `0.0`, reduced-motion camera lag `0.0/0.0` and zero P2 browser errors. Two green-CI visual candidates were deliberately rejected before acceptance: first for flowers hidden by the bee, then for mobile `LOCKED` overlapping the Honey HUD. The final retained stills resolve both. Complete evidence and independent PASS are in [`evidence/P2-POLLINATION-CORE-LOOP/manifest.json`](evidence/P2-POLLINATION-CORE-LOOP/manifest.json) and `evaluation.md`.
+
+**Next production task: `P3 — Progression`.**

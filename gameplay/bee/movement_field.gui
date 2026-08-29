@@ -1,4 +1,8 @@
 script: "/gameplay/bee/movement_field.gui_script"
+fonts {
+  name: "default"
+  font: "/builtins/fonts/default.font"
+}
 background_color {
   x: 0.0
   y: 0.0
