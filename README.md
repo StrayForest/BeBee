@@ -139,6 +139,8 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`evidence/P3-PROGRESSION/manifest.json`](evidence/P3-PROGRESSION/manifest.json) — P3 progression/economy closeout evidence
 - [`docs/research/P4-first-meadow-restoration.md`](docs/research/P4-first-meadow-restoration.md) — P4 restoration reference analysis, implementation contract and accepted runtime trace
 - [`evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json`](evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json) — P4 restoration closeout evidence and independent evaluation provenance
+- [`docs/research/P5-seed-ownership.md`](docs/research/P5-seed-ownership.md) — P5 Hybrid seed ownership production contract and runtime trace
+- [`evidence/P5-SEED-OWNERSHIP/manifest.json`](evidence/P5-SEED-OWNERSHIP/manifest.json) — P5 economy/runtime/visual closeout evidence and independent evaluation provenance
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -153,7 +155,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 `D-008` is `VALIDATED`: the default persistent HUD remains one objective plus Honey, while pollination state/progress lives in world space with redundant cues. P2 exact-head desktop/Poki/mobile evidence specifically iterated a mobile `LOCKED`/Honey overlap before accepting the baseline. P4 retains the same density and proves the restoration change remains legible with the HUD hidden.
 
-`D-005` is `VALIDATED`: seed ownership uses a Hybrid restoration topology. Authored native campaign plots keep their native identity during restoration, dedicated player-shaped plots allow seed ownership before full completion, and campaign/native state remains separate from planted species. P5 still must prove that the two roles are understandable in the rendered game and tune the exact plot count, placement, planting input and seed economy against the now-productionized restoration states.
+`D-005` is `VALIDATED`: seed ownership uses the Hybrid restoration topology and P5 now productionizes it. Authored native campaign patches keep their native identity/progression, while two dedicated `YOUR PLOT` spaces carry player-owned Daisy/Clover/Lavender species before full restoration. Ownership costs `15 / 18 / 22 Honey` once, owned replant is free, and save v3 keeps `player.seed_unlocks` / `world.player_plants` independent from native `world.campaign_completion`. Exact-head desktop/touch evidence proves real planting, replant and reload without mutating campaign truth.
 
 `D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks and Yield remains excluded. P3 productionizes the first level as Flight `300 → 330 u/s` for `30 Honey` and Buzz `1.00× → 1.35×` pollination work for `35 Honey`. Both choices are affordable from the first 45-Honey reward; runtime evidence proves the real movement/work effects, and Lavender becomes the first explicit `REQUIRES BUZZ 2` capability gate. Later levels and final pacing remain tunable rather than locked.
 
@@ -161,11 +163,13 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 P4 productionizes the first visible restoration ladder without adding a new currency, restoration button or save field. `r01_m01` derives `DORMANT → WAKING → GROWING → RESTORED` from stable completed patch IDs. Accepted HUD-hidden evidence measures ground mix `0.00 → 0.68 → 1.00`, detail count `8 → 22 → 28`, ambient life `0 → 2 → 6`, midpoint/final reload safety and zero P4 browser errors. Evidence strength is MEDIUM because this is autonomous runtime/rendered proof, not an external novice playtest or final production-art evaluation.
 
+P5 adds player ownership without weakening that restoration contract. Its deterministic economy regression covers all `120/120` priority orders across Flight 2, Buzz 2 and the three first seed unlocks; no order requires replay/grind and all first sinks leave `50 Honey`. Accepted browser evidence shows Daisy `45→30`, Daisy+Clover retained at `67 Honey`, free Daisy replant `67→67`, native completion unchanged, save v3 reload intact and direct mobile-touch planting with zero P5 browser errors. Evidence strength remains MEDIUM because no external novice playtest is claimed.
+
 Still open/tunable before downstream milestones lock production values:
 
 - later Honey reward/cost tables and minutes/actions between meaningful purchases;
 - later Flight/Buzz effect curves and Buzz-gate cadence beyond the first P3 level/gate;
-- rendered comprehension/input/seed pacing for the Hybrid restoration flow in P5;
+- later player-plot count/placement and seed catalog/pacing beyond the validated first-Meadow P5 slice;
 - external novice comprehension evidence where later milestone scope requires it;
 - final production illustration/animation/audio and later full-scene visual polish.
 
@@ -239,4 +243,10 @@ P4 turns the existing P2/P3 journey into a visible world payoff. The first autho
 
 Accepted runtime head before closeout-only source-of-truth changes is `a45f9dac2f9d7136c3da51dc5b761eb0c05ce739`. It passed Repository standards (`33249086788`), Test/data (`33249086793`), Pages preview (`33249086822`) and HTML5 CI (`33249086913`). Retained movement/P4 artifact `9713808008`, digest `sha256:7385f1161ad2c68a91027bbc5585b6246abb14fdc56c42929ade4f158d8369ec`, records ground mix `0.00→0.68→1.00`, details `8→22→28`, ambient life `0→2→6`, HUD-hidden desktop/Poki-small readability, mobile restored coverage, `86.644` units of movement during the reveal, midpoint/final reload safety, no replayed celebration after restored reload, deterministic clean canonical fixtures and zero P4 browser errors. Two pre-acceptance defects — restored-reload celebration replay and storage-dependent canonical fixture ambiguity — were fixed before evidence acceptance. Complete evidence and independent PASS are in [`evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json`](evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json) and `evaluation.md`.
 
-**Next production task after P4 merge: `P5 — Seed Ownership During Restoration`.**
+**P5 — Seed Ownership During Restoration is COMPLETE for milestone closeout; the P5 exit criteria pass.**
+
+P5 productionizes the validated Hybrid topology with two dedicated player-shaped plots and three one-time seed unlocks. Native Daisy/Clover/Lavender campaign patches remain authored and progression-bearing; player plots independently hold chosen species. Daisy/Clover/Lavender cost `15 / 18 / 22 Honey`, owned replant costs `0`, and save v3 adds `player.seed_unlocks` plus `world.player_plants` while leaving native `world.campaign_completion` separate.
+
+Accepted runtime head before closeout-only source-of-truth changes is `8967ab565bc9ff9c7838344676587fbf0a6d2ae0`. It passed Repository standards (`33251552722`), Test/data (`33251552769`, `92/92`), Pages preview (`33251552723`) and HTML5 CI (`33251552740`). Retained movement/P5 artifact `9714546464`, digest `sha256:64a04641fbd44542217ded406f785115b5939c8cd593436ec094f1b452e5e4ce`, proves Daisy `45→30`, Clover ownership, free Daisy replant at Honey `67→67`, unchanged native completion, save v3 reload, direct 844×390 touch planting and zero P5 browser errors. P5 economy regression passes all `120/120` first-sink priority orders with final Honey `50`. CI also found and forced fixes for a real mobile coordinate double-conversion bug and a stale v2 BB-007 storage-probe fixture before acceptance. Complete evidence and independent PASS are in [`evidence/P5-SEED-OWNERSHIP/manifest.json`](evidence/P5-SEED-OWNERSHIP/manifest.json) and `evaluation.md`.
+
+**Next production task after P5 merge: `P6 — First Region Vertical Slice`.**
