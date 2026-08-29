@@ -1,0 +1,64 @@
+name: GitHub Pages preview
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: github-pages-preview
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact source revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up OpenJDK 25
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: ""
+
+      - name: Build release HTML5 bundle
+        run: |
+          set -euo pipefail
+          python3 tools/defold/bundle_html5.py --mode release
+          test -s build/html5/release/BeBee/index.html
+          find build/html5/release/BeBee -type f -name '*.wasm' -print -quit | grep -q .
+          if find build/html5/release/BeBee -type l -print -quit | grep -q .; then
+            echo "GitHub Pages artifact must not contain symbolic links" >&2
+            exit 1
+          fi
+          touch build/html5/release/BeBee/.nojekyll
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
+        with:
+          path: build/html5/release/BeBee
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy exact main bundle to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
