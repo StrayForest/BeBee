@@ -46,7 +46,7 @@ local function stage_is_derived_from_current_save_completion_ids()
     save.world.campaign_completion[catalog.patches[2].id] = true
     local ok, error_code = progression.validate_save(save)
     test.assert_true(ok, error_code)
-    test.assert_equal(3, save.save_version)
+    test.assert_equal(4, save.save_version)
     local reloaded_status = status(save)
     test.assert_equal(meadow.STAGE_GROWING, reloaded_status.stage_id)
     test.assert_equal(2, reloaded_status.contribution)
