@@ -91,6 +91,7 @@
       "Accepted runtime head a45f9dac2f9d7136c3da51dc5b761eb0c05ce739: Pages preview 33249086822 PASS.",
       "Accepted runtime head a45f9dac2f9d7136c3da51dc5b761eb0c05ce739: HTML5 CI 33249086913 PASS.",
       "Accepted movement/P4 artifact 9713808008 (movement-qa-a45f9dac2f9d7136c3da51dc5b761eb0c05ce739), digest sha256:7385f1161ad2c68a91027bbc5585b6246abb14fdc56c42929ade4f158d8369ec.",
+      "Closeout candidate b3881c2ccbdf4dd0ddae97848c802c9c6924bb5f repeated Repository standards 33249594700 PASS, Test/data 33249594682 PASS, Pages preview 33249594684 PASS and HTML5 CI 33249594686 PASS with movement artifact 9713952182 before the governance-manifest-only correction.",
       "Motion report schema 3 result PASS; P2=PASS, P3=PASS, P4=PASS; canonical restoration fixtures=3.",
       "Final closeout head must repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted validate-pr-evidence before merge and retain movement-qa-$PR_HEAD."
     ],
@@ -166,6 +167,11 @@
       "input_artifacts":["accepted runtime run 33249086913 artifact 9713808008", "movement-qa-$PR_HEAD", "evidence/P4-FIRST-MEADOW-RESTORATION/evaluation.md"],
       "record_locator":"evidence/P4-FIRST-MEADOW-RESTORATION/evaluation.md"
     }
+  },
+  "governance": {
+    "trust_boundary_change": "The P4 closeout updates player-facing/gameplay source-of-truth in DECISIONS.md plus P4 evidence, README and roadmap. It does not modify trusted validators, workflow authority, branch/ruleset requirements, required status checks, permissions, reviewer requirements or any GitHub security boundary.",
+    "bypass_analysis": "The diff contains player-facing meadow data/runtime/UI plus DECISIONS.md source-of-truth changes, so the PR remains classified player-facing and carries the same-PR structured evidence and independent evaluation instead of being downgraded to process/trivial. Candidate policy files are not used as trusted authority; the pull_request_target validator continues to execute policy from the protected base/default branch. The final merge still requires exact-head runtime artifacts and the trusted gate.",
+    "rollback": "If P4 evidence is later invalidated, revert the P4 runtime/data/QA changes together with the P4 README/roadmap/DECISIONS/evidence closeout. No save schema v3 or destructive migration exists: restoration is derived from existing v2 stable campaign completion IDs, so rollback does not require rewriting persisted Honey/upgrades/completions."
   },
   "known_limitations": [
     "No external novice playtest/telemetry is claimed by P4; autonomous rendered/runtime evidence supports the milestone with MEDIUM strength.",
