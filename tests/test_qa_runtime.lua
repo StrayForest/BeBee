@@ -7,6 +7,7 @@ local function supported_runtime_states()
         "pollination_active_50", "pollination_complete", "hud_default",
         "progression_hive", "progression_buzz_gate",
         "meadow_dormant", "meadow_mid", "meadow_restored",
+        "seed_locked", "seed_unlocked",
     }) do test.assert_true(qa.is_supported_state(state), state) end
     test.assert_false(qa.is_supported_state("not_a_state"))
 end
@@ -40,6 +41,11 @@ local function supported_request()
     test.assert_true(restoration_request.supported)
     test.assert_true(qa.is_restoration_state(restoration_request.state_id))
     test.assert_true(qa.requires_gameplay_capture(restoration_request.state_id))
+
+    local seed_request = qa.resolve_request("seed_unlocked", "88008")
+    test.assert_true(seed_request.supported)
+    test.assert_true(qa.is_seed_state(seed_request.state_id))
+    test.assert_true(qa.requires_gameplay_capture(seed_request.state_id))
 end
 
 local function unknown_state_fails_closed()
