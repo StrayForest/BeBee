@@ -48,7 +48,7 @@ jobs:
           test -f build/html5/release/BeBee/index.html
           find build/html5/release/BeBee -type f -name '*.wasm' -print -quit | grep -q .
 
-      - name: Smoke bundles and capture deterministic visual QA
+      - name: Smoke bundles and capture deterministic visual/storage QA
         run: |
           set -euo pipefail
 
@@ -89,12 +89,19 @@ jobs:
             --repeat 2 \
             --output-root "artifacts/visual-qa/${head_sha}"
 
+          mkdir -p "artifacts/storage-qa/${head_sha}"
+          python3 tools/visual_qa/storage_html5_smoke.py \
+            --development-url http://127.0.0.1:8000/development/BeBee/ \
+            --release-url http://127.0.0.1:8000/release/BeBee/ \
+            --report "artifacts/storage-qa/${head_sha}/storage-report.json"
+
           "${browser}" --headless=new --no-sandbox --disable-gpu --window-size=1280,720 --virtual-time-budget=5000 --screenshot=html5-ci/release-1280x720.png http://127.0.0.1:8000/release/BeBee/
 
           test -s html5-ci/release-1280x720.png
           test -s "artifacts/visual-qa/${head_sha}/foundation_probe/desktop_reference.png"
           test -s "artifacts/visual-qa/${head_sha}/foundation_probe/mobile_landscape.png"
           test -s "artifacts/visual-qa/${head_sha}/capture-report.json"
+          test -s "artifacts/storage-qa/${head_sha}/storage-report.json"
           find build/html5/release/BeBee -type f -print0 | sort -z | xargs -0 sha256sum > html5-ci/release-files.sha256
           sha256sum html5-ci/release-1280x720.png > html5-ci/release-1280x720.sha256
 
@@ -113,6 +120,14 @@ jobs:
           if-no-files-found: error
           retention-days: 14
           path: artifacts/visual-qa/${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Upload storage persistence QA evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: storage-qa-${{ github.event.pull_request.head.sha || github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: artifacts/storage-qa/${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Upload HTML5 CI diagnostics
         if: always()
