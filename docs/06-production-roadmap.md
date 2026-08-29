@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. P-1 is complete; P0 Foundation is in progress and the current production handoff is **P0 / BB-007 — Storage adapter proof**.
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1 and P0 Foundation are complete; the current production handoff is P1 — Bee Movement.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -76,7 +76,7 @@ Do **not** build dependent production systems around downstream hypotheses that 
 
 # P0 — Foundation
 
-**Status: IN PROGRESS — BB-001 through BB-006 complete; BB-007 next.**
+**Status: COMPLETE — BB-001 through BB-007 complete; exit criteria PASS.**
 
 ## Goal
 
@@ -176,23 +176,31 @@ The first complete proof was HTML5 CI run `33214438370` on exact head `56fa405c4
 
 The fifteen canonical future player-facing QA states remain semantic contracts owned by their actual gameplay/UI milestones; BB-006 does not claim they already render. Motion capture and selective golden-image policies are added only where later evidence requires them.
 
-### BB-007 — Storage adapter proof
+### BB-007 — Storage adapter proof — COMPLETE
 
-- storage interface;
-- local Defold adapter;
-- protected corrupt-load path;
-- primary/backup concept;
-- serialized size diagnostic;
-- browser save/reload smoke test.
+Delivered:
+
+- storage abstraction with a versioned domain-state contract;
+- local Defold adapter with A/B generation journal and monotonic generation metadata;
+- protected corrupt-newest fallback/recovery without silently treating corrupt data as valid;
+- serialized-size diagnostics and explicit persistent-delete semantics;
+- HTML5 lifecycle semantics that distinguish accepted/pending writes from confirmed browser-durable state;
+- deterministic headless coverage for generation choice, recovery and delete behavior;
+- real Chromium settled reload, immediate refresh, rapid close/reopen, corruption recovery, persistent delete and release-negative bridge proof;
+- dedicated `storage-qa-<sha>` artifact retained by exact-source HTML5 CI on PR and `main`.
+
+The first immediate-navigation process candidate exposed a real Defold VFS → IndexedDB race and PR #36 was closed unmerged rather than normalizing the failure. PR #37 corrected rapid-refresh/close recovery semantics. Final process PR #38 passed exact-head `Repository standards` (`33238316582`), `Test and data` (`33238316615`), `HTML5 CI` (`33238316601`) and trusted PR evidence (`33238419907`) on `5efabc3b24b6524984a452fbc1e8f9bd4afd1b3d`, then merged as `4bd31d40515772775a575762206a8c707b8a6fbc`. Merged `main` repeated `Repository standards` (`33238436244`), `Test and data` (`33238436138`) and HTML5/storage proof (`33238436135`), retaining storage artifact `9710629332`. Full evidence is retained in `evidence/BB-007-CLOSEOUT/manifest.json`.
 
 ## Exit criteria
 
-- fresh clone builds reproducibly;
-- CI produces a playable HTML5 artifact;
-- test/data validation runs;
-- one deterministic screenshot can be produced automatically;
-- storage smoke test passes;
-- input focus/proxy ownership is understood rather than assumed.
+- fresh clone builds reproducibly — PASS;
+- CI produces a playable HTML5 artifact — PASS;
+- test/data validation runs — PASS;
+- one deterministic screenshot can be produced automatically — PASS;
+- storage smoke test passes — PASS on exact candidate and merged `main`;
+- input focus/proxy ownership is understood rather than assumed — PASS.
+
+**P0 exit: PASS. Production advances to P1 — Bee Movement.**
 
 ---
 
