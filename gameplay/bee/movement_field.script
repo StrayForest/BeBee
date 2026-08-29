@@ -39,7 +39,7 @@ local SETTINGS_AUDIO_ROW = { x1 = 330, x2 = 950, y1 = 235, y2 = 325 }
 local MEADOW_CENTER_X = 1800
 local MEADOW_CENTER_Y = 950
 local PLOT_POINTER_RADIUS = 96
-local REGION_ID = "region_01"
+local P6_REGION_ID = "region_01"
 
 local function html5_available()
     return html5 ~= nil and html5.run ~= nil
@@ -76,6 +76,12 @@ end
 
 local function region_qa(state_id)
     return state_id == REGION_START or state_id == REGION_MID or state_id == REGION_COMPLETE or state_id == SETTINGS_ACCESSIBILITY
+end
+
+local function runtime_region_id(self)
+    if region_qa(self.qa_state) then return P6_REGION_ID end
+    if self.save_state then return region.active_id(self.save_state) or P6_REGION_ID end
+    return P6_REGION_ID
 end
 
 local function canonical_visual_fixture(state_id)
@@ -172,7 +178,7 @@ end
 local function mark_first_input(self, input_name)
     if self.first_input_seen then return end
     self.first_input_seen = true
-    track(self, "first_input", { input = input_name or "unknown", region_id = REGION_ID })
+    track(self, "first_input", { input = input_name or "unknown", region_id = runtime_region_id(self) })
 end
 
 local function build_patch_states(self)
@@ -363,8 +369,9 @@ local function save_progression(self)
 end
 
 local function complete_patch(self, state)
+    local completed_region_id = region.region_id_for_meadow(state.definition.meadow_id) or runtime_region_id(self)
     local meadow_before = region.meadow_status(self.save_state, state.definition.meadow_id)
-    local region_before = region.summary(self.save_state, REGION_ID)
+    local region_before = region.summary(self.save_state, completed_region_id)
     local result = progression.complete_patch(self.save_state, state.definition)
     if not result.ok then
         print("BEBEE_POLLINATION reward_failed code=" .. tostring(result.code))
@@ -379,6 +386,7 @@ local function complete_patch(self, state)
         track(self, "patch_completed", {
             patch_id = state.definition.id,
             meadow_id = state.definition.meadow_id,
+            region_id = completed_region_id,
             honey_awarded = result.awarded,
             honey_total = result.honey,
         })
@@ -388,12 +396,12 @@ local function complete_patch(self, state)
     refresh_patch_eligibility(self)
 
     local meadow_after = region.meadow_status(self.save_state, state.definition.meadow_id)
-    local region_after = region.summary(self.save_state, REGION_ID)
+    local region_after = region.summary(self.save_state, completed_region_id)
     if meadow_before and meadow_after and meadow_before.stage_id ~= "RESTORED" and meadow_after.stage_id == "RESTORED" then
-        track(self, "meadow_restored", { meadow_id = state.definition.meadow_id, restored_count = region_after.restored_count })
+        track(self, "meadow_restored", { meadow_id = state.definition.meadow_id, region_id = completed_region_id, restored_count = region_after.restored_count })
     end
     if region_before and region_after and not region_before.complete and region_after.complete then
-        track(self, "region_completed", { region_id = REGION_ID, honey_total = result.honey })
+        track(self, "region_completed", { region_id = completed_region_id, honey_total = result.honey })
         pcall(sound.play, "#region_complete")
     else
         pcall(sound.play, "#pollination_complete")
@@ -585,7 +593,8 @@ local function send_view(self)
     local sx = 1280 / width
     local sy = 720 / height
     local active_x, active_y = active_patch_position(self)
-    local summary = region.summary(self.save_state, REGION_ID)
+    local active_region_id = runtime_region_id(self)
+    local summary = region.summary(self.save_state, active_region_id)
     local payload = {
         bee_x = self.motion.x,
         bee_y = self.motion.y,
@@ -608,10 +617,11 @@ local function send_view(self)
         active_patch_x = active_x,
         active_patch_y = active_y,
         frame = self.frame,
+        active_region_id = active_region_id,
         region_restored_count = summary and summary.restored_count or 0,
-        region_total = summary and summary.total or 6,
+        region_total = summary and summary.total or 0,
         region_complete = summary and summary.complete or false,
-        objective_text = region.objective_text(self.save_state, REGION_ID),
+        objective_text = region.objective_text(self.save_state, active_region_id),
         settings_open = self.settings_open,
         selected_setting = self.selected_setting,
         reduced_motion = progression.get_setting(self.save_state, "reduced_motion") == true,
@@ -712,13 +722,16 @@ local function update_runtime_bridge(self, force)
             saveCode = self.last_save_code,
             saveDurability = self.last_save_durability,
         }))
-        local summary = region.summary(self.save_state, REGION_ID)
+        local active_region_id = runtime_region_id(self)
+        local summary = region.summary(self.save_state, active_region_id)
         html5.run("window.__bebeeRegionQA = " .. json.encode({
-            schemaVersion = 1,
+            schemaVersion = 2,
             stateId = self.qa_state,
             frame = self.frame,
+            activeRegionId = active_region_id,
             region = summary,
-            objectiveText = region.objective_text(self.save_state, REGION_ID),
+            campaign = region.campaign_summary(self.save_state),
+            objectiveText = region.objective_text(self.save_state, active_region_id),
             saveVersion = self.save_state.save_version,
             honey = self.save_state.player.honey,
             flightLevel = progression.current_upgrade_level(self.save_state, "upgrade_flight"),
@@ -923,7 +936,7 @@ function init(self)
     apply_audio_setting(self)
     build_patch_states(self)
     apply_visual_fixture(self)
-    track(self, "session_start", { region_id = REGION_ID, save_version = self.save_state.save_version })
+    track(self, "session_start", { region_id = runtime_region_id(self), save_version = self.save_state.save_version })
 
     go.set("#camera", "orthographic_zoom", 1.0)
     go.set_position(vmath.vector3(self.camera.x, self.camera.y, 0))
