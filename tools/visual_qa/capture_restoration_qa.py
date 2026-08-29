@@ -181,6 +181,44 @@ def _assert_stage(payload: dict[str, object], expected: str, contribution: int) 
         raise RuntimeError(f"restoration stage mismatch expected {expected}/{contribution}: {payload!r}")
 
 
+def _canonical_fixture_probe(
+    browser: Browser,
+    *,
+    base_url: str,
+    head_sha: str,
+    timeout_ms: int,
+) -> dict[str, object]:
+    expectations = (
+        ("meadow_dormant", "DORMANT", 0, 1),
+        ("meadow_mid", "GROWING", 2, 2),
+        ("meadow_restored", "RESTORED", 3, 2),
+    )
+    results: dict[str, object] = {}
+    for state_id, stage_id, contribution, buzz_level in expectations:
+        context = browser.new_context(viewport={"width": 1280, "height": 720})
+        page = context.new_page()
+        console, page_errors = _errors(page)
+        try:
+            page.goto(_url(base_url, qa=state_id, qa_seed=88008, hud_hidden=1), wait_until="load", timeout=timeout_ms)
+            payload = _wait(page, head_sha, state_id, timeout_ms)
+            _assert_stage(payload, stage_id, contribution)
+            progression = _progression(page)
+            if int(progression.get("buzzLevel", -1)) != buzz_level:
+                raise RuntimeError(f"{state_id} canonical fixture buzz mismatch: {progression!r}")
+            if payload.get("hudHidden") is not True:
+                raise RuntimeError(f"{state_id} canonical fixture did not hide HUD: {payload!r}")
+            _assert_clean(console, page_errors, f"P4 canonical fixture {state_id}")
+            results[state_id] = {
+                "stage": payload,
+                "buzz_level": buzz_level,
+                "console_error_count": len(console),
+                "page_error_count": len(page_errors),
+            }
+        finally:
+            context.close()
+    return results
+
+
 def _desktop_sequence(
     browser: Browser,
     *,
@@ -205,7 +243,11 @@ def _desktop_sequence(
         video = page.video
         console, page_errors = _errors(page)
         try:
-            page.goto(_url(base_url, qa="meadow_dormant", qa_seed=88008, hud_hidden=1), wait_until="load", timeout=timeout_ms)
+            page.goto(
+                _url(base_url, qa="meadow_dormant", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reset"),
+                wait_until="load",
+                timeout=timeout_ms,
+            )
             dormant = _wait(page, head_sha, "meadow_dormant", timeout_ms)
             _assert_stage(dormant, "DORMANT", 0)
             if dormant.get("hudHidden") is not True or int(dormant.get("detailCount", -1)) != 8 or int(dormant.get("ambientLifeCount", -1)) != 0:
@@ -234,7 +276,11 @@ def _desktop_sequence(
             _shot(page, frames / "02-growing-before-reload.png")
 
             page.wait_for_timeout(1600)
-            page.goto(_url(base_url, qa="meadow_mid", qa_seed=88008, hud_hidden=1), wait_until="load", timeout=timeout_ms)
+            page.goto(
+                _url(base_url, qa="meadow_mid", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reload"),
+                wait_until="load",
+                timeout=timeout_ms,
+            )
             growing_reloaded = _wait(page, head_sha, "meadow_mid", timeout_ms)
             page.wait_for_function("() => window.__bebeeRestorationQA && window.__bebeeRestorationQA.stageId === 'GROWING'", timeout=timeout_ms)
             growing_reloaded = _restoration(page)
@@ -270,7 +316,11 @@ def _desktop_sequence(
                 raise RuntimeError(f"restoration celebration did not settle: {settled!r}")
 
             page.wait_for_timeout(1600)
-            page.goto(_url(base_url, qa="meadow_restored", qa_seed=88008, hud_hidden=1), wait_until="load", timeout=timeout_ms)
+            page.goto(
+                _url(base_url, qa="meadow_restored", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reload"),
+                wait_until="load",
+                timeout=timeout_ms,
+            )
             reloaded = _wait(page, head_sha, "meadow_restored", timeout_ms)
             page.wait_for_function("() => window.__bebeeRestorationQA && window.__bebeeRestorationQA.stageId === 'RESTORED'", timeout=timeout_ms)
             reloaded = _restoration(page)
@@ -285,7 +335,11 @@ def _desktop_sequence(
             _shot(page, output_root / "p4_restoration" / "poki_small" / "01-restored-hud-hidden.png")
             page.set_viewport_size({"width": 1280, "height": 720})
 
-            page.goto(_url(base_url, qa="meadow_restored", qa_seed=88008), wait_until="load", timeout=timeout_ms)
+            page.goto(
+                _url(base_url, qa="meadow_restored", qa_seed=88008, p4_storage_lifecycle="reload"),
+                wait_until="load",
+                timeout=timeout_ms,
+            )
             visible_hud = _wait(page, head_sha, "meadow_restored", timeout_ms)
             page.wait_for_function("() => window.__bebeeRestorationQA && window.__bebeeRestorationQA.stageId === 'RESTORED'", timeout=timeout_ms)
             visible_hud = _restoration(page)
@@ -346,7 +400,11 @@ def _mobile_restored(
     page = context.new_page()
     console, page_errors = _errors(page)
     try:
-        page.goto(_url(base_url, qa="meadow_restored", qa_seed=88008, hud_hidden=1), wait_until="load", timeout=timeout_ms)
+        page.goto(
+            _url(base_url, qa="meadow_restored", qa_seed=88008, hud_hidden=1, p4_storage_lifecycle="reload"),
+            wait_until="load",
+            timeout=timeout_ms,
+        )
         restored = _wait(page, head_sha, "meadow_restored", timeout_ms)
         page.wait_for_function("() => window.__bebeeRestorationQA && window.__bebeeRestorationQA.stageId === 'RESTORED'", timeout=timeout_ms)
         restored = _restoration(page)
@@ -376,6 +434,9 @@ def record_restoration(
     output_root: Path,
     timeout_ms: int,
 ) -> dict[str, object]:
+    canonical_fixtures = _canonical_fixture_probe(
+        browser, base_url=base_url, head_sha=head_sha, timeout_ms=timeout_ms
+    )
     desktop, storage_state = _desktop_sequence(
         browser, base_url=base_url, head_sha=head_sha, output_root=output_root, timeout_ms=timeout_ms
     )
@@ -391,10 +452,12 @@ def record_restoration(
     restored = desktop["restored_reloaded"]
     return {
         "ticket": "P4-FIRST-MEADOW-RESTORATION",
+        "canonical_fixtures": canonical_fixtures,
         "desktop": desktop,
         "mobile_restored": mobile,
         "objective_measurements": {
             "stage_count": 4,
+            "canonical_fixture_count": len(canonical_fixtures),
             "dormant_detail_count": int(dormant["detailCount"]),
             "restored_detail_count": int(restored["detailCount"]),
             "detail_count_ratio": round(int(restored["detailCount"]) / max(1, int(dormant["detailCount"])), 2),
