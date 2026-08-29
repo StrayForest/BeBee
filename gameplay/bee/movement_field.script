@@ -570,7 +570,7 @@ local function active_patch_position(self)
     return 0, 0
 end
 
-local function patch_view_fields(payload, index, state)
+local function patch_view_fields(self, payload, index, state)
     local prefix = "patch" .. tostring(index) .. "_"
     payload[prefix .. "x"] = state.definition.x
     payload[prefix .. "y"] = state.definition.y
@@ -620,7 +620,7 @@ local function send_view(self)
         reduced_motion = progression.get_setting(self.save_state, "reduced_motion") == true,
         audio_muted = progression.get_setting(self.save_state, "audio_muted") == true,
     }
-    for index, state in ipairs(self.patches) do patch_view_fields(payload, index, state) end
+    for index, state in ipairs(self.patches) do patch_view_fields(self, payload, index, state) end
     msg.post("#view", "view_state", payload)
     send_progression_view(self)
     send_seed_view(self)
