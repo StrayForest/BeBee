@@ -1,5 +1,6 @@
 local DESIGN_W = 1280
 local DESIGN_H = 720
+local BEE_SCALE = 2.0
 
 local function box(x, y, w, h, color)
     local node = gui.new_box_node(vmath.vector3(x, y, 0), vmath.vector3(w, h, 0))
@@ -37,13 +38,13 @@ function init(self)
     self.edge_bottom = box(0, 0, 2400, 18, vmath.vector4(0.243,0.510,0.278,0.75))
     self.edge_top = box(0, 0, 2400, 18, vmath.vector4(0.243,0.510,0.278,0.75))
 
-    self.shadow = box(640, 340, 76, 22, vmath.vector4(0.12,0.18,0.12,0.20))
-    self.wing_left = box(612, 375, 38, 34, vmath.vector4(1.0,0.969,0.91,0.70))
-    self.wing_right = box(668, 375, 38, 34, vmath.vector4(1.0,0.969,0.91,0.70))
-    self.body = box(640, 360, 66, 54, vmath.vector4(0.965,0.718,0.235,1))
-    self.stripe_left = box(627, 360, 10, 54, vmath.vector4(0.286,0.231,0.196,1))
-    self.stripe_right = box(648, 360, 10, 54, vmath.vector4(0.286,0.231,0.196,1))
-    self.head = box(674, 360, 27, 42, vmath.vector4(0.286,0.231,0.196,1))
+    self.shadow = box(640, 340, 76 * BEE_SCALE, 22 * BEE_SCALE, vmath.vector4(0.12,0.18,0.12,0.20))
+    self.wing_left = box(612, 375, 38 * BEE_SCALE, 34 * BEE_SCALE, vmath.vector4(1.0,0.969,0.91,0.70))
+    self.wing_right = box(668, 375, 38 * BEE_SCALE, 34 * BEE_SCALE, vmath.vector4(1.0,0.969,0.91,0.70))
+    self.body = box(640, 360, 66 * BEE_SCALE, 54 * BEE_SCALE, vmath.vector4(0.965,0.718,0.235,1))
+    self.stripe_left = box(627, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, vmath.vector4(0.286,0.231,0.196,1))
+    self.stripe_right = box(648, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, vmath.vector4(0.286,0.231,0.196,1))
+    self.head = box(674, 360, 27 * BEE_SCALE, 42 * BEE_SCALE, vmath.vector4(0.286,0.231,0.196,1))
 
     self.joy_base = box(0, 0, 118, 118, vmath.vector4(1,1,1,0.13))
     self.joy_knob = box(0, 0, 42, 42, vmath.vector4(1,0.969,0.91,0.38))
@@ -77,16 +78,16 @@ function on_message(self, message_id, message)
 
     local bee_x, bee_y = world_to_screen(message.bee_x or 1200, message.bee_y or 800, camera_x, camera_y)
     local speed_ratio = math.min(1, (message.speed or 0) / 300)
-    local wing_lift = 10 + speed_ratio * 10
+    local wing_lift = (10 + speed_ratio * 10) * BEE_SCALE
     local facing_left = (message.facing_x or 1) < 0
-    local head_offset = facing_left and -35 or 35
+    local head_offset = (facing_left and -35 or 35) * BEE_SCALE
 
-    set_xy(self.shadow, bee_x, bee_y - 31)
-    set_xy(self.wing_left, bee_x - 27, bee_y + wing_lift)
-    set_xy(self.wing_right, bee_x + 27, bee_y + wing_lift)
+    set_xy(self.shadow, bee_x, bee_y - 31 * BEE_SCALE)
+    set_xy(self.wing_left, bee_x - 27 * BEE_SCALE, bee_y + wing_lift)
+    set_xy(self.wing_right, bee_x + 27 * BEE_SCALE, bee_y + wing_lift)
     set_xy(self.body, bee_x, bee_y)
-    set_xy(self.stripe_left, bee_x - 13, bee_y)
-    set_xy(self.stripe_right, bee_x + 8, bee_y)
+    set_xy(self.stripe_left, bee_x - 13 * BEE_SCALE, bee_y)
+    set_xy(self.stripe_right, bee_x + 8 * BEE_SCALE, bee_y)
     set_xy(self.head, bee_x + head_offset, bee_y)
 
     local touch_active = message.touch_active == true
