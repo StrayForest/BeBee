@@ -7,6 +7,8 @@ local BEE_SCALE = 2.0
 local WORLD_W = 4560
 local WORLD_H = 1600
 local FIRST_MEADOW = catalog.meadows[1]
+local PATCH_POOL_SIZE = 6
+local PATCH_VISIBILITY_MARGIN = 300
 
 local COLOR_GREEN = vmath.vector4(0.475, 0.788, 0.396, 1)
 local COLOR_DORMANT = vmath.vector4(0.588, 0.643, 0.478, 1)
@@ -133,10 +135,8 @@ local function create_flower()
     }
 end
 
-local function create_patch(flower_id, petal_color)
+local function create_patch_visual()
     local patch = {
-        flower_id = flower_id,
-        petal_color = petal_color,
         halo = box(0, 0, 300, 260, vmath.vector4(1,1,1,0.05)),
         progress_bg = box(0, 0, 184, 16, vmath.vector4(0.12,0.18,0.12,0.36)),
         progress_fill = box(0, 0, 180, 10, COLOR_ACTIVE),
@@ -226,7 +226,7 @@ local function set_flower_visual(flower, wx, wy, camera_x, camera_y, bloom, lock
     end
 end
 
-local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, visible)
+local function render_patch(patch, definition, state, progress, camera_x, camera_y, visible)
     gui.set_enabled(patch.halo, visible)
     gui.set_enabled(patch.progress_bg, visible and state == "ACTIVE")
     gui.set_enabled(patch.progress_fill, visible and state == "ACTIVE")
@@ -234,9 +234,9 @@ local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, 
     for _, flower in ipairs(patch.flowers) do
         for _, node in pairs(flower) do gui.set_enabled(node, visible) end
     end
-    if not visible then return end
+    if not visible or not definition then return end
 
-    local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
+    local sx, sy = world_to_screen(definition.x, definition.y, camera_x, camera_y)
     local locked = state == "LOCKED"
     local completed_state = state == "COMPLETED"
     local bloom = completed_state and 1 or math.max(0.18, progress)
@@ -253,10 +253,11 @@ local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, 
     gui.set_color(patch.halo, halo_color)
     set_xy(patch.halo, sx, sy)
 
+    local petal_color = flower_color(definition.flower_id)
     for index, offset in ipairs(FLOWER_OFFSETS) do
         set_flower_visual(
-            patch.flowers[index], wx + offset[1], wy + offset[2], camera_x, camera_y,
-            bloom, locked, patch.petal_color, patch.flower_id
+            patch.flowers[index], definition.x + offset[1], definition.y + offset[2], camera_x, camera_y,
+            bloom, locked, petal_color, definition.flower_id
         )
     end
 
@@ -266,6 +267,21 @@ local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, 
     set_size(patch.progress_fill, math.max(1, width), 10)
     set_xy(patch.progress_fill, sx - 90 + math.max(1, width) * 0.5, bar_y)
     set_xy(patch.lock_text, sx, bar_y)
+end
+
+local function nearby_patch_indices(camera_x, camera_y)
+    local candidates = {}
+    for index, definition in ipairs(catalog.patches) do
+        local sx, sy = world_to_screen(definition.x, definition.y, camera_x, camera_y)
+        if sx >= -PATCH_VISIBILITY_MARGIN and sx <= DESIGN_W + PATCH_VISIBILITY_MARGIN
+            and sy >= -PATCH_VISIBILITY_MARGIN and sy <= DESIGN_H + PATCH_VISIBILITY_MARGIN then
+            local dx = sx - DESIGN_W * 0.5
+            local dy = sy - DESIGN_H * 0.5
+            candidates[#candidates + 1] = { index = index, distance = dx * dx + dy * dy }
+        end
+    end
+    table.sort(candidates, function(a, b) return a.distance < b.distance end)
+    return candidates
 end
 
 local function create_meadow_marker(definition, index)
@@ -295,9 +311,7 @@ end
 local function render_meadow_marker(marker, index, restored, camera_x, camera_y)
     local definition = marker.definition
     local sx, sy = world_to_screen(definition.center_x, definition.center_y, camera_x, camera_y)
-    local zone_color = restored
-        and vmath.vector4(0.36,0.72,0.39,0.18)
-        or vmath.vector4(0.53,0.48,0.36,0.15)
+    local zone_color = restored and vmath.vector4(0.36,0.72,0.39,0.18) or vmath.vector4(0.53,0.48,0.36,0.15)
     if index == 4 then zone_color = restored and vmath.vector4(0.32,0.71,0.58,0.18) or vmath.vector4(0.36,0.58,0.62,0.14) end
     if index == 5 then zone_color = restored and vmath.vector4(0.82,0.58,0.38,0.18) or vmath.vector4(0.56,0.46,0.34,0.14) end
     if index == 6 then zone_color = restored and vmath.vector4(0.59,0.73,0.82,0.20) or vmath.vector4(0.48,0.45,0.54,0.14) end
@@ -315,9 +329,7 @@ end
 
 local function create_path_nodes()
     local nodes = {}
-    for index = 1, (#catalog.meadows - 1) * 7 do
-        nodes[index] = box(0, 0, 22, 12, COLOR_PATH)
-    end
+    for index = 1, (#catalog.meadows - 1) * 7 do nodes[index] = box(0, 0, 22, 12, COLOR_PATH) end
     return nodes
 end
 
@@ -415,10 +427,8 @@ function init(self)
     self.windmill_blade_h = box(0, 0, 220, 16, vmath.vector4(1.0,0.93,0.69,0.88))
     self.windmill_blade_v = box(0, 0, 16, 220, vmath.vector4(1.0,0.93,0.69,0.88))
 
-    self.patches = {}
-    for index, definition in ipairs(catalog.patches) do
-        self.patches[index] = create_patch(definition.flower_id, flower_color(definition.flower_id))
-    end
+    self.patch_pool = {}
+    for index = 1, PATCH_POOL_SIZE do self.patch_pool[index] = create_patch_visual() end
 
     self.shadow = box(640, 340, 76 * BEE_SCALE, 22 * BEE_SCALE, vmath.vector4(0.12,0.18,0.12,0.20))
     self.wing_left = box(612, 375, 38 * BEE_SCALE, 34 * BEE_SCALE, vmath.vector4(1.0,0.969,0.91,0.70))
@@ -480,7 +490,8 @@ function on_message(self, message_id, message)
             gui.set_color(self.background, mix_color(COLOR_GOLDEN_DORMANT, COLOR_GOLDEN_FIELD, 0.32 + progress * 0.68))
         else
             detail_count = math.min(#self.decorations, (stage.detail_count or 8) + (message.region_restored_count or 0) * 2)
-            gui.set_color(self.background, mix_color(COLOR_DORMANT, COLOR_GREEN, math.max(stage.ground_mix or 0, (message.region_restored_count or 0) / 6 * 0.72)))
+            gui.set_color(self.background, mix_color(COLOR_DORMANT, COLOR_GREEN,
+                math.max(stage.ground_mix or 0, (message.region_restored_count or 0) / 6 * 0.72)))
         end
     else
         detail_count = dense and #self.decorations or 12
@@ -554,18 +565,25 @@ function on_message(self, message_id, message)
     set_xy(self.edge_top, tx, ty)
 
     local any_qualifying = false
-    for index, patch in ipairs(self.patches) do
-        local prefix = "patch" .. tostring(index) .. "_"
-        local definition = catalog.patches[index]
-        local state = message[prefix .. "state"] or "LOCKED"
-        local progress = message[prefix .. "progress"] or 0
-        render_patch(
-            patch,
-            message[prefix .. "x"] or definition.x,
-            message[prefix .. "y"] or definition.y,
-            state, progress, camera_x, camera_y, pollination_visible
-        )
-        if message[prefix .. "qualifying"] == true then any_qualifying = true end
+    for index = 1, #catalog.patches do
+        if message["patch" .. tostring(index) .. "_qualifying"] == true then any_qualifying = true end
+    end
+
+    local nearby = pollination_visible and nearby_patch_indices(camera_x, camera_y) or {}
+    for slot = 1, PATCH_POOL_SIZE do
+        local candidate = nearby[slot]
+        if candidate then
+            local index = candidate.index
+            local prefix = "patch" .. tostring(index) .. "_"
+            render_patch(
+                self.patch_pool[slot], catalog.patches[index],
+                message[prefix .. "state"] or "LOCKED",
+                message[prefix .. "progress"] or 0,
+                camera_x, camera_y, true
+            )
+        else
+            render_patch(self.patch_pool[slot], nil, "LOCKED", 0, camera_x, camera_y, false)
+        end
     end
 
     local hud_visible = pollination_visible and not self.hud_hidden
@@ -608,7 +626,6 @@ function on_message(self, message_id, message)
     local wing_lift = (10 + speed_ratio * 10) * BEE_SCALE
     local facing_left = (message.facing_x or 1) < 0
     local head_offset = (facing_left and -35 or 35) * BEE_SCALE
-
     set_xy(self.shadow, bee_x, bee_y - 31 * BEE_SCALE)
     set_xy(self.wing_left, bee_x - 27 * BEE_SCALE, bee_y + wing_lift)
     set_xy(self.wing_right, bee_x + 27 * BEE_SCALE, bee_y + wing_lift)
