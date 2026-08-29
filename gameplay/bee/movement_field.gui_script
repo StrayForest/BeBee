@@ -16,11 +16,13 @@ local COLOR_SUCCESS = vmath.vector4(0.416, 0.796, 0.463, 1)
 local COLOR_LOCKED = vmath.vector4(0.482, 0.431, 0.557, 0.86)
 local COLOR_DAISY = vmath.vector4(1.0, 0.94, 0.82, 1)
 local COLOR_CLOVER = vmath.vector4(0.82, 0.93, 0.72, 1)
+local COLOR_LAVENDER = vmath.vector4(0.73, 0.61, 0.88, 1)
+local COLOR_TULIP = vmath.vector4(0.96, 0.52, 0.49, 1)
+local COLOR_LILY = vmath.vector4(0.83, 0.94, 1.0, 1)
 local COLOR_POLLEN = vmath.vector4(0.965, 0.718, 0.235, 0.62)
+local COLOR_PATH = vmath.vector4(0.96, 0.86, 0.57, 0.34)
+local COLOR_WATER = vmath.vector4(0.36, 0.72, 0.86, 0.42)
 
--- Keep the active flower silhouettes outside the bee's ordinary body footprint.
--- Five authored positions stay within the patch radius while making the target
--- readable around the player instead of hiding behind it at pollination time.
 local FLOWER_OFFSETS = {
     { -118, -54 }, { -102, 74 }, { 0, 118 }, { 104, 72 }, { 118, -56 },
 }
@@ -70,6 +72,14 @@ local function mix_color(a, b, amount)
     )
 end
 
+local function flower_color(flower_id)
+    if flower_id == "flower_clover" then return COLOR_CLOVER end
+    if flower_id == "flower_lavender" then return COLOR_LAVENDER end
+    if flower_id == "flower_tulip" then return COLOR_TULIP end
+    if flower_id == "flower_lily" then return COLOR_LILY end
+    return COLOR_DAISY
+end
+
 local function stage_definition(stage_id)
     for _, definition in ipairs(FIRST_MEADOW.restoration_stages or {}) do
         if definition.id == stage_id then return definition end
@@ -81,9 +91,9 @@ local function completed(state)
     return state == "COMPLETED" and 1 or 0
 end
 
-local function restoration_status(self, message)
+local function first_meadow_status(message, patch3_completed_fallback)
     local contribution = completed(message.patch1_state) + completed(message.patch2_state)
-    if self.patch3_completed then contribution = contribution + 1 end
+    if message.patch3_state == "COMPLETED" or patch3_completed_fallback then contribution = contribution + 1 end
     return meadow.stage_for_contribution(FIRST_MEADOW, contribution)
 end
 
@@ -118,15 +128,13 @@ end
 local function create_patch(petal_color)
     local patch = {
         petal_color = petal_color,
-        halo = box(0, 0, 290, 250, vmath.vector4(1,1,1,0.05)),
+        halo = box(0, 0, 300, 260, vmath.vector4(1,1,1,0.05)),
         progress_bg = box(0, 0, 184, 16, vmath.vector4(0.12,0.18,0.12,0.36)),
         progress_fill = box(0, 0, 180, 10, COLOR_ACTIVE),
-        lock_text = text_node(0, 0, "LOCKED", 0.88),
+        lock_text = text_node(0, 0, "LOCKED", 0.82),
         flowers = {},
     }
-    for index = 1, #FLOWER_OFFSETS do
-        patch.flowers[index] = create_flower()
-    end
+    for index = 1, #FLOWER_OFFSETS do patch.flowers[index] = create_flower() end
     return patch
 end
 
@@ -187,14 +195,8 @@ local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, 
 
     for index, offset in ipairs(FLOWER_OFFSETS) do
         set_flower_visual(
-            patch.flowers[index],
-            wx + offset[1],
-            wy + offset[2],
-            camera_x,
-            camera_y,
-            bloom,
-            locked,
-            patch.petal_color
+            patch.flowers[index], wx + offset[1], wy + offset[2], camera_x, camera_y,
+            bloom, locked, patch.petal_color
         )
     end
 
@@ -204,6 +206,99 @@ local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, 
     set_size(patch.progress_fill, math.max(1, width), 10)
     set_xy(patch.progress_fill, sx - 90 + math.max(1, width) * 0.5, bar_y)
     set_xy(patch.lock_text, sx, bar_y)
+end
+
+local function create_meadow_marker(definition, index)
+    local marker = {
+        definition = definition,
+        zone = box(0, 0, index == 1 and 560 or 390, index == 1 and 470 or 340, vmath.vector4(0.90,0.85,0.55,0.10)),
+        ring = box(0, 0, 250, 18, vmath.vector4(1,1,1,0.10)),
+        title_bg = box(0, 0, 240, 36, vmath.vector4(0.12,0.18,0.12,0.46)),
+        title = text_node(0, 0, definition.label or definition.id, 0.72),
+        landmark = text_node(0, 0, definition.landmark or "", 0.56),
+    }
+    gui.set_color(marker.landmark, vmath.vector4(1.0,0.90,0.66,0.86))
+    return marker
+end
+
+local function meadow_completed(message, index)
+    if index == 1 then
+        return message.patch1_state == "COMPLETED"
+            and message.patch2_state == "COMPLETED"
+            and message.patch3_state == "COMPLETED"
+    end
+    local patch_index = index + 2
+    return message["patch" .. tostring(patch_index) .. "_state"] == "COMPLETED"
+end
+
+local function render_meadow_marker(marker, index, restored, camera_x, camera_y)
+    local definition = marker.definition
+    local sx, sy = world_to_screen(definition.center_x, definition.center_y, camera_x, camera_y)
+    local zone_color = restored
+        and vmath.vector4(0.36,0.72,0.39,0.18)
+        or vmath.vector4(0.53,0.48,0.36,0.15)
+    if index == 4 then zone_color = restored and vmath.vector4(0.32,0.71,0.58,0.18) or vmath.vector4(0.36,0.58,0.62,0.14) end
+    if index == 5 then zone_color = restored and vmath.vector4(0.82,0.58,0.38,0.18) or vmath.vector4(0.56,0.46,0.34,0.14) end
+    if index == 6 then zone_color = restored and vmath.vector4(0.59,0.73,0.82,0.20) or vmath.vector4(0.48,0.45,0.54,0.14) end
+    gui.set_color(marker.zone, zone_color)
+    gui.set_color(marker.ring, restored and vmath.vector4(COLOR_HONEY.x,COLOR_HONEY.y,COLOR_HONEY.z,0.56) or vmath.vector4(1,1,1,0.12))
+    set_xy(marker.zone, sx, sy)
+    set_xy(marker.ring, sx, sy - 145)
+    set_xy(marker.title_bg, sx, sy + 150)
+    set_xy(marker.title, sx, sy + 150)
+    set_xy(marker.landmark, sx, sy + 116)
+end
+
+local function create_path_nodes()
+    local nodes = {}
+    for index = 1, (#catalog.meadows - 1) * 7 do
+        nodes[index] = box(0, 0, 22, 12, COLOR_PATH)
+    end
+    return nodes
+end
+
+local function render_paths(self, camera_x, camera_y)
+    local node_index = 1
+    for meadow_index = 1, #catalog.meadows - 1 do
+        local a = catalog.meadows[meadow_index]
+        local b = catalog.meadows[meadow_index + 1]
+        for step = 1, 7 do
+            local t = step / 8
+            local wx = a.center_x + (b.center_x - a.center_x) * t
+            local wy = a.center_y + (b.center_y - a.center_y) * t
+            local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
+            set_xy(self.path_nodes[node_index], sx, sy)
+            node_index = node_index + 1
+        end
+    end
+end
+
+local function create_settings(self)
+    self.settings = {
+        shade = box(640, 360, 1280, 720, vmath.vector4(0.08,0.10,0.08,0.68)),
+        panel = box(640, 350, 660, 390, vmath.vector4(0.14,0.18,0.14,0.96)),
+        title = text_node(640, 500, "SETTINGS", 1.25),
+        hint = text_node(640, 185, "ARROWS · SELECT     SPACE · TOGGLE     ESC · CLOSE", 0.62),
+        reduced_bg = box(640, 395, 600, 80, vmath.vector4(1,1,1,0.06)),
+        reduced_label = text_node(475, 395, "REDUCED MOTION", 0.86),
+        reduced_value = text_node(805, 395, "OFF", 0.86),
+        audio_bg = box(640, 280, 600, 80, vmath.vector4(1,1,1,0.06)),
+        audio_label = text_node(475, 280, "AUDIO", 0.86),
+        audio_value = text_node(805, 280, "ON", 0.86),
+    }
+    for _, node in pairs(self.settings) do gui.set_enabled(node, false) end
+end
+
+local function render_settings(self, message)
+    local visible = message.settings_open == true
+    for _, node in pairs(self.settings) do gui.set_enabled(node, visible) end
+    if not visible then return end
+    gui.set_text(self.settings.reduced_value, message.reduced_motion == true and "ON" or "OFF")
+    gui.set_text(self.settings.audio_value, message.audio_muted == true and "MUTED" or "ON")
+    gui.set_color(self.settings.reduced_bg,
+        message.selected_setting == "reduced_motion" and vmath.vector4(COLOR_HONEY.x,COLOR_HONEY.y,COLOR_HONEY.z,0.24) or vmath.vector4(1,1,1,0.06))
+    gui.set_color(self.settings.audio_bg,
+        message.selected_setting == "audio_muted" and vmath.vector4(COLOR_HONEY.x,COLOR_HONEY.y,COLOR_HONEY.z,0.24) or vmath.vector4(1,1,1,0.06))
 end
 
 function init(self)
@@ -217,7 +312,7 @@ function init(self)
         {180,190},{330,340},{520,180},{690,430},{840,240},{1010,560},{1210,210},{1390,430},
         {1580,250},{1770,610},{1970,330},{2180,740},{280,1120},{470,1320},{760,1080},{980,1390},
         {1300,1160},{1510,1340},{1840,1080},{2140,1280},{410,760},{620,900},{890,650},{1110,980},
-        {1450,760},{1690,930},{1920,820},{2240,1020}
+        {1450,760},{1690,930},{1920,820},{2240,1020},{330,520},{560,1450},{1170,250},{2220,460},
     }
     for index, point in ipairs(points) do
         local dark = index % 3 == 0
@@ -231,8 +326,19 @@ function init(self)
     self.edge_bottom = box(0, 0, 2400, 18, vmath.vector4(0.243,0.510,0.278,0.75))
     self.edge_top = box(0, 0, 2400, 18, vmath.vector4(0.243,0.510,0.278,0.75))
 
-    self.patch1 = create_patch(COLOR_DAISY)
-    self.patch2 = create_patch(COLOR_CLOVER)
+    self.path_nodes = create_path_nodes()
+    self.meadow_markers = {}
+    for index, definition in ipairs(catalog.meadows) do self.meadow_markers[index] = create_meadow_marker(definition, index) end
+
+    self.creek = box(0, 0, 520, 72, COLOR_WATER)
+    self.creek_bridge = box(0, 0, 118, 88, vmath.vector4(0.66,0.48,0.28,0.82))
+    self.sun_dial = box(0, 0, 34, 128, vmath.vector4(0.94,0.76,0.40,0.82))
+    self.lily_arch_left = box(0, 0, 28, 190, vmath.vector4(0.90,0.82,0.48,0.80))
+    self.lily_arch_right = box(0, 0, 28, 190, vmath.vector4(0.90,0.82,0.48,0.80))
+    self.lily_arch_top = box(0, 0, 220, 28, vmath.vector4(0.90,0.82,0.48,0.80))
+
+    self.patches = {}
+    for index, definition in ipairs(catalog.patches) do self.patches[index] = create_patch(flower_color(definition.flower_id)) end
 
     self.shadow = box(640, 340, 76 * BEE_SCALE, 22 * BEE_SCALE, vmath.vector4(0.12,0.18,0.12,0.20))
     self.wing_left = box(612, 375, 38 * BEE_SCALE, 34 * BEE_SCALE, vmath.vector4(1.0,0.969,0.91,0.70))
@@ -242,8 +348,8 @@ function init(self)
     self.stripe_right = box(648, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, COLOR_DARK)
     self.head = box(674, 360, 27 * BEE_SCALE, 42 * BEE_SCALE, COLOR_DARK)
 
-    self.objective_bg = box(218, 664, 370, 48, vmath.vector4(0.12,0.18,0.12,0.58))
-    self.objective = text_node(218, 664, "POLLINATE THE FLOWERS", 0.92)
+    self.objective_bg = box(258, 664, 450, 48, vmath.vector4(0.12,0.18,0.12,0.58))
+    self.objective = text_node(258, 664, "RESTORE FIRST PATCH · 0/6", 0.76)
     self.honey_bg = box(1120, 664, 220, 48, vmath.vector4(0.12,0.18,0.12,0.58))
     self.honey_icon = box(1048, 664, 24, 24, COLOR_HONEY)
     self.honey_text = text_node(1135, 664, "HONEY 0", 1.0)
@@ -252,7 +358,7 @@ function init(self)
     gui.set_enabled(self.reward_text, false)
 
     self.pollen = {}
-    for index = 1, 6 do
+    for index = 1, 8 do
         self.pollen[index] = box(0, 0, 8, 8, COLOR_POLLEN)
         gui.set_enabled(self.pollen[index], false)
     end
@@ -262,13 +368,12 @@ function init(self)
     gui.set_enabled(self.joy_base, false)
     gui.set_enabled(self.joy_knob, false)
 
+    create_settings(self)
     msg.post("#controller", "view_ready")
 end
 
 function final(self)
-    if self.qa_enabled and html5_available() then
-        html5.run("delete window.__bebeeRestorationQA")
-    end
+    if self.qa_enabled and html5_available() then html5.run("delete window.__bebeeRestorationQA") end
 end
 
 function on_message(self, message_id, message)
@@ -282,21 +387,14 @@ function on_message(self, message_id, message)
     local camera_y = message.camera_y or 800
     local dense = message.dense == true
     local pollination_visible = message.pollination_visible == true
-    local status = restoration_status(self, message)
+    local status = first_meadow_status(message, self.patch3_completed)
     local stage = stage_definition(status.stage_id)
     local detail_count
-    local objective_text = "POLLINATE THE FLOWERS"
+    local objective_text = message.objective_text or "RESTORE FIRST PATCH · 0/6"
 
     if pollination_visible then
-        detail_count = math.min(#self.decorations, stage.detail_count or 8)
-        gui.set_color(self.background, mix_color(COLOR_DORMANT, COLOR_GREEN, stage.ground_mix or 0))
-        if status.stage_id == meadow.STAGE_RESTORED then
-            objective_text = "MEADOW RESTORED"
-        elseif status.stage_id == meadow.STAGE_GROWING then
-            objective_text = "ONE PATCH LEFT"
-        elseif status.stage_id == meadow.STAGE_WAKING then
-            objective_text = "MEADOW WAKING  ·  NEXT PATCH"
-        end
+        detail_count = math.min(#self.decorations, (stage.detail_count or 8) + (message.region_restored_count or 0) * 2)
+        gui.set_color(self.background, mix_color(COLOR_DORMANT, COLOR_GREEN, math.max(stage.ground_mix or 0, (message.region_restored_count or 0) / 6 * 0.72)))
     else
         detail_count = dense and #self.decorations or 12
         gui.set_color(self.background, COLOR_GREEN)
@@ -307,6 +405,33 @@ function on_message(self, message_id, message)
         set_xy(decoration.node, x, y)
         gui.set_enabled(decoration.node, index <= detail_count)
     end
+
+    if pollination_visible then
+        render_paths(self, camera_x, camera_y)
+        for index, marker in ipairs(self.meadow_markers) do
+            render_meadow_marker(marker, index, meadow_completed(message, index), camera_x, camera_y)
+        end
+    end
+    for _, node in ipairs(self.path_nodes) do gui.set_enabled(node, pollination_visible) end
+    for _, marker in ipairs(self.meadow_markers) do
+        for key, node in pairs(marker) do if key ~= "definition" then gui.set_enabled(node, pollination_visible) end end
+    end
+
+    local creek_x, creek_y = world_to_screen(730, 430, camera_x, camera_y)
+    set_xy(self.creek, creek_x, creek_y - 78)
+    set_xy(self.creek_bridge, creek_x, creek_y - 78)
+    gui.set_enabled(self.creek, pollination_visible)
+    gui.set_enabled(self.creek_bridge, pollination_visible)
+    local sun_x, sun_y = world_to_screen(430, 980, camera_x, camera_y)
+    set_xy(self.sun_dial, sun_x - 120, sun_y)
+    gui.set_enabled(self.sun_dial, pollination_visible)
+    local lily_x, lily_y = world_to_screen(760, 1380, camera_x, camera_y)
+    set_xy(self.lily_arch_left, lily_x - 100, lily_y)
+    set_xy(self.lily_arch_right, lily_x + 100, lily_y)
+    set_xy(self.lily_arch_top, lily_x, lily_y + 82)
+    gui.set_enabled(self.lily_arch_left, pollination_visible)
+    gui.set_enabled(self.lily_arch_right, pollination_visible)
+    gui.set_enabled(self.lily_arch_top, pollination_visible)
 
     msg.post("/progression#view", "restoration_base", {
         contribution = status.contribution,
@@ -324,26 +449,20 @@ function on_message(self, message_id, message)
     set_xy(self.edge_bottom, bx, by)
     set_xy(self.edge_top, tx, ty)
 
-    render_patch(
-        self.patch1,
-        message.patch1_x or 1550,
-        message.patch1_y or 800,
-        message.patch1_state or "LOCKED",
-        message.patch1_progress or 0,
-        camera_x,
-        camera_y,
-        pollination_visible
-    )
-    render_patch(
-        self.patch2,
-        message.patch2_x or 1950,
-        message.patch2_y or 950,
-        message.patch2_state or "LOCKED",
-        message.patch2_progress or 0,
-        camera_x,
-        camera_y,
-        pollination_visible
-    )
+    local any_qualifying = false
+    for index, patch in ipairs(self.patches) do
+        local prefix = "patch" .. tostring(index) .. "_"
+        local definition = catalog.patches[index]
+        local state = message[prefix .. "state"] or "LOCKED"
+        local progress = message[prefix .. "progress"] or 0
+        render_patch(
+            patch,
+            message[prefix .. "x"] or definition.x,
+            message[prefix .. "y"] or definition.y,
+            state, progress, camera_x, camera_y, pollination_visible
+        )
+        if message[prefix .. "qualifying"] == true then any_qualifying = true end
+    end
 
     local hud_visible = pollination_visible and not self.hud_hidden
     gui.set_enabled(self.objective_bg, hud_visible)
@@ -353,8 +472,8 @@ function on_message(self, message_id, message)
     gui.set_enabled(self.honey_text, hud_visible)
     if hud_visible then
         gui.set_text(self.honey_text, "HONEY " .. tostring(math.floor(message.honey or 0)))
-        if message.patch1_state == "ACTIVE" or message.patch2_state == "ACTIVE" then
-            objective_text = "POLLINATION IN PROGRESS"
+        if any_qualifying then
+            objective_text = string.format("POLLINATION IN PROGRESS · %d/%d", message.region_restored_count or 0, message.region_total or 6)
         end
         gui.set_text(self.objective, objective_text)
     end
@@ -369,24 +488,19 @@ function on_message(self, message_id, message)
 
     local active_x = message.active_patch_x or 0
     local active_y = message.active_patch_y or 0
-    local pollen_active = pollination_visible and (message.patch1_qualifying == true or message.patch2_qualifying == true)
+    local pollen_active = pollination_visible and any_qualifying
     for index, node in ipairs(self.pollen) do
         gui.set_enabled(node, pollen_active)
         if pollen_active then
-            local angle = (message.frame or 0) * 0.10 + index * 1.047
+            local angle = (message.frame or 0) * 0.10 + index * 0.785
             local radius = 82 + (index % 2) * 18
-            local px, py = world_to_screen(
-                active_x + math.cos(angle) * radius,
-                active_y + math.sin(angle) * radius,
-                camera_x,
-                camera_y
-            )
+            local px, py = world_to_screen(active_x + math.cos(angle) * radius, active_y + math.sin(angle) * radius, camera_x, camera_y)
             set_xy(node, px, py)
         end
     end
 
     local bee_x, bee_y = world_to_screen(message.bee_x or 1200, message.bee_y or 800, camera_x, camera_y)
-    local speed_ratio = math.min(1, (message.speed or 0) / 300)
+    local speed_ratio = math.min(1, (message.speed or 0) / 360)
     local wing_lift = (10 + speed_ratio * 10) * BEE_SCALE
     local facing_left = (message.facing_x or 1) < 0
     local head_offset = (facing_left and -35 or 35) * BEE_SCALE
@@ -407,5 +521,6 @@ function on_message(self, message_id, message)
         set_xy(self.joy_knob, message.touch_knob_x or 0, message.touch_knob_y or 0)
     end
 
+    render_settings(self, message)
     publish_restoration_bridge(self, status, stage, detail_count, objective_text)
 end
