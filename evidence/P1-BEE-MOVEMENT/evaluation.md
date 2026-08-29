@@ -1,9 +1,9 @@
 # P1 Bee Movement — independent evidence evaluation
 
-Evaluated: 2026-08-29  
-Mode: `independent_pass`  
-Evaluator ID: `p1-evidence-evaluator-pass-2026-08-29`  
-Implementation author ID: `p1-implementation-agent`  
+Evaluated: 2026-08-29
+Mode: `independent_pass`
+Evaluator ID: `p1-evidence-evaluator-pass-2026-08-29`
+Implementation author ID: `p1-implementation-agent`
 Verdict: **PASS**
 
 ## Inputs
