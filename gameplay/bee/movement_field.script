@@ -322,7 +322,9 @@ local function apply_visual_fixture(self)
     elseif self.qa_state == SEED_UNLOCKED then
         prepare_seed_fixture(self, true)
     elseif self.qa_state == REGION_START then
-        prepare_region_fixture(self, 0)
+        if lifecycle ~= "reset" then
+            prepare_region_fixture(self, 0)
+        end
     elseif self.qa_state == REGION_MID then
         prepare_region_fixture(self, 3)
     elseif self.qa_state == REGION_COMPLETE then
