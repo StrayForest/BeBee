@@ -16,6 +16,10 @@ M.MEADOW_MID_STATE = "meadow_mid"
 M.MEADOW_RESTORED_STATE = "meadow_restored"
 M.SEED_LOCKED_STATE = "seed_locked"
 M.SEED_UNLOCKED_STATE = "seed_unlocked"
+M.REGION_START_STATE = "region_start"
+M.REGION_MID_STATE = "region_mid"
+M.REGION_COMPLETE_STATE = "region_complete"
+M.SETTINGS_ACCESSIBILITY_STATE = "settings_accessibility"
 
 local SUPPORTED_STATES = {
     [M.FOUNDATION_STATE] = true,
@@ -32,6 +36,10 @@ local SUPPORTED_STATES = {
     [M.MEADOW_RESTORED_STATE] = true,
     [M.SEED_LOCKED_STATE] = true,
     [M.SEED_UNLOCKED_STATE] = true,
+    [M.REGION_START_STATE] = true,
+    [M.REGION_MID_STATE] = true,
+    [M.REGION_COMPLETE_STATE] = true,
+    [M.SETTINGS_ACCESSIBILITY_STATE] = true,
 }
 
 function M.normalize_seed(value)
@@ -80,12 +88,20 @@ function M.is_seed_state(state_id)
     return state_id == M.SEED_LOCKED_STATE or state_id == M.SEED_UNLOCKED_STATE
 end
 
+function M.is_region_state(state_id)
+    return state_id == M.REGION_START_STATE
+        or state_id == M.REGION_MID_STATE
+        or state_id == M.REGION_COMPLETE_STATE
+        or state_id == M.SETTINGS_ACCESSIBILITY_STATE
+end
+
 function M.requires_gameplay_capture(state_id)
     return M.is_movement_state(state_id)
         or M.is_pollination_state(state_id)
         or M.is_progression_state(state_id)
         or M.is_restoration_state(state_id)
         or M.is_seed_state(state_id)
+        or M.is_region_state(state_id)
         or state_id == M.HUD_DEFAULT_STATE
 end
 
