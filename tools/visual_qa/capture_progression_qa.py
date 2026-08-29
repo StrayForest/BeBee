@@ -64,6 +64,8 @@ def _record_hive_desktop(browser: Browser, *, base_url: str, head_sha: str, outp
             start=_move(page); page.keyboard.down('d'); page.wait_for_timeout(500); page.keyboard.up('d'); page.wait_for_timeout(150); blocked=_move(page)
             modal_displacement=math.hypot(float(blocked['beeX'])-float(start['beeX']),float(blocked['beeY'])-float(start['beeY']))
             if modal_displacement > 1.0: raise RuntimeError(f'movement leaked through Hive modal: {modal_displacement}')
+            page.keyboard.press('ArrowLeft')
+            page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.selectedUpgrade === 'flight'",timeout=timeout_ms)
 
             page.keyboard.press('Space')
             page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.flightLevel === 2",timeout=timeout_ms)
