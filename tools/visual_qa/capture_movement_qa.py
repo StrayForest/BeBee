@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise BeBee movement, pollination, progression and restoration in real Chromium."""
+"""Exercise BeBee movement, pollination, progression, restoration and seed ownership in real Chromium."""
 from __future__ import annotations
 
 import argparse
@@ -16,6 +16,7 @@ from capture_movement_qa_impl import (
 from capture_pollination_qa import record_pollination_core
 from capture_progression_qa import record_progression
 from capture_restoration_qa import record_restoration
+from capture_seed_qa import record_seed_ownership
 
 
 def main() -> int:
@@ -42,12 +43,13 @@ def main() -> int:
             pollination = record_pollination_core(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=timeout_ms)
             progression = record_progression(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=timeout_ms)
             restoration = record_restoration(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=timeout_ms)
+            seeds = record_seed_ownership(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=timeout_ms)
             browser_version = browser.version
         finally:
             browser.close()
 
     report = {
-        "schema_version": 3,
+        "schema_version": 4,
         "ticket": "P1-BEE-MOVEMENT",
         "head_sha": head_sha,
         "browser_name": "Playwright Chromium",
@@ -59,15 +61,16 @@ def main() -> int:
         "p2_pollination_core": pollination,
         "p3_progression": progression,
         "p4_restoration": restoration,
+        "p5_seed_ownership": seeds,
         "result": "PASS",
     }
     report_path = output_root / "motion-report.json"
     report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(
-        "P1 movement + P2 pollination + P3 progression + P4 restoration browser proof: PASS "
+        "P1 movement + P2 pollination + P3 progression + P4 restoration + P5 seed ownership browser proof: PASS "
         f"(desktop movement {desktop['exercise_seconds']}s, touch movement {touch['exercise_seconds']}s, "
         f"desktop movement {desktop['observed_fps']} fps, P2={pollination['result']}, "
-        f"P3={progression['result']}, P4={restoration['result']})"
+        f"P3={progression['result']}, P4={restoration['result']}, P5={seeds['result']})"
     )
     return 0
 
@@ -76,5 +79,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except (OSError, RuntimeError, ValueError) as exc:
-        print(f"Movement/P2/P3/P4 browser proof failed: {exc}")
+        print(f"Movement/P2/P3/P4/P5 browser proof failed: {exc}")
         raise SystemExit(1)
