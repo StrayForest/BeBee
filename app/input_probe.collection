@@ -7,4 +7,8 @@ instances {
   id: "modal"
   prototype: "/app/input_probe_modal.go"
 }
+instances {
+  id: "movement"
+  prototype: "/gameplay/bee/movement_field.go"
+}
 scale_along_z: 0

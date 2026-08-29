@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1 and P0 Foundation are complete; the current production handoff is P1 — Bee Movement.**
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation and P1 Bee Movement are complete; the current production handoff is P2 — Pollination Core Loop.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -206,6 +206,8 @@ The first immediate-navigation process candidate exposed a real Defold VFS → I
 
 # P1 — Bee Movement
 
+**Status: COMPLETE — exit criteria PASS.**
+
 ## Goal
 
 Make an empty test field enjoyable to fly through before resource content is added.
@@ -226,11 +228,29 @@ Research comparable movement/camera solutions first. Capture motion evidence, no
 
 ## Exit criteria
 
-- 5-minute movement test exposes no obvious control/camera frustration;
-- keyboard/touch produce consistent intent;
-- no collision snagging;
-- representative target frame pacing is stable;
-- movement visual-QA comparison is `PASS` or approved deviation.
+- 5-minute movement test exposes no obvious control/camera frustration — PASS through 18,000-frame/300-second deterministic soak plus retained motion evaluation;
+- keyboard/touch produce consistent intent — PASS; both normalized paths reach 300 units/s and return to zero;
+- no collision snagging — PASS; P1 uses authored bounds without decorative collision and central browser exercises report zero bound hits;
+- representative target frame pacing is stable — PASS; accepted desktop browser exercise measured 61.40 fps;
+- movement visual-QA comparison is `PASS` or approved deviation — PASS after iterating the initial undersized-bee finding into V-001's 12–15% band.
+
+### P1 exit record
+
+Accepted runtime evidence head before closeout-only source-of-truth changes: `2e1098ac10596d02ad7d8b71e6034b5e778a7315`.
+
+- Repository standards `33240599831` — PASS;
+- Test/data `33240599809` — PASS;
+- HTML5 CI `33240599811` — PASS;
+- movement artifact `9711246614` — retained desktop/mobile WebM, frame sequences, still states and `motion-report.json`;
+- keyboard/touch cardinal/diagonal maximum speed 300 units/s; stopped speed 0;
+- reduced-motion camera lag X/Y = 0.0 / 0.0;
+- modal movement displacement = 0.0;
+- console/page errors = 0;
+- bee height = 14.17% desktop, 13.33% Poki small, 13.33% mobile landscape;
+- separate evaluation verdict = PASS;
+- complete evidence = `evidence/P1-BEE-MOVEMENT/manifest.json` and `evidence/P1-BEE-MOVEMENT/evaluation.md`.
+
+**P1 exit: PASS. Production advances to P2 — Pollination Core Loop.**
 
 ---
 

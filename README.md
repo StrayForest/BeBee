@@ -131,6 +131,8 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/research/BB-005-html5-ci.md`](docs/research/BB-005-html5-ci.md) — P0 exact-source playable HTML5 CI/browser-smoke contract
 - [`docs/research/BB-006-visual-qa-harness.md`](docs/research/BB-006-visual-qa-harness.md) — P0 deterministic exact-build visual-QA runtime/capture proof
 - [`evidence/BB-007-CLOSEOUT/manifest.json`](evidence/BB-007-CLOSEOUT/manifest.json) — P0 storage lifecycle/browser closeout evidence
+- [`docs/research/P1-bee-movement.md`](docs/research/P1-bee-movement.md) — P1 movement research, implementation and failure/iteration trace
+- [`evidence/P1-BEE-MOVEMENT/manifest.json`](evidence/P1-BEE-MOVEMENT/manifest.json) — P1 movement closeout evidence
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -145,15 +147,17 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 `D-005` is `VALIDATED`: seed ownership uses a Hybrid restoration topology. Authored native campaign plots keep their native identity during restoration, dedicated player-shaped plots allow seed ownership before full completion, and campaign/native state remains separate from planted species. P5 still must prove that the two roles are understandable in the rendered game and tune the exact plot count, placement, planting input and seed economy.
 
-`D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks. Yield is excluded rather than preserved as a third card. BB-P005 showed that the current no-Yield structure reaches region completion across all **5040 / 5040** full retained-sink purchase-priority orders with zero replay and non-negative balance. Exact Flight/Buzz effects, Honey costs/rewards and real-time purchase cadence remain P1/P3 tuning work.
+`D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks. Yield is excluded rather than preserved as a third card. BB-P005 showed that the current no-Yield structure reaches region completion across all **5040 / 5040** full retained-sink purchase-priority orders with zero replay and non-negative balance. P1 now supplies the validated traversal baseline; exact Flight/Buzz effects, Honey costs/rewards and real-time purchase cadence remain P3 tuning work.
+
+`D-013` is `VALIDATED`: P1 uses one normalized direct-intent movement controller for keyboard and floating touch, with bounded acceleration/deceleration, authored bounds, bounded orthographic follow and a reduced-motion direct-follow path. The accepted baseline reaches the same 300-unit/s maximum on keyboard/touch cardinal/diagonal evidence, releases to zero, preserves native proxy/modal focus and renders the bee inside V-001's 12–15% readability band. These values remain tunable by new P2/P3 evidence rather than becoming immutable constants.
 
 Still open/tunable before downstream milestones lock production values:
 
-- exact movement/pollination work and timing;
+- exact P2 pollination work target, forgiving patch bounds and incidental fly-through behavior;
 - exact Honey reward/cost table and minutes/actions between meaningful purchases;
 - final Flight/Buzz effect curves and flower-gate tuning;
 - rendered comprehension/input/seed pacing for the Hybrid restoration flow;
-- applying and tuning the validated V-001 style/crop rules against future real player-facing scenes through the now-operational deterministic HTML5 capture pipeline.
+- final production illustration/animation/audio and later full-scene visual polish.
 
 The objective-evidence hardening in `BB-P013`–`BB-P017` is in place. `BB-P006` validated Poki as the primary external target, `BB-P007` defined V-001, `BB-P008` defined the deterministic visual-QA runtime contract, and `BB-P009` defined the HTML5 A/B generation storage/recovery contract.
 
@@ -191,14 +195,20 @@ BB-001 establishes a minimal `app/` bootstrap, explicit development/release sett
 
 BB-002 adds Defold-aware generated-file rules, explicit text/Lua conventions, canonical production resource roots, machine-readable dependency/license inventory, a dependency-free repository validator and PR/main CI enforcement. It does not claim semantic input, proxy lifecycle, storage, gameplay, UI, test/data harness or deterministic gameplay QA.
 
-BB-003 replaces the empty binding with device-independent semantic actions, proves keyboard and HTML5 single-touch/pointer paths, explicitly owns collection-proxy input focus, and retains an exact-head Chromium proof that unconsumed actions traverse the proxy world while an open modal consumes them before proxied gameplay and lower main-world listeners. `T-010` remains a hypothesis because proxy memory/full lifecycle are still unproven, and final touch movement UX remains a later player-facing decision.
+BB-003 replaces the empty binding with device-independent semantic actions, proves keyboard and HTML5 single-touch/pointer paths, explicitly owns collection-proxy input focus, and retains an exact-head Chromium proof that unconsumed actions traverse the proxy world while an open modal consumes them before proxied gameplay and lower main-world listeners. `T-010` remains a hypothesis because proxy memory/full lifecycle are still unproven.
 
-BB-004 adds a dependency-free deterministic Lua test runner, a dedicated Defold headless test bootstrap, a canonical content catalog plus stable-ID/reference validation, and 11 initial deterministic cases covering input semantics and data-validation success/failure paths. The editor-independent runner verifies the pinned Bob/Java toolchain, requires a structured suite completion event, propagates failures through process exit status and retains diagnostic output. GitHub Actions runs the same command on PRs and `main` with read-only permissions; subsequent foundation work extends the suite without changing the BB-004 harness contract.
+BB-004 adds a dependency-free deterministic Lua test runner, a dedicated Defold headless test bootstrap, a canonical content catalog plus stable-ID/reference validation, and initial deterministic cases. The editor-independent runner verifies the pinned Bob/Java toolchain, requires a structured suite completion event, propagates failures through process exit status and retains diagnostic output. Subsequent work extends the suite without changing the BB-004 harness contract.
 
-BB-005 turns the existing runtime evidence path into exact-source **HTML5 CI** for every PR and `main` update: pinned development/release `wasm-web` builds, release Chromium startup/resource/console smoke, retained BB-003 keyboard/touch/proxy smoke, a dedicated playable release artifact and separate diagnostic evidence. The first strict smoke correctly stopped on Chromium's automatic favicon 404; retained network evidence proved all game resources healthy, so the check was narrowed only for that browser-generated request while all other HTTP 4xx/5xx remain fatal.
+BB-005 provides exact-source HTML5 CI for every PR and `main` update: pinned development/release `wasm-web` builds, release Chromium startup/resource/console smoke, retained BB-003 keyboard/touch/proxy smoke, a playable release artifact and diagnostics.
 
-BB-006 implements the BB-P008 deterministic visual-QA foundation in the real Defold HTML5 runtime: development-only `?qa=...&qa_seed=...` routing and `window.__bebeeQA`, exact source-SHA binding through Bob, a canonical HTTP server, pinned Playwright Chromium, isolated BrowserContexts, desktop/mobile capture and release-negative proof. The infrastructure-only `foundation_probe` is byte-stable across two fresh-context repeats at both **1280×720** and **844×390**, with zero console/page errors; release exposes neither bridge nor probe. Exact candidate run `33214438370` retained visual artifact `9702826036` plus the same-run playable and diagnostic HTML5 artifacts. Future gameplay/UI QA states remain owned by their actual systems rather than being falsely marked implemented here.
+BB-006 provides development-only deterministic QA routing, exact source-SHA binding, pinned Playwright capture, fresh BrowserContexts, release-negative proof and retained desktop/mobile visual artifacts.
 
-BB-007 implements the versioned local storage adapter and A/B generation journal behind the storage abstraction, protected corrupt-load recovery, serialized-size diagnostics, persistent delete, and lifecycle semantics that distinguish accepted/pending writes from browser-durable IndexedDB state. The first immediate-navigation browser proof exposed a real Defold VFS → IndexedDB race and PR #36 was closed unmerged as failed evidence; PR #37 corrected rapid-refresh/close recovery semantics. Final process PR #38 passed exact-head `Repository standards` (`33238316582`), `Test and data` (`33238316615`), `HTML5 CI` (`33238316601`) and trusted evidence (`33238419907`) on `5efabc3…`, then merged as `4bd31d4…`. Post-merge `main` repeated the full HTML5/storage proof in run `33238436135` and retained storage artifact `9710629332`; the complete closeout record is [`evidence/BB-007-CLOSEOUT/manifest.json`](evidence/BB-007-CLOSEOUT/manifest.json).
+BB-007 provides versioned local storage, A/B generation journal/recovery, protected corrupt-load handling, persistent delete and real HTML5 lifecycle proofs including the previously discovered Defold VFS → IndexedDB rapid-navigation race. Full evidence is retained in [`evidence/BB-007-CLOSEOUT/manifest.json`](evidence/BB-007-CLOSEOUT/manifest.json).
 
-**Next production task: `P1 — Bee Movement`.**
+**P1 — Bee Movement is COMPLETE; all P1 exit criteria pass.**
+
+P1 implements the first production traversal slice: a pure-Lua normalized controller with acceleration/deceleration/reversal, keyboard and floating-touch parity, authored bounds, bounded orthographic Auto Cover follow, reduced-motion direct follow, simple idle/fly/turn presentation and deterministic `movement_empty` / `movement_dense` HTML5 QA states. The movement runtime stays inside the proxied gameplay world so the BB-003 native Defold focus/modal contract remains authoritative rather than being replaced by owner-side custom forwarding.
+
+The accepted runtime evidence head `2e1098ac10596d02ad7d8b71e6034b5e778a7315` passed Repository standards (`33240599831`), Test/data (`33240599809`) and HTML5 CI (`33240599811`). Retained movement artifact `9711246614` records desktop 61.40 fps, keyboard/touch normalized 300-unit/s movement, zero release speed, zero bound hits in the central exercises, zero modal displacement, zero reduced-motion camera lag and zero browser errors. A first successful-motion artifact was deliberately rejected by evaluation because the bee rendered at only ~6.7–6.9% viewport height; the final presentation iteration measures 13.33–14.17%, inside V-001's 12–15% band. The complete evidence and independent PASS are in [`evidence/P1-BEE-MOVEMENT/manifest.json`](evidence/P1-BEE-MOVEMENT/manifest.json).
+
+**Next production task: `P2 — Pollination Core Loop`.**

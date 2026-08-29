@@ -13,6 +13,7 @@ end
 function on_message(self, message_id)
     if message_id == hash("open_modal") and not self.open then
         self.open = true
+        msg.post("/movement#controller", "movement_input_clear")
         msg.post(".", "acquire_input_focus")
         print("BEBEE_INPUT modal_open focus_acquired")
     end

@@ -1,0 +1,175 @@
+local input_model = require "gameplay.bee.input"
+local movement = require "gameplay.bee.movement"
+local follow = require "gameplay.camera.follow"
+
+local MOVEMENT_EMPTY = "movement_empty"
+local MOVEMENT_DENSE = "movement_dense"
+
+local function html5_available()
+    return html5 ~= nil and html5.run ~= nil
+end
+
+local function surface_size()
+    if window ~= nil and window.get_size ~= nil then
+        local width, height = window.get_size()
+        if width and height and width > 0 and height > 0 then
+            return width, height
+        end
+    end
+    return 1280, 720
+end
+
+local function query_value(name)
+    if not html5_available() then return "" end
+    return html5.run("new URLSearchParams(window.location.search).get(" .. json.encode(name) .. ") || ''") or ""
+end
+
+local function update_runtime_bridge(self, force)
+    if not self.qa_enabled or not html5_available() then return end
+    if not force and self.frame % 6 ~= 0 then return end
+
+    local ix, iy, source = input_model.intent(self.input)
+    local payload = {
+        schemaVersion = 1,
+        stateId = self.qa_state,
+        frame = self.frame,
+        beeX = self.motion.x,
+        beeY = self.motion.y,
+        velocityX = self.motion.vx,
+        velocityY = self.motion.vy,
+        speed = self.motion.speed,
+        motionState = self.motion.motion_state,
+        cameraX = self.camera.x,
+        cameraY = self.camera.y,
+        intentX = ix,
+        intentY = iy,
+        inputSource = source,
+        reducedMotion = self.reduced_motion,
+        boundHits = self.motion.bound_hits,
+        distanceTravelled = self.motion.distance_travelled,
+    }
+    html5.run("window.__bebeeMovementQA = " .. json.encode(payload))
+end
+
+local function mark_capture_ready(self)
+    if not self.qa_enabled or not html5_available() then return end
+    local state_json = json.encode(self.qa_state)
+    local frame = self.frame
+    html5.run([[
+        (() => {
+            const qa = window.__bebeeQA;
+            if (!qa || qa.stateId !== ]] .. state_json .. [[) return "missing";
+            qa.captureReady = true;
+            qa.simulationFrame = ]] .. tostring(frame) .. [[;
+            return "ok";
+        })()
+    ]])
+    print(string.format("BEBEE_QA capture_ready state=%s seed=88008 frame=%d", self.qa_state, self.frame))
+end
+
+local function send_view(self)
+    local touch = input_model.touch_visual(self.input)
+    local width, height = surface_size()
+    local sx = 1280 / width
+    local sy = 720 / height
+    msg.post("#view", "view_state", {
+        bee_x = self.motion.x,
+        bee_y = self.motion.y,
+        camera_x = self.camera.x,
+        camera_y = self.camera.y,
+        speed = self.motion.speed,
+        facing_x = self.motion.facing_x,
+        dense = self.dense,
+        touch_active = touch.active == true,
+        touch_anchor_x = (touch.anchor_x or 0) * sx,
+        touch_anchor_y = (touch.anchor_y or 0) * sy,
+        touch_knob_x = (touch.knob_x or 0) * sx,
+        touch_knob_y = (touch.knob_y or 0) * sy,
+    })
+end
+
+function init(self)
+    self.qa_enabled = sys.get_config_boolean("bebee.qa_enabled", false)
+    self.qa_state = query_value("qa")
+    self.dense = self.qa_state == MOVEMENT_DENSE
+    self.reduced_motion = query_value("reduced_motion") == "1"
+    if html5_available() and query_value("reduced_motion") == "" then
+        self.reduced_motion = html5.run("window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches") == true
+    end
+
+    local width, height = surface_size()
+    self.input = input_model.new({ surface_width = width, surface_height = height })
+    self.motion = movement.new()
+    self.camera = follow.new()
+    self.frame = 0
+    self.view_ready = false
+    self.qa_ready_sent = false
+
+    go.set("#camera", "orthographic_zoom", 1.0)
+    go.set_position(vmath.vector3(self.camera.x, self.camera.y, 0))
+end
+
+function final(self)
+    if self.qa_enabled and html5_available() then
+        html5.run("delete window.__bebeeMovementQA")
+    end
+end
+
+function update(self, dt)
+    self.frame = self.frame + 1
+    local width, height = surface_size()
+    input_model.resize(self.input, width, height)
+    local ix, iy = input_model.intent(self.input)
+    movement.step(self.motion, ix, iy, dt)
+    follow.step(self.camera, self.motion.x, self.motion.y, dt, self.reduced_motion)
+    go.set_position(vmath.vector3(self.camera.x, self.camera.y, 0))
+    send_view(self)
+    update_runtime_bridge(self, false)
+
+    if self.view_ready and self.qa_enabled
+        and (self.qa_state == MOVEMENT_EMPTY or self.qa_state == MOVEMENT_DENSE)
+        and not self.qa_ready_sent and self.frame >= 2 then
+        self.qa_ready_sent = true
+        update_runtime_bridge(self, true)
+        mark_capture_ready(self)
+    end
+end
+
+function on_message(self, message_id, message)
+    if message_id == hash("view_ready") then
+        self.view_ready = true
+        send_view(self)
+        return
+    end
+
+    if message_id == hash("movement_input_clear") then
+        input_model.clear(self.input)
+        return
+    end
+
+    if message_id == hash("movement_key_input") then
+        if message.pressed then
+            input_model.set_key(self.input, message.action_name, true)
+        elseif message.released then
+            input_model.set_key(self.input, message.action_name, false)
+        end
+        return
+    end
+
+    if message_id == hash("movement_pointer_input") then
+        local width, height = surface_size()
+        input_model.resize(self.input, width, height)
+        if message.pressed then
+            input_model.pointer_press(self.input, message.x, message.y)
+        elseif message.released then
+            input_model.pointer_release(self.input, message.x, message.y)
+        else
+            input_model.pointer_move(self.input, message.x, message.y)
+        end
+        return
+    end
+
+    if message_id == hash("movement_pointer_move") then
+        input_model.pointer_move(self.input, message.x, message.y)
+    end
+end
