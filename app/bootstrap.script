@@ -6,10 +6,7 @@ local function html5_available()
 end
 
 local function set_qa_bridge(self, capture_ready)
-    if not self.qa_enabled or not html5_available() then
-        return
-    end
-
+    if not self.qa_enabled or not html5_available() then return end
     local request = self.qa_request
     local payload = {
         schemaVersion = qa_runtime.SCHEMA_VERSION,
@@ -17,7 +14,7 @@ local function set_qa_bridge(self, capture_ready)
         seed = request.seed,
         engineReady = true,
         captureReady = capture_ready == true and request.supported,
-        simulationFrame = 0,
+        simulationFrame = self.qa_simulation_frame or 0,
         buildCommitSha = self.qa_build_sha,
         error = request.error,
     }
@@ -25,18 +22,9 @@ local function set_qa_bridge(self, capture_ready)
 end
 
 local function install_foundation_probe(self)
-    if not self.qa_enabled or not html5_available() then
-        return
-    end
-    if self.qa_request.state_id ~= qa_runtime.FOUNDATION_STATE then
-        return
-    end
-
-    local label = string.format(
-        "BeBee QA · %s · seed %d",
-        self.qa_request.state_id,
-        self.qa_request.seed
-    )
+    if not self.qa_enabled or not html5_available() then return end
+    if self.qa_request.state_id ~= qa_runtime.FOUNDATION_STATE then return end
+    local label = string.format("BeBee QA · %s · seed %d", self.qa_request.state_id, self.qa_request.seed)
     local label_json = json.encode(label)
     html5.run([[
         (() => {
@@ -45,23 +33,7 @@ local function install_foundation_probe(self)
             const probe = document.createElement("div");
             probe.id = "bebee-qa-foundation-probe";
             probe.setAttribute("data-bebee-qa", "foundation_probe");
-            probe.style.cssText = [
-                "position:fixed",
-                "left:50%",
-                "top:50%",
-                "transform:translate(-50%,-50%)",
-                "z-index:2147483647",
-                "box-sizing:border-box",
-                "padding:18px 24px",
-                "border:2px solid rgba(255,255,255,0.92)",
-                "border-radius:14px",
-                "background:rgba(15,18,24,0.88)",
-                "color:#fff",
-                "font:600 18px/1.35 system-ui,sans-serif",
-                "letter-spacing:0.01em",
-                "white-space:nowrap",
-                "pointer-events:none"
-            ].join(";");
+            probe.style.cssText = ["position:fixed","left:50%","top:50%","transform:translate(-50%,-50%)","z-index:2147483647","box-sizing:border-box","padding:18px 24px","border:2px solid rgba(255,255,255,0.92)","border-radius:14px","background:rgba(15,18,24,0.88)","color:#fff","font:600 18px/1.35 system-ui,sans-serif","letter-spacing:0.01em","white-space:nowrap","pointer-events:none"].join(";");
             probe.textContent = ]] .. label_json .. [[;
             document.body.appendChild(probe);
             return "ok";
@@ -71,25 +43,17 @@ end
 
 local function init_qa(self)
     self.qa_enabled = sys.get_config_boolean("bebee.qa_enabled", false)
-    if not self.qa_enabled or not html5_available() then
-        return
-    end
+    if not self.qa_enabled or not html5_available() then return end
 
-    local requested_state = html5.run(
-        "new URLSearchParams(window.location.search).get('qa') || ''"
-    )
-    local requested_seed = html5.run(
-        "new URLSearchParams(window.location.search).get('qa_seed') || ''"
-    )
+    local requested_state = html5.run("new URLSearchParams(window.location.search).get('qa') || ''")
+    local requested_seed = html5.run("new URLSearchParams(window.location.search).get('qa_seed') || ''")
     self.qa_request = qa_runtime.resolve_request(requested_state, requested_seed)
-
-    -- Storage QA uses the same development-only gate but must not create an
-    -- unrelated visual-QA bridge when no visual state was requested.
-    if requested_state == "" then
-        return
-    end
+    if requested_state == "" then return end
 
     self.qa_build_sha = sys.get_config_string("bebee.build_commit_sha", "unavailable")
+    self.qa_simulation_frame = 0
+    self.qa_marked = false
+    self.movement_ready = false
     set_qa_bridge(self, false)
     if self.qa_request.error then
         print("BEBEE_QA unknown_state " .. self.qa_request.state_id)
@@ -97,46 +61,37 @@ local function init_qa(self)
     end
     if self.qa_request.supported then
         install_foundation_probe(self)
-        print(
-            string.format(
-                "BEBEE_QA state_applied state=%s seed=%d build=%s",
-                self.qa_request.state_id,
-                self.qa_request.seed,
-                self.qa_build_sha
-            )
-        )
+        print(string.format("BEBEE_QA state_applied state=%s seed=%d build=%s", self.qa_request.state_id, self.qa_request.seed, self.qa_build_sha))
     end
 end
 
 local function mark_qa_capture_ready(self)
-    if not self.qa_enabled or not self.qa_request or not self.qa_request.supported then
-        return
-    end
+    if not self.qa_enabled or not self.qa_request or not self.qa_request.supported or self.qa_marked then return end
+    self.qa_marked = true
     set_qa_bridge(self, true)
-    print(
-        string.format(
-            "BEBEE_QA capture_ready state=%s seed=%d frame=0",
-            self.qa_request.state_id,
-            self.qa_request.seed
-        )
-    )
+    print(string.format("BEBEE_QA capture_ready state=%s seed=%d frame=%d", self.qa_request.state_id, self.qa_request.seed, self.qa_simulation_frame or 0))
+end
+
+local function maybe_mark_ready(self)
+    if not self.qa_request then return end
+    if self.qa_request.state_id == qa_runtime.FOUNDATION_STATE and self.proxy_ready then
+        mark_qa_capture_ready(self)
+    elseif qa_runtime.is_movement_state(self.qa_request.state_id) and self.proxy_ready and self.movement_ready then
+        mark_qa_capture_ready(self)
+    end
 end
 
 function init(self)
     self.proxy_ready = false
     self.owner_focused = false
     init_qa(self)
-    if self.qa_enabled then
-        storage_probe.run()
-    end
+    if self.qa_enabled then storage_probe.run() end
     msg.post("/sentinel#controller", "acquire_sentinel_focus")
     msg.post("#input_probe", "load")
 end
 
 function final(self)
-    if self.owner_focused then
-        msg.post(".", "release_input_focus")
-    end
+    if self.owner_focused then msg.post(".", "release_input_focus") end
     if self.proxy_ready then
         msg.post("#input_probe", "disable")
         msg.post("#input_probe", "unload")
@@ -153,6 +108,10 @@ function on_message(self, message_id, message, sender)
         msg.post(sender, "enable")
         self.proxy_ready = true
         print("BEBEE_INPUT proxy_loaded owner_focus=1")
-        mark_qa_capture_ready(self)
+        maybe_mark_ready(self)
+    elseif message_id == hash("movement_qa_ready") then
+        self.movement_ready = true
+        self.qa_simulation_frame = message.frame or 0
+        maybe_mark_ready(self)
     end
 end

@@ -1,0 +1,99 @@
+local DESIGN_W = 1280
+local DESIGN_H = 720
+
+local function box(x, y, w, h, color)
+    local node = gui.new_box_node(vmath.vector3(x, y, 0), vmath.vector3(w, h, 0))
+    gui.set_color(node, color)
+    return node
+end
+
+local function set_xy(node, x, y)
+    gui.set_position(node, vmath.vector3(x, y, 0))
+end
+
+local function world_to_screen(wx, wy, camera_x, camera_y)
+    return DESIGN_W * 0.5 + wx - camera_x, DESIGN_H * 0.5 + wy - camera_y
+end
+
+function init(self)
+    self.background = box(640, 360, 1280, 720, vmath.vector4(0.475, 0.788, 0.396, 1))
+
+    self.decorations = {}
+    local points = {
+        {180,190},{330,340},{520,180},{690,430},{840,240},{1010,560},{1210,210},{1390,430},
+        {1580,250},{1770,610},{1970,330},{2180,740},{280,1120},{470,1320},{760,1080},{980,1390},
+        {1300,1160},{1510,1340},{1840,1080},{2140,1280},{410,760},{620,900},{890,650},{1110,980},
+        {1450,760},{1690,930},{1920,820},{2240,1020}
+    }
+    for index, point in ipairs(points) do
+        local dark = index % 3 == 0
+        local node = box(0, 0, dark and 18 or 13, dark and 28 or 20,
+            dark and vmath.vector4(0.243,0.510,0.278,0.72) or vmath.vector4(1.0,0.969,0.91,0.55))
+        self.decorations[index] = { node = node, x = point[1], y = point[2], dense_only = index > 12 }
+    end
+
+    self.edge_left = box(0, 0, 18, 1600, vmath.vector4(0.243,0.510,0.278,0.75))
+    self.edge_right = box(0, 0, 18, 1600, vmath.vector4(0.243,0.510,0.278,0.75))
+    self.edge_bottom = box(0, 0, 2400, 18, vmath.vector4(0.243,0.510,0.278,0.75))
+    self.edge_top = box(0, 0, 2400, 18, vmath.vector4(0.243,0.510,0.278,0.75))
+
+    self.shadow = box(640, 340, 76, 22, vmath.vector4(0.12,0.18,0.12,0.20))
+    self.wing_left = box(612, 375, 38, 34, vmath.vector4(1.0,0.969,0.91,0.70))
+    self.wing_right = box(668, 375, 38, 34, vmath.vector4(1.0,0.969,0.91,0.70))
+    self.body = box(640, 360, 66, 54, vmath.vector4(0.965,0.718,0.235,1))
+    self.stripe_left = box(627, 360, 10, 54, vmath.vector4(0.286,0.231,0.196,1))
+    self.stripe_right = box(648, 360, 10, 54, vmath.vector4(0.286,0.231,0.196,1))
+    self.head = box(674, 360, 27, 42, vmath.vector4(0.286,0.231,0.196,1))
+
+    self.joy_base = box(0, 0, 118, 118, vmath.vector4(1,1,1,0.13))
+    self.joy_knob = box(0, 0, 42, 42, vmath.vector4(1,0.969,0.91,0.38))
+    gui.set_enabled(self.joy_base, false)
+    gui.set_enabled(self.joy_knob, false)
+
+    msg.post("#controller", "view_ready")
+end
+
+function on_message(self, message_id, message)
+    if message_id ~= hash("view_state") then return end
+
+    local camera_x = message.camera_x or 1200
+    local camera_y = message.camera_y or 800
+    local dense = message.dense == true
+
+    for _, decoration in ipairs(self.decorations) do
+        local x, y = world_to_screen(decoration.x, decoration.y, camera_x, camera_y)
+        set_xy(decoration.node, x, y)
+        gui.set_enabled(decoration.node, (not decoration.dense_only) or dense)
+    end
+
+    local lx, ly = world_to_screen(0, 800, camera_x, camera_y)
+    local rx, ry = world_to_screen(2400, 800, camera_x, camera_y)
+    local bx, by = world_to_screen(1200, 0, camera_x, camera_y)
+    local tx, ty = world_to_screen(1200, 1600, camera_x, camera_y)
+    set_xy(self.edge_left, lx, ly)
+    set_xy(self.edge_right, rx, ry)
+    set_xy(self.edge_bottom, bx, by)
+    set_xy(self.edge_top, tx, ty)
+
+    local bee_x, bee_y = world_to_screen(message.bee_x or 1200, message.bee_y or 800, camera_x, camera_y)
+    local speed_ratio = math.min(1, (message.speed or 0) / 300)
+    local wing_lift = 10 + speed_ratio * 10
+    local facing_left = (message.facing_x or 1) < 0
+    local head_offset = facing_left and -35 or 35
+
+    set_xy(self.shadow, bee_x, bee_y - 31)
+    set_xy(self.wing_left, bee_x - 27, bee_y + wing_lift)
+    set_xy(self.wing_right, bee_x + 27, bee_y + wing_lift)
+    set_xy(self.body, bee_x, bee_y)
+    set_xy(self.stripe_left, bee_x - 13, bee_y)
+    set_xy(self.stripe_right, bee_x + 8, bee_y)
+    set_xy(self.head, bee_x + head_offset, bee_y)
+
+    local touch_active = message.touch_active == true
+    gui.set_enabled(self.joy_base, touch_active)
+    gui.set_enabled(self.joy_knob, touch_active)
+    if touch_active then
+        set_xy(self.joy_base, message.touch_anchor_x or 0, message.touch_anchor_y or 0)
+        set_xy(self.joy_knob, message.touch_knob_x or 0, message.touch_knob_y or 0)
+    end
+end

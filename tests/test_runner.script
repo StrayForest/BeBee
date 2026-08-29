@@ -6,6 +6,9 @@ local suites = {
     require "tests.test_qa_runtime",
     require "tests.test_storage",
     require "tests.test_storage_preservation",
+    require "tests.test_movement",
+    require "tests.test_movement_input",
+    require "tests.test_camera_follow",
 }
 
 local function emit(event)
