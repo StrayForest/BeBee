@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "ticket": "POLICY-P1-MOVEMENT-CI",
+  "change_class": "process",
+  "problem": "P1 needs exact-head movement artifacts from the trusted HTML5 CI workflow, but changing that workflow inside the player-facing P1 PR crosses the governance trust boundary and correctly makes the feature PR unmergeable.",
+  "decision": {
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "backward_compatible_movement_ci",
+    "rationale": "Move the HTML5 movement-evidence workflow capability into a dedicated process PR. The workflow emits a not-applicable movement artifact on source revisions without the P1 producer, and automatically executes the full movement capture once that producer exists. This keeps the governance change independently mergeable without weakening exact-head evidence."
+  },
+  "research": {
+    "candidate_pool": [
+      {"name":"Current HTML5 workflow","source":"https://github.com/StrayForest/BeBee/blob/main/.github/workflows/defold-runtime-evidence.yml","relevance":"Trusted CI surface being extended."},
+      {"name":"P1 candidate workflow","source":"https://github.com/StrayForest/BeBee/blob/feat/p1-bee-movement/.github/workflows/defold-runtime-evidence.yml","relevance":"Demonstrates the movement evidence steps already proven on P1 runtime heads."},
+      {"name":"Trust-boundary policy","source":"https://github.com/StrayForest/BeBee/blob/main/scripts/check_trust_boundary_v2.py","relevance":"Requires workflow authority changes to remain process-classed."},
+      {"name":"Deterministic visual QA contract","source":"https://github.com/StrayForest/BeBee/blob/main/docs/18-deterministic-visual-qa.md","relevance":"Defines exact-source retained browser evidence expectations."},
+      {"name":"HTML5 CI research record","source":"https://github.com/StrayForest/BeBee/blob/main/docs/research/BB-005-html5-ci.md","relevance":"Defines separation of playable and diagnostic evidence and exact-source CI semantics."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {"name":"Current HTML5 workflow","source":"https://github.com/StrayForest/BeBee/blob/main/.github/workflows/defold-runtime-evidence.yml","platform_version_date":"main at 7cb3f93 / checked 2026-08-29","selection_reason":"Direct production workflow that must remain valid before and after P1.","observed_behavior":"Foundation visual and storage evidence always run; no movement artifact is currently produced.","inference":"Movement capture must be additive and backward-compatible with pre-P1 source revisions.","measurements":{"existing_artifact_classes":4}},
+      {"name":"P1 candidate workflow","source":"https://github.com/StrayForest/BeBee/blob/feat/p1-bee-movement/.github/workflows/defold-runtime-evidence.yml","platform_version_date":"P1 candidate checked 2026-08-29","selection_reason":"Its movement capture path has already produced successful exact-head browser evidence.","observed_behavior":"When P1 movement producer exists, the workflow captures empty/dense stills, desktop/mobile WebM and motion-report.json.","inference":"Preserve these proven capture steps but gate them on producer presence so the process PR can pass independently.","measurements":{"movement_viewports":3,"motion_clips":2}}
+    ],
+    "reference_exception": "",
+    "anti_pattern": {"source":"https://github.com/StrayForest/BeBee/pull/40","observation":"Bundling workflow-authority mutation into the player-facing feature made the trusted governance layer require process classification.","lesson":"Land reusable CI authority changes separately from the feature that consumes them."
+    }
+  },
+  "official_docs": [],
+  "official_docs_exception": "Repository-internal GitHub Actions composition change using already pinned actions and existing workflow conventions; no new external API or dependency is introduced.",
+  "alternatives": [
+    {"id":"backward_compatible_movement_ci","disposition":"selected","reason":"Keeps one canonical HTML5 workflow, works both before and after P1, and preserves exact-head movement artifacts when the producer exists."},
+    {"id":"keep_workflow_change_inside_p1","disposition":"rejected","reason":"Violates the repository trust-boundary classification and couples governance authority to a player-facing feature PR."},
+    {"id":"separate_second_movement_workflow","disposition":"rejected","reason":"Would duplicate browser setup/build/storage work and create two competing HTML5 evidence paths."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"Pre-P1 main-compatible revisions still complete HTML5 CI without a movement producer.","status":"pass","evidence":"Workflow writes a retained movement not-applicable artifact when capture_movement_qa.py is absent instead of invoking nonexistent P1 states."},
+    {"criterion":"P1 revisions automatically execute the full retained movement capture.","status":"pass","evidence":"Presence of tools/visual_qa/capture_movement_qa.py gates the already-proven movement_empty, movement_dense and motion capture steps."},
+    {"criterion":"Movement evidence remains exact-head bound and separately retained.","status":"pass","evidence":"Artifact name/path use github.event.pull_request.head.sha || github.sha exactly like existing visual/storage/playable evidence."},
+    {"criterion":"No workflow permissions or third-party actions are expanded.","status":"pass","evidence":"permissions remains contents: read and existing pinned checkout/setup-java/upload-artifact actions are unchanged."}
+  ],
+  "verification": {
+    "automated": ["Repository standards, Test/data, HTML5 CI and trusted PR evidence must all pass on the exact process PR head before merge.","After merge, P1 exact-head HTML5 CI must produce movement-qa-$PR_HEAD rather than not-applicable evidence."],
+    "manual": ["Compared the P1-proven movement steps with the pre-P1 main workflow and isolated only the additive movement evidence capability."],
+    "runtime_errors": "none expected; workflow is backward-compatible and does not change the game runtime",
+    "save_data_impact": "none"
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": ["The process split removes the governance-authority file from the P1 feature diff without reducing movement evidence.","The producer-presence guard prevents the process PR itself from depending on unmerged P1 code."],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {"evaluated_sha":"$PR_HEAD","evaluator_id":"p1-movement-ci-process-evaluator-2026-08-29","implementation_author_id":"p1-movement-ci-process-implementation","input_artifacts":["P1 trusted failure on d552c1a","P1 accepted HTML5 run 33240599811",".github/workflows/defold-runtime-evidence.yml"],"record_locator":"evidence/POLICY-P1-MOVEMENT-CI/manifest.json"}
+  },
+  "governance": {
+    "trust_boundary_change": "The canonical HTML5 CI workflow gains an optional movement-evidence producer path. It remains read-only and exact-source bound; no candidate gains authority over trusted evidence validation.",
+    "bypass_analysis": "Movement capture is skipped only when its producer does not exist on the exact source revision, and a retained not-applicable artifact records that fact. Once P1 producer exists, missing movement files are fatal. Required trusted/base checks, workflow permissions and evidence validators are unchanged.",
+    "rollback": "Revert this workflow and manifest. Existing foundation visual/storage/playable evidence returns to the pre-movement behavior; game runtime and saved data are unaffected."
+  },
+  "known_limitations": ["The movement artifact is intentionally not-applicable until a source revision contains the P1 movement QA producer."]
+}
