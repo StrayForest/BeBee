@@ -2,13 +2,15 @@ local catalog = require "data.catalog"
 local progression = require "systems.progression"
 local test = require "tests.testlib"
 
-local function default_save_is_valid_v3()
+local function default_save_is_valid_v4()
     local save = progression.new_save()
     local ok, error_code = progression.validate_save(save)
     test.assert_true(ok, error_code)
-    test.assert_equal(3, save.save_version)
+    test.assert_equal(4, save.save_version)
     test.assert_equal(1, save.player.upgrades.upgrade_flight)
     test.assert_equal(1, save.player.upgrades.upgrade_buzz)
+    test.assert_false(save.player.settings.reduced_motion)
+    test.assert_false(save.player.settings.audio_muted)
     test.assert_equal(0, #progression.owned_seed_ids(save))
     test.assert_equal(nil, save.world.player_plants[catalog.player_plots[1].id])
 end
@@ -56,7 +58,7 @@ local function flight_purchase_changes_speed_and_spends_once()
 
     local duplicate = progression.purchase_upgrade(save, "upgrade_flight")
     test.assert_false(duplicate.ok)
-    test.assert_equal("max_level", duplicate.code)
+    test.assert_equal("requires_patch:r01_m03_patch_01", duplicate.code)
     test.assert_equal(15, save.player.honey)
 end
 
@@ -223,9 +225,10 @@ local function planted_species_requires_owned_seed()
     test.assert_equal("player_plant_seed_not_unlocked", error_code)
 end
 
-local function production_balance_matches_p5_inputs()
-    local flight = progression.next_upgrade_definition(progression.new_save(), "upgrade_flight")
-    local buzz = progression.next_upgrade_definition(progression.new_save(), "upgrade_buzz")
+local function production_balance_preserves_p5_inputs_and_adds_p6_levels()
+    local save = progression.new_save()
+    local flight = progression.next_upgrade_definition(save, "upgrade_flight")
+    local buzz = progression.next_upgrade_definition(save, "upgrade_buzz")
     test.assert_equal(30, flight.cost)
     test.assert_equal(330, flight.max_speed)
     test.assert_equal(35, buzz.cost)
@@ -235,6 +238,61 @@ local function production_balance_matches_p5_inputs()
     test.assert_equal(22, catalog.seeds[3].cost)
     test.assert_equal(70, catalog.patches[3].honey_reward)
     test.assert_equal(2, catalog.patches[3].requires_buzz_level)
+
+    save.player.upgrades.upgrade_flight = 2
+    save.player.upgrades.upgrade_buzz = 2
+    local flight3 = progression.next_upgrade_definition(save, "upgrade_flight")
+    local buzz3 = progression.next_upgrade_definition(save, "upgrade_buzz")
+    test.assert_equal(56, flight3.cost)
+    test.assert_equal(360, flight3.max_speed)
+    test.assert_equal(68, buzz3.cost)
+    test.assert_equal(1.65, buzz3.work_multiplier)
+    test.assert_equal(3, catalog.patches[8].requires_buzz_level)
+end
+
+local function clean_save_can_reach_lily_without_replay_while_buying_every_p6_sink()
+    local save = progression.new_save()
+    local plot = catalog.player_plots[1]
+
+    test.assert_true(progression.complete_patch(save, catalog.patches[1]).ok)
+    test.assert_true(progression.interact_player_plot(save, plot.id).ok) -- Daisy 15
+    test.assert_true(progression.purchase_upgrade(save, "upgrade_flight").ok) -- Flight 2 30
+    test.assert_equal(0, save.player.honey)
+
+    test.assert_true(progression.complete_patch(save, catalog.patches[2]).ok)
+    test.assert_true(progression.interact_player_plot(save, plot.id).ok) -- Clover 18
+    test.assert_true(progression.purchase_upgrade(save, "upgrade_buzz").ok) -- Buzz 2 35
+    test.assert_equal(2, save.player.honey)
+
+    test.assert_true(progression.complete_patch(save, catalog.patches[3]).ok)
+    test.assert_true(progression.interact_player_plot(save, plot.id).ok) -- Lavender 22
+    test.assert_equal(50, save.player.honey)
+    test.assert_true(progression.complete_patch(save, catalog.patches[4]).ok)
+    test.assert_true(progression.complete_patch(save, catalog.patches[5]).ok)
+    test.assert_true(progression.purchase_upgrade(save, "upgrade_flight").ok) -- Flight 3 56
+    test.assert_equal(119, save.player.honey)
+    test.assert_true(progression.complete_patch(save, catalog.patches[6]).ok)
+    test.assert_true(progression.purchase_upgrade(save, "upgrade_buzz").ok) -- Buzz 3 68
+    test.assert_equal(131, save.player.honey)
+    test.assert_true(progression.complete_patch(save, catalog.patches[7]).ok)
+    test.assert_true(progression.is_patch_eligible(save, catalog.patches[8]))
+    test.assert_true(progression.complete_patch(save, catalog.patches[8]).ok)
+    test.assert_equal(346, save.player.honey)
+    test.assert_equal(3, save.player.upgrades.upgrade_flight)
+    test.assert_equal(3, save.player.upgrades.upgrade_buzz)
+end
+
+local function settings_are_explicit_boolean_state()
+    local save = progression.new_save()
+    local reduced = progression.toggle_setting(save, "reduced_motion")
+    test.assert_true(reduced.ok)
+    test.assert_true(reduced.changed)
+    test.assert_true(progression.get_setting(save, "reduced_motion"))
+    local audio = progression.set_setting(save, "audio_muted", true)
+    test.assert_true(audio.ok)
+    test.assert_true(progression.get_setting(save, "audio_muted"))
+    local invalid = progression.set_setting(save, "unknown", true)
+    test.assert_false(invalid.ok)
 end
 
 local function invalid_negative_honey_is_rejected()
@@ -256,7 +314,7 @@ end
 return {
     name = "progression",
     cases = {
-        { name = "default_save_is_valid_v3", run = default_save_is_valid_v3 },
+        { name = "default_save_is_valid_v4", run = default_save_is_valid_v4 },
         { name = "completion_rewards_once_and_unlocks_dependency", run = completion_rewards_once_and_unlocks_dependency },
         { name = "first_completion_opens_both_upgrade_choices", run = first_completion_opens_both_upgrade_choices },
         { name = "flight_purchase_changes_speed_and_spends_once", run = flight_purchase_changes_speed_and_spends_once },
@@ -271,7 +329,9 @@ return {
         { name = "insufficient_honey_never_unlocks_or_plants_seed", run = insufficient_honey_never_unlocks_or_plants_seed },
         { name = "invalid_upgrade_level_is_rejected", run = invalid_upgrade_level_is_rejected },
         { name = "planted_species_requires_owned_seed", run = planted_species_requires_owned_seed },
-        { name = "production_balance_matches_p5_inputs", run = production_balance_matches_p5_inputs },
+        { name = "production_balance_preserves_p5_inputs_and_adds_p6_levels", run = production_balance_preserves_p5_inputs_and_adds_p6_levels },
+        { name = "clean_save_can_reach_lily_without_replay_while_buying_every_p6_sink", run = clean_save_can_reach_lily_without_replay_while_buying_every_p6_sink },
+        { name = "settings_are_explicit_boolean_state", run = settings_are_explicit_boolean_state },
         { name = "invalid_negative_honey_is_rejected", run = invalid_negative_honey_is_rejected },
         { name = "invalid_completion_value_is_rejected", run = invalid_completion_value_is_rejected },
     },
