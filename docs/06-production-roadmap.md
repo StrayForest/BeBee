@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation and P1 Bee Movement are complete; the current production handoff is P2 — Pollination Core Loop.**
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement and P2 Pollination Core Loop are complete; the current production handoff is P3 — Progression.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -88,7 +88,7 @@ Delivered:
 
 - root `game.project` with a minimal long-lived `app/` bootstrap collection/controller;
 - explicit development/release settings;
-- reproducible editor-independent HTML5 bundler;
+- reproducible editor-independent HTML5 path;
 - Defold `1.13.1`, Bob SHA-256, OpenJDK `25` and `wasm-web` pinned in a machine-readable toolchain contract;
 - exact-head development + release HTML5 build proof;
 - exact-head Chromium smoke capture and retained artifact.
@@ -132,8 +132,8 @@ The first fully successful behavioral runtime proof was GitHub Actions run `3320
 Delivered:
 
 - dependency-free deterministic Lua test runner with aggregate case reporting;
-- dedicated Defold headless bootstrap selected only through `tests/test.settings`;
-- canonical `data/catalog.lua` entry point and deterministic stable-ID/reference validator;
+- dedicated Defold headless test bootstrap selected only through `tests/test.settings`;
+- canonical content catalog plus stable-ID/reference validation;
 - eleven initial deterministic cases covering merged input semantics plus positive/adversarial data validation;
 - editor-independent `bash scripts/test.sh` command using the repository-pinned Defold/Bob/Java toolchain;
 - timeout, complete log retention, one required structured `suite_end` event and non-zero failure propagation;
@@ -256,57 +256,93 @@ Accepted runtime evidence head before closeout-only source-of-truth changes: `2e
 
 # P2 — Pollination Core Loop
 
+**Status: COMPLETE — BB-020 through BB-025 complete; exit criteria PASS.**
+
 ## Goal
 
 Implement the **P-1 validated pollination interaction**, not the old auto-pollination assumption by default.
 
-### BB-020 — Flower definition model
+### BB-020 — Flower definition model — COMPLETE
 
 - stable IDs;
 - requirement/reward data;
 - validation.
 
-### BB-021 — FlowerPatch state model
+### BB-021 — FlowerPatch state model — COMPLETE
 
-Minimum domain states:
+Production domain states:
 
 ```text
 LOCKED / AVAILABLE / ACTIVE / COMPLETED
 ```
 
-Presentation substates may exist without contaminating persistent progression.
+Presentation substates remain separate from persistent progression.
 
-### BB-022 — Validated pollination interaction
+### BB-022 — Validated pollination interaction — COMPLETE
 
-Implement movement-through/sweep with forgiving bounds and clear start/stop feedback. Exact work target and incidental fly-through behavior are tuned here from the validated P-1 interaction pattern.
+Movement-through/sweep uses forgiving authored bounds and actual travelled distance. The work target is above one complete forgiving-zone diameter so a center fly-through gives substantial progress but cannot complete an untouched patch.
 
-### BB-023 — Bloom feedback stack
+### BB-023 — Bloom feedback stack — COMPLETE for P2 scope
 
 - visible progress;
 - staged flower opening;
 - pollen/VFX;
-- audio hook;
+- audio semantic hook;
 - completion reaction;
 - reward attribution.
 
-### BB-024 — Honey transaction
+Final illustration/audio polish remains later scope.
+
+### BB-024 — Honey transaction — COMPLETE
 
 - one currency;
 - non-negative invariant;
 - single-reward completion;
-- HUD feedback.
+- HUD/reward feedback.
 
-### BB-025 — Save v1
+### BB-025 — Save v1 — COMPLETE
 
-Persist minimal progression through the storage abstraction.
+Minimal campaign patch completion and Honey persist through the existing A/B storage abstraction. Partial in-progress patch work intentionally remains session-local.
 
 ## Exit criteria
 
-A player can fly, understand how to pollinate without explanation, complete a patch, receive Honey, reload safely and see preserved state.
+- player can fly and pollinate with movement only — PASS on keyboard and floating touch;
+- stationary wait advances zero work — PASS, `0.0`;
+- one straight fly-through cannot finish the first patch — PASS, 82.33% desktop / 82.92% mobile;
+- return traversal completes and awards one Honey transaction — PASS, `+45`, transaction count `1`;
+- dependent patch unlocks — PASS, patch #2 becomes `AVAILABLE`;
+- reload preserves completion/Honey/unlock and replays no reward — PASS;
+- required P2 states/HUD render without browser errors — PASS, 10 canonical stills with zero console/page errors;
+- P1 movement/modal/reduced-motion and P0 storage regressions remain green — PASS;
+- independent evaluation has no open `ITERATE` — PASS after two blocking visual iterations.
+
+### P2 exit record
+
+Accepted runtime evidence head before closeout-only source-of-truth changes: `bc3f878254d800063822377d57e99e7e5d42efd7`.
+
+- Repository standards `33244624975` — PASS;
+- Test/data `33244624972` — PASS;
+- HTML5 CI `33244624996` — PASS;
+- movement/P2 artifact `9712446750` (`movement-qa-bc3f8782…`), digest `sha256:585a74cc55eaac926034c3f16be3eacb0dee61654b67fb1a5aa961821d84fca7`;
+- desktop straight fly-through `337.56 / 410 = 82.33%`, no completion;
+- mobile straight fly-through `339.99 / 410 = 82.92%`, no completion;
+- stationary work delta `0.0`;
+- completion event `1`, reward transaction `1`, audio semantic hook `1`, Honey `+45`;
+- patch #2 unlocks to `AVAILABLE`;
+- reload: patch #1 `COMPLETED`, Honey `45`, patch #2 `AVAILABLE`, reward transactions `0`;
+- representative desktop movement `60.98 fps`;
+- modal displacement `0.0`, reduced-motion camera lag X/Y `0.0 / 0.0`, P2 console/page errors `0 / 0`;
+- first functional green-CI artifact was rejected because the bee obscured the active flower cluster;
+- second green-CI artifact was rejected because mobile `LOCKED` overlapped the Honey HUD;
+- final retained desktop/Poki-small/mobile active stills resolve both blocking visual findings;
+- separate evaluation verdict = PASS;
+- complete evidence = `evidence/P2-POLLINATION-CORE-LOOP/manifest.json` and `evidence/P2-POLLINATION-CORE-LOOP/evaluation.md`.
 
 ### Autonomous milestone gate
 
-Before P3 complexity begins, P2 requires the actual build, motion/rendered evidence, objective measurements, structured evidence, reference scorecard, passing acceptance/test results and a separate evaluation verdict. `ITERATE` blocks progression. Human review is optional and cannot block the phase.
+P2 has the actual build, motion/rendered evidence, objective measurements, structured evidence, reference comparison, passing acceptance/test results and a separate PASS evaluation. The final closeout PR head must still repeat Repository standards, Test/data, HTML5 CI and trusted `validate-pr-evidence`, with a retained non-N/A `movement-qa-$PR_HEAD`, before merge.
+
+**P2 exit: PASS. Production advances to P3 — Progression.**
 
 ---
 

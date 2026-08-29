@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "ticket": "P2-POLLINATION-CORE-LOOP",
+  "change_class": "economy",
+  "problem": "Turn the validated movement-through pollination verb into a complete production loop where actual travel inside a patch advances readable progress, standing still adds no work, one incidental straight pass cannot complete the first patch, completion awards Honey exactly once, unlocks dependent content and survives reload on desktop and touch.",
+  "decision": {
+    "ids": ["D-006", "D-008", "T-004", "T-006", "V-001"],
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "EXPERIMENT_RESULT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "movement_sweep_target_above_effective_diameter",
+    "rationale": "Retain D-006 movement ownership and productionize it with work targets above each forgiving-zone diameter. Exact-head browser evidence shows zero stationary work, ~82-83% progress from one straight first-patch fly-through, completion on a return sweep, one Honey transaction/audio hook, durable unlock/reload, two-cluster HUD density and readable redundant locked-state text after two visual iterations."
+  },
+  "research": {
+    "candidate_pool": [
+      {"product_id":"cow-bay","name":"Cow Bay","source":"https://poki.com/en/g/cow-bay","relevance":"Browser/mobile gathering loop with explicit object interaction; useful contrast for action count."},
+      {"product_id":"dreamdale","name":"Dreamdale","source":"https://dreamdale.fandom.com/wiki/Game_Mechanics","relevance":"Proximity/walk-over harvesting reference that exposes passive collection risk."},
+      {"product_id":"my-little-universe","name":"My Little Universe","source":"https://news.xbox.com/en-us/2025/04/07/my-little-universe-survival-guide/","relevance":"Shipped automatic/manual resource-interaction contrast."},
+      {"product_id":"forager","name":"Forager","source":"https://forager.fandom.com/wiki/How_to_play_guide_for_Forager","relevance":"Movement plus repeated explicit resource-hit input; materially higher action cost."},
+      {"product_id":"cow-castle","name":"Cow Castle","source":"https://poki.com/en/g/cow-castle","relevance":"Movement-centric browser/mobile resource loop in the same low-friction portal space."},
+      {"product_id":"olly-the-paw","name":"Olly the Paw","source":"https://poki.com/en/g/olly-the-paw","relevance":"Low-friction keyboard/click movement reference for portal control expectations."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {"product_id":"cow-bay","name":"Cow Bay object interaction","source":"https://poki.com/en/g/cow-bay","platform_version_date":"web / checked 2026-08-29","selection_reason":"A shipped browser/mobile gathering loop makes resource intent explicit through object actions, providing a direct action-count contrast.","observed_behavior":"Poki documents tapping/clicking objects to use or harvest them.","inference":"BeBee can preserve lower input cost only if movement-owned activation and completion feedback remain visually unambiguous.","measurements":{"additional_high_frequency_action_channels":1,"stationary_progress_allowed_by_reference":"not used as BeBee target"}},
+      {"product_id":"dreamdale","name":"Dreamdale proximity harvesting","source":"https://dreamdale.fandom.com/wiki/Game_Mechanics","platform_version_date":"mechanics reference / checked 2026-08-29","selection_reason":"A materially different low-input harvesting model highlights the risk that proximity alone rewards waiting rather than traversal.","observed_behavior":"The mechanics reference describes resources that can be harvested while standing near them or walking over them without repeated tapping.","inference":"BeBee should preserve low input cost but require measured movement distance, with stationary work explicitly tested at zero.","measurements":{"additional_high_frequency_action_channels":0,"bebee_stationary_target_work":0}}
+    ],
+    "reference_exception": "",
+    "anti_pattern": {"source":"https://forager.fandom.com/wiki/How_to_play_guide_for_Forager","observation":"Forager combines movement with repeated explicit hit/tool actions for resource collection.","lesson":"Do not add a permanent repeated pollination action to BeBee unless later comprehension evidence shows movement ownership is insufficient."}
+  },
+  "official_docs": [
+    {"source":"https://defold.com/manuals/gui-script/","date_checked":"2026-08-29","verified_constraint":"Runtime GUI nodes can be created and mutated from GUI scripts; P2 keeps flower/HUD rendering presentation-only and domain ownership outside GUI."},
+    {"source":"https://defold.com/ref/stable/gui-lua/","date_checked":"2026-08-29","verified_constraint":"P2 uses supported GUI node size/color/enabled/text mutation APIs and maps a font before selecting it for runtime text."},
+    {"source":"https://defold.com/ref/stable/sys/","date_checked":"2026-08-29","verified_constraint":"Persistent writes belong behind the existing storage abstraction; P2 does not call sys.save directly from FlowerPatch/economy gameplay and retains the existing size/error lifecycle protections."}
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {"id":"proximity_timer","disposition":"rejected","reason":"Allows stationary progress and makes stopping potentially optimal, contradicting direct BB-P003/P2 evidence."},
+    {"id":"movement_sweep_target_at_or_below_effective_diameter","disposition":"rejected","reason":"A single ideal straight pass could finish an untouched patch, making completion too incidental."},
+    {"id":"movement_sweep_target_above_effective_diameter","disposition":"selected","reason":"Keeps progress owned by actual movement, gives immediate partial progress, prevents a single straight center pass from completion and needs no second pollination control."},
+    {"id":"persist_partial_work_every_frame","disposition":"rejected","reason":"P2 requires durable completion/Honey; saving high-frequency partial work would add write/lifecycle complexity without a milestone need."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"Production flower/patch data validates and adversarial IDs/references/numeric fields are rejected.","status":"pass","evidence":"Test/data 33244624972 PASS on accepted runtime head bc3f878254d800063822377d57e99e7e5d42efd7."},
+    {"criterion":"LOCKED / AVAILABLE / ACTIVE / COMPLETED transitions are deterministic and completion emits once.","status":"pass","evidence":"Headless tests PASS; browser completionCount=1 and completed patch becomes terminal."},
+    {"criterion":"Standing still inside/near a patch adds zero pollination work.","status":"pass","evidence":"Accepted desktop browser proof stationary_work_delta=0.0."},
+    {"criterion":"One full straight first-patch fly-through does not complete the patch.","status":"pass","evidence":"Desktop 337.56/410 = 82.33%; mobile 339.99/410 = 82.92%; both remain ACTIVE."},
+    {"criterion":"Keyboard and floating-touch movement can complete pollination without a separate pollination button.","status":"pass","evidence":"Accepted desktop/mobile movement videos complete the same patch; extraPollinationInput=false."},
+    {"criterion":"First completion awards exactly 45 Honey once, unlocks patch #2 and emits one completion audio hook.","status":"pass","evidence":"Desktop/mobile completed states: Honey=45, rewardTransactions=1, completionCount=1, audioHookCount=1, patch2=AVAILABLE."},
+    {"criterion":"Reload preserves completion, Honey and dependent unlock without replaying reward.","status":"pass","evidence":"Desktop reload: patch1=COMPLETED, Honey=45, patch2=AVAILABLE, rewardTransactions=0, completionCount=0, audioHookCount=0."},
+    {"criterion":"Canonical P2 states render without browser errors at required desktop/Poki/mobile viewports.","status":"pass","evidence":"10 canonical stills retained with console_error_count=0 and page_error_count=0."},
+    {"criterion":"Persistent HUD remains one objective plus Honey and locked-state meaning is readable without color dependence.","status":"pass","evidence":"Accepted artifact keeps two persistent HUD clusters; final bc3f8782 mobile/Poki/desktop active stills show LOCKED text clear of the Honey HUD after the overlap iteration."},
+    {"criterion":"P1 movement/modal/reduced-motion and P0 storage browser regressions remain green.","status":"pass","evidence":"HTML5 CI 33244624996 PASS; representative desktop movement 60.98 fps, modal displacement 0.0, reduced-motion camera lag 0.0/0.0, storage artifact retained."},
+    {"criterion":"Separate evidence-first evaluation has no open ITERATE finding.","status":"pass","evidence":"evidence/P2-POLLINATION-CORE-LOOP/evaluation.md verdict PASS after flower-readability and mobile-HUD overlap iterations."}
+  ],
+  "verification": {
+    "automated": [
+      "Accepted runtime head bc3f878254d800063822377d57e99e7e5d42efd7: Repository standards 33244624975 PASS.",
+      "Accepted runtime head bc3f878254d800063822377d57e99e7e5d42efd7: Test/data 33244624972 PASS.",
+      "Accepted runtime head bc3f878254d800063822377d57e99e7e5d42efd7: HTML5 CI 33244624996 PASS.",
+      "Accepted movement/P2 artifact 9712446750 (movement-qa-bc3f878254d800063822377d57e99e7e5d42efd7), digest sha256:585a74cc55eaac926034c3f16be3eacb0dee61654b67fb1a5aa961821d84fca7.",
+      "Final closeout head must repeat Repository standards, Test/data, HTML5 CI and trusted validate-pr-evidence before merge."
+    ],
+    "manual": [
+      "Inspected accepted pollination_active_50 desktop_reference, Poki-small and mobile-landscape stills after moving patch #2 to y=840; LOCKED text no longer overlaps Honey HUD.",
+      "Inspected accepted desktop/mobile pollination frame sequences and motion report before scoring: straight pass remains incomplete, stationary work is zero, return sweep completes and reward/reload semantics remain exact.",
+      "First full P2 artifact was rejected because the active bee obscured the flower cluster; second artifact was rejected because mobile LOCKED text fell under the Honey HUD; both were iterated before closeout."
+    ],
+    "runtime_errors": "none on accepted runtime evidence head; zero console/page errors in P2 canonical stills and desktop/mobile pollination exercises",
+    "save_data_impact": "P2 persists campaign patch completion and Honey through the existing versioned A/B local storage abstraction; accepted reload preserves completion/Honey/unlock and replays zero reward transactions. Partial in-progress patch work remains session-local by design."
+  },
+  "visual_evidence": {
+    "required": true,
+    "artifacts": [
+      "accepted runtime: run 33244624996 artifact 9712446750 movement-qa-bc3f878254d800063822377d57e99e7e5d42efd7",
+      "accepted runtime: run 33244624996 artifact 9712446559 visual-qa-bc3f878254d800063822377d57e99e7e5d42efd7",
+      "final exact-head: movement-qa-$PR_HEAD"
+    ],
+    "states": ["pollination_idle", "pollination_active_50", "pollination_complete", "hud_default", "locked", "reload"],
+    "viewports": ["1280x720", "640x360", "844x390"],
+    "motion_evidence": ["pollination_core/desktop_reference.webm", "pollination_core/mobile_landscape.webm", "pollination_core/desktop_reference_frames/", "pollination_core/mobile_landscape_frames/"],
+    "provenance": {"capture_commit_sha":"$PR_HEAD","capture_mode":"ci","artifact_locator":"HTML5 CI movement-qa-$PR_HEAD; accepted pre-closeout artifact 9712446750 from run 33244624996"}
+  },
+  "comparison": {
+    "measurements": {
+      "desktop_observed_fps": 60.98,
+      "desktop_straight_pass_work": 337.56,
+      "desktop_straight_pass_percent": 82.33,
+      "mobile_straight_pass_work": 339.99,
+      "mobile_straight_pass_percent": 82.92,
+      "work_target": 410,
+      "stationary_work_delta": 0.0,
+      "completion_count": 1,
+      "reward_transactions": 1,
+      "completion_audio_hooks": 1,
+      "first_patch_honey_reward": 45,
+      "reload_honey": 45,
+      "reload_reward_transactions": 0,
+      "persistent_hud_items": 2,
+      "extra_pollination_input": false,
+      "modal_displacement": 0.0,
+      "reduced_motion_camera_lag_x": 0.0,
+      "reduced_motion_camera_lag_y": 0.0,
+      "canonical_still_count": 10,
+      "browser_console_errors": 0,
+      "browser_page_errors": 0
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": [
+      "Blocking visual finding on the first functional artifact: the bee obscured most of the active flower cluster. Flower offsets/halo/progress placement were iterated before acceptance.",
+      "Blocking visual finding on the second artifact: mobile LOCKED text for patch #2 overlapped the Honey HUD and made the state too color-dependent. Patch #2 was moved to y=840; accepted desktop, Poki-small and mobile stills keep LOCKED readable outside the HUD.",
+      "No core-loop blocker remains: stationary work is zero; one straight pass reaches only ~82-83%; return traversal completes; Honey/completion/audio fire once; reload replays no reward.",
+      "Non-blocking scope limitation: current flower/bee/HUD rendering uses original repository-authored primitive development shapes and placeholder font; final illustration/audio/font polish belongs to later milestones."
+    ],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "p2-evidence-evaluator-pass-2026-08-29",
+      "implementation_author_id": "p2-implementation-agent",
+      "input_artifacts": ["accepted runtime run 33244624996 artifact 9712446750", "movement-qa-$PR_HEAD", "evidence/P2-POLLINATION-CORE-LOOP/evaluation.md"],
+      "record_locator": "evidence/P2-POLLINATION-CORE-LOOP/evaluation.md"
+    }
+  },
+  "governance": {
+    "trust_boundary_change": "The closeout updates README/roadmap/DECISIONS and evidence records only to reflect the evidence-backed P2 result. It does not change validator/workflow authority, branch rules, required checks or reviewer requirements.",
+    "bypass_analysis": "The diff includes economy/progression plus player-facing runtime files, so PR classification is economy with visual evidence retained; it is not downgraded to player-facing/process/trivial. The trusted validator continues to run from base policy.",
+    "rollback": "Revert the P2 runtime/data and P2 source-of-truth/evidence together if later evidence invalidates the baseline. Existing storage version remains readable; no destructive migration is introduced."
+  },
+  "known_limitations": [
+    "45/55 Honey amounts remain economy hypotheses for later P3/region pacing; P2 validates transaction/idempotency, not final balance.",
+    "Partial pollination work is intentionally session-local; only completion/Honey/dependent unlock are durable in P2.",
+    "P2 uses repository-authored primitive development presentation and an existing placeholder font; final species illustration, animation, licensed audio and typography are later milestones.",
+    "No Buzz difficulty gate is introduced; P3 owns Flight/Buzz upgrade effects and flower gating.",
+    "Evidence strength is MEDIUM because autonomous deterministic/browser evaluation is not a substitute for later external audience playtesting/telemetry."
+  ]
+}

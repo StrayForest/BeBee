@@ -1,6 +1,6 @@
 # P2 — Pollination Core Loop production research
 
-Status: **implementation candidate under exact-head runtime evaluation**.
+Status: **COMPLETE — exact-head runtime evidence and independent evaluation PASS.**
 
 ## Problem
 
@@ -86,18 +86,18 @@ Progress is actual travelled distance while inside `radius + edge_forgiveness`; 
 
 **Rejected for P2:** completion/Honey durability is the milestone requirement. Saving high-frequency partial work would add unnecessary write pressure and lifecycle complexity. Partial patch work remains session-local; completion is the durable checkpoint.
 
-## Authored P2 candidate values
+## Authored P2 baseline values
 
-These are **validated only if the exact-head browser evidence and separate evaluation pass**. They remain tunable, not LOCKED balance:
+The following interaction geometry/work values are **VALIDATED as the P2 production baseline but remain tunable, not LOCKED balance**:
 
 | Patch | Radius | Edge forgiveness | Effective diameter | Work target | Honey |
 |---|---:|---:|---:|---:|---:|
 | `r01_m01_patch_01` / Daisy | 145 | 24 | 338 | 410 | 45 |
 | `r01_m01_patch_02` / Clover | 160 | 28 | 376 | 480 | 55 |
 
-The invariant `work_target > 2 × (radius + edge_forgiveness)` is unit-tested for every authored P2 patch. Therefore even a perfect straight traversal through the full forgiving zone cannot complete the patch from zero work.
+The invariant `work_target > 2 × (radius + edge_forgiveness)` is unit-tested for every authored P2 patch. Therefore even a perfect straight traversal through the full forgiving zone cannot complete the patch from zero work. Exact-head browser evidence confirms the first-patch result in practice: 337.56/410 (82.33%) desktop and 339.99/410 (82.92%) mobile.
 
-The 45/55 Honey rewards reuse `tools/economy/first_region_candidate.json` M01/M02 values. That source already marks them as hypothesis values. P2 proves transaction semantics and reward attribution, **not** final economy balance.
+The 45/55 Honey rewards reuse `tools/economy/first_region_candidate.json` M01/M02 values. Those amounts remain economy hypotheses. P2 proves transaction semantics and reward attribution, **not** final economy balance.
 
 ## State model
 
@@ -168,21 +168,42 @@ Implementation consequence: P2 does not call `sys.save` from gameplay. It uses t
 
 ## Acceptance criteria for P2 closeout
 
-1. Data validator accepts the production flower/patch catalog and rejects bad IDs/references/numeric fields.
-2. `LOCKED / AVAILABLE / ACTIVE / COMPLETED` transitions are deterministic and completion emits once.
-3. Stationary time inside a patch adds zero work.
-4. A full straight center fly-through cannot complete an untouched authored patch.
-5. Keyboard and floating-touch movement can both complete the same interaction without a pollination button.
-6. First completion awards exactly 45 Honey once, unlocks the dependent patch and emits one completion audio hook.
-7. Reload preserves campaign completion, Honey and the dependent unlock without replaying the reward.
-8. Canonical `pollination_idle`, `pollination_active_50`, `pollination_complete` and `hud_default` states render without browser errors at their required P2 viewports.
-9. Persistent HUD stays at two clusters and required UI respects V-001 safe margins.
-10. P1 movement/modal/reduced-motion and P0 storage browser proofs remain green.
-11. Separate evidence-first visual/runtime evaluation returns `PASS` or an explicit justified `PASS WITH DEVIATION`, never `ITERATE`.
+1. Data validator accepts the production flower/patch catalog and rejects bad IDs/references/numeric fields — **PASS**.
+2. `LOCKED / AVAILABLE / ACTIVE / COMPLETED` transitions are deterministic and completion emits once — **PASS**.
+3. Stationary time inside a patch adds zero work — **PASS**, measured 0.0.
+4. A full straight center fly-through cannot complete an untouched authored patch — **PASS**, 82.33% desktop / 82.92% mobile for patch #1.
+5. Keyboard and floating-touch movement can both complete the same interaction without a pollination button — **PASS**.
+6. First completion awards exactly 45 Honey once, unlocks the dependent patch and emits one completion audio hook — **PASS**.
+7. Reload preserves campaign completion, Honey and the dependent unlock without replaying the reward — **PASS**.
+8. Canonical `pollination_idle`, `pollination_active_50`, `pollination_complete` and `hud_default` states render without browser errors at their required P2 viewports — **PASS**, 10 canonical stills.
+9. Persistent HUD stays at two clusters and required UI respects V-001 safe margins — **PASS** after the final mobile LOCKED/Honey overlap iteration.
+10. P1 movement/modal/reduced-motion and P0 storage browser proofs remain green — **PASS**.
+11. Separate evidence-first visual/runtime evaluation returns `PASS` or an explicit justified `PASS WITH DEVIATION`, never `ITERATE` — **PASS**.
+
+## Runtime closeout and iteration trace
+
+The milestone was not accepted on the first green CI result.
+
+- `2c33909c778df24d571f5f66f27ca77c1b2a8aa5`: Repository standards `33244091921`, Test/data `33244091939`, HTML5 CI `33244091918` all passed, but evaluation returned **ITERATE** because the active bee obscured most of the flower cluster.
+- `0cebaf28eba6b2298b4bb5453f3ad88fd0791273`: all three runtime checks passed again (`33244251008` / `33244251026` / `33244251031`), but mobile `LOCKED` for patch #2 overlapped the Honey HUD; evaluation remained **ITERATE**.
+- `bc3f878254d800063822377d57e99e7e5d42efd7`: patch #2 moved to `y=840`; Repository standards `33244624975`, Test/data `33244624972` and HTML5 CI `33244624996` passed. Retained movement/P2 artifact `9712446750` (digest `sha256:585a74cc55eaac926034c3f16be3eacb0dee61654b67fb1a5aa961821d84fca7`) shows the LOCKED label clear of the Honey HUD on desktop, Poki-small and 844×390 mobile landscape. Independent evaluation is **PASS**.
+
+Accepted runtime measurements on `bc3f8782…`:
+
+- desktop straight fly-through: `337.56 / 410 = 82.33%`, no completion;
+- mobile straight fly-through: `339.99 / 410 = 82.92%`, no completion;
+- stationary work delta: `0.0`;
+- return sweep completes;
+- first completion: Honey `+45`, completion event `1`, reward transaction `1`, audio semantic hook `1`, patch #2 `AVAILABLE`;
+- reload: patch #1 `COMPLETED`, Honey `45`, patch #2 `AVAILABLE`, reward transactions `0`;
+- representative desktop movement: `60.98 fps`;
+- modal displacement `0.0`, reduced-motion camera lag `0.0 / 0.0`, P2 console/page errors `0 / 0`.
+
+Full closeout evidence is `evidence/P2-POLLINATION-CORE-LOOP/manifest.json` plus `evaluation.md`. The final documentation/evidence-only PR head must reproduce the required exact-head checks and a non-N/A `movement-qa-$PR_HEAD` artifact before merge.
 
 ## Open limitations
 
-- exact Honey values remain economy hypotheses until later region pacing evidence;
+- exact Honey values remain economy hypotheses until later P3/region pacing evidence;
 - P2 uses original repository-authored primitive development presentation, not final species illustration/audio assets;
 - partial pollination work is not durable across reload; only campaign completion/Honey is durable in this milestone;
 - no Buzz difficulty gate is added here; P3 owns Flight/Buzz upgrades and later flower difficulty application;
