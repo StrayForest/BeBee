@@ -4,10 +4,14 @@ local meadow = require "gameplay.world.meadow"
 local DESIGN_W = 1280
 local DESIGN_H = 720
 local BEE_SCALE = 2.0
+local WORLD_W = 4560
+local WORLD_H = 1600
 local FIRST_MEADOW = catalog.meadows[1]
 
 local COLOR_GREEN = vmath.vector4(0.475, 0.788, 0.396, 1)
 local COLOR_DORMANT = vmath.vector4(0.588, 0.643, 0.478, 1)
+local COLOR_GOLDEN_DORMANT = vmath.vector4(0.68, 0.62, 0.36, 1)
+local COLOR_GOLDEN_FIELD = vmath.vector4(0.79, 0.76, 0.38, 1)
 local COLOR_DARK = vmath.vector4(0.286, 0.231, 0.196, 1)
 local COLOR_CREAM = vmath.vector4(1.0, 0.969, 0.91, 1)
 local COLOR_HONEY = vmath.vector4(0.965, 0.718, 0.235, 1)
@@ -19,6 +23,8 @@ local COLOR_CLOVER = vmath.vector4(0.82, 0.93, 0.72, 1)
 local COLOR_LAVENDER = vmath.vector4(0.73, 0.61, 0.88, 1)
 local COLOR_TULIP = vmath.vector4(0.96, 0.52, 0.49, 1)
 local COLOR_LILY = vmath.vector4(0.83, 0.94, 1.0, 1)
+local COLOR_SUNFLOWER = vmath.vector4(1.0, 0.79, 0.25, 1)
+local COLOR_POPPY = vmath.vector4(0.94, 0.31, 0.27, 1)
 local COLOR_POLLEN = vmath.vector4(0.965, 0.718, 0.235, 0.62)
 local COLOR_PATH = vmath.vector4(0.96, 0.86, 0.57, 0.34)
 local COLOR_WATER = vmath.vector4(0.36, 0.72, 0.86, 0.42)
@@ -77,6 +83,8 @@ local function flower_color(flower_id)
     if flower_id == "flower_lavender" then return COLOR_LAVENDER end
     if flower_id == "flower_tulip" then return COLOR_TULIP end
     if flower_id == "flower_lily" then return COLOR_LILY end
+    if flower_id == "flower_sunflower" then return COLOR_SUNFLOWER end
+    if flower_id == "flower_poppy" then return COLOR_POPPY end
     return COLOR_DAISY
 end
 
@@ -125,8 +133,9 @@ local function create_flower()
     }
 end
 
-local function create_patch(petal_color)
+local function create_patch(flower_id, petal_color)
     local patch = {
+        flower_id = flower_id,
         petal_color = petal_color,
         halo = box(0, 0, 300, 260, vmath.vector4(1,1,1,0.05)),
         progress_bg = box(0, 0, 184, 16, vmath.vector4(0.12,0.18,0.12,0.36)),
@@ -138,13 +147,59 @@ local function create_patch(petal_color)
     return patch
 end
 
-local function set_flower_visual(flower, wx, wy, camera_x, camera_y, bloom, locked, petal_color)
+local function set_flower_visual(flower, wx, wy, camera_x, camera_y, bloom, locked, petal_color, flower_id)
     local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
     local petal = locked and COLOR_LOCKED or petal_color
     local center = locked and COLOR_LOCKED or COLOR_HONEY
     local stem = locked and COLOR_LOCKED or vmath.vector4(0.243,0.510,0.278,0.92)
     local petal_size = 5 + 12 * bloom
-    local spread = 8 + 6 * bloom
+    local spread_x = 8 + 6 * bloom
+    local spread_y = spread_x
+    local side_w = petal_size
+    local side_h = petal_size * 1.3
+    local vertical_w = petal_size * 1.3
+    local vertical_h = petal_size
+    local center_size = 13
+
+    if flower_id == "flower_clover" then
+        spread_x = 6 + 4 * bloom
+        spread_y = spread_x
+        side_w, side_h = petal_size * 1.15, petal_size * 1.15
+        vertical_w, vertical_h = side_w, side_h
+        center = locked and COLOR_LOCKED or vmath.vector4(0.28,0.55,0.30,1)
+    elseif flower_id == "flower_lavender" then
+        spread_x = 5 + 3 * bloom
+        spread_y = 10 + 9 * bloom
+        side_w, side_h = petal_size * 0.45, petal_size * 1.55
+        vertical_w, vertical_h = petal_size * 0.55, petal_size * 1.45
+        center_size = 9
+    elseif flower_id == "flower_tulip" then
+        spread_x = 7 + 4 * bloom
+        spread_y = 7 + 4 * bloom
+        side_w, side_h = petal_size * 1.05, petal_size * 1.45
+        vertical_w, vertical_h = petal_size * 1.35, petal_size * 0.95
+        center_size = 10
+    elseif flower_id == "flower_lily" then
+        spread_x = 10 + 7 * bloom
+        spread_y = spread_x
+        side_w, side_h = petal_size * 0.55, petal_size * 1.75
+        vertical_w, vertical_h = petal_size * 1.75, petal_size * 0.55
+        center_size = 10
+    elseif flower_id == "flower_sunflower" then
+        spread_x = 12 + 8 * bloom
+        spread_y = spread_x
+        side_w, side_h = petal_size * 0.52, petal_size * 1.65
+        vertical_w, vertical_h = petal_size * 1.65, petal_size * 0.52
+        center_size = 16 + 5 * bloom
+        center = locked and COLOR_LOCKED or COLOR_DARK
+    elseif flower_id == "flower_poppy" then
+        spread_x = 8 + 5 * bloom
+        spread_y = spread_x
+        side_w, side_h = petal_size * 1.25, petal_size * 1.25
+        vertical_w, vertical_h = side_w, side_h
+        center_size = 12 + 2 * bloom
+        center = locked and COLOR_LOCKED or COLOR_DARK
+    end
 
     gui.set_color(flower.stem, stem)
     gui.set_color(flower.center, center)
@@ -155,15 +210,20 @@ local function set_flower_visual(flower, wx, wy, camera_x, camera_y, bloom, lock
 
     set_xy(flower.stem, sx, sy - 18)
     set_xy(flower.center, sx, sy)
-    set_xy(flower.petal_left, sx - spread, sy)
-    set_xy(flower.petal_right, sx + spread, sy)
-    set_xy(flower.petal_top, sx, sy + spread)
-    set_xy(flower.petal_bottom, sx, sy - spread)
+    set_xy(flower.petal_left, sx - spread_x, sy)
+    set_xy(flower.petal_right, sx + spread_x, sy)
+    set_xy(flower.petal_top, sx, sy + spread_y)
+    set_xy(flower.petal_bottom, sx, sy - spread_y)
 
-    set_size(flower.petal_left, petal_size, petal_size * 1.3)
-    set_size(flower.petal_right, petal_size, petal_size * 1.3)
-    set_size(flower.petal_top, petal_size * 1.3, petal_size)
-    set_size(flower.petal_bottom, petal_size * 1.3, petal_size)
+    set_size(flower.center, center_size, center_size)
+    set_size(flower.petal_left, side_w, side_h)
+    set_size(flower.petal_right, side_w, side_h)
+    set_size(flower.petal_top, vertical_w, vertical_h)
+    if flower_id == "flower_tulip" then
+        set_size(flower.petal_bottom, petal_size * 0.55, petal_size * 0.55)
+    else
+        set_size(flower.petal_bottom, vertical_w, vertical_h)
+    end
 end
 
 local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, visible)
@@ -196,7 +256,7 @@ local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, 
     for index, offset in ipairs(FLOWER_OFFSETS) do
         set_flower_visual(
             patch.flowers[index], wx + offset[1], wy + offset[2], camera_x, camera_y,
-            bloom, locked, patch.petal_color
+            bloom, locked, patch.petal_color, patch.flower_id
         )
     end
 
@@ -221,14 +281,15 @@ local function create_meadow_marker(definition, index)
     return marker
 end
 
-local function meadow_completed(message, index)
-    if index == 1 then
-        return message.patch1_state == "COMPLETED"
-            and message.patch2_state == "COMPLETED"
-            and message.patch3_state == "COMPLETED"
+local function meadow_completed(message, meadow_id)
+    local found = false
+    for patch_index, definition in ipairs(catalog.patches) do
+        if definition.meadow_id == meadow_id then
+            found = true
+            if message["patch" .. tostring(patch_index) .. "_state"] ~= "COMPLETED" then return false end
+        end
     end
-    local patch_index = index + 2
-    return message["patch" .. tostring(patch_index) .. "_state"] == "COMPLETED"
+    return found
 end
 
 local function render_meadow_marker(marker, index, restored, camera_x, camera_y)
@@ -240,6 +301,9 @@ local function render_meadow_marker(marker, index, restored, camera_x, camera_y)
     if index == 4 then zone_color = restored and vmath.vector4(0.32,0.71,0.58,0.18) or vmath.vector4(0.36,0.58,0.62,0.14) end
     if index == 5 then zone_color = restored and vmath.vector4(0.82,0.58,0.38,0.18) or vmath.vector4(0.56,0.46,0.34,0.14) end
     if index == 6 then zone_color = restored and vmath.vector4(0.59,0.73,0.82,0.20) or vmath.vector4(0.48,0.45,0.54,0.14) end
+    if definition.region_id == "region_02" then
+        zone_color = restored and vmath.vector4(0.91,0.72,0.24,0.22) or vmath.vector4(0.58,0.49,0.27,0.18)
+    end
     gui.set_color(marker.zone, zone_color)
     gui.set_color(marker.ring, restored and vmath.vector4(COLOR_HONEY.x,COLOR_HONEY.y,COLOR_HONEY.z,0.56) or vmath.vector4(1,1,1,0.12))
     set_xy(marker.zone, sx, sy)
@@ -313,18 +377,26 @@ function init(self)
         {1580,250},{1770,610},{1970,330},{2180,740},{280,1120},{470,1320},{760,1080},{980,1390},
         {1300,1160},{1510,1340},{1840,1080},{2140,1280},{410,760},{620,900},{890,650},{1110,980},
         {1450,760},{1690,930},{1920,820},{2240,1020},{330,520},{560,1450},{1170,250},{2220,460},
+        {2520,380},{2670,720},{2860,1080},{3010,1390},{3190,520},{3400,1240},{3550,710},{3720,1430},
+        {3890,860},{4070,330},{4200,1030},{4380,670},{2580,1460},{3140,260},{3650,1110},{4310,1390},
     }
     for index, point in ipairs(points) do
+        local golden = point[1] > 2400
         local dark = index % 3 == 0
-        local node = box(0, 0, dark and 18 or 13, dark and 28 or 20,
-            dark and vmath.vector4(0.243,0.510,0.278,0.72) or vmath.vector4(1.0,0.969,0.91,0.55))
-        self.decorations[index] = { node = node, x = point[1], y = point[2], dense_only = index > 12 }
+        local color
+        if golden then
+            color = dark and vmath.vector4(0.48,0.38,0.18,0.68) or vmath.vector4(1.0,0.88,0.48,0.62)
+        else
+            color = dark and vmath.vector4(0.243,0.510,0.278,0.72) or vmath.vector4(1.0,0.969,0.91,0.55)
+        end
+        local node = box(0, 0, dark and 18 or 13, dark and 28 or 20, color)
+        self.decorations[index] = { node = node, x = point[1], y = point[2], golden = golden }
     end
 
-    self.edge_left = box(0, 0, 18, 1600, vmath.vector4(0.243,0.510,0.278,0.75))
-    self.edge_right = box(0, 0, 18, 1600, vmath.vector4(0.243,0.510,0.278,0.75))
-    self.edge_bottom = box(0, 0, 2400, 18, vmath.vector4(0.243,0.510,0.278,0.75))
-    self.edge_top = box(0, 0, 2400, 18, vmath.vector4(0.243,0.510,0.278,0.75))
+    self.edge_left = box(0, 0, 18, WORLD_H, vmath.vector4(0.243,0.510,0.278,0.75))
+    self.edge_right = box(0, 0, 18, WORLD_H, vmath.vector4(0.56,0.46,0.18,0.75))
+    self.edge_bottom = box(0, 0, WORLD_W, 18, vmath.vector4(0.243,0.510,0.278,0.75))
+    self.edge_top = box(0, 0, WORLD_W, 18, vmath.vector4(0.56,0.46,0.18,0.75))
 
     self.path_nodes = create_path_nodes()
     self.meadow_markers = {}
@@ -336,9 +408,17 @@ function init(self)
     self.lily_arch_left = box(0, 0, 28, 190, vmath.vector4(0.90,0.82,0.48,0.80))
     self.lily_arch_right = box(0, 0, 28, 190, vmath.vector4(0.90,0.82,0.48,0.80))
     self.lily_arch_top = box(0, 0, 220, 28, vmath.vector4(0.90,0.82,0.48,0.80))
+    self.golden_gate_left = box(0, 0, 28, 190, vmath.vector4(0.93,0.69,0.22,0.90))
+    self.golden_gate_right = box(0, 0, 28, 190, vmath.vector4(0.93,0.69,0.22,0.90))
+    self.golden_gate_top = box(0, 0, 230, 26, vmath.vector4(0.93,0.69,0.22,0.90))
+    self.windmill_tower = box(0, 0, 36, 170, vmath.vector4(0.55,0.38,0.22,0.90))
+    self.windmill_blade_h = box(0, 0, 220, 16, vmath.vector4(1.0,0.93,0.69,0.88))
+    self.windmill_blade_v = box(0, 0, 16, 220, vmath.vector4(1.0,0.93,0.69,0.88))
 
     self.patches = {}
-    for index, definition in ipairs(catalog.patches) do self.patches[index] = create_patch(flower_color(definition.flower_id)) end
+    for index, definition in ipairs(catalog.patches) do
+        self.patches[index] = create_patch(definition.flower_id, flower_color(definition.flower_id))
+    end
 
     self.shadow = box(640, 340, 76 * BEE_SCALE, 22 * BEE_SCALE, vmath.vector4(0.12,0.18,0.12,0.20))
     self.wing_left = box(612, 375, 38 * BEE_SCALE, 34 * BEE_SCALE, vmath.vector4(1.0,0.969,0.91,0.70))
@@ -387,14 +467,21 @@ function on_message(self, message_id, message)
     local camera_y = message.camera_y or 800
     local dense = message.dense == true
     local pollination_visible = message.pollination_visible == true
+    local active_region_id = message.active_region_id or "region_01"
     local status = first_meadow_status(message, self.patch3_completed)
     local stage = stage_definition(status.stage_id)
     local detail_count
     local objective_text = message.objective_text or "RESTORE FIRST PATCH · 0/6"
 
     if pollination_visible then
-        detail_count = math.min(#self.decorations, (stage.detail_count or 8) + (message.region_restored_count or 0) * 2)
-        gui.set_color(self.background, mix_color(COLOR_DORMANT, COLOR_GREEN, math.max(stage.ground_mix or 0, (message.region_restored_count or 0) / 6 * 0.72)))
+        if active_region_id == "region_02" then
+            detail_count = #self.decorations
+            local progress = (message.region_restored_count or 0) / math.max(1, message.region_total or 4)
+            gui.set_color(self.background, mix_color(COLOR_GOLDEN_DORMANT, COLOR_GOLDEN_FIELD, 0.32 + progress * 0.68))
+        else
+            detail_count = math.min(#self.decorations, (stage.detail_count or 8) + (message.region_restored_count or 0) * 2)
+            gui.set_color(self.background, mix_color(COLOR_DORMANT, COLOR_GREEN, math.max(stage.ground_mix or 0, (message.region_restored_count or 0) / 6 * 0.72)))
+        end
     else
         detail_count = dense and #self.decorations or 12
         gui.set_color(self.background, COLOR_GREEN)
@@ -403,13 +490,15 @@ function on_message(self, message_id, message)
     for index, decoration in ipairs(self.decorations) do
         local x, y = world_to_screen(decoration.x, decoration.y, camera_x, camera_y)
         set_xy(decoration.node, x, y)
-        gui.set_enabled(decoration.node, index <= detail_count)
+        local enabled = index <= detail_count
+        if pollination_visible and active_region_id == "region_01" and decoration.golden then enabled = false end
+        gui.set_enabled(decoration.node, enabled)
     end
 
     if pollination_visible then
         render_paths(self, camera_x, camera_y)
         for index, marker in ipairs(self.meadow_markers) do
-            render_meadow_marker(marker, index, meadow_completed(message, index), camera_x, camera_y)
+            render_meadow_marker(marker, index, meadow_completed(message, marker.definition.id), camera_x, camera_y)
         end
     end
     for _, node in ipairs(self.path_nodes) do gui.set_enabled(node, pollination_visible) end
@@ -433,6 +522,21 @@ function on_message(self, message_id, message)
     gui.set_enabled(self.lily_arch_right, pollination_visible)
     gui.set_enabled(self.lily_arch_top, pollination_visible)
 
+    local gate_x, gate_y = world_to_screen(2720, 1260, camera_x, camera_y)
+    set_xy(self.golden_gate_left, gate_x - 105, gate_y)
+    set_xy(self.golden_gate_right, gate_x + 105, gate_y)
+    set_xy(self.golden_gate_top, gate_x, gate_y + 84)
+    gui.set_enabled(self.golden_gate_left, pollination_visible)
+    gui.set_enabled(self.golden_gate_right, pollination_visible)
+    gui.set_enabled(self.golden_gate_top, pollination_visible)
+    local wind_x, wind_y = world_to_screen(4040, 1190, camera_x, camera_y)
+    set_xy(self.windmill_tower, wind_x, wind_y)
+    set_xy(self.windmill_blade_h, wind_x, wind_y + 72)
+    set_xy(self.windmill_blade_v, wind_x, wind_y + 72)
+    gui.set_enabled(self.windmill_tower, pollination_visible)
+    gui.set_enabled(self.windmill_blade_h, pollination_visible)
+    gui.set_enabled(self.windmill_blade_v, pollination_visible)
+
     msg.post("/progression#view", "restoration_base", {
         contribution = status.contribution,
         stage_id = status.stage_id,
@@ -440,10 +544,10 @@ function on_message(self, message_id, message)
         hud_hidden = self.hud_hidden,
     })
 
-    local lx, ly = world_to_screen(0, 800, camera_x, camera_y)
-    local rx, ry = world_to_screen(2400, 800, camera_x, camera_y)
-    local bx, by = world_to_screen(1200, 0, camera_x, camera_y)
-    local tx, ty = world_to_screen(1200, 1600, camera_x, camera_y)
+    local lx, ly = world_to_screen(0, WORLD_H * 0.5, camera_x, camera_y)
+    local rx, ry = world_to_screen(WORLD_W, WORLD_H * 0.5, camera_x, camera_y)
+    local bx, by = world_to_screen(WORLD_W * 0.5, 0, camera_x, camera_y)
+    local tx, ty = world_to_screen(WORLD_W * 0.5, WORLD_H, camera_x, camera_y)
     set_xy(self.edge_left, lx, ly)
     set_xy(self.edge_right, rx, ry)
     set_xy(self.edge_bottom, bx, by)
@@ -473,7 +577,7 @@ function on_message(self, message_id, message)
     if hud_visible then
         gui.set_text(self.honey_text, "HONEY " .. tostring(math.floor(message.honey or 0)))
         if any_qualifying then
-            objective_text = string.format("POLLINATION IN PROGRESS · %d/%d", message.region_restored_count or 0, message.region_total or 6)
+            objective_text = string.format("POLLINATION IN PROGRESS · %d/%d", message.region_restored_count or 0, message.region_total or 0)
         end
         gui.set_text(self.objective, objective_text)
     end
