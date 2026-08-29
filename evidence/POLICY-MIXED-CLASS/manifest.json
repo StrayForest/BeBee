@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "ticket": "POLICY-MIXED-CLASS",
+  "change_class": "process",
+  "problem": "The trusted diff classifier rejects a PR that contains both player-facing files and high-risk technical files under every available class: player-facing falls through to the technical branch, while technical is rejected by the earlier player-facing branch.",
+  "decision": {
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "explicit_precedence_wrapper",
+    "rationale": "Preserve all existing trusted checks and make class precedence mutually exclusive: economy first, then player-facing, then pure high-risk technical. This matches the existing messages and prevents a valid mixed runtime PR from becoming unclassifiable."
+  },
+  "research": {
+    "candidate_pool": [
+      {"name":"Current diff classifier","source":"https://github.com/StrayForest/BeBee/blob/main/scripts/check_pr_evidence_policy.py","relevance":"Contains the contradictory fall-through classification logic."},
+      {"name":"Trusted workflow","source":"https://github.com/StrayForest/BeBee/blob/main/.github/workflows/pr-evidence-trusted.yml","relevance":"Shows policy is executed from the trusted base against candidate data."},
+      {"name":"Policy unit tests","source":"https://github.com/StrayForest/BeBee/blob/main/scripts/policy_tests/test_check_pr_evidence_policy.py","relevance":"Defines existing classification expectations and adversarial tests."},
+      {"name":"Trust boundary validator","source":"https://github.com/StrayForest/BeBee/blob/main/scripts/check_trust_boundary.py","relevance":"Requires governance changes to remain process-classed and evidenced."},
+      {"name":"Evidence governance documentation","source":"https://github.com/StrayForest/BeBee/blob/main/docs/15-agent-evidence-governance.md","relevance":"Defines why candidate code cannot weaken its own trusted validation."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {"name":"Current diff classifier","source":"https://github.com/StrayForest/BeBee/blob/main/scripts/check_pr_evidence_policy.py","platform_version_date":"main at 17ba154 / checked 2026-08-29","selection_reason":"Direct source of the contradictory classification behavior.","observed_behavior":"A valid player-facing class falls through to the high-risk technical check when both flags are true.","inference":"The precedence branches must be mutually exclusive after category selection.","measurements":{"mixed_classes_accepted":0}},
+      {"name":"Trusted workflow","source":"https://github.com/StrayForest/BeBee/blob/main/.github/workflows/pr-evidence-trusted.yml","platform_version_date":"main at 17ba154 / checked 2026-08-29","selection_reason":"Confirms the base policy is authoritative and must be fixed before P1 can pass.","observed_behavior":"Trusted-base scripts run against the exact candidate checkout under pull_request_target.","inference":"Fixing only the candidate P1 branch cannot legitimately resolve the blocker.","measurements":{"trusted_policy_sources":1}}
+    ],
+    "reference_exception": "",
+    "anti_pattern": {"source":"https://github.com/StrayForest/BeBee/blob/main/scripts/check_pr_evidence_policy.py","observation":"Independent non-exclusive checks can require mutually exclusive class labels for one diff.","lesson":"Resolve one required class by explicit precedence before validating the declaration."}
+  },
+  "official_docs": [],
+  "official_docs_exception": "Internal repository policy correction; no external platform/API behavior changes. The authoritative inputs are the trusted-base policy, workflow and regression tests in this repository.",
+  "alternatives": [
+    {"id":"explicit_precedence_wrapper","disposition":"selected","reason":"Smallest change: reuse every existing validator and replace only the contradictory class-selection function, with regression tests."},
+    {"id":"weaken_or_skip_trusted_gate","disposition":"rejected","reason":"Would remove the protection that caught the issue and violate the trust-boundary design."},
+    {"id":"split_p1_artificially_by_file_type","disposition":"rejected","reason":"Would restructure one coherent runtime feature solely to satisfy a classifier bug and would not fix future mixed PRs."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"Mixed player-facing plus high-risk technical diff accepts player-facing and rejects technical.","status":"pass","evidence":"New regression test test_player_facing_wins_over_high_risk_when_both_are_present."},
+    {"criterion":"Pure high-risk runtime diff still requires technical.","status":"pass","evidence":"New regression test test_pure_high_risk_runtime_remains_technical."},
+    {"criterion":"Economy retains highest precedence.","status":"pass","evidence":"New regression test test_economy_keeps_highest_precedence."},
+    {"criterion":"All existing evidence and trust-boundary checks remain in force.","status":"pass","evidence":"Wrapper imports the existing trusted policy module and overrides only validate_change_class; workflow still runs the same structural validator and trust-boundary overlay."}
+  ],
+  "verification": {
+    "automated": ["Trusted adversarial policy test suite including the three new mixed-class tests must pass on the exact PR head.","Repository standards must pass on the exact PR head.","Trusted PR evidence and trust-boundary checks must pass before merge."],
+    "manual": ["Reviewed the failing P1 runs for both class declarations and compared the exact diff against the classifier predicates."],
+    "runtime_errors": "none applicable; this is trusted CI policy logic and does not change game runtime",
+    "save_data_impact": "none"
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": ["The change does not downgrade evidence requirements; mixed P1 remains player-facing and therefore retains visual/reference/evaluation requirements.","Pure high-risk technical changes continue to require technical classification and a manifest."],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {"evaluated_sha":"$PR_HEAD","evaluator_id":"policy-mixed-class-evaluator-2026-08-29","implementation_author_id":"policy-mixed-class-implementation","input_artifacts":["trusted PR evidence logs for P1 runs 33241527742 and 33241591436","scripts/policy_tests/test_mixed_evidence_classification.py"],"record_locator":"evidence/POLICY-MIXED-CLASS/manifest.json"}
+  },
+  "governance": {
+    "trust_boundary_change": "Trusted diff classification is made mutually exclusive according to explicit precedence economy -> player-facing -> technical. No evidence requirement, required status check, workflow permission, reviewer rule or candidate-authority boundary is removed.",
+    "bypass_analysis": "A mixed gameplay plus high-risk runtime diff remains player-facing, so it still requires the full player-facing manifest, visual provenance and independent evaluation. A pure high-risk technical diff remains technical and still requires its manifest. The wrapper reuses all other existing checks unchanged.",
+    "rollback": "Revert the workflow invocation, wrapper and regression test together to restore the previous policy. P1 would become blocked again but no game/runtime state would be altered."
+  },
+  "known_limitations": ["The wrapper is intentionally narrow; a later cleanup may fold the corrected branching directly into check_pr_evidence_policy.py once the repository has a patch-safe migration path."]
+}
