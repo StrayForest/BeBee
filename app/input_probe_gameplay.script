@@ -21,9 +21,8 @@ function on_input(self, action_id, action)
     if not action_name then return false end
 
     if action_id == input.MODAL_TOGGLE and action.pressed then
-        print("BEBEE_INPUT gameplay modal_toggle pressed")
-        msg.post("/movement#controller", "movement_input_clear")
-        msg.post("/modal#controller", "open_modal", { mode = "probe" })
+        print("BEBEE_INPUT gameplay settings_toggle pressed")
+        msg.post("/movement#controller", "settings_open_request")
         return false
     end
 

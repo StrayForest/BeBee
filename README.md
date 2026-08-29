@@ -141,6 +141,8 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json`](evidence/P4-FIRST-MEADOW-RESTORATION/manifest.json) — P4 restoration closeout evidence and independent evaluation provenance
 - [`docs/research/P5-seed-ownership.md`](docs/research/P5-seed-ownership.md) — P5 Hybrid seed ownership production contract and runtime trace
 - [`evidence/P5-SEED-OWNERSHIP/manifest.json`](evidence/P5-SEED-OWNERSHIP/manifest.json) — P5 economy/runtime/visual closeout evidence and independent evaluation provenance
+- [`docs/research/P6-first-region-vertical-slice.md`](docs/research/P6-first-region-vertical-slice.md) — P6 six-Meadow region, platform, settings, analytics and performance contract
+- [`evidence/P6-FIRST-REGION-VERTICAL-SLICE/manifest.json`](evidence/P6-FIRST-REGION-VERTICAL-SLICE/manifest.json) — P6 full-region runtime/visual closeout evidence and independent evaluation provenance
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -157,21 +159,23 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 
 `D-005` is `VALIDATED`: seed ownership uses the Hybrid restoration topology and P5 now productionizes it. Authored native campaign patches keep their native identity/progression, while two dedicated `YOUR PLOT` spaces carry player-owned Daisy/Clover/Lavender species before full restoration. Ownership costs `15 / 18 / 22 Honey` once, owned replant is free, and save v3 keeps `player.seed_unlocks` / `world.player_plants` independent from native `world.campaign_completion`. Exact-head desktop/touch evidence proves real planting, replant and reload without mutating campaign truth.
 
-`D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks and Yield remains excluded. P3 productionizes the first level as Flight `300 → 330 u/s` for `30 Honey` and Buzz `1.00× → 1.35×` pollination work for `35 Honey`. Both choices are affordable from the first 45-Honey reward; runtime evidence proves the real movement/work effects, and Lavender becomes the first explicit `REQUIRES BUZZ 2` capability gate. Later levels and final pacing remain tunable rather than locked.
+`D-007` is `VALIDATED`: the vertical slice uses **Flight + Buzz** as its bee upgrade tracks and Yield remains excluded. P3 productionizes level 2 as Flight `300 → 330 u/s` for `30 Honey` and Buzz `1.00× → 1.35×` pollination work for `35 Honey`; P6 extends the tested first-region curve to Flight 3 `330 → 360 u/s` and Buzz 3 `1.35× → 1.65×`, with Lily as the explicit `REQUIRES BUZZ 3` climax gate. Exact later-region tuning remains open rather than locked by the vertical slice.
 
-`D-013` is `VALIDATED`: P1 uses one normalized direct-intent movement controller for keyboard and floating touch, with bounded acceleration/deceleration, authored bounds, bounded orthographic follow and a reduced-motion direct-follow path. The 300-unit/s value is now explicitly the Flight-level-1 baseline; P3 Flight 2 raises the computed maximum to 330 u/s without changing controller semantics. P4 retains that controller and proves the final restoration reveal is non-blocking: browser input moves the bee 86.644 design units during the 1.5-second accent.
+`D-013` is `VALIDATED`: P1 uses one normalized direct-intent movement controller for keyboard and floating touch, with bounded acceleration/deceleration, authored bounds, bounded orthographic follow and a reduced-motion direct-follow path. The 300-unit/s value is the Flight-level-1 baseline; P3 Flight 2 raises the computed maximum to 330 u/s and P6 Flight 3 to 360 u/s without changing controller semantics. P4 also proves the final restoration reveal is non-blocking: browser input moves the bee 86.644 design units during the 1.5-second accent.
 
 P4 productionizes the first visible restoration ladder without adding a new currency, restoration button or save field. `r01_m01` derives `DORMANT → WAKING → GROWING → RESTORED` from stable completed patch IDs. Accepted HUD-hidden evidence measures ground mix `0.00 → 0.68 → 1.00`, detail count `8 → 22 → 28`, ambient life `0 → 2 → 6`, midpoint/final reload safety and zero P4 browser errors. Evidence strength is MEDIUM because this is autonomous runtime/rendered proof, not an external novice playtest or final production-art evaluation.
 
-P5 adds player ownership without weakening that restoration contract. Its deterministic economy regression covers all `120/120` priority orders across Flight 2, Buzz 2 and the three first seed unlocks; no order requires replay/grind and all first sinks leave `50 Honey`. Accepted browser evidence shows Daisy `45→30`, Daisy+Clover retained at `67 Honey`, free Daisy replant `67→67`, native completion unchanged, save v3 reload intact and direct mobile-touch planting with zero P5 browser errors. Evidence strength remains MEDIUM because no external novice playtest is claimed.
+P5 adds player ownership without weakening that restoration contract. Its deterministic economy regression covers all `120/120` priority orders across Flight 2, Buzz 2 and the three first seed unlocks; no order requires replay/grind and all first sinks leave `50 Honey`. Accepted browser evidence shows Daisy `45→30`, Daisy+Clover retained at `67 Honey`, free Daisy replant `67→67`, native completion unchanged, save v3 reload intact and direct mobile-touch planting with zero P5 browser errors.
+
+P6 validates `D-011` as one continuous authored **six-Meadow Sunny Meadows** region rather than six collection-proxy screens. The exact-head clean-save proof restores 6/6 Meadows, reaches Flight/Buzz 3, exercises seed ownership, settings, analytics and save-v4 reload, keeps browser errors and external requests at zero, measures `59.92 fps` against the `≥50` budget and packages a `2,813,096`-byte release bundle against the 12 MiB budget. Desktop canvas coverage is exactly `1280×720`, with retained 844×390 mobile and 640×360 / 836×470 / 1031×580 Poki checks. The independent closeout verdict is **PASS WITH DEVIATION**: the region/system structure is validated, while final rounded bee/species-silhouette/typography illustration polish remains below the long-term art-direction target and is explicitly carried into P7/P8.
 
 Still open/tunable before downstream milestones lock production values:
 
-- later Honey reward/cost tables and minutes/actions between meaningful purchases;
-- later Flight/Buzz effect curves and Buzz-gate cadence beyond the first P3 level/gate;
-- later player-plot count/placement and seed catalog/pacing beyond the validated first-Meadow P5 slice;
-- external novice comprehension evidence where later milestone scope requires it;
-- final production illustration/animation/audio and later full-scene visual polish.
+- later-region Honey rewards/cost tables and pacing beyond the validated first-region no-replay path;
+- later Flight/Buzz effect curves and gate cadence beyond Buzz 3;
+- later player-plot count/placement and seed catalog/pacing beyond the validated first-region topology;
+- external novice comprehension/playtest evidence;
+- final production illustration/animation/typography and full-scene visual polish required to clear the P6 art-direction deviation before release certification.
 
 The objective-evidence hardening in `BB-P013`–`BB-P017` is in place. `BB-P006` validated Poki as the primary external target, `BB-P007` defined V-001, `BB-P008` defined the deterministic visual-QA runtime contract, and `BB-P009` defined the HTML5 A/B generation storage/recovery contract.
 
@@ -179,23 +183,9 @@ At P-1 closeout, repository enforcement was verified through ruleset `Protect ma
 
 ## Vertical-slice target
 
-The intended slice still aims to prove:
+P6 now proves the structural vertical-slice target: controllable movement, several flower difficulty tiers, one compact authored region, movement-through pollination, Honey economy, Flight/Buzz progression, seed ownership, visible restoration, save/reload, desktop + touch controls, local audio, accessibility settings, analytics abstraction and a production HTML5 build path. Exact stat/pacing values remain runtime-validated tunings rather than immutable values simply because they appeared in an early GDD.
 
-- controllable expressive bee;
-- several flower difficulty tiers;
-- one compact authored region;
-- satisfying movement-through pollination/bloom feedback;
-- Honey economy;
-- meaningful Flight/Buzz improvement;
-- seeds that let players influence the recovering meadow;
-- visible meadow/planet restoration;
-- save/reload;
-- desktop + touch controls;
-- sound/VFX/accessibility basics;
-- analytics abstraction;
-- production-quality HTML5 build.
-
-Exact stat/pacing values are validated through runtime milestones rather than treated as immutable because they appeared in an early GDD.
+The remaining explicitly documented deviation is final illustration/animation/typography polish; it does not invalidate the functional vertical-slice architecture but must be resolved before release-candidate visual certification.
 
 ## Non-goals for the vertical slice
 
@@ -249,4 +239,12 @@ P5 productionizes the validated Hybrid topology with two dedicated player-shaped
 
 Accepted runtime head before closeout-only source-of-truth changes is `8967ab565bc9ff9c7838344676587fbf0a6d2ae0`. It passed Repository standards (`33251552722`), Test/data (`33251552769`, `92/92`), Pages preview (`33251552723`) and HTML5 CI (`33251552740`). Retained movement/P5 artifact `9714546464`, digest `sha256:64a04641fbd44542217ded406f785115b5939c8cd593436ec094f1b452e5e4ce`, proves Daisy `45→30`, Clover ownership, free Daisy replant at Honey `67→67`, unchanged native completion, save v3 reload, direct 844×390 touch planting and zero P5 browser errors. P5 economy regression passes all `120/120` first-sink priority orders with final Honey `50`. CI also found and forced fixes for a real mobile coordinate double-conversion bug and a stale v2 BB-007 storage-probe fixture before acceptance. Complete evidence and independent PASS are in [`evidence/P5-SEED-OWNERSHIP/manifest.json`](evidence/P5-SEED-OWNERSHIP/manifest.json) and `evaluation.md`.
 
-**Next production task after P5 merge: `P6 — First Region Vertical Slice`.**
+**P6 — First Region Vertical Slice is COMPLETE for milestone closeout with independent verdict `PASS WITH DEVIATION`; all functional P6 exit gates pass.**
+
+P6 turns the retained P1–P5 systems into one continuous authored Sunny Meadows region with six Meadow beats, Tulip/Lily late-region species, Flight/Buzz 3, Lily's Buzz-3 capability gate, region-level progress, save v4 settings, local completion audio and a platform-neutral analytics adapter. No world-map menu or per-Meadow collection-proxy architecture is added.
+
+Accepted runtime evidence head before closeout-only source-of-truth changes is `1001783236aac0ca2052bf6b4498c600a5dbf6fb`. It passed Repository standards (`33269124642`), Test/data (`33269124670`, `102/102`), Pages preview (`33269124643`) and HTML5 CI (`33269124636`). Retained movement/P6 artifact `9719600537`, digest `sha256:77f0b0972eb7ba12bac3e292f429a6c1689820e9984b0d28bee5f2e527e3c9de`, proves a clean-save 6/6 region journey, Flight/Buzz 3, Lily `LOCKED requires_buzz 3 → AVAILABLE`, seed-system use, reduced motion + audio mute, deterministic analytics, completed-region reload, browser errors `0/0` and external requests `0`. Measured engine FPS is `59.92` against `≥50`; release bundle is `2,813,096` bytes against a 12 MiB budget; retained canvas proof is exactly `1280×720` plus mobile and three Poki viewports.
+
+The independent evaluator records **PASS WITH DEVIATION**, not plain PASS: the current original geometric runtime presentation is coherent/readable but still falls short of the long-term rounded bee, species-silhouette and final typography/illustration direction. That deviation is explicit P7/P8 work and may not be silently treated as release-candidate art. Complete evidence is in [`evidence/P6-FIRST-REGION-VERTICAL-SLICE/manifest.json`](evidence/P6-FIRST-REGION-VERTICAL-SLICE/manifest.json) and `evaluation.md`.
+
+**Next production task after P6 merge: `P7 — Production Expansion`.**
