@@ -61,7 +61,7 @@ end
 
 function M.new_save()
     return {
-        save_version = 3,
+        save_version = 4,
         player = {
             honey = 0,
             upgrades = {
@@ -69,6 +69,10 @@ function M.new_save()
                 upgrade_buzz = 1,
             },
             seed_unlocks = {},
+            settings = {
+                reduced_motion = false,
+                audio_muted = false,
+            },
         },
         world = {
             campaign_completion = {},
@@ -79,7 +83,7 @@ end
 
 function M.validate_save(payload)
     if type(payload) ~= "table" then return false, "payload_not_table" end
-    if payload.save_version ~= 3 then return false, "save_version_invalid" end
+    if payload.save_version ~= 4 then return false, "save_version_invalid" end
     if type(payload.player) ~= "table" then return false, "player_missing" end
     if not economy.is_valid_balance(payload.player.honey) then return false, "honey_invalid" end
     if type(payload.player.upgrades) ~= "table" then return false, "upgrades_missing" end
@@ -105,6 +109,15 @@ function M.validate_save(payload)
             return false, "seed_unlock_id_invalid"
         end
         if unlocked ~= true then return false, "seed_unlock_value_invalid" end
+    end
+
+    if type(payload.player.settings) ~= "table" then return false, "settings_missing" end
+    if type(payload.player.settings.reduced_motion) ~= "boolean" then return false, "reduced_motion_invalid" end
+    if type(payload.player.settings.audio_muted) ~= "boolean" then return false, "audio_muted_invalid" end
+    for setting_id in pairs(payload.player.settings) do
+        if setting_id ~= "reduced_motion" and setting_id ~= "audio_muted" then
+            return false, "setting_unknown:" .. tostring(setting_id)
+        end
     end
 
     if type(payload.world) ~= "table" then return false, "world_missing" end
@@ -432,6 +445,35 @@ function M.interact_player_plot(save, plot_id)
         cost = interaction.cost or 0,
         current_flower_id = interaction.flower_id,
     }
+end
+
+function M.get_setting(save, setting_id)
+    local settings = save and save.player and save.player.settings
+    if not settings then return nil end
+    if setting_id ~= "reduced_motion" and setting_id ~= "audio_muted" then return nil end
+    return settings[setting_id]
+end
+
+function M.set_setting(save, setting_id, value)
+    if setting_id ~= "reduced_motion" and setting_id ~= "audio_muted" then
+        return { ok = false, code = "setting_unknown" }
+    end
+    if type(value) ~= "boolean" then return { ok = false, code = "setting_value_invalid" } end
+    local previous = save.player.settings[setting_id]
+    save.player.settings[setting_id] = value
+    return {
+        ok = true,
+        code = previous == value and "setting_unchanged" or "setting_changed",
+        changed = previous ~= value,
+        setting_id = setting_id,
+        value = value,
+    }
+end
+
+function M.toggle_setting(save, setting_id)
+    local value = M.get_setting(save, setting_id)
+    if type(value) ~= "boolean" then return { ok = false, code = "setting_unknown" } end
+    return M.set_setting(save, setting_id, not value)
 end
 
 return M
