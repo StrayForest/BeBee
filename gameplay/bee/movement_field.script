@@ -129,6 +129,11 @@ function on_message(self, message_id, message)
         return
     end
 
+    if message_id == hash("movement_input_clear") then
+        input_model.clear(self.input)
+        return
+    end
+
     if message_id == hash("movement_key_input") then
         if message.pressed then
             input_model.set_key(self.input, message.action_name, true)

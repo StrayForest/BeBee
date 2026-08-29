@@ -59,6 +59,18 @@ function M.set_key(state, action_name, down)
     return false
 end
 
+function M.clear(state)
+    state.keys.up = false
+    state.keys.down = false
+    state.keys.left = false
+    state.keys.right = false
+    state.touch_active = false
+    state.touch_x = 0
+    state.touch_y = 0
+    state.anchor_x = 0
+    state.anchor_y = 0
+end
+
 function M.pointer_press(state, x, y)
     x = tonumber(x) or 0
     y = tonumber(y) or 0

@@ -85,6 +85,7 @@ end
 function init(self)
     self.proxy_ready = false
     self.owner_focused = false
+    self.movement_input_blocked = false
     init_qa(self)
     if self.qa_enabled then storage_probe.run() end
     msg.post("/sentinel#controller", "acquire_sentinel_focus")
@@ -114,12 +115,18 @@ function on_message(self, message_id, message, sender)
         self.movement_ready = true
         self.qa_simulation_frame = message.frame or 0
         maybe_mark_ready(self)
+    elseif message_id == hash("modal_input_blocked") then
+        self.movement_input_blocked = message.blocked == true
+        if self.movement_input_blocked then
+            msg.post("/movement#controller", "movement_input_clear")
+        end
+        print("BEBEE_INPUT movement_router blocked=" .. (self.movement_input_blocked and "1" or "0"))
     end
 end
 
 function on_input(self, action_id, action)
     if input_semantics.is_movement(action_id) then
-        if action.pressed or action.released then
+        if not self.movement_input_blocked and (action.pressed or action.released) then
             msg.post("/movement#controller", "movement_key_input", {
                 action_name = input_semantics.name(action_id),
                 pressed = action.pressed == true,
@@ -130,16 +137,18 @@ function on_input(self, action_id, action)
     end
 
     if action_id == input_semantics.POINTER_PRIMARY then
-        msg.post("/movement#controller", "movement_pointer_input", {
-            x = action.x or 0,
-            y = action.y or 0,
-            pressed = action.pressed == true,
-            released = action.released == true,
-        })
+        if not self.movement_input_blocked then
+            msg.post("/movement#controller", "movement_pointer_input", {
+                x = action.x or 0,
+                y = action.y or 0,
+                pressed = action.pressed == true,
+                released = action.released == true,
+            })
+        end
         return false
     end
 
-    if action_id == nil and action.x and action.y then
+    if not self.movement_input_blocked and action_id == nil and action.x and action.y then
         msg.post("/movement#controller", "movement_pointer_move", {
             x = action.x,
             y = action.y,

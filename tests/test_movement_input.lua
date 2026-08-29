@@ -49,5 +49,24 @@ return {
                 t.assert_equal("none", source)
             end,
         },
+        {
+            name = "clear drops held keyboard and touch intent for modal transitions",
+            run = function()
+                local state = input.new()
+                input.set_key(state, "move_right", true)
+                input.pointer_press(state, 200, 200)
+                input.pointer_move(state, 280, 240)
+                local x, _, source = input.intent(state)
+                t.assert_true(x > 0)
+                t.assert_equal("keyboard", source)
+
+                input.clear(state)
+                local cleared_x, cleared_y, cleared_source = input.intent(state)
+                t.assert_equal(0, cleared_x)
+                t.assert_equal(0, cleared_y)
+                t.assert_equal("none", cleared_source)
+                t.assert_false(input.touch_visual(state).active)
+            end,
+        },
     },
 }
