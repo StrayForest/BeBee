@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "ticket": "P6-FIRST-REGION-VERTICAL-SLICE",
+  "change_class": "player-facing",
+  "problem": "Turn the validated P1-P5 movement, pollination, progression, restoration and seed-ownership systems into one coherent six-Meadow Sunny Meadows region that completes from a clean save on HTML5, proves Flight/Buzz 3 and the Lily gate, preserves state through save v4, exposes accessibility/audio settings and analytics through platform-neutral seams, and passes current Poki-oriented viewport/request/performance budgets without regressing P1-P5.",
+  "decision": {
+    "ids": ["D-004", "D-005", "D-006", "D-007", "D-008", "D-011", "T-005", "T-010", "P-001", "V-001"],
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "EXPERIMENT_RESULT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "continuous_six_meadow_region",
+    "rationale": "P6 validates D-011 as one continuous authored region rather than one collection proxy per Meadow. Exact-head deterministic tests and Chromium evidence complete all six authored Meadows from a clean save, exercise Flight/Buzz 3 and Lily's Buzz-3 gate, use seed ownership, persist settings/region state through save v4, emit the platform-neutral analytics schema, fill desktop/mobile/Poki viewports, make zero external requests, and stay within FPS/bundle budgets. The independent visual evaluation records PASS WITH DEVIATION because the runtime illustration remains intentionally geometric and below the long-term rounded/species-silhouette art-direction target even though no external placeholder assets or critical functional placeholders remain."
+  },
+  "research": {
+    "candidate_pool": [
+      {"product_id":"garden-life","name":"Garden Life: A Cozy Simulator","source":"https://www.nintendo.com/us/store/products/garden-life-a-cozy-simulator-switch/","relevance":"Authored restoration tasks coexist with seed ownership and player-shaped planting in one garden."},
+      {"product_id":"alba","name":"Alba: A Wildlife Adventure","source":"https://www.albawildlife.com/?lang=en","relevance":"Compact handcrafted exploration uses local landmarks and low-pressure objectives to make one place coherent."},
+      {"product_id":"a-short-hike","name":"A Short Hike","source":"https://en.wikipedia.org/wiki/A_Short_Hike","relevance":"Compact authored traversal demonstrates landmark/path-led orientation without a heavy map/menu layer."},
+      {"product_id":"grow-evertree","name":"Grow: Song of the Evertree","source":"https://www.playstation.com/en-fi/games/grow-song-of-the-evertree/","relevance":"Player actions visibly rejuvenate authored worlds while exploration remains central."},
+      {"product_id":"terra-nil","name":"Terra Nil","source":"https://www.terranil.com/","relevance":"Strong region-scale ecological transformation provides a materially more systemic counter-model."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {"product_id":"garden-life","name":"Garden Life authored restoration plus expression","source":"https://www.nintendo.com/us/store/products/garden-life-a-cozy-simulator-switch/","platform_version_date":"Official product reference checked 2026-08-29","selection_reason":"Closest structural reference for authored restoration and player-owned planting coexisting before a whole area is complete.","observed_behavior":"Story progression restores/unlocks authored garden areas while seeds and planting preserve player expression.","inference":"BeBee can keep authored native campaign truth and player-shaped seed ownership inside one continuous region without a separate gardening inventory architecture.","measurements":{"bebee_region_count":1,"bebee_meadow_count":6}},
+      {"product_id":"alba","name":"Alba compact handcrafted orientation","source":"https://www.albawildlife.com/?lang=en","platform_version_date":"Official product reference checked 2026-08-29","selection_reason":"Useful reference for making a compact authored space navigable through local identity and landmarks rather than another navigation screen.","observed_behavior":"A handcrafted island supports relaxed exploration through distinct places and local objectives.","inference":"P6 should first validate one continuous six-Meadow route with landmarks/path language before introducing per-Meadow proxy screens or a world map.","measurements":{"bebee_world_map_menu_count":0,"bebee_meadow_proxy_count":0}}
+    ],
+    "reference_exception": "",
+    "anti_pattern": {"source":"https://www.terranil.com/","observation":"Terra Nil makes region restoration a system-heavy strategy/planning problem with phased ecological machinery.","lesson":"Do not turn BeBee's first region into a planning/building layer; keep the validated movement-through pollination verb and authored route as the primary interaction."}
+  },
+  "official_docs": [
+    {"source":"https://developers.poki.com/guide/requirements-quality","date_checked":"2026-08-29","verified_constraint":"Current target-quality checks require desktop/mobile/tablet behavior, proportional 16:9 canvas coverage, incognito-safe behavior and no external runtime requests by default; P6 retains dedicated Poki-size viewport proofs and records external requests."},
+    {"source":"https://developers.poki.com/guide/sdk-overview","date_checked":"2026-08-29","verified_constraint":"Portal lifecycle signals are kept behind a platform-neutral adapter seam; gameplay code does not import the Poki SDK directly in P6."},
+    {"source":"https://defold.com/manuals/sound/","date_checked":"2026-08-29","verified_constraint":"Completion audio uses local Defold sound assets and mute is runtime-controlled rather than an external web-audio dependency."},
+    {"source":"https://defold.com/manuals/profiling/","date_checked":"2026-08-29","verified_constraint":"P6 records measured browser frame timing and release-bundle size against declared budgets rather than claiming unmeasured optimization."}
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {"id":"continuous_six_meadow_region","disposition":"selected","reason":"Validates the content/coherence hypothesis using one authored region and existing lifecycle/input ownership, with six locally distinct Meadow beats and no speculative per-Meadow proxy architecture."},
+    {"id":"proxy_per_meadow","disposition":"rejected","reason":"Would multiply collection-proxy lifecycle/input surfaces while T-010 remains a hypothesis and before content rhythm proves that complexity is needed."},
+    {"id":"world_map_navigation","disposition":"rejected","reason":"Adds a new screen and navigation verb before landmark/path-led orientation has been tested in the first continuous region."},
+    {"id":"many_patches_per_meadow","disposition":"rejected","reason":"Would scale content volume before P6 has external pacing evidence; one compact native challenge in later Meadows is enough to prove regional rhythm."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"A clean-save HTML5 journey completes all six authored Sunny Meadows Meadows with no blocker or unintended replay grind.","status":"pass","evidence":"HTML5 CI 33269124636 retains P6 clean-save start through region-complete/reload frames; motion-report result is PASS and the final region reports 6/6 restored."},
+    {"criterion":"Lily is a real Buzz-3 climax gate and Flight/Buzz level 3 effects are purchased and active.","status":"pass","evidence":"Retained clean-save proof records Lily LOCKED with requires_buzz=3 at Buzz 2 / 1.35x, then AVAILABLE at Buzz 3 / 1.65x; final Flight and Buzz levels are both 3."},
+    {"criterion":"The P5 seed system is exercised while player-shaped state remains independent from native campaign completion.","status":"pass","evidence":"The retained combined P1-P6 browser journey includes seed ownership/planting before region completion and the P5 campaign-separation regression remains green in the same exact-head movement artifact."},
+    {"criterion":"Save v4 and v3 migration preserve prior domain state and persist P6 settings/region completion safely.","status":"pass","evidence":"102/102 Test/data cases pass; retained clean-save journey enables reduced motion and audio mute, reloads the completed region, and the combined storage/browser regression passes."},
+    {"criterion":"Reduced-motion and audio settings are directly exercisable with text state, focus isolation and persistence.","status":"pass","evidence":"Retained settings captures show REDUCED MOTION ON and AUDIO MUTED; journey result records both settings true and reload remains PASS."},
+    {"criterion":"Analytics/lifecycle events are deterministic behind a platform-neutral seam with no external runtime dependency.","status":"pass","evidence":"Retained journey records 19 events across session_start, first_input, patch_completed, meadow_restored, region_completed and settings_changed; external_request_count=0."},
+    {"criterion":"Desktop, mobile-landscape and required Poki viewport checks fill the canvas and contain no P6 browser errors.","status":"pass","evidence":"Canonical captures include 1280x720, 844x390 and Poki 640x360 / 836x470 / 1031x580; desktop canvas is exactly 1280x720 and P6 console/page errors are 0/0."},
+    {"criterion":"Performance and release-bundle budgets pass on retained exact-head proof.","status":"pass","evidence":"Measured engine FPS is 59.92 against >=50 and release bundle is 2,813,096 bytes against 12,582,912-byte budget."},
+    {"criterion":"P1-P5 retained browser regressions remain green on the same exact runtime head.","status":"pass","evidence":"movement-qa-1001783236aac0ca2052bf6b4498c600a5dbf6fb result is PASS and contains the retained P1 through P6 proof families."},
+    {"criterion":"Critical P6 runtime surfaces are real and local, with any remaining visual-quality gap explicitly evaluated rather than hidden.","status":"pass","evidence":"Audio is repository-local Wave content, settings/region UI are real runtime surfaces and no external placeholder asset dependency exists. Independent evaluation records PASS WITH DEVIATION for geometric illustration/species-silhouette polish relative to the longer-term art-direction target; no ITERATE finding is open."}
+  ],
+  "verification": {
+    "automated": [
+      "Accepted runtime head 1001783236aac0ca2052bf6b4498c600a5dbf6fb: Repository standards 33269124642 PASS.",
+      "Accepted runtime head 1001783236aac0ca2052bf6b4498c600a5dbf6fb: Test/data 33269124670 PASS; BB-004 suite 102/102 PASS.",
+      "Accepted runtime head 1001783236aac0ca2052bf6b4498c600a5dbf6fb: Pages preview 33269124643 PASS.",
+      "Accepted runtime head 1001783236aac0ca2052bf6b4498c600a5dbf6fb: HTML5 CI 33269124636 PASS.",
+      "Accepted movement/P6 artifact 9719600537, digest sha256:77f0b0972eb7ba12bac3e292f429a6c1689820e9984b0d28bee5f2e527e3c9de.",
+      "Accepted storage artifact 9719600731, digest sha256:65b11cfc5258dbe1edcba1d7210f38074b9843dc77de2f0363e14daf2f89531a.",
+      "Accepted visual artifact 9719600159, digest sha256:81b38a8164273d4bf761055ef2eaf3d09aa41e40ae801391eb8592514ac7f324.",
+      "Accepted playable artifact 9719599927, digest sha256:4f5705db6b447962f3dd12e87d17d1fca8bcfbd1bcc18e8fd29bff14a3eca902.",
+      "Final closeout head must repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted validate-pr-evidence before merge and retain non-N/A movement-qa-$PR_HEAD."
+    ],
+    "manual": [
+      "Inspected retained clean-save sequence start / first meadow restored / Lily gate / region complete / settings enabled / reloaded complete; the six-Meadow route, region-level progress and final completion remain readable.",
+      "Inspected desktop, 844x390 mobile and all three Poki-size canonical frames; canvas coverage is full-frame and required objective/settings text stays inside the rendered surface.",
+      "Inspected final player-facing presentation against docs/09-art-direction.md and V-001: region identity, hierarchy and interaction are coherent, but the bee/flower illustration remains geometric and species differentiation relies too much on palette/landmark context. This is recorded as a visible PASS WITH DEVIATION rather than being mislabeled final illustrator-grade art.",
+      "The earlier HTML5 canvas-sizing defect and clean-save region_start Honey fixture contamination were fixed before the accepted retained artifact."
+    ],
+    "runtime_errors": "none on accepted runtime evidence head; P6 clean-save/canonical exercises report console/page errors 0/0, external runtime requests 0, and the complete HTML5 job passes",
+    "save_data_impact": "Save schema advances v3->v4. Existing Honey, Flight/Buzz upgrades, native campaign completion, seed ownership and player plants are preserved; persistent reduced-motion and audio-mute settings are added with safe migration defaults, and completed-region/settings state survives browser reload."
+  },
+  "visual_evidence": {
+    "required": true,
+    "artifacts": [
+      "accepted runtime: run 33269124636 artifact 9719600537 movement-qa-1001783236aac0ca2052bf6b4498c600a5dbf6fb",
+      "accepted runtime: run 33269124636 artifact 9719600159 visual-qa-1001783236aac0ca2052bf6b4498c600a5dbf6fb",
+      "final exact-head: movement-qa-$PR_HEAD"
+    ],
+    "states": ["region_start", "region_mid", "region_complete", "settings_accessibility", "clean_save_start", "first_meadow_restored", "lily_buzz3_gate", "settings_enabled", "reload_complete"],
+    "viewports": ["1280x720", "844x390", "640x360", "836x470", "1031x580"],
+    "motion_evidence": ["p6_region/canonical/", "p6_region/clean_save_journey/", "motion-report.json"],
+    "provenance": {
+      "capture_commit_sha": "$PR_HEAD",
+      "capture_mode": "ci",
+      "artifact_locator": "HTML5 CI movement-qa-$PR_HEAD; accepted pre-closeout artifact 9719600537 from run 33269124636"
+    }
+  },
+  "comparison": {
+    "measurements": {
+      "region_meadows_restored": 6,
+      "region_meadows_total": 6,
+      "flight_level_final": 3,
+      "buzz_level_final": 3,
+      "buzz_multiplier_before_after_gate": "1.35->1.65",
+      "final_honey": 386,
+      "analytics_event_count": 19,
+      "analytics_event_types": 6,
+      "test_cases_passed": 102,
+      "test_cases_total": 102,
+      "p6_browser_console_errors": 0,
+      "p6_browser_page_errors": 0,
+      "external_runtime_requests": 0,
+      "engine_fps": 59.92,
+      "minimum_fps_budget": 50.0,
+      "release_bundle_bytes": 2813096,
+      "release_bundle_budget_bytes": 12582912,
+      "desktop_canvas": "1280x720",
+      "mobile_canvas": "844x390",
+      "poki_viewports": ["640x360", "836x470", "1031x580"]
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "evaluator_id": "p6-evidence-evaluator-pass-2026-08-29",
+    "implementation_author_id": "p6-implementation-agent",
+    "findings": [
+      "The exact-head clean-save browser journey is a coherent full-region proof rather than isolated fixtures: all six Meadows restore, Lily enforces Buzz 3, upgrades/seeds/settings/analytics/reload are exercised, and P1-P5 regressions remain in the same artifact.",
+      "Target-web evidence is strong for current scope: desktop/mobile/Poki canvas coverage passes, browser errors and external requests are zero, FPS and bundle budgets pass.",
+      "Save v4 and accessibility/audio behavior are evidenced by deterministic tests plus browser lifecycle proof, not only by source inspection.",
+      "The region has distinct authored beats through layout, landmarks, palette and route language without adding a world-map/menu or per-Meadow proxy architecture.",
+      "PASS WITH DEVIATION: the player-facing illustration remains geometric and does not fully realize docs/09 rounded bee, species-specific flower silhouettes and final typography/illustration finish. This is original repository presentation rather than an external placeholder dependency, and it is explicitly carried as production-art polish instead of being hidden.",
+      "No ITERATE finding remains for P6 system/coherence validation; the documented art-direction deviation should be addressed while P7 scales proven content patterns and before P8 release-candidate art certification."
+    ],
+    "verdict": "PASS WITH DEVIATION",
+    "iteration_required": false
+  }
+}
