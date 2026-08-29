@@ -130,6 +130,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`docs/research/BB-004-test-data-harness.md`](docs/research/BB-004-test-data-harness.md) — P0 deterministic test/data harness evidence and alternatives
 - [`docs/research/BB-005-html5-ci.md`](docs/research/BB-005-html5-ci.md) — P0 exact-source playable HTML5 CI/browser-smoke contract
 - [`docs/research/BB-006-visual-qa-harness.md`](docs/research/BB-006-visual-qa-harness.md) — P0 deterministic exact-build visual-QA runtime/capture proof
+- [`evidence/BB-007-CLOSEOUT/manifest.json`](evidence/BB-007-CLOSEOUT/manifest.json) — P0 storage lifecycle/browser closeout evidence
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -184,7 +185,7 @@ No multiplayer, guilds, PvP, procedural infinite world, complex crafting tree, e
 
 ## Current status
 
-**P0 — Foundation is in progress. `BB-001` through `BB-006` are complete.**
+**P0 — Foundation is COMPLETE. `BB-001` through `BB-007` are complete and all P0 exit criteria pass.**
 
 BB-001 establishes a minimal `app/` bootstrap, explicit development/release settings and a reproducible editor-independent HTML5 path. The toolchain is pinned to Defold **1.13.1**, OpenJDK **25**, `wasm-web` and the published Bob SHA-256. Exact-head CI successfully built both development and release bundles and rendered the bootstrap in Chromium before merge.
 
@@ -198,4 +199,6 @@ BB-005 turns the existing runtime evidence path into exact-source **HTML5 CI** f
 
 BB-006 implements the BB-P008 deterministic visual-QA foundation in the real Defold HTML5 runtime: development-only `?qa=...&qa_seed=...` routing and `window.__bebeeQA`, exact source-SHA binding through Bob, a canonical HTTP server, pinned Playwright Chromium, isolated BrowserContexts, desktop/mobile capture and release-negative proof. The infrastructure-only `foundation_probe` is byte-stable across two fresh-context repeats at both **1280×720** and **844×390**, with zero console/page errors; release exposes neither bridge nor probe. Exact candidate run `33214438370` retained visual artifact `9702826036` plus the same-run playable and diagnostic HTML5 artifacts. Future gameplay/UI QA states remain owned by their actual systems rather than being falsely marked implemented here.
 
-**Next production task: `P0 / BB-007 — Storage adapter proof`.**
+BB-007 implements the versioned local storage adapter and A/B generation journal behind the storage abstraction, protected corrupt-load recovery, serialized-size diagnostics, persistent delete, and lifecycle semantics that distinguish accepted/pending writes from browser-durable IndexedDB state. The first immediate-navigation browser proof exposed a real Defold VFS → IndexedDB race and PR #36 was closed unmerged as failed evidence; PR #37 corrected rapid-refresh/close recovery semantics. Final process PR #38 passed exact-head `Repository standards` (`33238316582`), `Test and data` (`33238316615`), `HTML5 CI` (`33238316601`) and trusted evidence (`33238419907`) on `5efabc3…`, then merged as `4bd31d4…`. Post-merge `main` repeated the full HTML5/storage proof in run `33238436135` and retained storage artifact `9710629332`; the complete closeout record is [`evidence/BB-007-CLOSEOUT/manifest.json`](evidence/BB-007-CLOSEOUT/manifest.json).
+
+**Next production task: `P1 — Bee Movement`.**
