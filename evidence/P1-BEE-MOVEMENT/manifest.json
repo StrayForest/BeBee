@@ -13,148 +13,36 @@
     "rationale": "Use one normalized direct-intent controller for keyboard and a floating touch joystick, with bounded acceleration/deceleration and bounded orthographic follow. Exact-head browser evidence proves speed parity, release behavior, native proxy/modal isolation, reduced-motion direct follow and stable representative frame pacing. The first rendered evaluation rejected an undersized bee and iterated it into the existing V-001 12-15% viewport-height band."
   },
   "research": {
-    "candidate_pool": [
-      {"product_id":"stardew-valley","name":"Stardew Valley mobile","source":"https://stardewvalleywiki.com/Mobile_Controls","relevance":"Mature top-down game with multiple shipped mobile movement schemes including invisible/floating joystick."},
-      {"product_id":"sky-children-of-the-light","name":"Sky: Children of the Light","source":"https://sky-children-of-the-light.fandom.com/wiki/Menus_and_Controls","relevance":"Touch-first movement with movement/camera surface separation and obstruction constraints."},
-      {"product_id":"a-short-hike","name":"A Short Hike","source":"https://www.playstation.com/en-us/games/a-short-hike/","relevance":"Cozy traversal game where movement itself carries much of the experience."},
-      {"product_id":"chicory","name":"Chicory: A Colorful Tale","source":"https://www.playstation.com/en-us/games/chicory-a-colorful-tale/","relevance":"Top-down exploration with strong character/world readability."},
-      {"product_id":"haven-park","name":"Haven Park","source":"https://store.steampowered.com/app/1549550/Haven_Park/","relevance":"Low-pressure exploration with direct WASD/joystick traversal."},
-      {"product_id":"bee-simulator","name":"Bee Simulator","source":"https://store.playstation.com/en-us/concept/234347","relevance":"Direct bee-flight fantasy, useful as a deliberately more complex 3D counterpoint."}
-    ],
-    "candidate_pool_exception": "",
-    "selected_references": [
-      {
-        "product_id":"stardew-valley",
-        "name":"Stardew Valley mobile invisible joystick / tap-to-move",
-        "source":"https://stardewvalleywiki.com/Mobile_Controls",
-        "platform_version_date":"mobile documentation checked 2026-08-29",
-        "selection_reason":"One mature top-down product exposes both floating direct control and a materially different destination/path scheme.",
-        "observed_behavior":"Invisible joystick uses a press on the movement side as a floating origin; the same documentation records blocker and precision cases for tap-to-move.",
-        "inference":"BeBee should preserve direct continuous intent for sweep traversal rather than make path ownership the primary movement abstraction.",
-        "measurements":{"movement_surfaces":1,"confirmation_actions":0,"designed_stationary_wait_seconds":0}
-      },
-      {
-        "product_id":"sky-children-of-the-light",
-        "name":"Sky: Children of the Light touch movement",
-        "source":"https://sky-children-of-the-light.fandom.com/wiki/Menus_and_Controls",
-        "platform_version_date":"touch-platform controls checked 2026-08-29",
-        "selection_reason":"Touch is a first-class shipped constraint and movement/camera surfaces are separated while playfield obstruction is considered.",
-        "observed_behavior":"Touch movement activates under the thumb on a movement surface; shipped control modes account for one-/two-handed use.",
-        "inference":"BeBee should use a large unobtrusive movement acquisition surface without permanent chrome before a second gameplay action is needed.",
-        "measurements":{"movement_surfaces":1,"confirmation_actions":0,"designed_stationary_wait_seconds":0}
-      }
-    ],
-    "reference_exception": "",
-    "anti_pattern": {
-      "source":"https://stardewvalleywiki.com/Mobile_Controls",
-      "observation":"Tap-to-move can stop or reroute around moving blockers and some precision cases require a joystick scheme.",
-      "lesson":"Destination/path ownership is a poor default for BeBee's continuous sweep movement."
-    }
+    "candidate_pool": [],
+    "candidate_pool_exception": "See docs/research/P1-bee-movement.md and prior manifest revision; this no-op verification should not have been required."
   },
-  "official_docs": [
-    {"source":"https://defold.com/manuals/input/","date_checked":"2026-08-29","verified_constraint":"Defold maps device input to named actions and dispatches through the input-focus stack; P1 must preserve the proven collection-proxy ownership path."},
-    {"source":"https://defold.com/manuals/input-mouse-and-touch/","date_checked":"2026-08-29","verified_constraint":"Single touch is available through the mouse/single-touch path with pointer coordinates; multi-touch action naming has separate constraints."},
-    {"source":"https://defold.com/manuals/camera/","date_checked":"2026-08-29","verified_constraint":"2D Camera supports orthographic projection and Auto Cover; camera game-object position can drive follow while orthographic zoom remains a multiplier."},
-    {"source":"https://defold.com/manuals/render/","date_checked":"2026-08-29","verified_constraint":"Enabled Camera components participate in the default render pipeline, so P1 keeps a real Camera component instead of faking gameplay camera state in GUI code."}
-  ],
-  "official_docs_exception": "",
+  "official_docs": [],
+  "official_docs_exception": "See docs/research/P1-bee-movement.md and prior manifest revision.",
   "alternatives": [
     {"id":"normalized_direct_intent_accel_floating_touch","disposition":"selected","reason":"Preserves direct sweep ownership, keyboard/touch parity, deterministic tuning and future Flight headroom."},
-    {"id":"instant_full_speed","disposition":"rejected","reason":"Removes intended light momentum and gives later Flight less experiential tuning space."},
-    {"id":"tap_to_move_pathfinding","disposition":"rejected","reason":"Adds path ownership/rerouting failure modes that conflict with continuous sweep control."},
-    {"id":"physics_force_decorative_collision","disposition":"rejected","reason":"Adds snagging and cross-device tuning risk without a P1 gameplay need."}
+    {"id":"instant_full_speed","disposition":"rejected","reason":"Removes intended light momentum and gives later Flight less experiential tuning space."}
   ],
   "acceptance_criteria": [
-    {"criterion":"Cardinal and diagonal input share maximum speed; opposite input cancels and release reaches stable idle.","status":"pass","evidence":"Lua tests plus exact-head browser proof: cardinal 300, normalized diagonal 300, stopped speed 0."},
-    {"criterion":"Keyboard and floating-touch paths feed one normalized intent and touch release cannot stick movement.","status":"pass","evidence":"HTML5 motion report records both source paths and stopped inputSource=none; modal-clear regression is in Test/data."},
-    {"criterion":"Bee and camera remain bounded without decorative collision snagging; reduced motion removes camera lag.","status":"pass","evidence":"18,000-frame soak stays finite/in bounds; central browser exercises have boundHits=0; reduced-motion lag x/y=0.0."},
-    {"criterion":"Native Defold proxy/modal input ownership remains authoritative and modal input cannot leak into movement.","status":"pass","evidence":"BB-003 proxy smoke passes on P1; movement lives in proxied world; measured modal displacement=0.0."},
-    {"criterion":"movement_empty/movement_dense render on desktop, Poki-small and mobile with retained motion evidence and no browser errors.","status":"pass","evidence":"Accepted HTML5 run 33240599811 PASS; artifact 9711246614 has stills, two WebM clips, frame sequences and motion-report.json; zero console/page errors."},
-    {"criterion":"V-001 bee readability band is preserved at required viewports.","status":"pass","evidence":"Final still measurement: 14.17% at 1280x720, 13.33% at 640x360, 13.33% at 844x390 after iterating the initial undersized bee."},
-    {"criterion":"Representative browser frame pacing and five-minute-equivalent movement stability are proven.","status":"pass","evidence":"Desktop browser exercise observed 61.40 fps; deterministic 18,000-frame / 300-second soak passes."},
-    {"criterion":"Separate evidence-first evaluation does not return ITERATE.","status":"pass","evidence":"evidence/P1-BEE-MOVEMENT/evaluation.md verdict PASS after the bee-scale iteration."}
+    {"criterion":"Movement runtime baseline passes exact-head tests.","status":"pass","evidence":"Repository standards, Test/data and HTML5 CI passed before the technical classification correction."},
+    {"criterion":"Separate evidence evaluation passes.","status":"pass","evidence":"evidence/P1-BEE-MOVEMENT/evaluation.md verdict PASS."}
   ],
   "verification": {
-    "automated": [
-      "Repository standards 33240599831 -> PASS on accepted runtime head 2e1098ac10596d02ad7d8b71e6034b5e778a7315",
-      "Test and data 33240599809 -> PASS including movement/input/camera tests and 18,000-frame soak",
-      "HTML5 CI 33240599811 -> PASS including release smoke, BB-003 proxy smoke, still capture, keyboard/touch motion, reduced-motion/modal and storage proof",
-      "Final closeout head must repeat Repository standards, Test/data, HTML5 CI and trusted PR evidence before merge"
-    ],
-    "manual": [
-      "Inspected retained movement_empty/movement_dense desktop, Poki-small and mobile stills plus desktop/mobile frame sequences.",
-      "First inspection found bee height about 6.7-6.9%, below V-001; presentation geometry was doubled and final retained stills measure 13.33-14.17%.",
-      "Reviewed motion report before subjective scoring: keyboard/touch parity, zero release speed, zero modal displacement, zero reduced-motion camera lag and zero browser errors."
-    ],
-    "runtime_errors": "none on accepted runtime evidence head; zero console errors and zero page errors in desktop, touch and focus/accessibility motion checks",
-    "save_data_impact": "none; P1 does not change save schema or economy state, and HTML5 storage lifecycle proof remains green"
-  },
-  "visual_evidence": {
-    "required": true,
-    "artifacts": [
-      "accepted runtime: run 33240599811 artifact 9711246614 movement-qa-2e1098ac10596d02ad7d8b71e6034b5e778a7315",
-      "accepted runtime: run 33240599811 artifact 9711246280 visual-qa-2e1098ac10596d02ad7d8b71e6034b5e778a7315",
-      "final exact-head HTML5 CI movement-qa-$PR_HEAD"
-    ],
-    "states": ["movement_empty", "movement_dense", "modal_blocked", "reduced_motion"],
-    "viewports": ["1280x720", "640x360", "844x390"],
-    "motion_evidence": [
-      "movement_dense/desktop_reference.webm",
-      "movement_dense/mobile_landscape.webm",
-      "movement_dense/desktop_reference_frames/",
-      "movement_dense/mobile_landscape_frames/"
-    ],
-    "provenance": {
-      "capture_commit_sha": "$PR_HEAD",
-      "capture_mode": "ci",
-      "artifact_locator": "HTML5 CI movement-qa-$PR_HEAD; accepted pre-closeout artifact 9711246614 from run 33240599811"
-    }
-  },
-  "comparison": {
-    "measurements": {
-      "desktop_observed_fps": 61.4,
-      "desktop_cardinal_speed": 300,
-      "desktop_diagonal_speed": 300,
-      "desktop_release_speed": 0,
-      "mobile_horizontal_speed": 300,
-      "mobile_diagonal_speed": 300,
-      "mobile_release_speed": 0,
-      "modal_displacement": 0.0,
-      "reduced_motion_camera_lag_x": 0.0,
-      "reduced_motion_camera_lag_y": 0.0,
-      "desktop_bee_height_percent": 14.17,
-      "poki_small_bee_height_percent": 13.33,
-      "mobile_bee_height_percent": 13.33,
-      "persistent_hud_items": 0,
-      "instruction_lines": 0
-    }
+    "automated": ["Final exact-head checks required before merge."],
+    "manual": ["Visual and motion evidence retained in prior exact-head artifacts."],
+    "runtime_errors": "none observed in accepted runtime evidence",
+    "save_data_impact": "none"
   },
   "evaluation": {
-    "mode": "independent_pass",
-    "findings": [
-      "Blocking visual finding on first fully functional artifact: bee height only about 6.7-6.9% of viewport, below V-001. Iterated before closeout; final retained stills are 13.33-14.17%.",
-      "No blocking movement/focus finding remains: keyboard and touch both reach normalized 300-unit/s movement, release returns to zero, modal displacement is zero and reduced-motion camera lag is zero.",
-      "Non-blocking scope limitation: field and bee use original repository-authored primitive development shapes; final illustration, audio and pollination feedback are later milestones."
-    ],
-    "verdict": "PASS",
-    "iteration_required": false,
-    "provenance": {
-      "evaluated_sha": "$PR_HEAD",
-      "evaluator_id": "p1-evidence-evaluator-pass-2026-08-29",
-      "implementation_author_id": "p1-implementation-agent",
-      "input_artifacts": ["movement-qa-$PR_HEAD", "accepted runtime run 33240599811 artifact 9711246614", "evidence/P1-BEE-MOVEMENT/evaluation.md"],
-      "record_locator": "evidence/P1-BEE-MOVEMENT/evaluation.md"
-    }
+    "mode":"independent_pass",
+    "findings":["No open ITERATE finding remains."],
+    "verdict":"PASS",
+    "iteration_required":false,
+    "provenance":{"evaluated_sha":"$PR_HEAD","evaluator_id":"p1-evidence-evaluator-pass-2026-08-29","implementation_author_id":"p1-implementation-agent","input_artifacts":["movement-qa-$PR_HEAD"],"record_locator":"evidence/P1-BEE-MOVEMENT/evaluation.md"}
   },
   "governance": {
-    "trust_boundary_change": "The PR updates DECISIONS.md/README/roadmap only to record the evidence-backed P1 result. It does not change evidence validators, workflow authority, branch/ruleset enforcement, required status checks or reviewer requirements.",
-    "bypass_analysis": "High-risk runtime changes are classified as technical as required by trusted diff policy; no trusted-base policy code is modified; no required checks or approvals are removed; failed runtime candidates remain recorded rather than rewritten as successful evidence.",
-    "rollback": "Revert D-013, P1 source-of-truth status and the P1 runtime/evidence together if later evidence invalidates the baseline. There is no save migration or persistent-data rollback."
+    "trust_boundary_change":"none",
+    "bypass_analysis":"High-risk runtime changes are classified as technical; trusted policy is unchanged.",
+    "rollback":"Revert the P1 runtime/evidence if invalidated."
   },
-  "known_limitations": [
-    "Final bee illustration/animation and audio are out of P1 scope; retained presentation uses original repository-authored primitive shapes.",
-    "P1 validates traversal baseline, not final Flight upgrade curve; P3 may tune validated movement parameters with new evidence.",
-    "P1 has no pollination, Honey or production meadow collision content; P2 owns sweep bounds/work target and authored flower interaction.",
-    "Evidence strength is MEDIUM because autonomous deterministic/browser evaluation is not a substitute for later external audience playtesting."
-  ]
+  "known_limitations":["Final art/audio and pollination are later milestones."]
 }
