@@ -92,14 +92,26 @@
   ],
   "verification": {
     "automated": [
-      "Exact-head HTML5 CI must pass the corrected storage lifecycle smoke before merge.",
-      "Exact-head trusted PR evidence, repository standards and test/data checks must pass before merge.",
+      "Candidate HTML5 CI run 33238242196 passed on source SHA 50ad67cf34c387c25f4f4d5da62f62ec0e5998f6, including the corrected visual/storage QA smoke and dedicated storage artifact upload.",
+      "Candidate Repository standards run 33238242191 and Test and data run 33238242205 passed on the same source SHA.",
+      "The PR-body comparison marker was corrected after trusted run 33238242208 rejected the initial ITERATE marker; the resulting synchronize commit intentionally requires a fresh final exact-head run before merge.",
       "Post-merge main HTML5 CI must repeat the storage lifecycle proof."
     ],
     "manual": [],
     "runtime_errors": "storage_html5_smoke.py fails on browser console/page errors, failed settled latest-generation persistence, invalid rapid-window recovery, persistent-delete resurrection, corruption-recovery mismatch or release storage-bridge exposure.",
     "save_data_impact": "No save-format/runtime mutation is made by this process PR. It executes the merged BB-007 A/B implementation and lifecycle semantics."
   },
+  "candidate_evidence_history": [
+    {
+      "source_sha": "50ad67cf34c387c25f4f4d5da62f62ec0e5998f6",
+      "html5_run_id": 33238242196,
+      "repository_standards_run_id": 33238242191,
+      "test_data_run_id": 33238242205,
+      "storage_artifact": "storage-qa-50ad67cf34c387c25f4f4d5da62f62ec0e5998f6",
+      "result": "PASS",
+      "scope": "Corrected real-browser storage lifecycle smoke, deterministic visual QA, release/input smoke, dedicated storage artifact upload, repository standards and test/data checks all passed. This is retained as historical candidate evidence; the final synchronize commit still requires a fresh exact-head rerun."
+    }
+  ],
   "visual_evidence": {
     "required": false,
     "artifacts": [],
