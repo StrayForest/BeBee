@@ -9,6 +9,8 @@ local COLLECTIONS = {
     { name = "meadows", pattern = "^r%d%d_m%d%d$" },
 }
 
+local RESTORATION_STAGE_IDS = { "DORMANT", "WAKING", "GROWING", "RESTORED" }
+
 local function add_error(errors, message)
     errors[#errors + 1] = message
 end
@@ -86,6 +88,10 @@ local function positive_integer(path, value, errors)
     if not finite_number(value) or value < 1 or value % 1 ~= 0 then add_error(errors, path .. " must be a positive integer") end
 end
 
+local function non_negative_integer(path, value, errors)
+    if not finite_number(value) or value < 0 or value % 1 ~= 0 then add_error(errors, path .. " must be a non-negative integer") end
+end
+
 local function validate_flower_fields(catalog, errors)
     for index, flower in ipairs(catalog.flowers or {}) do
         if type(flower) == "table" then
@@ -147,6 +153,54 @@ local function validate_upgrade_fields(catalog, errors)
     if not kinds.buzz then add_error(errors, "upgrades must define buzz") end
 end
 
+local function validate_meadow_fields(catalog, errors)
+    for index, definition in ipairs(catalog.meadows or {}) do
+        if type(definition) == "table" then
+            local prefix = string.format("meadows[%d]", index)
+            positive_number(prefix .. ".restoration_target", definition.restoration_target, errors)
+            local stages = definition.restoration_stages
+            if not is_dense_array(stages) or #stages ~= #RESTORATION_STAGE_IDS then
+                add_error(errors, prefix .. ".restoration_stages must define DORMANT, WAKING, GROWING, RESTORED in order")
+            else
+                local previous_min = -1
+                for stage_index, stage in ipairs(stages) do
+                    local stage_prefix = string.format("%s.restoration_stages[%d]", prefix, stage_index)
+                    if type(stage) ~= "table" then
+                        add_error(errors, stage_prefix .. " must be a table")
+                    else
+                        if stage.id ~= RESTORATION_STAGE_IDS[stage_index] then
+                            add_error(errors, stage_prefix .. ".id must equal " .. RESTORATION_STAGE_IDS[stage_index])
+                        end
+                        non_negative_integer(stage_prefix .. ".min_contribution", stage.min_contribution, errors)
+                        if finite_number(stage.min_contribution) and stage.min_contribution <= previous_min then
+                            add_error(errors, stage_prefix .. ".min_contribution must be strictly increasing")
+                        end
+                        if finite_number(stage.min_contribution) then previous_min = stage.min_contribution end
+                        if not finite_number(stage.ground_mix) or stage.ground_mix < 0 or stage.ground_mix > 1 then
+                            add_error(errors, stage_prefix .. ".ground_mix must be between 0 and 1")
+                        end
+                        non_negative_integer(stage_prefix .. ".detail_count", stage.detail_count, errors)
+                        non_negative_integer(stage_prefix .. ".ambient_life_count", stage.ambient_life_count, errors)
+                        if stage_index == #RESTORATION_STAGE_IDS then
+                            positive_number(stage_prefix .. ".celebration_seconds", stage.celebration_seconds, errors)
+                        elseif stage.celebration_seconds ~= nil then
+                            add_error(errors, stage_prefix .. ".celebration_seconds is only allowed on RESTORED")
+                        end
+                    end
+                end
+                local first = stages[1]
+                local last = stages[#stages]
+                if type(first) == "table" and first.min_contribution ~= 0 then
+                    add_error(errors, prefix .. ".restoration_stages[1].min_contribution must equal 0")
+                end
+                if type(last) == "table" and finite_number(definition.restoration_target) and last.min_contribution ~= definition.restoration_target then
+                    add_error(errors, prefix .. ".restoration_target must equal RESTORED min_contribution")
+                end
+            end
+        end
+    end
+end
+
 local function validate_references(catalog, by_collection, errors)
     for index, seed in ipairs(catalog.seeds or {}) do
         if type(seed) == "table" and seed.flower_id ~= nil then
@@ -188,9 +242,9 @@ local function validate_references(catalog, by_collection, errors)
         end
     end
 
-    for index, meadow in ipairs(catalog.meadows or {}) do
-        if type(meadow) == "table" and meadow.region_id ~= nil then
-            local region_id = meadow.region_id
+    for index, meadow_definition in ipairs(catalog.meadows or {}) do
+        if type(meadow_definition) == "table" and meadow_definition.region_id ~= nil then
+            local region_id = meadow_definition.region_id
             if type(region_id) ~= "string" or not by_collection.regions[region_id] then
                 add_error(errors, string.format("meadows[%d].region_id references unknown region: %s", index, tostring(region_id)))
             end
@@ -219,6 +273,7 @@ function M.validate(catalog)
     validate_flower_fields(catalog, errors)
     validate_patch_fields(catalog, errors)
     validate_upgrade_fields(catalog, errors)
+    validate_meadow_fields(catalog, errors)
     validate_references(catalog, by_collection, errors)
     table.sort(errors)
     return #errors == 0, errors
