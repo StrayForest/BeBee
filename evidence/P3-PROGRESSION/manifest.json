@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "ticket": "P3-PROGRESSION",
+  "change_class": "economy",
+  "problem": "Turn P2 Honey into a meaningful permanent-power loop where the player chooses Flight or Buzz at a dedicated Hive, immediately feels the purchased effect, understands the first Buzz capability gate, cannot create a negative-Honey/customization dead-end, and keeps progression across save migration and reload on desktop and touch.",
+  "decision": {
+    "ids": ["D-002", "D-007", "D-009", "D-010", "D-013", "T-003", "T-004", "T-006", "V-001"],
+    "status_before": "VALIDATED",
+    "status_after": "VALIDATED",
+    "provenance_type": "EXPERIMENT_RESULT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "two_track_immediate_hive",
+    "rationale": "Retain the validated Flight + Buzz two-track set and productionize one level of each through a dedicated two-card Hive surface. Exact-head browser evidence proves that Flight changes real traversal from 300 to 330 u/s, Buzz changes real pollination work from 1.00x to 1.35x and unlocks the explicit Lavender Buzz-2 gate, purchases are input-isolated and durable, while deterministic economy regression keeps both first-purchase orders and the customization-heavy path non-negative and progression-safe."
+  },
+  "research": {
+    "candidate_pool": [
+      {"product_id":"slime-rancher","name":"Slime Rancher Vacpack upgrades","source":"https://slimerancher.fandom.com/wiki/Vacpack_Upgrades","relevance":"Dedicated ranch/home upgrade surface with permanent capability upgrades and visible prices."},
+      {"product_id":"dave-the-diver","name":"Dave the Diver iDiver","source":"https://dave-the-diver.fandom.com/wiki/iDiver","relevance":"Compact upgrade hierarchy communicating level/stat change and price."},
+      {"product_id":"a-short-hike","name":"A Short Hike Golden Feather","source":"https://ashorthike.fandom.com/wiki/Golden_Feather","relevance":"Permanent traversal progression whose movement effect is immediately perceptible."},
+      {"product_id":"hades","name":"Hades Mirror of Night","source":"https://hades.fandom.com/wiki/Mirror_of_Night","relevance":"Many-row meta-progression counterexample for BeBee's deliberately sparse vertical slice."},
+      {"product_id":"stardew-valley","name":"Stardew Valley Blacksmith","source":"https://stardewvalleywiki.com/Blacksmith","relevance":"Delayed tool-upgrade flow that provides a materially different timing model."},
+      {"product_id":"spiritfarer","name":"Spiritfarer Albert's Shipyard","source":"https://spiritfarer.fandom.com/wiki/Albert%27s_Shipyard","relevance":"Home-base capability improvement surface and explicit capability unlock structure."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {"product_id":"slime-rancher","name":"Slime Rancher dedicated home upgrade surface","source":"https://slimerancher.fandom.com/wiki/Vacpack_Upgrades","platform_version_date":"reference checked 2026-08-29","selection_reason":"Direct structural reference for a low-frequency permanent-upgrade interaction attached to a recognizable home base.","observed_behavior":"Vacpack upgrades are purchased at the ranch through a dedicated upgrade interface and entries communicate permanent capability plus price.","inference":"BeBee should place permanent Flight/Buzz purchases at the Hive rather than overloading flower interaction, and should make the purchase low-frequency and immediate.","measurements":{"bebee_validated_upgrade_tracks":2}},
+      {"product_id":"dave-the-diver","name":"Dave the Diver current/next/price hierarchy","source":"https://dave-the-diver.fandom.com/wiki/iDiver","platform_version_date":"reference checked 2026-08-29","selection_reason":"Useful compact information-hierarchy reference for showing what changes before a permanent purchase.","observed_behavior":"The iDiver upgrade surface presents equipment level/stat progression together with price information.","inference":"Each BeBee card should expose current level/effect, next effect and Honey cost; with only Flight and Buzz validated, two complete cards are preferable to a filler third card.","measurements":{"bebee_card_count":2}},
+      {"product_id":"a-short-hike","name":"A Short Hike perceptible traversal upgrade","source":"https://ashorthike.fandom.com/wiki/Golden_Feather","platform_version_date":"reference checked 2026-08-29","selection_reason":"Direct reference for permanent progression that changes movement capability rather than a hidden meta number.","observed_behavior":"Golden Feathers increase traversal capability in the world.","inference":"Flight must change the production movement runtime itself and be verified by measured speed after purchase.","measurements":{"bebee_flight_l1_speed":300,"bebee_flight_l2_speed":330}}
+    ],
+    "reference_exception": "",
+    "anti_pattern": {"source":"https://stardewvalleywiki.com/Blacksmith","observation":"Stardew Valley tool upgrades intentionally include a multi-day delivery delay and additional resource requirements.","lesson":"Do not add waiting/calendar friction to BeBee P3: the current problem is an immediate reward-to-power loop and no waiting problem has been validated."}
+  },
+  "official_docs": [
+    {"source":"https://defold.com/manuals/input/","date_checked":"2026-08-29","verified_constraint":"Input focus is explicit and an action returned as consumed does not continue to lower recipients; the Hive reuses the modal input stack and movement must remain zero while the panel owns focus."},
+    {"source":"https://defold.com/manuals/gui-script/","date_checked":"2026-08-29","verified_constraint":"GUI scripts own presentation and input routing, while P3 keeps progression/economy state in domain systems rather than mutating Honey or levels from the GUI."},
+    {"source":"https://defold.com/ref/stable/gui-lua/#gui.pick_node","date_checked":"2026-08-29","verified_constraint":"Supported GUI hit testing can use node bounds for card selection without moving purchase authority into presentation code."},
+    {"source":"https://defold.com/ref/stable/sys/","date_checked":"2026-08-29","verified_constraint":"Persistence retains platform/error/size constraints, so save v2 and v1-to-v2 migration continue through the existing protected storage abstraction rather than direct gameplay sys.save calls."}
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {"id":"two_track_immediate_hive","disposition":"selected","reason":"Matches D-007 exactly, keeps the progression surface to two evidence-backed tracks, exposes current/next/cost, preserves a meaningful first choice and makes the effect immediately measurable in production runtime."},
+    {"id":"three_track_replacement_filler","disposition":"rejected","reason":"A replacement for excluded Yield would exist only to fill a third card and would contradict the validated two-track decision."},
+    {"id":"confirmation_after_selection","disposition":"rejected","reason":"Adds a second modal action to a low-frequency small purchase without evidence of destructive purchase errors or a comprehension problem requiring confirmation."},
+    {"id":"automatic_threshold_upgrade","disposition":"rejected","reason":"Removes the Flight-vs-Buzz choice and hides Honey spending, weakening the reward-to-choice loop."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"Production P3 contains Flight and Buzz only; no Yield or replacement filler track.","status":"pass","evidence":"Catalog/data validation and Test/data 33247411586 PASS on accepted runtime head; rendered Hive contains exactly two complete cards."},
+    {"criterion":"From the first 45-Honey completion both Level-2 choices are individually available and affordable.","status":"pass","evidence":"Accepted progression_hive browser state reports Honey 45, Flight cost 30 and Buzz cost 35 with both availability codes available."},
+    {"criterion":"Flight purchase spends exactly 30 once and changes real movement max speed from 300 to 330 u/s.","status":"pass","evidence":"Accepted desktop browser proof records Honey 45->15, Flight 1->2 and captured cruise maxSpeed/speed 330/330 u/s."},
+    {"criterion":"Buzz purchase spends exactly 35 once and changes real pollination work multiplier from 1.00x to 1.35x.","status":"pass","evidence":"Accepted Buzz proof records Honey 100->65, Buzz 1->2 and buzzWorkMultiplier 1.35; reload retains 1.35."},
+    {"criterion":"Hive shows current/next effect and cost for both cards and consumes movement while open.","status":"pass","evidence":"Accepted desktop/mobile stills show two cards with level, current->next effect and cost on separated rows; modal_movement_displacement=0.0."},
+    {"criterion":"Lavender is explicitly Buzz-2 locked after its patch prerequisite and becomes available immediately after Buzz 2 purchase.","status":"pass","evidence":"Accepted browser proof changes patch #3 LOCKED / requires_buzz / requirement 2 to AVAILABLE immediately after Buzz purchase; accepted locked frame visibly states REQUIRES BUZZ 2 clear of the HUD."},
+    {"criterion":"Economy regression passes both purchase priorities, exhaustive two-upgrade order, minimal-required and customization-heavy paths with no replay, negative Honey or dead-end.","status":"pass","evidence":"P3 deterministic economy regression is part of the passing Test/data gate 33247411586 and covers both orderings plus minimal-required/customization-heavy scenarios."},
+    {"criterion":"Representative P2 v1 saves migrate to v2 without losing Honey or campaign completions and initialize valid Flight/Buzz levels.","status":"pass","evidence":"Headless migration/regression coverage passes in Test/data 33247411586; P2 browser regression on the accepted P3 build reports schemaVersion 2 and preserves completion/Honey semantics."},
+    {"criterion":"Reload preserves purchased Flight/Buzz and resulting gate eligibility without duplicate spend or reward.","status":"pass","evidence":"Accepted Flight reload retains Honey 15, Flight 2 and max speed 330; Buzz reload retains Honey 65, Buzz 2, multiplier 1.35 and Lavender AVAILABLE."},
+    {"criterion":"P0/P1/P2 regressions and P3 desktop/mobile browser evidence remain green without browser errors.","status":"pass","evidence":"HTML5 CI 33247411645 PASS; P3 captures report 0 console/page errors, P1 representative movement 60.39 fps with modal/reduced-motion zero-lag invariants, P2 pollination regression PASS and storage artifact retained."},
+    {"criterion":"Separate evidence-first evaluation has no open ITERATE finding.","status":"pass","evidence":"evidence/P3-PROGRESSION/evaluation.md verdict PASS after rejecting the previous mechanically green runtime head for mobile card/gate readability and inspecting the corrected 3b4b9909 artifact."}
+  ],
+  "verification": {
+    "automated": [
+      "Accepted runtime head 3b4b990923851217d9a25e2954a86443dea3916f: Repository standards 33247411592 PASS.",
+      "Accepted runtime head 3b4b990923851217d9a25e2954a86443dea3916f: Test/data 33247411586 PASS.",
+      "Accepted runtime head 3b4b990923851217d9a25e2954a86443dea3916f: Pages preview 33247411600 PASS.",
+      "Accepted runtime head 3b4b990923851217d9a25e2954a86443dea3916f: HTML5 CI 33247411645 PASS.",
+      "Accepted movement/P3 artifact 9713299114 (movement-qa-3b4b990923851217d9a25e2954a86443dea3916f), digest sha256:f7e1ce37eba04ecec26a23b42991f7bea4681ecdde64feaec8d225a1f7101ef9.",
+      "Final closeout head must repeat Repository standards, Test/data, HTML5 CI and trusted validate-pr-evidence before merge."
+    ],
+    "manual": [
+      "Inspected accepted desktop Hive sequence: both complete cards are readable, Flight purchase changes the card to LEVEL 2 MAX, cruise evidence reaches 330/330 u/s and reload retains Flight/Honey.",
+      "Inspected accepted 844x390 mobile Hive panel after readability iteration: current->next effect and cost are split into rows and neither card is clipped or overlapped.",
+      "Inspected accepted Buzz-gate sequence: REQUIRES BUZZ 2 sits below the upper HUD, purchase changes Buzz to LEVEL 2 MAX, the world gate disappears when Lavender becomes AVAILABLE and reload retains that eligibility.",
+      "Rejected previous mechanically green head de277105c142d4d251bd8f560fcac162c2a1d164 because mobile card copy was too small and the Buzz-gate label was poorly positioned; visual fixes were required before acceptance."
+    ],
+    "runtime_errors": "none on accepted runtime evidence head; P3 desktop Hive, Buzz-gate and mobile panel exercises all report zero console and page errors",
+    "save_data_impact": "P3 advances the domain save schema from v1 to v2 by adding player.upgrades. The migration preserves P2 Honey/campaign completions, initializes Flight/Buzz level 1 when absent, validates authored levels and continues through the existing A/B storage/recovery abstraction. Purchased levels and their gameplay/gate effects survive reload."
+  },
+  "visual_evidence": {
+    "required": true,
+    "artifacts": [
+      "accepted runtime: run 33247411645 artifact 9713299114 movement-qa-3b4b990923851217d9a25e2954a86443dea3916f",
+      "accepted runtime: run 33247411645 artifact 9713298823 visual-qa-3b4b990923851217d9a25e2954a86443dea3916f",
+      "final exact-head: movement-qa-$PR_HEAD"
+    ],
+    "states": ["progression_hive", "progression_buzz_gate", "flight_purchased", "flight_cruise", "buzz_purchased", "world_unlocked", "reload"],
+    "viewports": ["1280x720", "844x390"],
+    "motion_evidence": ["p3_progression/desktop_reference.webm", "p3_progression/desktop_reference_frames/", "p3_progression/buzz_gate_frames/", "p3_progression/mobile_landscape_frames/"],
+    "provenance": {"capture_commit_sha":"$PR_HEAD","capture_mode":"ci","artifact_locator":"HTML5 CI movement-qa-$PR_HEAD; accepted pre-closeout artifact 9713299114 from run 33247411645"}
+  },
+  "comparison": {
+    "measurements": {
+      "starting_honey": 45,
+      "flight_cost": 30,
+      "flight_level_1_speed": 300,
+      "flight_level_2_speed": 330,
+      "flight_post_purchase_honey": 15,
+      "flight_reload_speed": 330,
+      "buzz_cost": 35,
+      "buzz_level_1_multiplier": 1.0,
+      "buzz_level_2_multiplier": 1.35,
+      "buzz_test_start_honey": 100,
+      "buzz_post_purchase_honey": 65,
+      "buzz_gate_required_level": 2,
+      "buzz_gate_before": "LOCKED",
+      "buzz_gate_after": "AVAILABLE",
+      "modal_displacement": 0.0,
+      "representative_p1_fps": 60.39,
+      "p3_browser_console_errors": 0,
+      "p3_browser_page_errors": 0,
+      "upgrade_card_count": 2
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": [
+      "Blocking visual finding on the previous mechanically green runtime head: mobile Hive card copy was too small for the 844x390 target. The accepted head splits current->next/cost across rows and keeps both cards readable.",
+      "Blocking visual finding on the previous runtime head: the Lavender Buzz requirement was too close to the upper HUD. The accepted head renders explicit REQUIRES BUZZ 2 below the HUD and removes the gate when the capability is purchased.",
+      "No progression blocker remains: both first upgrades are affordable from 45 Honey, Flight changes real traversal, Buzz changes real work/gate capability, purchases are input-isolated and reload-safe.",
+      "Non-blocking scope limitation: P3 validates only the first Flight/Buzz level and uses repository-authored primitive development presentation; later effect curves and production art/audio remain later milestone work."
+    ],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "p3-evidence-evaluator-pass-2026-08-29",
+      "implementation_author_id": "p3-implementation-agent",
+      "input_artifacts": ["accepted runtime run 33247411645 artifact 9713299114", "movement-qa-$PR_HEAD", "evidence/P3-PROGRESSION/evaluation.md"],
+      "record_locator": "evidence/P3-PROGRESSION/evaluation.md"
+    }
+  },
+  "governance": {
+    "trust_boundary_change": "The P3 closeout updates gameplay/economy source-of-truth and evidence only; it does not change validator/workflow authority, branch rules, required checks or reviewer requirements.",
+    "bypass_analysis": "The PR changes economy/progression plus player-facing runtime/UI and high-risk Lua, so it remains classified economy and carries visual/evaluation evidence; it is not downgraded to process/trivial. The trusted validator continues to execute base/default-branch policy.",
+    "rollback": "Revert the P3 runtime/data/save-v2 changes together with P3 source-of-truth/evidence if later evidence invalidates the baseline. The migration is additive from P2 v1 and does not destructively rewrite campaign IDs/Honey."
+  },
+  "known_limitations": [
+    "Only Flight 1->2 and Buzz 1->2 are productionized in P3; later levels/effect curves remain tunable and require later pacing evidence.",
+    "30/35 Honey costs and 330 u/s / 1.35x effects are MEDIUM-strength runtime/simulation baselines, not final telemetry-locked balance.",
+    "Lavender is the first explicit Buzz gate; broader region gate cadence remains future content/pacing work.",
+    "P3 uses repository-authored primitive development UI/world presentation and the existing placeholder font; production illustration, animation, typography and audio polish remain later milestones.",
+    "Autonomous deterministic/browser evaluation is not a substitute for later external audience playtesting/telemetry."
+  ]
+}
