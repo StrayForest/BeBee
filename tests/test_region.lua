@@ -11,6 +11,7 @@ local function fresh_region_points_to_first_patch()
     test.assert_false(summary.complete)
     test.assert_equal("r01_m01", summary.next_meadow_id)
     test.assert_equal("RESTORE FIRST PATCH · 0/6", region.objective_text(save, "region_01"))
+    test.assert_equal("region_01", region.active_id(save))
 end
 
 local function first_meadow_requires_all_three_native_patches()
@@ -41,12 +42,54 @@ end
 
 local function completed_region_is_derived_not_saved_twice()
     local save = progression.new_save()
-    for _, patch in ipairs(catalog.patches) do save.world.campaign_completion[patch.id] = true end
+    for index = 1, 8 do
+        save.world.campaign_completion[catalog.patches[index].id] = true
+    end
     local summary = region.summary(save, "region_01")
     test.assert_true(summary.complete)
     test.assert_equal(6, summary.restored_count)
     test.assert_equal(nil, summary.next_meadow_id)
     test.assert_equal("SUNNY MEADOWS RESTORED · 6/6", region.objective_text(save, "region_01"))
+    test.assert_equal(nil, save.world.region_completion)
+end
+
+local function sunny_meadows_completion_activates_golden_fields()
+    local save = progression.new_save()
+    for index = 1, 8 do
+        save.world.campaign_completion[catalog.patches[index].id] = true
+    end
+    test.assert_equal("region_02", region.active_id(save))
+    local summary = region.active_summary(save)
+    test.assert_equal("region_02", summary.id)
+    test.assert_equal(4, summary.total)
+    test.assert_equal(0, summary.restored_count)
+    test.assert_equal("r02_m01", summary.next_meadow_id)
+    test.assert_equal("RESTORE SUN GATE · 0/4", region.active_objective_text(save))
+    test.assert_equal("region_02", region.region_id_for_meadow("r02_m03"))
+end
+
+local function golden_fields_is_content_chain_not_new_core_system()
+    local save = progression.new_save()
+    for index = 1, 8 do
+        save.world.campaign_completion[catalog.patches[index].id] = true
+    end
+    save.player.upgrades.upgrade_buzz = 3
+    local first = catalog.patches[9]
+    test.assert_equal("r01_m06_patch_01", first.requires_patch_id)
+    test.assert_equal("flower_sunflower", first.flower_id)
+    local eligible, reason = progression.patch_eligibility(save, first)
+    test.assert_true(eligible, tostring(reason))
+end
+
+local function completed_campaign_is_derived_across_regions()
+    local save = progression.new_save()
+    for _, patch in ipairs(catalog.patches) do save.world.campaign_completion[patch.id] = true end
+    local campaign = region.campaign_summary(save)
+    test.assert_true(campaign.complete)
+    test.assert_equal(2, campaign.completed_regions)
+    test.assert_equal(2, campaign.total_regions)
+    test.assert_equal("region_02", campaign.active_region_id)
+    test.assert_equal("GOLDEN FIELDS RESTORED · 4/4", region.active_objective_text(save))
     test.assert_equal(nil, save.world.region_completion)
 end
 
@@ -57,5 +100,8 @@ return {
         { name = "first_meadow_requires_all_three_native_patches", run = first_meadow_requires_all_three_native_patches },
         { name = "compact_later_meadow_jumps_to_restored_from_its_native_patch", run = compact_later_meadow_jumps_to_restored_from_its_native_patch },
         { name = "completed_region_is_derived_not_saved_twice", run = completed_region_is_derived_not_saved_twice },
+        { name = "sunny_meadows_completion_activates_golden_fields", run = sunny_meadows_completion_activates_golden_fields },
+        { name = "golden_fields_is_content_chain_not_new_core_system", run = golden_fields_is_content_chain_not_new_core_system },
+        { name = "completed_campaign_is_derived_across_regions", run = completed_campaign_is_derived_across_regions },
     },
 }
