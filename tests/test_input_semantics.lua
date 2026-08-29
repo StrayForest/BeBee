@@ -49,6 +49,17 @@ local function pointer_normalization()
     test.assert_true(pointer.pressed)
     test.assert_false(pointer.released)
 
+    local physical = input.pointer({
+        x = 640,
+        y = 360,
+        screen_x = 422,
+        screen_y = 195,
+        pressed = true,
+    })
+    test.assert_equal(422, physical.x)
+    test.assert_equal(195, physical.y)
+    test.assert_true(physical.pressed)
+
     local strict = input.pointer({ pressed = 1, released = "yes" })
     test.assert_false(strict.pressed)
     test.assert_false(strict.released)

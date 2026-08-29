@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression and P4 First Meadow Restoration are complete for milestone closeout; the next production handoff after P4 merge is P5 — Seed Ownership During Restoration.**
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration and P5 Seed Ownership During Restoration are complete for milestone closeout; the next production handoff after P5 merge is P6 — First Region Vertical Slice.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -510,28 +510,100 @@ P4 has the production runtime transformation, deterministic clean fixtures, real
 
 # P5 — Seed Ownership During Restoration
 
+**Status: COMPLETE for closeout — exit criteria PASS.**
+
 ## Goal
 
-Implement the **P-1 validated Hybrid seed/restoration model** so player flower choice contributes to ownership, rather than existing only as post-completion decoration.
+Implement the **P-1 validated Hybrid seed/restoration model** so player flower choice contributes to ownership during restoration without changing native campaign truth or creating repeat aesthetic grind.
 
-### Work
+### Seed definitions / one-time ownership — COMPLETE
 
-- seed definitions/unlocks;
-- separate campaign-native state from planted visual species;
-- validated placement/plant flow;
-- reversible replanting;
-- one pollination/establishment loop if validated;
-- persistence/migration;
-- economy regression scenarios with customization-heavy spending.
+The first production seed set is:
+
+```text
+Daisy     available after native patch 1   unlock 15 Honey   owned replant 0
+Clover    available after native patch 2   unlock 18 Honey   owned replant 0
+Lavender  available after native patch 3   unlock 22 Honey   owned replant 0
+```
+
+Ownership is a permanent one-time sink rather than a consumable inventory quantity.
+
+### Native campaign vs player-shaped plots — COMPLETE
+
+The three native Daisy/Clover/Lavender campaign patches retain their authored species and remain the only first-Meadow restoration contributors. Two dedicated player-shaped plots (`r01_m01_player_plot_01`, `r01_m01_player_plot_02`) are separate bounded `YOUR PLOT` spaces and never enter `world.campaign_completion`.
+
+### Low-friction contextual planting — COMPLETE
+
+P5 adds no seed inventory modal or second persistent HUD. Keyboard reuses `PRIMARY_ACTION` (`SPACE / ENTER` in the current browser proof); pointer/touch directly taps the nearby visible player plot. World-space labels/prompts expose `YOUR PLOT`, locked/native prerequisite state and the concrete plant/replant action/cost.
+
+### Reversible replant / campaign safety — COMPLETE
+
+Real Chromium lifecycle proof plants Daisy, later plants Clover and then replants already-owned Daisy for `0 Honey`. Honey remains `67 -> 67` across the replant and native completion remains patch 1/2 complete, patch 3 incomplete. The aesthetic state changes while campaign truth does not.
+
+### Save v3 / migration — COMPLETE
+
+Save schema advances v2 -> v3:
+
+- `player.seed_unlocks` stores owned stable seed IDs;
+- `world.player_plants` stores stable player-plot -> flower selections;
+- `world.campaign_completion` remains exclusively native campaign completion.
+
+Deterministic migration coverage preserves Honey, Flight/Buzz upgrades and prior native completions. Real browser reload restores owned Daisy+Clover, Daisy on plot 1, Honey `67` and the same native completion state.
+
+### Economy regression — COMPLETE
+
+The deterministic P5 model exhaustively evaluates all `5! = 120` priority orders across Flight 2, Buzz 2, Daisy, Clover and Lavender first sinks. All `120/120` pass without negative Honey, replay/grind or progression dead-end; after all first sinks the model leaves `50 Honey`.
+
+### Desktop/mobile runtime proof — COMPLETE
+
+Accepted desktop browser proof covers native patch -> Daisy unlock/plant -> native patch -> Clover unlock/plant -> free Daisy replant -> reload. Accepted 844x390 mobile proof directly taps the player plot, changes Honey `45 -> 30`, owns Daisy and plants `flower_daisy`. P5 browser console/page errors are `0 / 0`.
+
+Two exact-runtime defects were found and fixed before acceptance:
+
+1. mobile world hit-testing initially double-scaled Defold virtual `action.x/y`; the runtime now uses physical `action.screen_x/screen_y` before one screen-to-design conversion;
+2. after schema v3, the old BB-007 browser storage probe still emitted hard-coded save v2; it now derives `migrations.CURRENT_SAVE_VERSION`, and the full storage lifecycle passes again.
 
 ## Exit criteria
 
-- player can explain native challenge vs chosen flowers;
-- seed choice is visible in the recovering world;
-- choices are reversible where promised;
-- campaign progress cannot be broken by aesthetics;
-- customization survives reload;
-- the flow remains low-friction on desktop and touch.
+- player can explain native challenge vs chosen flowers — PASS for autonomous milestone evidence: ownership is confined to bounded `YOUR PLOT` spaces, locked plots explicitly say `RESTORE NATIVE PATCH FIRST`, and native authored patches retain their established progression role; no external novice playtest is claimed, so evidence strength remains MEDIUM;
+- seed choice is visible in the recovering world — PASS: retained frames show empty/offer -> Daisy -> Clover -> Daisy on the same player plot before full campaign completion;
+- choices are reversible where promised — PASS: owned Daisy replant costs `0 Honey`;
+- campaign progress cannot be broken by aesthetics — PASS: replant does not change native completion and all 120 economy priorities remain no-grind/progression-safe;
+- customization survives reload — PASS: Daisy+Clover ownership, Daisy plant, Honey `67` and native completion survive save v3 reload;
+- the flow remains low-friction on desktop and touch — PASS: contextual `SPACE / TAP`, no new modal/inventory, direct 844x390 touch transaction;
+- P0/P1/P2/P3/P4 regressions remain green in the same accepted HTML5 artifact — PASS;
+- separate evidence-first evaluation has no open `ITERATE` — PASS.
+
+### P5 exit record
+
+Accepted runtime evidence head before closeout-only source-of-truth changes: `8967ab565bc9ff9c7838344676587fbf0a6d2ae0`.
+
+- Repository standards `33251552722` — PASS;
+- Test/data `33251552769` — PASS, `92/92` tests;
+- P5 economy regression — PASS, `120/120` priorities, final Honey `50`;
+- Pages preview `33251552723` — PASS;
+- HTML5 CI `33251552740` — PASS;
+- movement/P5 artifact `9714546464` (`movement-qa-8967ab565bc9ff9c7838344676587fbf0a6d2ae0`), digest `sha256:64a04641fbd44542217ded406f785115b5939c8cd593436ec094f1b452e5e4ce`;
+- storage artifact `9714546696`, digest `sha256:ccb79b5276118eadcb2c0161e3d9f1f20bfaa46ef41bad27c2a85037f27fb6c8`;
+- visual artifact `9714546052` — retained;
+- playable artifact `9714545805` — retained;
+- HTML5 diagnostics artifact `9714546973` — retained;
+- Daisy real transaction Honey `45 -> 30`;
+- Daisy+Clover owned after second native patch; Honey `67`;
+- free Daisy replant Honey `67 -> 67`, campaign completion remains `true / true / false`;
+- reload retains owned Daisy+Clover, Daisy on plot 1, Honey `67` and native completion;
+- direct mobile touch transaction Honey `45 -> 30`, Daisy owned/planted;
+- P5 browser errors `0 / 0`;
+- mobile coordinate double-conversion defect fixed before acceptance;
+- stale v2 storage-probe fixture fixed before acceptance;
+- separate evaluation verdict = PASS;
+- complete evidence = `evidence/P5-SEED-OWNERSHIP/manifest.json` and `evidence/P5-SEED-OWNERSHIP/evaluation.md`.
+
+### autonomous milestone gate
+
+P5 has production Hybrid topology, deterministic migration/economy coverage, desktop/mobile real transactions, reversible replant proof, campaign-state separation, retained P1-P4 regressions, structured evidence, reference comparison and a separate PASS evaluation. The final closeout PR head must still repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted `validate-pr-evidence`, with a retained non-N/A `movement-qa-$PR_HEAD`, before merge.
+
+**P5 exit: PASS. Production advances to P6 — First Region Vertical Slice after the merge gate completes.**
 
 ---
 

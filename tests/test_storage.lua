@@ -41,7 +41,7 @@ local function adapter_with_fake(options)
     return local_adapter.new(options), state
 end
 
-local function payload(marker) return { save_version = 2, marker = marker } end
+local function payload(marker) return { save_version = 3, marker = marker } end
 
 local function clean_start_is_nonfatal()
     local adapter = adapter_with_fake()
@@ -156,7 +156,7 @@ local function migration_fixture_upgrades_v0()
     state.slots.a = { format_version = 1, generation = 1, payload = { save_version = 0, marker = "legacy" } }
     local loaded = adapter.load()
     test.assert_true(loaded.ok)
-    test.assert_equal(2, loaded.value.save_version)
+    test.assert_equal(3, loaded.value.save_version)
     test.assert_equal("legacy", loaded.value.marker)
 end
 
@@ -172,11 +172,40 @@ local function migration_fixture_upgrades_p2_v1_without_losing_progress()
     }
     local loaded = adapter.load()
     test.assert_true(loaded.ok)
-    test.assert_equal(2, loaded.value.save_version)
+    test.assert_equal(3, loaded.value.save_version)
     test.assert_equal(45, loaded.value.player.honey)
     test.assert_equal(1, loaded.value.player.upgrades.upgrade_flight)
     test.assert_equal(1, loaded.value.player.upgrades.upgrade_buzz)
     test.assert_true(loaded.value.world.campaign_completion.r01_m01_patch_01)
+    test.assert_equal(0, #loaded.value.player.seed_unlocks)
+    test.assert_equal(0, #loaded.value.world.player_plants)
+end
+
+local function migration_fixture_upgrades_p4_v2_without_losing_progress()
+    local adapter, state = adapter_with_fake()
+    state.slots.a = {
+        format_version = 1, generation = 4,
+        payload = {
+            save_version = 2,
+            player = {
+                honey = 65,
+                upgrades = { upgrade_flight = 2, upgrade_buzz = 2 },
+            },
+            world = {
+                campaign_completion = { r01_m01_patch_01 = true, r01_m01_patch_02 = true },
+            },
+        },
+    }
+    local loaded = adapter.load()
+    test.assert_true(loaded.ok)
+    test.assert_equal(3, loaded.value.save_version)
+    test.assert_equal(65, loaded.value.player.honey)
+    test.assert_equal(2, loaded.value.player.upgrades.upgrade_flight)
+    test.assert_equal(2, loaded.value.player.upgrades.upgrade_buzz)
+    test.assert_true(loaded.value.world.campaign_completion.r01_m01_patch_01)
+    test.assert_true(loaded.value.world.campaign_completion.r01_m01_patch_02)
+    test.assert_equal(nil, next(loaded.value.player.seed_unlocks))
+    test.assert_equal(nil, next(loaded.value.world.player_plants))
 end
 
 local function newer_runtime_version_is_rejected()
@@ -236,6 +265,7 @@ return {
         { name = "failed_readback_preserves_previous_generation", run = failed_readback_preserves_previous_generation },
         { name = "migration_fixture_upgrades_v0", run = migration_fixture_upgrades_v0 },
         { name = "migration_fixture_upgrades_p2_v1_without_losing_progress", run = migration_fixture_upgrades_p2_v1_without_losing_progress },
+        { name = "migration_fixture_upgrades_p4_v2_without_losing_progress", run = migration_fixture_upgrades_p4_v2_without_losing_progress },
         { name = "newer_runtime_version_is_rejected", run = newer_runtime_version_is_rejected },
         { name = "warning_size_is_reported_but_saved", run = warning_size_is_reported_but_saved },
         { name = "release_gate_blocks_write", run = release_gate_blocks_write },

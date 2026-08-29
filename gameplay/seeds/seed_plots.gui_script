@@ -1,0 +1,138 @@
+local DESIGN_W = 1280
+local DESIGN_H = 720
+
+local COLOR_CREAM = vmath.vector4(1.0, 0.969, 0.91, 1)
+local COLOR_SOIL = vmath.vector4(0.31, 0.245, 0.19, 0.92)
+local COLOR_SOIL_LOCKED = vmath.vector4(0.36, 0.34, 0.34, 0.72)
+local COLOR_DARK = vmath.vector4(0.12, 0.18, 0.12, 0.72)
+local COLOR_LOCKED = vmath.vector4(0.482, 0.431, 0.557, 0.92)
+local COLOR_HONEY = vmath.vector4(0.965, 0.718, 0.235, 1)
+local COLOR_DAISY = vmath.vector4(1.0, 0.94, 0.82, 1)
+local COLOR_CLOVER = vmath.vector4(0.72, 0.92, 0.64, 1)
+local COLOR_LAVENDER = vmath.vector4(0.72, 0.58, 0.86, 1)
+
+local FLOWER_OFFSETS = {
+    { -44, -15 }, { 0, -20 }, { 44, -10 }, { -24, 22 }, { 28, 20 },
+}
+
+local function box(x, y, w, h, color)
+    local node = gui.new_box_node(vmath.vector3(x, y, 0), vmath.vector3(w, h, 0))
+    gui.set_color(node, color)
+    return node
+end
+
+local function text_node(x, y, value, scale)
+    local node = gui.new_text_node(vmath.vector3(x, y, 0), value)
+    gui.set_font(node, "default")
+    gui.set_color(node, COLOR_CREAM)
+    gui.set_scale(node, vmath.vector3(scale or 1, scale or 1, 1))
+    return node
+end
+
+local function set_xy(node, x, y)
+    gui.set_position(node, vmath.vector3(x, y, 0))
+end
+
+local function world_to_screen(wx, wy, camera_x, camera_y)
+    return DESIGN_W * 0.5 + wx - camera_x, DESIGN_H * 0.5 + wy - camera_y
+end
+
+local function petal_color(flower_id)
+    if flower_id == "flower_clover" then return COLOR_CLOVER end
+    if flower_id == "flower_lavender" then return COLOR_LAVENDER end
+    return COLOR_DAISY
+end
+
+local function create_plot()
+    local plot = {
+        outline = box(0, 0, 164, 114, vmath.vector4(COLOR_CREAM.x, COLOR_CREAM.y, COLOR_CREAM.z, 0.42)),
+        soil = box(0, 0, 152, 102, COLOR_SOIL),
+        label_bg = box(0, 0, 126, 28, COLOR_DARK),
+        label = text_node(0, 0, "YOUR PLOT", 0.70),
+        action_bg = box(0, 0, 274, 36, COLOR_DARK),
+        action = text_node(0, 0, "", 0.70),
+        flowers = {},
+    }
+    for index = 1, #FLOWER_OFFSETS do
+        plot.flowers[index] = {
+            petal = box(0, 0, 20, 20, COLOR_DAISY),
+            center = box(0, 0, 7, 7, COLOR_HONEY),
+        }
+    end
+    return plot
+end
+
+local function set_plot_enabled(plot, enabled)
+    gui.set_enabled(plot.outline, enabled)
+    gui.set_enabled(plot.soil, enabled)
+    gui.set_enabled(plot.label_bg, enabled)
+    gui.set_enabled(plot.label, enabled)
+    gui.set_enabled(plot.action_bg, false)
+    gui.set_enabled(plot.action, false)
+    for _, flower in ipairs(plot.flowers) do
+        gui.set_enabled(flower.petal, false)
+        gui.set_enabled(flower.center, false)
+    end
+end
+
+local function render_plot(plot, message, prefix, camera_x, camera_y)
+    local visible = message[prefix .. "_visible"] == true
+    set_plot_enabled(plot, visible)
+    if not visible then return end
+
+    local sx, sy = world_to_screen(message[prefix .. "_x"] or 0, message[prefix .. "_y"] or 0, camera_x, camera_y)
+    local available = message[prefix .. "_available"] == true
+    local nearby = message[prefix .. "_nearby"] == true
+    local flower_id = message[prefix .. "_flower_id"] or ""
+    local action_text = message[prefix .. "_action_text"] or ""
+    local affordable = message[prefix .. "_affordable"] ~= false
+
+    set_xy(plot.outline, sx, sy)
+    set_xy(plot.soil, sx, sy)
+    set_xy(plot.label_bg, sx, sy + 75)
+    set_xy(plot.label, sx, sy + 75)
+    gui.set_text(plot.label, available and "YOUR PLOT" or "YOUR PLOT · LOCKED")
+    gui.set_color(plot.soil, available and COLOR_SOIL or COLOR_SOIL_LOCKED)
+    gui.set_color(plot.outline, available
+        and vmath.vector4(COLOR_CREAM.x, COLOR_CREAM.y, COLOR_CREAM.z, 0.42)
+        or vmath.vector4(COLOR_LOCKED.x, COLOR_LOCKED.y, COLOR_LOCKED.z, 0.55))
+
+    local planted = flower_id ~= ""
+    local color = petal_color(flower_id)
+    for index, flower in ipairs(plot.flowers) do
+        gui.set_enabled(flower.petal, planted)
+        gui.set_enabled(flower.center, planted)
+        if planted then
+            local offset = FLOWER_OFFSETS[index]
+            set_xy(flower.petal, sx + offset[1], sy + offset[2])
+            set_xy(flower.center, sx + offset[1], sy + offset[2])
+            gui.set_color(flower.petal, color)
+        end
+    end
+
+    local prompt_visible = nearby and action_text ~= ""
+    gui.set_enabled(plot.action_bg, prompt_visible)
+    gui.set_enabled(plot.action, prompt_visible)
+    if prompt_visible then
+        set_xy(plot.action_bg, sx, sy + 118)
+        set_xy(plot.action, sx, sy + 118)
+        gui.set_text(plot.action, action_text)
+        gui.set_color(plot.action_bg, affordable and COLOR_DARK or COLOR_LOCKED)
+    end
+end
+
+function init(self)
+    self.plot1 = create_plot()
+    self.plot2 = create_plot()
+    set_plot_enabled(self.plot1, false)
+    set_plot_enabled(self.plot2, false)
+    msg.post("/movement#controller", "seed_view_ready")
+end
+
+function on_message(self, message_id, message)
+    if message_id ~= hash("seed_view") then return end
+    local camera_x = message.camera_x or 1200
+    local camera_y = message.camera_y or 800
+    render_plot(self.plot1, message, "plot1", camera_x, camera_y)
+    render_plot(self.plot2, message, "plot2", camera_x, camera_y)
+end

@@ -15,4 +15,8 @@ instances {
   id: "progression"
   prototype: "/gameplay/progression/hive_panel.go"
 }
+instances {
+  id: "seeds"
+  prototype: "/gameplay/seeds/seed_plots.go"
+}
 scale_along_z: 0

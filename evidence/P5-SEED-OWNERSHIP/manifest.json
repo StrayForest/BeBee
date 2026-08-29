@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "ticket": "P5-SEED-OWNERSHIP",
+  "change_class": "economy",
+  "problem": "Productionize the validated Hybrid seed/restoration topology so players can buy and visibly plant owned Daisy/Clover/Lavender species during recovery without changing authored native campaign identities, creating a repeat aesthetic tax, breaking progression, or adding a modal inventory/input owner; the flow must persist through save v3 and work on desktop and touch.",
+  "decision": {
+    "ids": ["D-005", "D-009", "D-010", "T-003", "T-004", "T-006", "V-001"],
+    "status_before": "VALIDATED",
+    "status_after": "VALIDATED",
+    "provenance_type": "EXPERIMENT_RESULT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "hybrid_dedicated_player_plots",
+    "rationale": "Keep the three native campaign patches authored and progression-bearing while adding two clearly bounded YOUR PLOT spaces that never contribute to campaign completion. Seed ownership is a one-time Honey sink (15/18/22), owned-species replant is free, and save v3 stores seed ownership/player plants separately from native campaign completion. Exact-head Test/data and Chromium proof show 120/120 purchase priorities remain no-grind, real desktop/touch planting works, free replant does not mutate campaign state, and ownership/customization survives reload."
+  },
+  "research": {
+    "candidate_pool": [
+      {"product_id":"garden-life","name":"Garden Life: A Cozy Simulator","source":"https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/","relevance":"Authored restoration tasks coexist with unlocked seeds and player-directed planting."},
+      {"product_id":"wildmender","name":"Wildmender","source":"https://www.wildmender.com/","relevance":"Player planting is directly part of restoring a barren world and provides a strong ownership reference."},
+      {"product_id":"cloud-gardens","name":"Cloud Gardens","source":"https://store.steampowered.com/app/1372320/Cloud_Gardens","relevance":"Campaign progression conditions coexist with player-shaped vegetation and bounded expression."},
+      {"product_id":"terra-nil","name":"Terra Nil","source":"https://www.terranil.com/","relevance":"Authored ecological restoration goals provide a materially different low-expression counter-model."},
+      {"product_id":"grow-evertree","name":"Grow: Song of the Evertree","source":"https://store.steampowered.com/app/1380420/Grow_Song_of_the_Evertree/","relevance":"World identity and rejuvenation are linked rather than relegating customization to a post-completion decoration screen."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {"product_id":"garden-life","name":"Garden Life restoration plus free planting","source":"https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/","platform_version_date":"Steam product reference checked 2026-08-29","selection_reason":"Closest structural reference for authored restoration work and seed ownership coexisting before the whole space is complete.","observed_behavior":"The product combines restoring an abandoned community garden through tasks with seed unlocks and freely arranged planting.","inference":"BeBee can expose player-owned planting during restoration, but should keep the interaction much smaller and preserve a separate authored campaign role.","measurements":{"bebee_player_plot_count":2,"bebee_seed_species_count":3}},
+      {"product_id":"wildmender","name":"Wildmender player-shaped restoration","source":"https://www.wildmender.com/","platform_version_date":"Official product reference checked 2026-08-29","selection_reason":"Strong ownership reference where planting choices are themselves part of recovery.","observed_behavior":"The official product description centers collecting plants, planting seeds, shaping terrain and growing an oasis into the player's garden.","inference":"Seed choice should become visible in the recovering world rather than exist only in an inventory, while BeBee should avoid importing survival/management complexity.","measurements":{"bebee_seed_modal_count":0,"bebee_repeat_replant_cost":0}},
+      {"product_id":"cloud-gardens","name":"Cloud Gardens campaign plus expression","source":"https://store.steampowered.com/app/1372320/Cloud_Gardens","platform_version_date":"Steam product reference checked 2026-08-29","selection_reason":"Useful reference for expression coexisting with progression conditions instead of replacing them.","observed_behavior":"The product describes planting seeds to overgrow scenes while campaign stages retain their own progression structure.","inference":"BeBee should keep player-shaped planted state independent from native completion so aesthetics cannot rewrite campaign truth.","measurements":{"bebee_campaign_completion_mutations_on_replant":0}}
+    ],
+    "reference_exception": "",
+    "anti_pattern": {"source":"https://www.terranil.com/","observation":"Terra Nil emphasizes authored ecological transformation targets and does not center persistent personal flower composition as the restoration objective.","lesson":"Do not maximize customization freedom by allowing P5 planting to erase the authored identity or progression meaning of incomplete native campaign patches."}
+  },
+  "official_docs": [
+    {"source":"https://defold.com/manuals/input/","date_checked":"2026-08-29","verified_constraint":"Input is delivered through the existing focus stack and consumed actions stop propagating, so P5 reuses the existing contextual PRIMARY_ACTION path rather than adding a seed modal/input owner."},
+    {"source":"https://defold.com/manuals/input-mouse-and-touch/","date_checked":"2026-08-29","verified_constraint":"Pointer/touch interaction can share the existing primary pointer route. The accepted implementation uses one screen-to-design conversion from physical screen coordinates for world hit testing."},
+    {"source":"https://defold.com/ref/stable/sys-lua/","date_checked":"2026-08-29","verified_constraint":"Persistence remains behind the protected versioned storage service. Seed ownership/player plants are independent domain state and therefore use an explicit v2-to-v3 migration rather than being inferred from campaign completion."}
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {"id":"hybrid_dedicated_player_plots","disposition":"selected","reason":"Implements validated D-005 directly: authored native patches retain campaign identity while two bounded player plots expose early ownership and reversible expression with separate persistence."},
+    {"id":"replant_native_campaign_patches","disposition":"rejected","reason":"Would put chosen aesthetic identity on the same objects that still communicate authored native challenge/progression, reopening the structural ambiguity P-1 already rejected."},
+    {"id":"seed_inventory_modal","disposition":"rejected","reason":"Two plots and three first-region species do not justify another modal/input-focus surface; contextual world interaction is lower friction and reuses the proven input stack."},
+    {"id":"consumable_seed_every_replant","disposition":"rejected","reason":"Charging repeatedly for reversible aesthetics creates an unnecessary Honey drain and can conflict with the no-grind/no-soft-lock economy requirement."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"Native campaign patches remain authored/progression-bearing while dedicated player plots carry chosen species.","status":"pass","evidence":"Exact-head canonical/real browser evidence shows separate YOUR PLOT objects; player plot IDs never enter world.campaign_completion, and free replant leaves native patch 1/2 true and patch 3 false."},
+    {"criterion":"Daisy/Clover/Lavender ownership costs 15/18/22 Honey once and already-owned replant is free.","status":"pass","evidence":"Data/Test coverage passes; browser path spends 45->30 for Daisy, later reaches 67 after Clover purchase, then Daisy replant remains 67 with replant_cost=0."},
+    {"criterion":"Customization cannot alter or soft-lock campaign progression.","status":"pass","evidence":"P5 deterministic economy regression passes all 120/120 priority orders with no replay/negative Honey and final Honey 50 after all first sinks; browser replant/reload preserves native completion independently."},
+    {"criterion":"Save v3 separates seed ownership/player plants from campaign completion and migrates v2 state without losing Honey/upgrades/native progress.","status":"pass","evidence":"92/92 Test/data cases pass on accepted runtime head; canonical/browser P5 payloads report saveVersion 3 and reload retains owned Daisy+Clover, Honey 67, Daisy on plot 1 and native completion 1/2=true, 3=false."},
+    {"criterion":"Planting remains low-friction and uses no new modal/inventory/input owner.","status":"pass","evidence":"Rendered interaction is world-contextual: YOUR PLOT plus SPACE / TAP prompts; implementation reuses PRIMARY_ACTION/pointer-primary and P1-P4 focus/modal regression remains green in the same HTML5 artifact."},
+    {"criterion":"Desktop and mobile touch both execute a real seed transaction without browser errors.","status":"pass","evidence":"Accepted desktop lifecycle unlocks/plants/replants/reloads; 844x390 direct touch changes Honey 45->30, owns seed_daisy and plants flower_daisy with touch_direct_plot_action=true; P5 error counts are 0/0."},
+    {"criterion":"Rendered plot-role/seed-state evidence is sufficiently legible for autonomous P5 closeout without claiming an external human playtest.","status":"pass","evidence":"Inspected 1280x720 locked/unlocked/lifecycle frames and 844x390 mobile frames show YOUR PLOT, LOCKED/native prerequisite messaging and visible Daisy/Clover plant changes. Evidence strength remains MEDIUM because no novice study is claimed."},
+    {"criterion":"P0/P1/P2/P3/P4 browser regressions remain green with retained exact-head evidence.","status":"pass","evidence":"HTML5 CI 33251552740 PASS on 8967ab565bc9ff9c7838344676587fbf0a6d2ae0 retains the combined movement/P2/P3/P4/P5 artifact and storage smoke."},
+    {"criterion":"Separate evidence-first evaluation has no open ITERATE finding.","status":"pass","evidence":"evidence/P5-SEED-OWNERSHIP/evaluation.md records independent PASS, including the two real defects discovered by CI and fixed before acceptance."}
+  ],
+  "verification": {
+    "automated": [
+      "Accepted runtime head 8967ab565bc9ff9c7838344676587fbf0a6d2ae0: Repository standards 33251552722 PASS.",
+      "Accepted runtime head 8967ab565bc9ff9c7838344676587fbf0a6d2ae0: Test/data 33251552769 PASS; BB-004 suite 92/92 PASS.",
+      "Accepted runtime head 8967ab565bc9ff9c7838344676587fbf0a6d2ae0: P5 seed economy regression 120/120 priorities PASS, final Honey 50.",
+      "Accepted runtime head 8967ab565bc9ff9c7838344676587fbf0a6d2ae0: Pages preview 33251552723 PASS.",
+      "Accepted runtime head 8967ab565bc9ff9c7838344676587fbf0a6d2ae0: HTML5 CI 33251552740 PASS.",
+      "Accepted movement/P5 artifact 9714546464 (movement-qa-8967ab565bc9ff9c7838344676587fbf0a6d2ae0), digest sha256:64a04641fbd44542217ded406f785115b5939c8cd593436ec094f1b452e5e4ce.",
+      "Accepted storage artifact 9714546696, digest sha256:ccb79b5276118eadcb2c0161e3d9f1f20bfaa46ef41bad27c2a85037f27fb6c8.",
+      "Final closeout head must repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted validate-pr-evidence before merge and retain non-N/A movement-qa-$PR_HEAD."
+    ],
+    "manual": [
+      "Inspected accepted locked/unlocked desktop canonical frames: the player-owned object is explicitly YOUR PLOT, locked state is visible, and planting changes the bounded plot without relabeling native campaign areas.",
+      "Inspected accepted desktop lifecycle frames: Daisy offer, Daisy planted, Clover planted, free Daisy replant and reloaded Daisy remain visually distinct while the same authored native patch geometry/progression persists.",
+      "Inspected accepted 844x390 mobile offer/planted frames: touch uses the same world-space plot and the hierarchy remains readable at target landscape size.",
+      "CI previously exposed a real double-conversion mobile coordinate bug; runtime now uses physical action.screen_x/screen_y before one screen-to-design conversion.",
+      "The first post-input-fix candidate then exposed stale save_version=2 inside the BB-007 browser storage probe; the probe now derives migrations.CURRENT_SAVE_VERSION and the full storage smoke passes under schema v3."
+    ],
+    "runtime_errors": "none on accepted runtime evidence head; P5 canonical, desktop persistence and mobile touch exercises report zero console/page errors and the full HTML5 job passes",
+    "save_data_impact": "Save schema advances v2->v3. player.seed_unlocks stores owned stable seed IDs; world.player_plants maps stable player plot IDs to flower IDs; world.campaign_completion remains exclusively native campaign completion. Migration preserves Honey, Flight/Buzz upgrades and existing native completion."
+  },
+  "visual_evidence": {
+    "required": true,
+    "artifacts": [
+      "accepted runtime: run 33251552740 artifact 9714546464 movement-qa-8967ab565bc9ff9c7838344676587fbf0a6d2ae0",
+      "accepted runtime: run 33251552740 artifact 9714546052 visual-qa-8967ab565bc9ff9c7838344676587fbf0a6d2ae0",
+      "final exact-head: movement-qa-$PR_HEAD"
+    ],
+    "states": ["seed_locked", "seed_unlocked", "daisy_offer", "daisy_planted", "clover_planted", "free_daisy_replant", "seed_reload", "mobile_touch_offer", "mobile_touch_planted"],
+    "viewports": ["1280x720", "844x390"],
+    "motion_evidence": ["p5_seed/canonical/", "p5_seed/desktop_persistence/", "p5_seed/mobile_touch/", "motion-report.json"],
+    "provenance": {
+      "capture_commit_sha": "$PR_HEAD",
+      "capture_mode": "ci",
+      "artifact_locator": "HTML5 CI movement-qa-$PR_HEAD; accepted pre-closeout artifact 9714546464 from run 33251552740"
+    }
+  },
+  "comparison": {
+    "measurements": {
+      "player_plot_count": 2,
+      "seed_species_count": 3,
+      "daisy_unlock_cost": 15,
+      "clover_unlock_cost": 18,
+      "lavender_unlock_cost": 22,
+      "owned_replant_cost": 0,
+      "desktop_daisy_honey_before_after": "45->30",
+      "desktop_post_clover_honey": 67,
+      "desktop_post_free_replant_honey": 67,
+      "reload_honey": 67,
+      "reload_owned_seed_count": 2,
+      "mobile_touch_honey_before_after": "45->30",
+      "mobile_touch_direct_plot_action": true,
+      "campaign_completion_mutations_on_replant": 0,
+      "economy_priority_orders_passed": 120,
+      "economy_priority_orders_total": 120,
+      "economy_final_honey_after_first_sinks": 50,
+      "test_cases_passed": 92,
+      "test_cases_total": 92,
+      "p5_browser_console_errors": 0,
+      "p5_browser_page_errors": 0
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": [
+      "The Hybrid roles are visually separated enough for the autonomous P5 milestone: chosen flowers live only inside bounded YOUR PLOT spaces, while native campaign patches retain their authored flower/progression role; locked player plots explicitly defer to native restoration.",
+      "Seed choice is materially visible: the same player plot changes from empty/offer to Daisy, Clover and back to Daisy in retained frames without changing native completion.",
+      "The flow remains low-friction on desktop and touch: one contextual SPACE / TAP interaction executes purchase/plant/replant, with no seed modal or inventory input owner.",
+      "Economy/persistence safety is strong for current scope: all 120 purchase priorities pass, free replant is zero-cost, save v3 reload retains ownership/plant/native progress, and P1-P4 regressions remain green.",
+      "Two real blockers were found by exact runtime evidence and fixed before acceptance: duplicate mobile coordinate conversion, then a stale v2 storage-probe fixture after schema v3.",
+      "Non-blocking limitation: this is autonomous rendered/runtime evidence using primitive development presentation, not an external novice comprehension playtest or final P6 art/audio polish."
+    ],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "p5-evidence-evaluator-pass-2026-08-29",
+      "implementation_author_id": "p5-implementation-agent",
+      "input_artifacts": [
+        "accepted runtime run 33251552740 artifact 9714546464",
+        "movement-qa-$PR_HEAD",
+        "accepted Test/data run 33251552769",
+        "docs/research/P5-seed-ownership.md"
+      ],
+      "record_locator": "evidence/P5-SEED-OWNERSHIP/evaluation.md"
+    }
+  },
+  "governance": {
+    "trust_boundary_change": "No CI trust/merge authority change. P5 changes economy/player/storage runtime state under the existing read-only candidate workflows and trusted pull_request_target evidence validator.",
+    "bypass_analysis": "No gameplay acceptance criterion is replaced by prose. Economy, migration, desktop/touch transactions, free replant, campaign-state separation and P1-P4 regressions are machine/browser evidenced; external human comprehension is explicitly not claimed.",
+    "rollback": "If later P6 novice evidence shows YOUR PLOT/native-role comprehension is insufficient, keep the independent save topology and revise plot presentation/placement or reopen the topology decision rather than coupling planted species back into campaign_completion."
+  },
+  "known_limitations": [
+    "No external novice playtest/telemetry is claimed; comprehension evidence strength remains MEDIUM.",
+    "P5 validates two first-Meadow player plots and three seed species only; later plot count/placement and seed catalog remain content tuning.",
+    "Current flowers/plots/UI are repository-authored primitive development presentation; production illustration, animation, typography and audio are P6 scope."
+  ]
+}

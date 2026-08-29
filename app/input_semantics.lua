@@ -31,8 +31,8 @@ end
 
 function M.pointer(action)
     return {
-        x = action.x or 0,
-        y = action.y or 0,
+        x = action.screen_x or action.x or 0,
+        y = action.screen_y or action.y or 0,
         pressed = action.pressed == true,
         released = action.released == true,
     }

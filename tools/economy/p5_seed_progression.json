@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "status": "P5_PRODUCTION_FIRST_MEADOW",
+  "starting_honey": 0,
+  "milestones": [
+    {"id": "M01", "honey": 45, "requires_buzz": 1},
+    {"id": "M02", "honey": 55, "requires_buzz": 1},
+    {"id": "M03", "honey": 70, "requires_buzz": 2}
+  ],
+  "purchases": {
+    "flight_2": {"kind": "flight", "cost": 30, "available_after": "M01"},
+    "buzz_2": {"kind": "buzz", "cost": 35, "available_after": "M01", "level": 2},
+    "seed_daisy": {"kind": "seed", "cost": 15, "available_after": "M01"},
+    "seed_clover": {"kind": "seed", "cost": 18, "available_after": "M02"},
+    "seed_lavender": {"kind": "seed", "cost": 22, "available_after": "M03"}
+  },
+  "replant_cost": 0,
+  "replay_reward": 0
+}
