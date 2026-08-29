@@ -1,0 +1,58 @@
+name: P6 normalize newlines
+
+on:
+  push:
+    branches:
+      - codex/p6-first-region-vertical-slice
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Normalize tracked text final newlines
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+
+          text_suffixes = {
+              '.atlas', '.camera', '.collection', '.collectionfactory', '.collectionproxy',
+              '.editorconfig', '.factory', '.font', '.go', '.gui', '.gui_script',
+              '.input_binding', '.json', '.label', '.lua', '.material', '.md', '.mesh',
+              '.model', '.particlefx', '.project', '.py', '.render', '.render_script',
+              '.script', '.settings', '.sound', '.sprite', '.tilemap', '.tilesource',
+              '.yaml', '.yml',
+          }
+          text_names = {'.editorconfig', '.gitignore', '.luacheckrc', 'game.project'}
+          raw = subprocess.check_output(['git', 'ls-files', '-z'])
+          changed = []
+          for item in raw.split(b'\0'):
+              if not item:
+                  continue
+              path = Path(item.decode('utf-8'))
+              if path.name not in text_names and path.suffix not in text_suffixes:
+                  continue
+              data = path.read_bytes()
+              if data and not data.endswith(b'\n'):
+                  path.write_bytes(data + b'\n')
+                  changed.append(str(path))
+          print('normalized:', len(changed))
+          for path in changed:
+              print(path)
+          PY
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git commit -m "P6: normalize text final newlines"
+          git push origin HEAD:codex/p6-first-region-vertical-slice
