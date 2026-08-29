@@ -168,7 +168,7 @@ def _canonical(browser: Browser, *, base_url: str, head_sha: str, output_root: P
                     raise RuntimeError(f"seed_locked changed native campaign state: {payload!r}")
             else:
                 _assert_owned(payload, ["seed_daisy"])
-                if int(payload.get("saveVersion", -1)) != 3 or int(payload.get("honey", -1)) != 30:
+                if int(payload.get("saveVersion", -1)) != 4 or int(payload.get("honey", -1)) != 30:
                     raise RuntimeError(f"seed_unlocked save/economy fixture invalid: {payload!r}")
                 if plot1.get("currentFlowerId") != "flower_daisy" or payload.get("nativePatch1Completed") is not True or payload.get("nativePatch2Completed") is not False:
                     raise RuntimeError(f"seed_unlocked canonical fixture invalid: {payload!r}")
