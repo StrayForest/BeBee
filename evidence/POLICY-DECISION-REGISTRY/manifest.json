@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "ticket": "POLICY-DECISION-REGISTRY",
+  "change_class": "process",
+  "problem": "Trusted governance policy requires every DECISIONS.md change to use process classification, while the development contract also requires substantive feature decisions to update DECISIONS.md in the same feature PR. This makes compliant feature PRs unmergeable once the trust-boundary layer is reached.",
+  "decision": {
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "protect_decisions_without_forcing_process",
+    "rationale": "Keep DECISIONS.md governance-protected through same-PR manifest and governance evidence, but remove only the process-class requirement when DECISIONS.md is the sole governance file in a player-facing, economy or technical PR. Policy/workflow authority files still force process."
+  },
+  "research": {
+    "candidate_pool": [
+      {"name":"Trust boundary validator","source":"https://github.com/StrayForest/BeBee/blob/main/scripts/check_trust_boundary.py","relevance":"Contains the blanket governance-to-process rule."},
+      {"name":"Decision registry","source":"https://github.com/StrayForest/BeBee/blob/main/DECISIONS.md","relevance":"Authoritative source that feature PRs are required to synchronize."},
+      {"name":"Evidence governance","source":"https://github.com/StrayForest/BeBee/blob/main/docs/15-agent-evidence-governance.md","relevance":"Requires same-PR evidence and governance analysis without requiring a second human."},
+      {"name":"Development workflow","source":"https://github.com/StrayForest/BeBee/blob/main/docs/10-development-workflow.md","relevance":"Requires research/evidence and synchronized decisions for substantive work."},
+      {"name":"Trusted workflow","source":"https://github.com/StrayForest/BeBee/blob/main/.github/workflows/pr-evidence-trusted.yml","relevance":"Runs the trust-boundary policy from the protected base."}
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {"name":"Trust boundary validator","source":"https://github.com/StrayForest/BeBee/blob/main/scripts/check_trust_boundary.py","platform_version_date":"main at 2ab2dd8 / checked 2026-08-29","selection_reason":"Direct source of the process-only error.","observed_behavior":"Any governance file, including DECISIONS.md, forces Change class process while still requiring the same-PR manifest.","inference":"Decision-registry synchronization needs a narrower rule than workflow/policy-authority changes.","measurements":{"process_only_governance_files":1}},
+      {"name":"Decision registry","source":"https://github.com/StrayForest/BeBee/blob/main/DECISIONS.md","platform_version_date":"main at 2ab2dd8 / checked 2026-08-29","selection_reason":"Defines the authoritative decision update contract used by feature PRs.","observed_behavior":"Substantial validated decisions are expected to be recorded in the same PR that implements them.","inference":"Forcing process classification for this file conflicts with player-facing and technical diff classification.","measurements":{"authoritative_registry_files":1}}
+    ],
+    "reference_exception": "",
+    "anti_pattern": {"source":"https://github.com/StrayForest/BeBee/blob/main/scripts/check_trust_boundary.py","observation":"Treating a synchronized decision record exactly like a workflow/policy authority file creates mutually incompatible PR classifications.","lesson":"Preserve governance evidence while distinguishing decision-registry synchronization from policy-authority mutation."}
+  },
+  "official_docs": [],
+  "official_docs_exception": "Internal governance consistency correction; no external API or engine behavior changes.",
+  "alternatives": [
+    {"id":"protect_decisions_without_forcing_process","disposition":"selected","reason":"Removes only the contradictory class requirement while retaining manifest/governance evidence for DECISIONS.md."},
+    {"id":"remove_decisions_from_governance_entirely","disposition":"rejected","reason":"Would lose same-PR governance evidence and weaken source-of-truth protection."},
+    {"id":"move_decision_updates_to_separate_process_prs","disposition":"rejected","reason":"Breaks same-PR provenance between feature code, evidence and the authoritative decision record."}
+  ],
+  "acceptance_criteria": [
+    {"criterion":"Player-facing PR with gameplay plus DECISIONS.md and a same-PR governance manifest is not forced to process.","status":"pass","evidence":"Regression test test_decisions_only_governance_touch_can_remain_player_facing."},
+    {"criterion":"Workflow/policy authority changes still require process classification.","status":"pass","evidence":"Regression test test_policy_authority_change_still_requires_process."},
+    {"criterion":"DECISIONS.md still requires a same-PR manifest and governance object.","status":"pass","evidence":"Regression test test_decisions_update_still_requires_same_pr_manifest and unchanged base validator behavior."}
+  ],
+  "verification": {
+    "automated": ["New trust-boundary regression tests must pass with the existing adversarial policy suite.","Repository standards and trusted PR evidence must pass on the exact head."],
+    "manual": ["Confirmed P1 exact-head diff changes DECISIONS.md but not workflow/policy authority files relative to the new main base."],
+    "runtime_errors": "none applicable; governance policy only",
+    "save_data_impact": "none"
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": ["The exception is limited to DECISIONS.md as the sole governance file and does not suppress manifest/governance validation.","Any additional governance authority file keeps the process-only requirement."],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {"evaluated_sha":"$PR_HEAD","evaluator_id":"decision-registry-policy-evaluator-2026-08-29","implementation_author_id":"decision-registry-policy-implementation","input_artifacts":["P1 trusted run 33241873367","scripts/policy_tests/test_decision_registry_governance.py"],"record_locator":"evidence/POLICY-DECISION-REGISTRY/manifest.json"}
+  },
+  "governance": {
+    "trust_boundary_change": "DECISIONS.md remains governance-protected but no longer forces process classification when it is the only governance file in a player-facing/economy/technical PR. All workflow, policy, CODEOWNERS, AGENTS and governance-doc authority changes continue to require process.",
+    "bypass_analysis": "The wrapper filters only the process-class error for DECISIONS.md-only governance touches. The original validator still requires the evidence manifest to be changed in the same PR and validates governance trust_boundary_change, bypass_analysis and rollback fields. Adding any other governance file restores the process-only requirement.",
+    "rollback": "Revert the wrapper invocation, wrapper and tests together. This would re-block feature PRs that correctly synchronize DECISIONS.md but would not change game/runtime state."
+  },
+  "known_limitations": ["The narrow wrapper exists to preserve base-policy history; it can later be folded into check_trust_boundary.py after the blocker is cleared."]
+}
