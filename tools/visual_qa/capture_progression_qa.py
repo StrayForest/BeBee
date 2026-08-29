@@ -45,11 +45,18 @@ def _wait(page: Page, head_sha: str, state: str, timeout_ms: int) -> dict:
 def _shot(page: Page, path: Path):
     path.parent.mkdir(parents=True,exist_ok=True); page.screenshot(path=str(path),full_page=False,animations='disabled')
 
+def _dispatch_key(session, page: Page, key_code: int) -> None:
+    common={'windowsVirtualKeyCode':key_code,'nativeVirtualKeyCode':key_code}
+    session.send('Input.dispatchKeyEvent',{'type':'rawKeyDown',**common})
+    page.wait_for_timeout(100)
+    session.send('Input.dispatchKeyEvent',{'type':'keyUp',**common})
+    page.wait_for_timeout(100)
+
 def _record_hive_desktop(browser: Browser, *, base_url: str, head_sha: str, output_root: Path, timeout_ms: int) -> dict:
     frames=output_root/'p3_progression'/'desktop_reference_frames'; video_path=output_root/'p3_progression'/'desktop_reference.webm'; video_path.parent.mkdir(parents=True,exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='bebee-p3-desktop-') as video_dir:
         context=browser.new_context(viewport={'width':1280,'height':720},screen={'width':1280,'height':720},device_scale_factor=1,record_video_dir=video_dir,record_video_size={'width':1280,'height':720})
-        page=context.new_page(); video=page.video; console,page_errors=_errors(page)
+        page=context.new_page(); video=page.video; console,page_errors=_errors(page); session=context.new_cdp_session(page)
         try:
             page.goto(_url(base_url,qa='progression_hive',qa_seed=88008,p3_storage_lifecycle='reset'),wait_until='load',timeout=timeout_ms)
             before=_wait(page,head_sha,'progression_hive',timeout_ms); _shot(page,frames/'00-hive-ready.png')
@@ -58,20 +65,20 @@ def _record_hive_desktop(browser: Browser, *, base_url: str, head_sha: str, outp
             if before.get('flightNextCost') != 30 or before.get('buzzNextCost') != 35:
                 raise RuntimeError(f'P3 prices not visible in bridge: {before!r}')
 
-            page.keyboard.press('Space')
+            _dispatch_key(session,page,32)
             page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.modalOpen === true",timeout=timeout_ms)
             opened=_progress(page); _shot(page,frames/'01-hive-panel.png')
             start=_move(page); page.keyboard.down('d'); page.wait_for_timeout(500); page.keyboard.up('d'); page.wait_for_timeout(150); blocked=_move(page)
             modal_displacement=math.hypot(float(blocked['beeX'])-float(start['beeX']),float(blocked['beeY'])-float(start['beeY']))
             if modal_displacement > 1.0: raise RuntimeError(f'movement leaked through Hive modal: {modal_displacement}')
-            page.keyboard.press('ArrowLeft')
+            _dispatch_key(session,page,37)
             page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.selectedUpgrade === 'flight'",timeout=timeout_ms)
 
-            page.keyboard.press('Space')
+            _dispatch_key(session,page,32)
             page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.flightLevel === 2",timeout=timeout_ms)
             bought=_progress(page); _shot(page,frames/'02-flight-purchased.png')
             if bought.get('honey') != 15 or bought.get('flightMaxSpeed') != 330: raise RuntimeError(f'Flight purchase effect mismatch: {bought!r}')
-            page.keyboard.press('Escape'); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.modalOpen === false",timeout=timeout_ms)
+            _dispatch_key(session,page,27); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.modalOpen === false",timeout=timeout_ms)
             page.keyboard.down('d'); page.wait_for_timeout(900); cruise=_move(page); page.keyboard.up('d'); page.wait_for_timeout(250)
             if float(cruise.get('maxSpeed',0)) != 330 or float(cruise.get('speed',0)) < 315: raise RuntimeError(f'Flight not felt in movement runtime: {cruise!r}')
             _shot(page,frames/'03-flight-cruise.png')
@@ -92,22 +99,22 @@ def _record_hive_desktop(browser: Browser, *, base_url: str, head_sha: str, outp
 
 def _record_buzz_gate(browser: Browser, *, base_url: str, head_sha: str, output_root: Path, timeout_ms: int) -> dict:
     frames=output_root/'p3_progression'/'buzz_gate_frames'; context=browser.new_context(viewport={'width':1280,'height':720},screen={'width':1280,'height':720},device_scale_factor=1)
-    page=context.new_page(); console,page_errors=_errors(page)
+    page=context.new_page(); console,page_errors=_errors(page); session=context.new_cdp_session(page)
     try:
         page.goto(_url(base_url,qa='progression_buzz_gate',qa_seed=88008,p3_storage_lifecycle='reset'),wait_until='load',timeout=timeout_ms)
         locked=_wait(page,head_sha,'progression_buzz_gate',timeout_ms); _shot(page,frames/'00-buzz-locked.png')
         p3=locked.get('patch3') or {}
         if p3.get('state') != 'LOCKED' or p3.get('eligibilityReason') != 'requires_buzz' or p3.get('requirement') != 2:
             raise RuntimeError(f'Buzz gate not explicit before purchase: {locked!r}')
-        page.keyboard.press('Space'); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.modalOpen === true",timeout=timeout_ms)
-        page.keyboard.press('ArrowRight'); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.selectedUpgrade === 'buzz'",timeout=timeout_ms)
+        _dispatch_key(session,page,32); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.modalOpen === true",timeout=timeout_ms)
+        _dispatch_key(session,page,39); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.selectedUpgrade === 'buzz'",timeout=timeout_ms)
         _shot(page,frames/'01-buzz-selected.png')
-        page.keyboard.press('Space'); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.buzzLevel === 2",timeout=timeout_ms)
+        _dispatch_key(session,page,32); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.buzzLevel === 2",timeout=timeout_ms)
         unlocked=_progress(page); _shot(page,frames/'02-buzz-purchased.png')
         p3_after=unlocked.get('patch3') or {}
         if unlocked.get('honey') != 65 or abs(float(unlocked.get('buzzWorkMultiplier',0))-1.35)>0.001 or p3_after.get('state') != 'AVAILABLE' or p3_after.get('eligible') is not True:
             raise RuntimeError(f'Buzz purchase did not unlock gate/effect: {unlocked!r}')
-        page.keyboard.press('Escape'); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.modalOpen === false",timeout=timeout_ms); page.wait_for_timeout(100); _shot(page,frames/'03-world-unlocked.png')
+        _dispatch_key(session,page,27); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.modalOpen === false",timeout=timeout_ms); page.wait_for_timeout(100); _shot(page,frames/'03-world-unlocked.png')
         page.wait_for_timeout(1200)
         page.goto(_url(base_url,qa='progression_buzz_gate',qa_seed=88008,p3_storage_lifecycle='reload'),wait_until='load',timeout=timeout_ms)
         reloaded=_wait(page,head_sha,'progression_buzz_gate',timeout_ms)
@@ -119,11 +126,11 @@ def _record_buzz_gate(browser: Browser, *, base_url: str, head_sha: str, output_
 
 def _record_mobile_panel(browser: Browser, *, base_url: str, head_sha: str, output_root: Path, timeout_ms: int) -> dict:
     frames=output_root/'p3_progression'/'mobile_landscape_frames'; context=browser.new_context(viewport={'width':844,'height':390},screen={'width':844,'height':390},device_scale_factor=1,has_touch=True,is_mobile=True)
-    page=context.new_page(); console,page_errors=_errors(page)
+    page=context.new_page(); console,page_errors=_errors(page); session=context.new_cdp_session(page)
     try:
         page.goto(_url(base_url,qa='progression_hive',qa_seed=88008),wait_until='load',timeout=timeout_ms); before=_wait(page,head_sha,'progression_hive',timeout_ms)
         # Keyboard activation is deterministic in headless mobile Chromium; pointer behavior is separately exercised by P1/P2 touch proof.
-        page.keyboard.press('Space'); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.modalOpen === true",timeout=timeout_ms); opened=_progress(page); _shot(page,frames/'00-panel.png')
+        _dispatch_key(session,page,32); page.wait_for_function("() => window.__bebeeProgressionQA && window.__bebeeProgressionQA.modalOpen === true",timeout=timeout_ms); opened=_progress(page); _shot(page,frames/'00-panel.png')
         if opened.get('flightNextCost') != 30 or opened.get('buzzNextCost') != 35: raise RuntimeError(f'mobile panel data mismatch: {opened!r}')
         _assert_clean(console,page_errors,'P3 mobile panel')
         return {'viewport':{'id':'mobile_landscape','width':844,'height':390},'before':before,'opened':opened,'frame_files':[p.relative_to(output_root).as_posix() for p in sorted(frames.glob('*.png'))],'console_error_count':len(console),'page_error_count':len(page_errors)}
