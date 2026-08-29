@@ -31,7 +31,7 @@ return {
             meadow_id = "r01_m01",
             flower_id = "flower_clover",
             x = 1950,
-            y = 1050,
+            y = 950,
             radius = 160,
             edge_forgiveness = 28,
             pollination_work = 480,

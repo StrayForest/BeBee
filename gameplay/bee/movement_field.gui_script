@@ -13,8 +13,11 @@ local COLOR_DAISY = vmath.vector4(1.0, 0.94, 0.82, 1)
 local COLOR_CLOVER = vmath.vector4(0.82, 0.93, 0.72, 1)
 local COLOR_POLLEN = vmath.vector4(0.965, 0.718, 0.235, 0.62)
 
+-- Keep the active flower silhouettes outside the bee's ordinary body footprint.
+-- Five authored positions stay within the patch radius while making the target
+-- readable around the player instead of hiding behind it at pollination time.
 local FLOWER_OFFSETS = {
-    { -82, -30 }, { -28, 24 }, { 38, -24 }, { 84, 30 },
+    { -118, -54 }, { -102, 74 }, { 0, 118 }, { 104, 72 }, { 118, -56 },
 }
 
 local function box(x, y, w, h, color)
@@ -57,7 +60,7 @@ end
 local function create_patch(petal_color)
     local patch = {
         petal_color = petal_color,
-        halo = box(0, 0, 250, 150, vmath.vector4(1,1,1,0.05)),
+        halo = box(0, 0, 290, 250, vmath.vector4(1,1,1,0.05)),
         progress_bg = box(0, 0, 184, 16, vmath.vector4(0.12,0.18,0.12,0.36)),
         progress_fill = box(0, 0, 180, 10, COLOR_ACTIVE),
         lock_text = text_node(0, 0, "LOCKED", 0.88),
@@ -137,7 +140,7 @@ local function render_patch(patch, wx, wy, state, progress, camera_x, camera_y, 
         )
     end
 
-    local bar_y = sy + 105
+    local bar_y = sy + 146
     local width = 180 * math.max(0, math.min(1, progress))
     set_xy(patch.progress_bg, sx, bar_y)
     set_size(patch.progress_fill, math.max(1, width), 10)
@@ -237,7 +240,7 @@ function on_message(self, message_id, message)
     render_patch(
         self.patch2,
         message.patch2_x or 1950,
-        message.patch2_y or 1050,
+        message.patch2_y or 950,
         message.patch2_state or "LOCKED",
         message.patch2_progress or 0,
         camera_x,
@@ -269,7 +272,7 @@ function on_message(self, message_id, message)
     gui.set_enabled(self.reward_text, reward_visible)
     if reward_visible then
         gui.set_text(self.reward_text, "+" .. tostring(math.floor(message.reward_amount or 0)) .. " HONEY")
-        local reward_x, reward_y = world_to_screen(message.reward_patch_x or 0, (message.reward_patch_y or 0) + 135, camera_x, camera_y)
+        local reward_x, reward_y = world_to_screen(message.reward_patch_x or 0, (message.reward_patch_y or 0) + 175, camera_x, camera_y)
         set_xy(self.reward_text, reward_x, reward_y)
     end
 
@@ -280,7 +283,7 @@ function on_message(self, message_id, message)
         gui.set_enabled(node, pollen_active)
         if pollen_active then
             local angle = (message.frame or 0) * 0.10 + index * 1.047
-            local radius = 52 + (index % 2) * 18
+            local radius = 82 + (index % 2) * 18
             local px, py = world_to_screen(
                 active_x + math.cos(angle) * radius,
                 active_y + math.sin(angle) * radius,
