@@ -1,5 +1,6 @@
 local defold_backend = require "adapters.storage.defold_backend"
 local storage_service = require "systems.storage.storage_service"
+local migrations = require "systems.storage.migrations"
 
 local M = {}
 
@@ -25,7 +26,7 @@ local function result_payload(scenario, result, extra)
 end
 
 local function probe_payload(marker)
-    return { save_version = 2, marker = marker }
+    return { save_version = migrations.CURRENT_SAVE_VERSION, marker = marker }
 end
 
 function M.run()
