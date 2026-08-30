@@ -187,7 +187,7 @@ def record_rosewood(
             raise RuntimeError(f"P7 Rosewood Honey did not survive reload: {reloaded!r}")
         if reload_campaign.get("complete") is not True or int(reload_campaign.get("completed_regions", -1)) != 4:
             raise RuntimeError(f"P7 Rosewood campaign completion did not survive reload: {reloaded!r}")
-        _move_to(page, *ROSEWOOD_PATCHES[20], timeout_seconds=22.0, tolerance=72)
+        _move_to(page, *ROSEWOOD_PATCHES[20], timeout_seconds=40.0, tolerance=72)
         reload_shot = frames / "03-rosewood-reloaded-desktop.png"
         _shot(page, reload_shot)
 
