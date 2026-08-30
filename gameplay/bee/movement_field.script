@@ -30,6 +30,9 @@ local SETTINGS_ACCESSIBILITY = "settings_accessibility"
 local ROSEWOOD_START = "rosewood_start"
 local ROSEWOOD_MID = "rosewood_mid"
 local ROSEWOOD_COMPLETE = "rosewood_complete"
+local ALPINE_BLOOM_START = "alpine_bloom_start"
+local ALPINE_BLOOM_MID = "alpine_bloom_mid"
+local ALPINE_BLOOM_COMPLETE = "alpine_bloom_complete"
 
 local HIVE_X = 1120
 local HIVE_Y = 800
@@ -81,11 +84,16 @@ local function rosewood_qa(state_id)
     return state_id == ROSEWOOD_START or state_id == ROSEWOOD_MID or state_id == ROSEWOOD_COMPLETE
 end
 
+local function alpine_bloom_qa(state_id)
+    return state_id == ALPINE_BLOOM_START or state_id == ALPINE_BLOOM_MID or state_id == ALPINE_BLOOM_COMPLETE
+end
+
 local function region_qa(state_id)
-    return state_id == REGION_START or state_id == REGION_MID or state_id == REGION_COMPLETE or state_id == SETTINGS_ACCESSIBILITY or rosewood_qa(state_id)
+    return state_id == REGION_START or state_id == REGION_MID or state_id == REGION_COMPLETE or state_id == SETTINGS_ACCESSIBILITY or rosewood_qa(state_id) or alpine_bloom_qa(state_id)
 end
 
 local function runtime_region_id(self)
+    if alpine_bloom_qa(self.qa_state) then return "region_05" end
     if rosewood_qa(self.qa_state) then return "region_04" end
     if region_qa(self.qa_state) then return P6_REGION_ID end
     if self.save_state then return region.active_id(self.save_state) or P6_REGION_ID end
@@ -111,6 +119,7 @@ local function clean_progression(self, persistence_enabled)
 end
 
 local function lifecycle_value(self)
+    if alpine_bloom_qa(self.qa_state) then return query_value("alpine_bloom_storage_lifecycle") end
     if rosewood_qa(self.qa_state) then return query_value("rosewood_storage_lifecycle") end
     if region_qa(self.qa_state) then return query_value("p6_storage_lifecycle") end
     if seed_qa(self.qa_state) then return query_value("p5_storage_lifecycle") end
@@ -375,6 +384,12 @@ local function apply_visual_fixture(self)
         prepare_expansion_fixture(self, 16, 2021, 17)
     elseif self.qa_state == ROSEWOOD_COMPLETE then
         prepare_expansion_fixture(self, 18, 2506, 18)
+    elseif self.qa_state == ALPINE_BLOOM_START then
+        prepare_expansion_fixture(self, 18, 2506, 19)
+    elseif self.qa_state == ALPINE_BLOOM_MID then
+        prepare_expansion_fixture(self, 20, 3041, 21)
+    elseif self.qa_state == ALPINE_BLOOM_COMPLETE then
+        prepare_expansion_fixture(self, 22, 3636, 22)
     end
 end
 

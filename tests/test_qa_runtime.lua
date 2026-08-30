@@ -10,6 +10,7 @@ local function supported_runtime_states()
         "seed_locked", "seed_unlocked",
         "region_start", "region_mid", "region_complete", "settings_accessibility",
         "rosewood_start", "rosewood_mid", "rosewood_complete",
+        "alpine_bloom_start", "alpine_bloom_mid", "alpine_bloom_complete",
     }) do test.assert_true(qa.is_supported_state(state), state) end
     test.assert_false(qa.is_supported_state("not_a_state"))
 end
@@ -62,6 +63,11 @@ local function supported_request()
     test.assert_true(rosewood_request.supported)
     test.assert_true(qa.is_region_state(rosewood_request.state_id))
     test.assert_true(qa.requires_gameplay_capture(rosewood_request.state_id))
+
+    local alpine_request = qa.resolve_request("alpine_bloom_complete", "88008")
+    test.assert_true(alpine_request.supported)
+    test.assert_true(qa.is_region_state(alpine_request.state_id))
+    test.assert_true(qa.requires_gameplay_capture(alpine_request.state_id))
 end
 
 local function unknown_state_fails_closed()
