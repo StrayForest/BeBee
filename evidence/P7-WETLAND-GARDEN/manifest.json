@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "ticket": "P7-WETLAND-GARDEN",
+  "change_class": "player-facing",
+  "problem": "Prove that BeBee can add a third authored region with a clear wetland identity while reusing the validated movement-through pollination, Honey, Flight/Buzz, restoration, save and analytics systems, without adding a new verb, currency, mandatory spend, lethal hazard or per-region world lifecycle.",
+  "decision": {
+    "ids": [
+      "D-004",
+      "D-006",
+      "D-009",
+      "D-010",
+      "D-012",
+      "T-004",
+      "T-005",
+      "T-012",
+      "T-013",
+      "V-001"
+    ],
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "EXPERIMENT_RESULT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "continuous_authored_wetland_region_with_bounded_visual_pool",
+    "rationale": "The exact-head deterministic and Chromium journey validates Wetland Garden as region_03 in the same continuous authored world. Four new Meadows complete through the existing movement-through pollination verb, reuse Honey and Buzz 3, reload through save v4, and retain the six-slot nearby-patch pool. Water, roots and islands provide identity as non-lethal navigation language. The earlier 2040-byte view_state failure was repaired by omitting transient qualifying=false values for inactive patches; the accepted head passes the full browser/evidence job without raising the GUI or patch budgets. The independent evaluation accepts the architecture with the existing explicit geometric-art deviation; P7 remains IN PROGRESS for later authored regions and release-art polish."
+  },
+  "governance": {
+    "trust_boundary_change": "No governance-critical file, workflow, validator, ruleset, permission or trust-boundary behavior is changed by this player-facing slice. The manifest is ordinary same-PR feature evidence.",
+    "bypass_analysis": "No governance bypass is introduced or used. Exact-head CI, trusted evidence policy, diff classification, deterministic tests and retained artifacts remain the authority for this PR.",
+    "rollback": "Revert this feature PR to remove the Wetland content and bounds changes; no repository enforcement setting or separate migration is required because save v4 and the existing adapters remain authoritative."
+  },
+  "research": {
+    "candidate_pool": [
+      {
+        "product_id": "loddlenaut",
+        "name": "Loddlenaut",
+        "source": "https://www.loddlenaut.com/",
+        "relevance": "Ecological recovery and aquatic spaces give a strong biome identity while the player reuses a compact movement and cleanup vocabulary."
+      },
+      {
+        "product_id": "alba",
+        "name": "Alba: A Wildlife Adventure",
+        "source": "https://www.albawildlife.com/",
+        "relevance": "Compact authored natural spaces rely on memorable habitats and landmarks rather than a dense navigation meta-layer."
+      },
+      {
+        "product_id": "terra-nil",
+        "name": "Terra Nil",
+        "source": "https://www.terranil.com/",
+        "relevance": "A materially different restoration model that exposes the risk of turning a wetland slice into a new management/economy system."
+      },
+      {
+        "product_id": "a-short-hike",
+        "name": "A Short Hike",
+        "source": "https://ashorthike.com/",
+        "relevance": "Hand-authored traversal uses landmarks and environmental composition to orient players with little persistent UI."
+      },
+      {
+        "product_id": "garden-life",
+        "name": "Garden Life: A Cozy Simulator",
+        "source": "https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/",
+        "relevance": "Authored restoration areas expand through a stable gardening vocabulary and provide a close comparison for content scaling."
+      }
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {
+        "product_id": "loddlenaut",
+        "name": "Loddlenaut / aquatic ecological recovery",
+        "source": "https://store.steampowered.com/app/1644940/Loddlenaut/",
+        "platform_version_date": "Public shipped-product reference checked 2026-08-30",
+        "selection_reason": "Closest selected reference for giving an aquatic ecology setting a recognizable identity while preserving a small familiar interaction vocabulary.",
+        "observed_behavior": "Aquatic areas communicate ecological recovery through environment, habitat and friendly-life presentation; the setting changes while basic movement and cleanup remain readable.",
+        "inference": "Wetland should use water, roots, islands and recovered life as environmental language, while pollination remains the only restoration verb and water never becomes a damage system.",
+        "measurements": {
+          "bebee_new_regions": 1,
+          "bebee_new_core_verbs": 0,
+          "bebee_new_currencies": 0
+        }
+      },
+      {
+        "product_id": "alba",
+        "name": "Alba / authored habitat landmarks",
+        "source": "https://www.albawildlife.com/environment/",
+        "platform_version_date": "Public shipped-product reference checked 2026-08-30",
+        "selection_reason": "Useful reference for compact low-pressure authored spaces where local habitat silhouettes and landmarks orient the player without a world-management screen.",
+        "observed_behavior": "Natural spaces are differentiated by habitat context, landmarks and wildlife rather than requiring a dense HUD or separate strategic layer for each area.",
+        "inference": "Lotus Landing, Iris Channel, Rootwalk Isles and Dragonfly Basin should be readable through layout, flower silhouettes, water/root landmarks and restoration reveal while retaining the sparse objective/Honey HUD.",
+        "measurements": {
+          "bebee_new_meadows": 4,
+          "persistent_hud_clusters": 2
+        }
+      }
+    ],
+    "reference_exception": "",
+    "anti_pattern": {
+      "source": "https://store.steampowered.com/app/1593030/Terra_Nil/",
+      "observation": "Terra Nil makes restoration a region-specific strategic transformation loop with management decisions, buildings, resources and biome conversion.",
+      "lesson": "Do not use Wetland as a reason to add water-level simulation, purification/building tools, wetland currency, a region-management screen or procedural generation; those would replace the validated BeBee loop instead of scaling authored content."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/collection-proxy/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Collection proxies create separate game-world lifecycle surfaces; Wetland has no measured need for one proxy per region or Meadow and remains in the continuous gameplay world."
+    },
+    {
+      "source": "https://defold.com/manuals/collection-factory/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Collection factories can add content to the current world; the selected authored data path avoids introducing a new per-region lifecycle before lifecycle or memory evidence requires it."
+    },
+    {
+      "source": "https://defold.com/manuals/gui/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Defold GUI scenes have Current Nodes and Max Nodes budgets. The earlier HTML5 run exceeded the 2040-byte msg.post buffer while the accepted implementation bounds visible patch state and omits inactive transient fields."
+    },
+    {
+      "source": "https://defold.com/manuals/optimization-memory/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Runtime resource and node usage must be measured and bounded; the accepted browser run retains PATCH_POOL_SIZE=6 and max_nodes=512 rather than hiding content growth by raising limits."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "continuous_authored_wetland_region_with_bounded_visual_pool",
+      "disposition": "selected",
+      "reason": "Adds the requested wetland content and traversal bounds while preserving the proven verb, save, analytics, current-world lifecycle and visible-complexity cap; exact-head Chromium evidence passes."
+    },
+    {
+      "id": "collection_proxy_per_region",
+      "disposition": "rejected",
+      "reason": "No independent lifecycle or memory requirement was measured, and per-region proxies would multiply lifecycle and input/focus surfaces."
+    },
+    {
+      "id": "wetland_management_layer",
+      "disposition": "rejected",
+      "reason": "Water-level, purification, building or wetland-specific economy would add a new strategic system and violate the slice scope."
+    },
+    {
+      "id": "raise_gui_or_message_limits",
+      "disposition": "rejected",
+      "reason": "Would mask total-catalog growth instead of repairing transient state serialization and bounded presentation."
+    },
+    {
+      "id": "procedural_wetland_generation",
+      "disposition": "rejected",
+      "reason": "The validated BeBee world remains authored for pacing, landmarks and deterministic evidence; procedural generation is outside this content slice."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Existing P1-P7 deterministic/browser regressions remain green on the accepted Wetland runtime head.",
+      "status": "pass",
+      "evidence": "Repository standards run 33304395136 PASS; Test/data run 33304395104 PASS; HTML5 CI run 33304395113 PASS; retained movement-qa report ticket P1-P7-RUNTIME has result PASS."
+    },
+    {
+      "criterion": "Persisted regions 01 and 02 derive fresh region_03 at 0/4 through ordinary runtime state.",
+      "status": "pass",
+      "evidence": "Retained p7_wetland_garden start state has region_03 WETLAND GARDEN, restored_count 0, total 4, next_meadow_id r03_m01, start_honey 891 and fixture_source describing persisted P6 then ordinary Golden/Wetland completion."
+    },
+    {
+      "criterion": "Lotus Landing, Iris Channel, Rootwalk Isles and Dragonfly Basin complete through existing movement-through pollination.",
+      "status": "pass",
+      "evidence": "Retained complete_region contains r03_m01 through r03_m04, each restored with contribution 3 and stage_id RESTORED; each patch remains COMPLETED with requiresBuzzLevel 3 and no new interaction field."
+    },
+    {
+      "criterion": "Lotus/Iris species and water/root/island composition are visually distinct without a new interaction or lethal hazard.",
+      "status": "pass",
+      "evidence": "Retained Wetland start/mid/complete/reload/mobile captures show Lotus/Iris silhouettes, blue-green ground, water pools, root/boardwalk accents and island composition; source research explicitly rejects lethal water and management systems."
+    },
+    {
+      "criterion": "Wetland follows 891 -> 1596 Honey from first-time rewards with no mandatory spend or replay.",
+      "status": "pass",
+      "evidence": "Retained p7_wetland_garden reports start_honey 891 and final_honey 1596; four Meadow completions and 160+170+180+195 rewards are recorded in the exact journey."
+    },
+    {
+      "criterion": "Save v4 reload preserves all three region completion states and Honey.",
+      "status": "pass",
+      "evidence": "Retained reload_region is region_03 complete 4/4 and campaign is complete with completed_regions 3/3; the accepted source keeps save v4 and storage-qa reports save_version 4 through reload/recovery cases."
+    },
+    {
+      "criterion": "region_completed attributes Wetland to region_03 and campaign completion is durable.",
+      "status": "pass",
+      "evidence": "Retained campaign and complete_region both identify region_03/WETLAND GARDEN complete; analytics_event_names include region_completed after the Wetland journey and again after reload."
+    },
+    {
+      "criterion": "Expanded traversal/camera bounds are finite and clamped while movement remains deterministic.",
+      "status": "pass",
+      "evidence": "Retained motion-report movement_dense desktop/touch exercises show bounded camera/bee state, boundHits 0 in central exercises, exact repeated frame hashes and result PASS; HTML5 CI run 33304395113 passes the Wetland capture."
+    },
+    {
+      "criterion": "GUI remains within max_nodes=512, patch pool remains six slots and the 2040-byte regression is absent.",
+      "status": "pass",
+      "evidence": "Accepted source keeps the documented budgets; exact-head HTML5 run 33304395113 passes build/smoke/capture and its retained browser logs contain no runtime exception or 2040-byte failure after transient inactive-patch serialization was removed."
+    },
+    {
+      "criterion": "Desktop/mobile canvas, errors, external requests, FPS and bundle budgets pass.",
+      "status": "pass",
+      "evidence": "Retained Wetland capture reports desktop 1280x720, mobile 844x390, console/page errors 0/0 and external requests 0; p6 performance report records 59.94 fps against >=50 and release bundle 2,817,172 bytes against 12 MiB."
+    },
+    {
+      "criterion": "Independent evaluation has no open ITERATE and retains the explicit art-direction limitation.",
+      "status": "pass",
+      "evidence": "This manifest and evidence/P7-WETLAND-GARDEN/evaluation.md record independent_pass, verdict PASS WITH DEVIATION, iteration_required false, with geometric illustration/typography as the only carried limitation."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Exact head 40019b8b253e6de27ad8de121e74ad67b146dfb0: Repository standards run 33304395136 PASS.",
+      "Exact head 40019b8b253e6de27ad8de121e74ad67b146dfb0: Test/data run 33304395104 PASS; retained artifact test-data-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:aee0a64a84e4af3bef21e253b72b8ff3ca8993b69158248b0a2adaf891219be2.",
+      "Exact head 40019b8b253e6de27ad8de121e74ad67b146dfb0: Pages preview run 33304395199 PASS; artifact github-pages-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:4c2e2d74e5b2ac416e91fd72452fdc06f21ee4c2bcb344755cab591a116cf27.",
+      "Exact head 40019b8b253e6de27ad8de121e74ad67b146dfb0: HTML5 CI run 33304395113 PASS; html5 job 99238231831 completed every build/smoke/evidence/upload step.",
+      "Retained html5-ci-evidence artifact 9730052600 name html5-ci-evidence-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:fdb3b431a25bb76865b33878c45e820dfa1f3ca9f49674173f09da7ba5124700.",
+      "Retained movement artifact 9730052313 name movement-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:0ebc56d4e37ff77ef2fe086c1f83f84aca6b70ec9b1375d7dfe4c3e25e055a7b.",
+      "Retained storage artifact 9730052468 name storage-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:352298d935a808576fbbac138de724b1daf71ac5fcd554ce76ffdf65329720f9.",
+      "Retained visual artifact 9730052105 name visual-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:f872bf172ee8b98b1ac85a319c595525288922e207115969d7517a12c69e1b8a.",
+      "Retained playable artifact 9730051946 name html5-playable-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:dc4db8d7328bd53a5544ac91f32b4c7774508d1ce77eeea3dbf90c874f4b1e7e."
+    ],
+    "manual": [
+      "Inspected retained Wetland start, mid, complete, reload and mobile-landscape stills; Lotus/Iris, water/root/island composition, objective progression and Honey are readable.",
+      "Inspected retained p7_wetland_garden motion-report: exact head binding, 0/4 start, 2/4 midpoint, 4/4 completion, region_03 reload and 891 -> 1596 Honey.",
+      "Inspected retained storage-report.json: save_version 4 remains valid across clean start, save/reload, immediate refresh, delete persistence, quick checkpoints and corrupt-newest recovery.",
+      "Inspected retained browser-smoke.json and input-proxy-smoke.json: WebAssembly/canvas smoke and input-proxy/modal checks pass with no actionable errors.",
+      "Inspected retained movement capture reports: repeated captures have stable exact SHA-256 hashes, release QA bridge/probe are absent, and desktop/mobile movement evidence has zero console/page errors."
+    ],
+    "runtime_errors": "No actionable runtime, console or page errors observed in the retained exact-head browser-smoke, movement, visual or storage reports; browser log contains only environment-level Chromium/driver diagnostics.",
+    "save_data_impact": "No save schema change. Wetland uses existing save v4, stable campaign patch IDs, existing A/B storage adapter and derived region/meadow state; storage evidence confirms save_version 4 through reload/recovery."
+  },
+  "visual_evidence": {
+    "required": true,
+    "artifacts": [
+      "HTML5 CI run 33304395113 / artifact html5-ci-evidence-40019b8b253e6de27ad8de121e74ad67b146dfb0",
+      "movement-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 / p7_wetland_garden",
+      "visual-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 / foundation_probe",
+      "storage-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0"
+    ],
+    "states": [
+      "wetland_start_0_of_4",
+      "wetland_mid_2_of_4",
+      "wetland_complete_4_of_4",
+      "wetland_reloaded_4_of_4",
+      "wetland_complete_mobile_landscape",
+      "movement_dense",
+      "movement_empty"
+    ],
+    "viewports": [
+      "1280x720 desktop_reference",
+      "844x390 mobile_landscape",
+      "640x360 poki_small",
+      "836x470 poki_medium",
+      "1031x580 poki_large"
+    ],
+    "motion_evidence": [
+      "movement-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 / p7_wetland_garden still sequence",
+      "movement-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 / movement_dense desktop_reference.webm and mobile_landscape.webm"
+    ],
+    "provenance": {
+      "capture_commit_sha": "$PR_HEAD",
+      "capture_mode": "ci",
+      "artifact_locator": "GitHub Actions HTML5 CI run 33304395113, retained artifacts 9730052600/9730052313/9730052105/9730052468/9730051946"
+    }
+  },
+  "comparison": {
+    "measurements": {
+      "wetland_meadows": 4,
+      "campaign_regions_completed": 3,
+      "start_honey": 891,
+      "final_honey": 1596,
+      "first_time_honey_delta": 705,
+      "desktop_canvas": "1280x720",
+      "mobile_canvas": "844x390",
+      "console_errors": 0,
+      "page_errors": 0,
+      "external_requests": 0,
+      "engine_fps": 59.94,
+      "min_engine_fps_budget": 50,
+      "release_bundle_bytes": 2817172,
+      "release_bundle_budget_bytes": 12582912,
+      "patch_pool_size": 6,
+      "gui_max_nodes": 512
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": [
+      "PASS WITH DEVIATION: the third-region architecture, authored wetland identity, progression, persistence and measured browser/runtime budgets pass; the existing geometric bee/flower illustration, typography and full-scene polish remain below the long-term release-art direction and are explicitly not mislabeled as final production art."
+    ],
+    "verdict": "PASS WITH DEVIATION",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "p7-wetland-garden-independent-evaluator-2026-08-30",
+      "implementation_author_id": "p7-wetland-garden-implementation-agent",
+      "input_artifacts": [
+        "movement-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0",
+        "visual-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0",
+        "html5-ci-evidence-40019b8b253e6de27ad8de121e74ad67b146dfb0"
+      ],
+      "record_locator": "evidence/P7-WETLAND-GARDEN/evaluation.md in the same PR"
+    }
+  },
+  "known_limitations": [
+    "P7 remains IN PROGRESS after this Wetland slice; Rosewood, Alpine Bloom and Moon Garden are later authored slices.",
+    "The retained original geometric presentation still needs rounded expressive bee art, stronger species silhouettes, final typography, animation and full-scene polish before release-candidate visual certification.",
+    "Later-region pacing, later Flight/Buzz curves, player-plot/seed catalog growth and external novice comprehension remain open/tunable.",
+    "The retained artifact browser log includes environment-level Chromium/driver diagnostics, but the structured smoke and runtime reports contain zero actionable errors."
+  ]
+}
