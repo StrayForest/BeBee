@@ -97,7 +97,7 @@ def _assert_region_start(payload: dict[str, object]) -> None:
         raise RuntimeError(f"P7 fixture Honey drifted: {payload!r}")
     if int(payload.get("flightLevel", -1)) != 3 or int(payload.get("buzzLevel", -1)) != 3:
         raise RuntimeError(f"P7 must reuse P6 progression rather than introduce a new required branch: {payload!r}")
-    if int(campaign.get("completed_regions", -1)) != 1 or int(campaign.get("total_regions", -1)) != 4:
+    if int(campaign.get("completed_regions", -1)) != 1 or int(campaign.get("total_regions", -1)) != 5:
         raise RuntimeError(f"P7 campaign transition invalid: {payload!r}")
 
 
@@ -191,7 +191,7 @@ def record_golden_fields(
             raise RuntimeError(f"P7 post-Golden objective invalid: {handoff!r}")
         if int(handoff.get("honey", -1)) != EXPECTED_COMPLETE_HONEY:
             raise RuntimeError(f"P7 Golden Fields reward total invalid: {handoff!r}")
-        if campaign.get("complete") is not False or int(campaign.get("completed_regions", -1)) != 2 or int(campaign.get("total_regions", -1)) != 4:
+        if campaign.get("complete") is not False or int(campaign.get("completed_regions", -1)) != 2 or int(campaign.get("total_regions", -1)) != 5:
             raise RuntimeError(f"P7 campaign summary did not expose Wetland continuation: {handoff!r}")
         if p11.get("flowerId") != "flower_sunflower" or p12.get("flowerId") != "flower_poppy":
             raise RuntimeError(f"P7 species alternation drifted: p11={p11!r} p12={p12!r}")
@@ -218,7 +218,7 @@ def record_golden_fields(
         reload_golden = _campaign_region(reloaded, "region_02")
         if int(reloaded.get("honey", -1)) != EXPECTED_COMPLETE_HONEY or reload_golden.get("complete") is not True:
             raise RuntimeError(f"P7 Golden Fields completion did not survive reload: {reloaded!r}")
-        if int(reload_campaign.get("completed_regions", -1)) != 2 or int(reload_campaign.get("total_regions", -1)) != 4:
+        if int(reload_campaign.get("completed_regions", -1)) != 2 or int(reload_campaign.get("total_regions", -1)) != 5:
             raise RuntimeError(f"P7 reload campaign transition invalid: {reloaded!r}")
         _move_to(page, *GOLDEN_PATCHES[12], timeout_seconds=20.0, tolerance=70)
         reload_shot = frames / "03-golden-fields-reloaded-desktop.png"
