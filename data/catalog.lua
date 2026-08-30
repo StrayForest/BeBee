@@ -39,7 +39,6 @@ return {
             id = "flower_iris",
             pollination_difficulty = 3,
         },
-        },
         {
             id = "flower_rose",
             pollination_difficulty = 3,
