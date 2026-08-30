@@ -75,6 +75,46 @@ function M.summary(save, region_id)
     }
 end
 
+
+function M.portal_definition(portal_id)
+    return definition_by_id(catalog.portals, portal_id)
+end
+
+function M.portal_for_region(region_id)
+    return definition_by_id(catalog.portals, region_id and region_id:gsub("^region_", "portal_") or nil)
+end
+
+function M.puzzle_for_region(region_id)
+    for _, definition in ipairs(catalog.puzzles or {}) do
+        if definition.region_id == region_id then return definition end
+    end
+    return nil
+end
+
+function M.portal_status(save, portal_id)
+    local portal = M.portal_definition(portal_id)
+    if not portal then return false, "unknown_portal" end
+    local region_index
+    for index, definition in ipairs(catalog.regions or {}) do
+        if definition.id == portal.region_id then region_index = index break end
+    end
+    if not region_index then return false, "unknown_region" end
+    if region_index == 1 then return true, "available" end
+    local previous = catalog.regions[region_index - 1]
+    local previous_summary = M.summary(save, previous.id)
+    if not previous_summary or not previous_summary.complete then
+        return false, "requires_region", previous.id
+    end
+    local current_summary = M.summary(save, portal.region_id)
+    if current_summary and current_summary.complete then return true, "restored" end
+    return true, "available"
+end
+
+function M.active_portal(save)
+    local region_id = M.active_id(save)
+    return M.portal_for_region(region_id)
+end
+
 function M.active_id(save)
     local fallback = nil
     for _, definition in ipairs(catalog.regions or {}) do

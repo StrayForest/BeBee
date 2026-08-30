@@ -5,6 +5,7 @@ local movement = require "gameplay.bee.movement"
 local follow = require "gameplay.camera.follow"
 local flower_patch = require "gameplay.flowers.flower_patch"
 local region = require "gameplay.world.region"
+local puzzle = require "gameplay.world.puzzle"
 local progression = require "systems.progression"
 local analytics = require "systems.analytics"
 local analytics_adapter = require "adapters.analytics.console_adapter"
@@ -45,12 +46,20 @@ local HIVE_RADIUS = 190
 local HIVE_BUTTON = { x1 = 1000, x2 = 1240, y1 = 45, y2 = 125 }
 local FLIGHT_CARD = { x1 = 270, x2 = 600, y1 = 235, y2 = 465 }
 local BUZZ_CARD = { x1 = 680, x2 = 1010, y1 = 235, y2 = 465 }
+local GARDEN_CARD = { x1 = 290, x2 = 990, y1 = 155, y2 = 230 }
 local SETTINGS_REDUCED_ROW = { x1 = 330, x2 = 950, y1 = 350, y2 = 440 }
 local SETTINGS_AUDIO_ROW = { x1 = 330, x2 = 950, y1 = 235, y2 = 325 }
 local MEADOW_CENTER_X = 1800
 local MEADOW_CENTER_Y = 950
 local PLOT_POINTER_RADIUS = 96
 local P6_REGION_ID = "region_01"
+local HOME_MODE = "home"
+local ZONE_MODE = "zone"
+local PORTAL_INTERACTION_RADIUS = 160
+local ENEMY_CONTACT_RADIUS = 86
+local send_view
+local update_runtime_bridge
+local screen_to_world
 
 local function html5_available()
     return html5 ~= nil and html5.run ~= nil
@@ -106,6 +115,7 @@ local function runtime_region_id(self)
     if alpine_bloom_qa(self.qa_state) then return "region_05" end
     if rosewood_qa(self.qa_state) then return "region_04" end
     if region_qa(self.qa_state) then return P6_REGION_ID end
+    if self.zone_region_id then return self.zone_region_id end
     if self.save_state then return region.active_id(self.save_state) or P6_REGION_ID end
     return P6_REGION_ID
 end
@@ -310,6 +320,92 @@ local function prepare_region_fixture(self, completed_meadows)
     self.camera.y = target.center_y
 end
 
+local function first_patch_for_region(region_id)
+    for _, definition in ipairs(catalog.patches or {}) do
+        if region.region_id_for_meadow(definition.meadow_id) == region_id then return definition end
+    end
+    return nil
+end
+
+local function go_home(self)
+    self.world_mode = HOME_MODE
+    self.zone_region_id = nil
+    self.zone_puzzle = nil
+    self.zone_puzzle_solved = false
+    self.motion.x, self.motion.y = HIVE_X, HIVE_Y
+    self.motion.vx, self.motion.vy = 0, 0
+    self.camera.x, self.camera.y = HIVE_X, HIVE_Y
+    self.home_return_timer = 0
+end
+
+local function enter_active_portal(self, definition)
+    if not definition or self.world_mode ~= HOME_MODE then return false end
+    local active = region.active_portal(self.save_state)
+    if not active or active.id ~= definition.id then return false end
+    local available, reason = region.portal_status(self.save_state, definition.id)
+    if not available or reason == "restored" then return false end
+    self.world_mode = ZONE_MODE
+    self.zone_region_id = definition.region_id
+    self.zone_puzzle = puzzle.new(region.puzzle_for_region(definition.region_id))
+    self.zone_puzzle_solved = self.zone_puzzle.solved
+    local first = first_patch_for_region(definition.region_id)
+    if first then
+        self.motion.x, self.motion.y = first.x, first.y
+        self.camera.x, self.camera.y = first.x, first.y
+    end
+    self.motion.vx, self.motion.vy = 0, 0
+    pcall(sound.play, "#portal_whoosh")
+    track(self, "portal_entered", { portal_id = definition.id, region_id = definition.region_id })
+    input_model.clear(self.input)
+    send_view(self)
+    update_runtime_bridge(self, true)
+    return true
+end
+
+local function update_zone_puzzle(self)
+    if self.world_mode ~= ZONE_MODE or self.zone_puzzle_solved then return end
+    local event = puzzle.step(self.zone_puzzle, self.motion.x, self.motion.y)
+    if event.solved then
+        self.zone_puzzle_solved = true
+        pcall(sound.play, "#pollen_chime")
+        track(self, "zone_puzzle_completed", {
+            region_id = runtime_region_id(self),
+            wrong_attempts = self.zone_puzzle.wrong_attempts,
+        })
+    elseif event.advanced or event.wrong then
+        track(self, event.advanced and "zone_route_step" or "zone_route_miss", {
+            region_id = runtime_region_id(self),
+            checkpoint = event.checkpoint,
+        })
+    end
+end
+
+local function update_enemies(self, dt)
+    self.pest_alert_remaining = math.max(0, (self.pest_alert_remaining or 0) - dt)
+    self.pest_slow_remaining = math.max(0, (self.pest_slow_remaining or 0) - dt)
+    self.pest_contact_cooldown = math.max(0, (self.pest_contact_cooldown or 0) - dt)
+    if self.world_mode ~= ZONE_MODE then return end
+    local base = first_patch_for_region(self.zone_region_id or runtime_region_id(self))
+    if not base then return end
+    for index, enemy in ipairs(self.enemies or {}) do
+        local angle = self.frame * (0.014 + index * 0.002) + enemy.phase
+        enemy.x = base.x + math.cos(angle) * enemy.orbit_x
+        enemy.y = base.y + math.sin(angle * 1.17) * enemy.orbit_y
+        local dx, dy = self.motion.x - enemy.x, self.motion.y - enemy.y
+        if dx * dx + dy * dy <= ENEMY_CONTACT_RADIUS * ENEMY_CONTACT_RADIUS and self.pest_contact_cooldown <= 0 then
+            self.pest_contact_cooldown = 1.25
+            self.pest_slow_remaining = 0.65
+            self.pest_alert_remaining = 0.8
+            self.pest_contact_count = (self.pest_contact_count or 0) + 1
+            pcall(sound.play, "#pest_alert")
+            track(self, "pest_contact", {
+                region_id = runtime_region_id(self),
+                contact_count = self.pest_contact_count,
+            })
+        end
+    end
+end
+
 local function prepare_expansion_fixture(self, completed_meadows, honey, target_index)
     local meadow_count = math.min(completed_meadows, #catalog.meadows)
     for meadow_index = 1, meadow_count do mark_meadow_fixture(self, catalog.meadows[meadow_index]) end
@@ -328,6 +424,10 @@ local function prepare_expansion_fixture(self, completed_meadows, honey, target_
 end
 
 local function apply_visual_fixture(self)
+    if self.qa_enabled then
+        self.world_mode = ZONE_MODE
+        self.zone_puzzle_solved = true
+    end
     local lifecycle = lifecycle_value(self)
     if not self.qa_enabled or lifecycle == "reload" then return end
 
@@ -475,6 +575,7 @@ local function complete_patch(self, state)
     end
     if region_before and region_after and not region_before.complete and region_after.complete then
         track(self, "region_completed", { region_id = completed_region_id, honey_total = result.honey })
+        if not self.qa_enabled then self.home_return_timer = 1.35 end
         portal_event(self, "gameplay_complete", completed_region_id)
         track(self, "gameplay_complete", { region_id = completed_region_id, honey_total = result.honey })
         pcall(sound.play, "#region_complete")
@@ -490,11 +591,15 @@ local function complete_patch(self, state)
 end
 
 local function update_pollination(self, movement_distance)
-    if not self.pollination_enabled or self.progression_open or self.settings_open then return end
+    if not self.pollination_enabled or self.progression_open or self.settings_open
+        or self.world_mode ~= ZONE_MODE or not self.zone_puzzle_solved then return end
     local work_multiplier = progression.buzz_work_multiplier(self.save_state)
+    local active_region_id = runtime_region_id(self)
     for _, state in ipairs(self.patches) do
-        local event = flower_patch.step(state, self.motion.x, self.motion.y, movement_distance, work_multiplier)
-        if event.just_completed then complete_patch(self, state) end
+        if region.region_id_for_meadow(state.definition.meadow_id) == active_region_id then
+            local event = flower_patch.step(state, self.motion.x, self.motion.y, movement_distance, work_multiplier)
+            if event.just_completed then complete_patch(self, state) end
+        end
     end
 end
 
@@ -561,7 +666,7 @@ local function seed_payload_for(self, definition)
         id = definition.id,
         x = definition.x,
         y = definition.y,
-        visible = self.pollination_enabled,
+        visible = self.pollination_enabled and self.world_mode == HOME_MODE,
         available = available,
         availabilityReason = reason,
         requirement = requirement,
@@ -620,6 +725,14 @@ local function send_progression_view(self)
     local flight, flight_next, flight_available = upgrade_view(self, "upgrade_flight")
     local buzz, buzz_next, buzz_available = upgrade_view(self, "upgrade_buzz")
     local patch3 = self.patches[3]
+    local garden_sink, garden_available, garden_reason, garden_requirement
+    for _, sink in ipairs(catalog.honey_sinks or {}) do
+        if not progression.is_honey_sink_purchased(self.save_state, sink.id) then
+            garden_sink = sink
+            garden_available, garden_reason, garden_requirement = progression.honey_sink_availability(self.save_state, sink.id)
+            break
+        end
+    end
     msg.post("/progression#view", "progression_view", {
         camera_x = self.camera.x,
         camera_y = self.camera.y,
@@ -645,7 +758,54 @@ local function send_progression_view(self)
         patch3_y = patch3.definition.y,
         patch3_state = patch3.state,
         patch3_progress = flower_patch.progress_ratio(patch3),
+        garden_label = garden_sink and garden_sink.label or "GARDEN SHOP",
+        garden_description = garden_sink and garden_sink.description or "ALL HOME UPGRADES OWNED",
+        garden_cost = garden_sink and garden_sink.cost or 0,
+        garden_available = garden_available == true,
+        garden_purchased = garden_sink == nil,
+        garden_reason = garden_reason,
+        garden_requirement = garden_requirement,
     })
+end
+
+local function nearest_active_portal(self)
+    if self.world_mode ~= HOME_MODE then return nil end
+    local active = region.active_portal(self.save_state)
+    if not active then return nil end
+    local dx, dy = self.motion.x - active.x, self.motion.y - active.y
+    local radius = active.interaction_radius or PORTAL_INTERACTION_RADIUS
+    if dx * dx + dy * dy <= radius * radius then return active end
+    return nil
+end
+
+local function pointer_active_portal(self, x, y)
+    if self.world_mode ~= HOME_MODE then return nil end
+    local wx, wy = screen_to_world(self, x, y)
+    local active = region.active_portal(self.save_state)
+    if active then
+        local dx, dy = wx - active.x, wy - active.y
+        local radius = active.interaction_radius or PORTAL_INTERACTION_RADIUS
+        if dx * dx + dy * dy <= radius * radius then return active end
+    end
+    return nil
+end
+
+local function guidance_target(self)
+    if self.world_mode ~= ZONE_MODE then return nil, nil, "portal" end
+    if not self.zone_puzzle_solved then
+        local target = puzzle.next_target(self.zone_puzzle)
+        if target then return target.x, target.y, "puzzle" end
+    end
+    local active_region_id = runtime_region_id(self)
+    for _, state in ipairs(self.patches or {}) do
+        local patch_region_id = region.region_id_for_meadow(state.definition.meadow_id)
+        if patch_region_id == active_region_id
+            and progression.is_patch_eligible(self.save_state, state.definition)
+            and not state.completed then
+            return state.definition.x, state.definition.y, "patch"
+        end
+    end
+    return nil, nil, "patch"
 end
 
 local function active_patch_position(self)
@@ -662,7 +822,7 @@ local function patch_view_fields(payload, index, state)
     payload.patch_states[index] = item
 end
 
-local function send_view(self)
+function send_view(self)
     local touch = input_model.touch_visual(self.input)
     local width, height = surface_size()
     local sx = 1280 / width
@@ -670,6 +830,12 @@ local function send_view(self)
     local active_x, active_y = active_patch_position(self)
     local active_region_id = runtime_region_id(self)
     local summary = region.summary(self.save_state, active_region_id)
+    local guidance_x, guidance_y, guidance_kind = guidance_target(self)
+    local portal_states = ""
+    for _, definition in ipairs(catalog.portals or {}) do
+        local available, reason = region.portal_status(self.save_state, definition.id)
+        portal_states = portal_states .. (reason == "restored" and "R" or (available and "A" or "L"))
+    end
     local payload = {
         bee_x = self.motion.x,
         bee_y = self.motion.y,
@@ -683,7 +849,16 @@ local function send_view(self)
         touch_anchor_y = (touch.anchor_y or 0) * sy,
         touch_knob_x = (touch.knob_x or 0) * sx,
         touch_knob_y = (touch.knob_y or 0) * sy,
-        pollination_visible = self.pollination_enabled,
+        pollination_visible = self.pollination_enabled and self.world_mode == ZONE_MODE,
+        world_mode = self.world_mode == ZONE_MODE and "z" or "h",
+        zone_region_id = self.zone_region_id,
+        zone_puzzle_solved = self.zone_puzzle_solved == true,
+        zone_puzzle_progress = self.zone_puzzle and math.floor(puzzle.progress_ratio(self.zone_puzzle) * 100 + 0.5) or 0,
+        guidance_x = guidance_x,
+        guidance_y = guidance_y,
+        guidance_kind = guidance_kind,
+        portal_states = portal_states,
+        pest_alert = (self.pest_alert_remaining or 0) > 0,
         honey = self.save_state.player.honey,
         reward_amount = self.reward_amount,
         reward_timer = self.reward_feedback_remaining,
@@ -709,7 +884,7 @@ local function send_view(self)
     send_seed_view(self)
 end
 
-local function update_runtime_bridge(self, force)
+function update_runtime_bridge(self, force)
     if not self.qa_enabled or not html5_available() then return end
     if not force and self.frame % 6 ~= 0 then return end
 
@@ -861,14 +1036,34 @@ local function open_progression(self)
 end
 
 local function purchase_selected(self, upgrade_id)
-    upgrade_id = upgrade_id or (self.selected_upgrade == "buzz" and "upgrade_buzz" or "upgrade_flight")
-    local result = progression.purchase_upgrade(self.save_state, upgrade_id)
-    if result.ok then
-        refresh_patch_eligibility(self)
-        save_progression(self)
-        print(string.format("BEBEE_P3 upgrade_purchased id=%s level=%d cost=%d honey=%d", upgrade_id, result.level, result.cost, result.honey))
+    local result
+    if self.selected_upgrade == "garden" and not upgrade_id then
+        local sink_id
+        for _, sink in ipairs(catalog.honey_sinks or {}) do
+            if not progression.is_honey_sink_purchased(self.save_state, sink.id) then
+                sink_id = sink.id
+                break
+            end
+        end
+        result = sink_id and progression.purchase_honey_sink(self.save_state, sink_id) or { ok = false, code = "all_purchased" }
+        if result.ok then
+            refresh_patch_eligibility(self)
+            save_progression(self)
+            track(self, "honey_sink_purchased", { sink_id = sink_id, honey_total = result.honey })
+            print(string.format("BEBEE_P9 honey_sink_purchased id=%s cost=%d honey=%d", sink_id, result.cost, result.honey))
+        else
+            print(string.format("BEBEE_P9 honey_sink_rejected id=%s code=%s honey=%d", tostring(sink_id), tostring(result.code), self.save_state.player.honey))
+        end
     else
-        print(string.format("BEBEE_P3 upgrade_rejected id=%s code=%s honey=%d", upgrade_id, tostring(result.code), self.save_state.player.honey))
+        upgrade_id = upgrade_id or (self.selected_upgrade == "buzz" and "upgrade_buzz" or "upgrade_flight")
+        result = progression.purchase_upgrade(self.save_state, upgrade_id)
+        if result.ok then
+            refresh_patch_eligibility(self)
+            save_progression(self)
+            print(string.format("BEBEE_P3 upgrade_purchased id=%s level=%d cost=%d honey=%d", upgrade_id, result.level, result.cost, result.honey))
+        else
+            print(string.format("BEBEE_P3 upgrade_rejected id=%s code=%s honey=%d", upgrade_id, tostring(result.code), self.save_state.player.honey))
+        end
     end
     send_progression_view(self)
     send_seed_view(self)
@@ -885,7 +1080,7 @@ local function inside(rect, x, y)
     return x >= rect.x1 and x <= rect.x2 and y >= rect.y1 and y <= rect.y2
 end
 
-local function screen_to_world(self, x, y)
+function screen_to_world(self, x, y)
     local dx, dy = design_point(x, y)
     return self.camera.x + dx - 640, self.camera.y + dy - 360
 end
@@ -935,6 +1130,8 @@ end
 
 local function primary_action(self)
     if self.progression_open or self.settings_open then return false end
+    local portal_definition = nearest_active_portal(self)
+    if portal_definition and enter_active_portal(self, portal_definition) then return true end
     local plot = nearest_player_plot(self)
     if plot then return interact_player_plot(self, plot) end
     return open_progression(self)
@@ -1000,6 +1197,25 @@ function init(self)
     self.selected_setting = "reduced_motion"
     self.first_input_seen = false
     self.pollination_enabled = not movement_only_qa(self.qa_state) and query_value("storage_test") == ""
+    self.world_mode = self.qa_enabled and ZONE_MODE or HOME_MODE
+    self.zone_region_id = nil
+    self.zone_puzzle = nil
+    self.zone_puzzle_solved = self.qa_enabled
+    self.home_return_timer = 0
+    self.enemies = {}
+    for index = 1, 3 do
+        self.enemies[index] = {
+            phase = index * 2.17,
+            orbit_x = 190 + index * 42,
+            orbit_y = 130 + index * 28,
+            x = 0,
+            y = 0,
+        }
+    end
+    self.pest_alert_remaining = 0
+    self.pest_slow_remaining = 0
+    self.pest_contact_cooldown = 0
+    self.pest_contact_count = 0
     self.analytics = analytics.new(analytics_adapter)
     self.privacy = privacy.new({
         telemetry_enabled = sys.get_config_boolean("bebee.telemetry_enabled", false),
@@ -1042,13 +1258,22 @@ end
 
 function update(self, dt)
     self.frame = self.frame + 1
+    if self.home_return_timer > 0 then
+        self.home_return_timer = math.max(0, self.home_return_timer - dt)
+        if self.home_return_timer == 0 then go_home(self) end
+    end
+    update_enemies(self, dt)
     local width, height = surface_size()
     input_model.resize(self.input, width, height)
     local ix, iy = input_model.intent(self.input)
     if self.progression_open or self.settings_open then ix, iy = 0, 0 end
     local distance_before = self.motion.distance_travelled
-    movement.step(self.motion, ix, iy, dt, { max_speed = progression.flight_max_speed(self.save_state) })
+    local travel_multiplier = self.pest_slow_remaining > 0 and 0.72 or 1
+    movement.step(self.motion, ix, iy, dt, {
+        max_speed = progression.flight_max_speed(self.save_state) * travel_multiplier,
+    })
     local movement_distance = self.motion.distance_travelled - distance_before
+    update_zone_puzzle(self)
     update_pollination(self, movement_distance)
     follow.step(self.camera, self.motion.x, self.motion.y, dt, self.reduced_motion)
     go.set_position(vmath.vector3(self.camera.x, self.camera.y, 0))
@@ -1156,8 +1381,14 @@ function on_message(self, message_id, message)
         return
     end
     if message_id == hash("progression_modal_navigation") and self.progression_open then
-        if message.action_name == "move_left" or message.action_name == "move_up" then self.selected_upgrade = "flight" end
-        if message.action_name == "move_right" or message.action_name == "move_down" then self.selected_upgrade = "buzz" end
+        if message.action_name == "move_left" then self.selected_upgrade = "flight" end
+        if message.action_name == "move_right" then self.selected_upgrade = "buzz" end
+        if message.action_name == "move_down" then
+            if self.selected_upgrade == "flight" then self.selected_upgrade = "buzz" else self.selected_upgrade = "garden" end
+        end
+        if message.action_name == "move_up" then
+            if self.selected_upgrade == "garden" then self.selected_upgrade = "buzz" else self.selected_upgrade = "flight" end
+        end
         send_progression_view(self)
         update_runtime_bridge(self, true)
         return
@@ -1174,6 +1405,9 @@ function on_message(self, message_id, message)
         elseif inside(BUZZ_CARD, x, y) then
             self.selected_upgrade = "buzz"
             purchase_selected(self, "upgrade_buzz")
+        elseif inside(GARDEN_CARD, x, y) then
+            self.selected_upgrade = "garden"
+            purchase_selected(self)
         end
         return
     end
@@ -1182,6 +1416,8 @@ function on_message(self, message_id, message)
         input_model.resize(self.input, width, height)
         if message.pressed then
             mark_first_input(self, "pointer_primary")
+            local portal_definition = pointer_active_portal(self, message.x, message.y)
+            if portal_definition and enter_active_portal(self, portal_definition) then return end
             local plot = pointer_player_plot(self, message.x, message.y)
             if plot and interact_player_plot(self, plot) then return end
             local x, y = design_point(message.x, message.y)
