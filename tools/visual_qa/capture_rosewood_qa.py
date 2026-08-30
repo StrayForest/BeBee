@@ -49,7 +49,7 @@ def _wait_active_rosewood(page: Page, *, complete: bool | None, timeout_ms: int)
 
 def _complete_rosewood_patch(page: Page, index: int, *, timeout_seconds: float = 24.0) -> dict[str, object]:
     x, y = ROSEWOOD_PATCHES[index]
-    _move_to(page, x, y, timeout_seconds=22.0, tolerance=72)
+    _move_to(page, x, y, timeout_seconds=40.0, tolerance=72)
     deadline = time.monotonic() + timeout_seconds
     direction_right = True
     while time.monotonic() < deadline:
