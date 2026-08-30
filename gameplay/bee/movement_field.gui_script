@@ -708,7 +708,8 @@ function on_message(self, message_id, message)
 
     local any_qualifying = false
     for index = 1, #catalog.patches do
-        if message["patch" .. tostring(index) .. "_qualifying"] == true then any_qualifying = true end
+        local patch_state = message.patch_states and message.patch_states[index]
+        if patch_state and patch_state.q == true then any_qualifying = true end
     end
 
     local nearby = pollination_visible and nearby_patch_indices(camera_x, camera_y) or {}
@@ -716,11 +717,11 @@ function on_message(self, message_id, message)
         local candidate = nearby[slot]
         if candidate then
             local index = candidate.index
-            local prefix = "patch" .. tostring(index) .. "_"
+            local patch_state = message.patch_states and message.patch_states[index] or {}
             render_patch(
                 self.patch_pool[slot], catalog.patches[index],
-                message[prefix .. "state"] or "LOCKED",
-                message[prefix .. "progress"] or 0,
+                patch_state.s or "LOCKED",
+                patch_state.p or 0,
                 camera_x, camera_y, true
             )
         else
