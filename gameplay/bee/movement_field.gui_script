@@ -377,7 +377,7 @@ local function meadow_completed(message, meadow_id)
     for patch_index, definition in ipairs(catalog.patches) do
         if definition.meadow_id == meadow_id then
             found = true
-            if message["patch" .. tostring(patch_index) .. "_state"] ~= "COMPLETED" then return false end
+            if patch_state_id(message, patch_index) ~= "COMPLETED" then return false end
         end
     end
     return found
