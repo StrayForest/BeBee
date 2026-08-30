@@ -1268,7 +1268,7 @@ function update(self, dt)
     local ix, iy = input_model.intent(self.input)
     if self.progression_open or self.settings_open then ix, iy = 0, 0 end
     local distance_before = self.motion.distance_travelled
-    local travel_multiplier = (not self.qa_enabled and self.pest_slow_remaining > 0) and 0.72 or 1
+    local travel_multiplier = (not self.qa_enabled and self.pest_slow_remaining > 0) and 0.92 or 1
     movement.step(self.motion, ix, iy, dt, {
         max_speed = progression.flight_max_speed(self.save_state) * travel_multiplier,
     })
