@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration, P5 Seed Ownership During Restoration and P6 First Region Vertical Slice are complete for milestone closeout. P7 — Production Expansion is IN PROGRESS: Golden Fields and Wetland Garden are accepted slices, and Rosewood is the active production handoff.**
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration, P5 Seed Ownership During Restoration and P6 First Region Vertical Slice are complete for milestone closeout. P7 — Production Expansion is IN PROGRESS: Golden Fields, Wetland Garden and Rosewood are accepted slices; Alpine Bloom is the next production handoff.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -806,6 +806,52 @@ Remaining P7 region sequence:
 
 ---
 
+## Rosewood — ACCEPTED SLICE, PASS WITH DEVIATION
+
+Rosewood is the fourth authored region and closes the woodland content slice without adding a verb, currency, mandatory spend, world-management screen or per-region lifecycle.
+
+### Authored content — COMPLETE for Rosewood
+
+region_04 contains four Meadows: Rose Glade, Bluebell Hollow, Cedar Turn and Woodland Crown. Rose and Bluebell use distinct authored flower IDs and canopy, trunk, root and arch landmark language; all restoration remains movement-through pollination with Buzz 3.
+
+### Economy / progression reuse — COMPLETE
+
+The persisted Golden/Wetland end state starts at 1596 Honey. Rosewood first-time rewards are 205 + 220 + 235 + 250 = 910, ending at 2506 Honey with no mandatory spend or replay.
+
+### Browser journey / persistence — COMPLETE
+
+The exact Chromium journey persists the Wetland-complete fixture through the real settings/save path, derives Rosewood at 0/4, completes it through ordinary runtime, records region_completed for region_04, reloads at four completed campaign regions and retains the mobile-landscape evidence. The accepted candidate head before source-of-truth closeout changes is 6b5eb076cc4361bcf097c350c4d0f46228727766.
+
+- Repository standards 33312103054 — PASS;
+- Test/data 33312103035 — PASS;
+- Pages preview 33312103045 — PASS;
+- HTML5 CI 33312103046 — PASS;
+- movement artifact 9732383632, movement-qa-6b5eb076cc4361bcf097c350c4d0f46228727766;
+- storage artifact 9732383768;
+- visual artifact 9732383407;
+- playable artifact 9732383268;
+- HTML5 diagnostics artifact 9732383910;
+- Rosewood 0/4 → 2/4 → 4/4, reload 4/4, Honey 1596 → 2506;
+- browser console/page errors 0/0, external requests 0, desktop 1280×720, mobile 844×390;
+- retained release bundle 2,818,788 bytes against the 12 MiB budget; exact movement evidence remains approximately 60 fps against ≥50.
+
+### Rosewood independent evaluation
+
+Verdict: PASS WITH DEVIATION. The fourth-region architecture, authored woodland identity, progression, persistence, analytics, bounds and measured runtime budgets pass. The existing geometric bee/flower illustration, typography, animation and full-scene polish remain explicit P8 visual-certification work; this is not an open ITERATE on Rosewood content architecture.
+
+Complete Rosewood records:
+
+- docs/research/P7-rosewood-production-expansion.md;
+- evidence/P7-ROSEWOOD/manifest.json;
+- evidence/P7-ROSEWOOD/evaluation.md.
+
+### Rosewood autonomous merge gate
+
+The closeout head must repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted validate-pr-evidence, retaining non-N/A movement, storage, visual and playable artifacts before merge.
+
+**Rosewood slice: PASS WITH DEVIATION. P7 milestone remains IN PROGRESS. Alpine Bloom is the next production slice; Moon Garden follows.**
+
+---
 # P8 — Release Candidate
 
 ## Important correction
