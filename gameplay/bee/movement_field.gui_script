@@ -544,7 +544,7 @@ function init(self)
         {12000,620},
         {12400,1380},
     }
-    while #points > 40 do table.remove(points) end
+    while #points > 36 do table.remove(points, 1) end
     for index, point in ipairs(points) do
         local moon = point[1] > 11200
         local alpine = point[1] > 8960 and not moon
@@ -634,7 +634,7 @@ function init(self)
     gui.set_enabled(self.reward_text, false)
 
     self.pollen = {}
-    for index = 1, 6 do
+    for index = 1, 5 do
         self.pollen[index] = box(0, 0, 8, 8, COLOR_POLLEN)
         gui.set_enabled(self.pollen[index], false)
     end
