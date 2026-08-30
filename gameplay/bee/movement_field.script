@@ -27,6 +27,9 @@ local REGION_START = "region_start"
 local REGION_MID = "region_mid"
 local REGION_COMPLETE = "region_complete"
 local SETTINGS_ACCESSIBILITY = "settings_accessibility"
+local ROSEWOOD_START = "rosewood_start"
+local ROSEWOOD_MID = "rosewood_mid"
+local ROSEWOOD_COMPLETE = "rosewood_complete"
 
 local HIVE_X = 1120
 local HIVE_Y = 800
@@ -74,11 +77,16 @@ local function seed_qa(state_id)
     return state_id == SEED_LOCKED or state_id == SEED_UNLOCKED
 end
 
+local function rosewood_qa(state_id)
+    return state_id == ROSEWOOD_START or state_id == ROSEWOOD_MID or state_id == ROSEWOOD_COMPLETE
+end
+
 local function region_qa(state_id)
-    return state_id == REGION_START or state_id == REGION_MID or state_id == REGION_COMPLETE or state_id == SETTINGS_ACCESSIBILITY
+    return state_id == REGION_START or state_id == REGION_MID or state_id == REGION_COMPLETE or state_id == SETTINGS_ACCESSIBILITY or rosewood_qa(state_id)
 end
 
 local function runtime_region_id(self)
+    if rosewood_qa(self.qa_state) then return "region_04" end
     if region_qa(self.qa_state) then return P6_REGION_ID end
     if self.save_state then return region.active_id(self.save_state) or P6_REGION_ID end
     return P6_REGION_ID
@@ -103,6 +111,7 @@ local function clean_progression(self, persistence_enabled)
 end
 
 local function lifecycle_value(self)
+    if rosewood_qa(self.qa_state) then return query_value("rosewood_storage_lifecycle") end
     if region_qa(self.qa_state) then return query_value("p6_storage_lifecycle") end
     if seed_qa(self.qa_state) then return query_value("p5_storage_lifecycle") end
     if progression_qa(self.qa_state) then return query_value("p3_storage_lifecycle") end
@@ -236,17 +245,15 @@ local function prepare_seed_fixture(self, unlocked)
     end
 end
 
-local function prepare_region_fixture(self, completed_meadows)
-    if completed_meadows >= 1 then
-        mark_completed_fixture(self, 1)
-        mark_completed_fixture(self, 2)
-        mark_completed_fixture(self, 3)
+local function mark_meadow_fixture(self, meadow_definition)
+    for patch_index, patch_definition in ipairs(catalog.patches) do
+        if patch_definition.meadow_id == meadow_definition.id then mark_completed_fixture(self, patch_index) end
     end
-    if completed_meadows >= 2 then mark_completed_fixture(self, 4) end
-    if completed_meadows >= 3 then mark_completed_fixture(self, 5) end
-    if completed_meadows >= 4 then mark_completed_fixture(self, 6) end
-    if completed_meadows >= 5 then mark_completed_fixture(self, 7) end
-    if completed_meadows >= 6 then mark_completed_fixture(self, 8) end
+end
+
+local function prepare_region_fixture(self, completed_meadows)
+    local meadow_count = math.min(completed_meadows, #catalog.meadows)
+    for meadow_index = 1, meadow_count do mark_meadow_fixture(self, catalog.meadows[meadow_index]) end
 
     if completed_meadows >= 1 then
         self.save_state.player.upgrades.upgrade_flight = 2
@@ -265,7 +272,25 @@ local function prepare_region_fixture(self, completed_meadows)
     end
     refresh_patch_eligibility(self)
 
-    local target = catalog.meadows[math.min(6, math.max(1, completed_meadows + 1))]
+    local target_index = math.min(6, math.max(1, completed_meadows + 1))
+    local target = catalog.meadows[target_index]
+    self.motion.x = target.center_x
+    self.motion.y = target.center_y
+    self.camera.x = target.center_x
+    self.camera.y = target.center_y
+end
+
+local function prepare_expansion_fixture(self, completed_meadows, honey, target_index)
+    local meadow_count = math.min(completed_meadows, #catalog.meadows)
+    for meadow_index = 1, meadow_count do mark_meadow_fixture(self, catalog.meadows[meadow_index]) end
+    self.save_state.player.upgrades.upgrade_flight = 3
+    self.save_state.player.upgrades.upgrade_buzz = 3
+    self.save_state.player.seed_unlocks.seed_daisy = true
+    self.save_state.world.player_plants[catalog.player_plots[1].id] = "flower_daisy"
+    self.save_state.player.honey = honey
+    refresh_patch_eligibility(self)
+
+    local target = catalog.meadows[math.min(#catalog.meadows, math.max(1, target_index or completed_meadows + 1))]
     self.motion.x = target.center_x
     self.motion.y = target.center_y
     self.camera.x = target.center_x
@@ -344,6 +369,12 @@ local function apply_visual_fixture(self)
         self.selected_setting = "reduced_motion"
         apply_audio_setting(self)
         msg.post("/modal#controller", "open_modal", { mode = "settings" })
+    elseif self.qa_state == ROSEWOOD_START then
+        prepare_expansion_fixture(self, 14, 1596, 15)
+    elseif self.qa_state == ROSEWOOD_MID then
+        prepare_expansion_fixture(self, 16, 2021, 17)
+    elseif self.qa_state == ROSEWOOD_COMPLETE then
+        prepare_expansion_fixture(self, 18, 2506, 18)
     end
 end
 
