@@ -41,7 +41,10 @@ function M.new(definition, options)
         work_target = definition.pollination_work,
         completed = completed,
         inside = false,
-        qualifying = false,
+        -- Keep this transient flag sparse while inactive. Defold serializes every
+        -- non-nil table entry in msg.post payloads; nil preserves falsey gameplay
+        -- semantics without multiplying inactive fields as the authored catalog grows.
+        qualifying = nil,
         work_added_last_step = 0,
         movement_distance_last_step = 0,
         work_multiplier_last_step = 1,
@@ -55,7 +58,7 @@ function M.set_eligible(state, eligible)
         state.state = M.STATE_AVAILABLE
     elseif eligible ~= true and state.state ~= M.STATE_LOCKED then
         state.state = M.STATE_LOCKED
-        state.qualifying = false
+        state.qualifying = nil
     end
     return state
 end
@@ -71,7 +74,7 @@ function M.step(state, bee_x, bee_y, movement_distance, work_multiplier)
     local inside = dx * dx + dy * dy <= effective_radius * effective_radius
 
     state.inside = inside
-    state.qualifying = false
+    state.qualifying = nil
     state.work_added_last_step = 0
     state.movement_distance_last_step = movement_distance
     state.work_multiplier_last_step = work_multiplier

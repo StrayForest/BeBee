@@ -4,8 +4,8 @@ local meadow = require "gameplay.world.meadow"
 local DESIGN_W = 1280
 local DESIGN_H = 720
 local BEE_SCALE = 2.0
-local WORLD_W = 4560
-local WORLD_H = 1600
+local WORLD_W = 6720
+local WORLD_H = 2100
 local FIRST_MEADOW = catalog.meadows[1]
 local PATCH_POOL_SIZE = 6
 local PATCH_VISIBILITY_MARGIN = 300
@@ -14,6 +14,8 @@ local COLOR_GREEN = vmath.vector4(0.475, 0.788, 0.396, 1)
 local COLOR_DORMANT = vmath.vector4(0.588, 0.643, 0.478, 1)
 local COLOR_GOLDEN_DORMANT = vmath.vector4(0.68, 0.62, 0.36, 1)
 local COLOR_GOLDEN_FIELD = vmath.vector4(0.79, 0.76, 0.38, 1)
+local COLOR_WETLAND_DORMANT = vmath.vector4(0.34, 0.52, 0.53, 1)
+local COLOR_WETLAND_FIELD = vmath.vector4(0.35, 0.70, 0.58, 1)
 local COLOR_DARK = vmath.vector4(0.286, 0.231, 0.196, 1)
 local COLOR_CREAM = vmath.vector4(1.0, 0.969, 0.91, 1)
 local COLOR_HONEY = vmath.vector4(0.965, 0.718, 0.235, 1)
@@ -27,9 +29,13 @@ local COLOR_TULIP = vmath.vector4(0.96, 0.52, 0.49, 1)
 local COLOR_LILY = vmath.vector4(0.83, 0.94, 1.0, 1)
 local COLOR_SUNFLOWER = vmath.vector4(1.0, 0.79, 0.25, 1)
 local COLOR_POPPY = vmath.vector4(0.94, 0.31, 0.27, 1)
+local COLOR_LOTUS = vmath.vector4(1.0, 0.67, 0.76, 1)
+local COLOR_IRIS = vmath.vector4(0.54, 0.58, 0.94, 1)
 local COLOR_POLLEN = vmath.vector4(0.965, 0.718, 0.235, 0.62)
 local COLOR_PATH = vmath.vector4(0.96, 0.86, 0.57, 0.34)
 local COLOR_WATER = vmath.vector4(0.36, 0.72, 0.86, 0.42)
+local COLOR_ROOT = vmath.vector4(0.48, 0.35, 0.23, 0.86)
+local COLOR_REED = vmath.vector4(0.34, 0.58, 0.31, 0.90)
 
 local FLOWER_OFFSETS = {
     { -118, -54 }, { -102, 74 }, { 0, 118 }, { 104, 72 }, { 118, -56 },
@@ -61,6 +67,12 @@ local function world_to_screen(wx, wy, camera_x, camera_y)
     return DESIGN_W * 0.5 + wx - camera_x, DESIGN_H * 0.5 + wy - camera_y
 end
 
+local function camera_region_id(camera_x)
+    if camera_x > 4560 then return "region_03" end
+    if camera_x > 2400 then return "region_02" end
+    return "region_01"
+end
+
 local function html5_available()
     return html5 ~= nil and html5.run ~= nil
 end
@@ -87,6 +99,8 @@ local function flower_color(flower_id)
     if flower_id == "flower_lily" then return COLOR_LILY end
     if flower_id == "flower_sunflower" then return COLOR_SUNFLOWER end
     if flower_id == "flower_poppy" then return COLOR_POPPY end
+    if flower_id == "flower_lotus" then return COLOR_LOTUS end
+    if flower_id == "flower_iris" then return COLOR_IRIS end
     return COLOR_DAISY
 end
 
@@ -105,6 +119,27 @@ local function first_meadow_status(message, patch3_completed_fallback)
     local contribution = completed(message.patch1_state) + completed(message.patch2_state)
     if message.patch3_state == "COMPLETED" or patch3_completed_fallback then contribution = contribution + 1 end
     return meadow.stage_for_contribution(FIRST_MEADOW, contribution)
+end
+
+local function region_restoration_progress(message, region_id)
+    local definition
+    for _, candidate in ipairs(catalog.regions or {}) do
+        if candidate.id == region_id then definition = candidate break end
+    end
+    if not definition then return 0, 1 end
+    local restored = 0
+    for _, meadow_id in ipairs(definition.meadow_ids or {}) do
+        local found = false
+        local complete = true
+        for patch_index, patch in ipairs(catalog.patches or {}) do
+            if patch.meadow_id == meadow_id then
+                found = true
+                if message["patch" .. tostring(patch_index) .. "_state"] ~= "COMPLETED" then complete = false end
+            end
+        end
+        if found and complete then restored = restored + 1 end
+    end
+    return restored, math.max(1, #(definition.meadow_ids or {}))
 end
 
 local function publish_restoration_bridge(self, status, stage, detail_count, objective_text)
@@ -199,6 +234,18 @@ local function set_flower_visual(flower, wx, wy, camera_x, camera_y, bloom, lock
         vertical_w, vertical_h = side_w, side_h
         center_size = 12 + 2 * bloom
         center = locked and COLOR_LOCKED or COLOR_DARK
+    elseif flower_id == "flower_lotus" then
+        spread_x = 12 + 9 * bloom
+        spread_y = 7 + 4 * bloom
+        side_w, side_h = petal_size * 1.55, petal_size * 0.82
+        vertical_w, vertical_h = petal_size * 1.18, petal_size * 0.86
+        center_size = 14 + 2 * bloom
+    elseif flower_id == "flower_iris" then
+        spread_x = 4 + 2 * bloom
+        spread_y = 14 + 10 * bloom
+        side_w, side_h = petal_size * 0.48, petal_size * 1.85
+        vertical_w, vertical_h = petal_size * 0.58, petal_size * 2.05
+        center_size = 8
     end
 
     gui.set_color(flower.stem, stem)
@@ -317,6 +364,8 @@ local function render_meadow_marker(marker, index, restored, camera_x, camera_y)
     if index == 6 then zone_color = restored and vmath.vector4(0.59,0.73,0.82,0.20) or vmath.vector4(0.48,0.45,0.54,0.14) end
     if definition.region_id == "region_02" then
         zone_color = restored and vmath.vector4(0.91,0.72,0.24,0.22) or vmath.vector4(0.58,0.49,0.27,0.18)
+    elseif definition.region_id == "region_03" then
+        zone_color = restored and vmath.vector4(0.31,0.76,0.61,0.22) or vmath.vector4(0.31,0.52,0.55,0.18)
     end
     gui.set_color(marker.zone, zone_color)
     gui.set_color(marker.ring, restored and vmath.vector4(COLOR_HONEY.x,COLOR_HONEY.y,COLOR_HONEY.z,0.56) or vmath.vector4(1,1,1,0.12))
@@ -391,24 +440,28 @@ function init(self)
         {1450,760},{1690,930},{1920,820},{2240,1020},{330,520},{560,1450},{1170,250},{2220,460},
         {2520,380},{2670,720},{2860,1080},{3010,1390},{3190,520},{3400,1240},{3550,710},{3720,1430},
         {3890,860},{4070,330},{4200,1030},{4380,670},{2580,1460},{3140,260},{3650,1110},{4310,1390},
+        {4680,350},{4870,920},{5120,440},{5330,1450},{5580,1040},{5850,330},{6140,1220},{6460,1660},
     }
     for index, point in ipairs(points) do
-        local golden = point[1] > 2400
+        local wetland = point[1] > 4560
+        local golden = point[1] > 2400 and not wetland
         local dark = index % 3 == 0
         local color
-        if golden then
+        if wetland then
+            color = dark and vmath.vector4(0.20,0.46,0.42,0.72) or vmath.vector4(0.70,0.90,0.76,0.60)
+        elseif golden then
             color = dark and vmath.vector4(0.48,0.38,0.18,0.68) or vmath.vector4(1.0,0.88,0.48,0.62)
         else
             color = dark and vmath.vector4(0.243,0.510,0.278,0.72) or vmath.vector4(1.0,0.969,0.91,0.55)
         end
         local node = box(0, 0, dark and 18 or 13, dark and 28 or 20, color)
-        self.decorations[index] = { node = node, x = point[1], y = point[2], golden = golden }
+        self.decorations[index] = { node = node, x = point[1], y = point[2], golden = golden, wetland = wetland }
     end
 
     self.edge_left = box(0, 0, 18, WORLD_H, vmath.vector4(0.243,0.510,0.278,0.75))
-    self.edge_right = box(0, 0, 18, WORLD_H, vmath.vector4(0.56,0.46,0.18,0.75))
+    self.edge_right = box(0, 0, 18, WORLD_H, vmath.vector4(0.24,0.54,0.48,0.78))
     self.edge_bottom = box(0, 0, WORLD_W, 18, vmath.vector4(0.243,0.510,0.278,0.75))
-    self.edge_top = box(0, 0, WORLD_W, 18, vmath.vector4(0.56,0.46,0.18,0.75))
+    self.edge_top = box(0, 0, WORLD_W, 18, vmath.vector4(0.24,0.54,0.48,0.78))
 
     self.path_nodes = create_path_nodes()
     self.meadow_markers = {}
@@ -426,6 +479,15 @@ function init(self)
     self.windmill_tower = box(0, 0, 36, 170, vmath.vector4(0.55,0.38,0.22,0.90))
     self.windmill_blade_h = box(0, 0, 220, 16, vmath.vector4(1.0,0.93,0.69,0.88))
     self.windmill_blade_v = box(0, 0, 16, 220, vmath.vector4(1.0,0.93,0.69,0.88))
+
+    self.wetland_channel_a = box(0, 0, 520, 92, vmath.vector4(COLOR_WATER.x,COLOR_WATER.y,COLOR_WATER.z,0.54))
+    self.wetland_channel_b = box(0, 0, 420, 82, vmath.vector4(COLOR_WATER.x,COLOR_WATER.y,COLOR_WATER.z,0.50))
+    self.reed_gate_left = box(0, 0, 18, 150, COLOR_REED)
+    self.reed_gate_right = box(0, 0, 18, 150, COLOR_REED)
+    self.reed_gate_top = box(0, 0, 170, 16, COLOR_REED)
+    self.rootwalk_h = box(0, 0, 260, 28, COLOR_ROOT)
+    self.rootwalk_v = box(0, 0, 28, 170, COLOR_ROOT)
+    self.dragonfly_pool = box(0, 0, 360, 170, vmath.vector4(COLOR_WATER.x,COLOR_WATER.y,COLOR_WATER.z,0.58))
 
     self.patch_pool = {}
     for index = 1, PATCH_POOL_SIZE do self.patch_pool[index] = create_patch_visual() end
@@ -478,20 +540,25 @@ function on_message(self, message_id, message)
     local dense = message.dense == true
     local pollination_visible = message.pollination_visible == true
     local active_region_id = message.active_region_id or "region_01"
+    local visual_region_id = camera_region_id(camera_x)
     local status = first_meadow_status(message, self.patch3_completed)
     local stage = stage_definition(status.stage_id)
     local detail_count
     local objective_text = message.objective_text or "RESTORE FIRST PATCH · 0/6"
 
     if pollination_visible then
-        if active_region_id == "region_02" then
+        local visible_restored, visible_total = region_restoration_progress(message, visual_region_id)
+        local visible_progress = visible_restored / visible_total
+        if visual_region_id == "region_03" then
             detail_count = #self.decorations
-            local progress = (message.region_restored_count or 0) / math.max(1, message.region_total or 4)
-            gui.set_color(self.background, mix_color(COLOR_GOLDEN_DORMANT, COLOR_GOLDEN_FIELD, 0.32 + progress * 0.68))
+            gui.set_color(self.background, mix_color(COLOR_WETLAND_DORMANT, COLOR_WETLAND_FIELD, 0.30 + visible_progress * 0.70))
+        elseif visual_region_id == "region_02" then
+            detail_count = #self.decorations
+            gui.set_color(self.background, mix_color(COLOR_GOLDEN_DORMANT, COLOR_GOLDEN_FIELD, 0.32 + visible_progress * 0.68))
         else
-            detail_count = math.min(#self.decorations, (stage.detail_count or 8) + (message.region_restored_count or 0) * 2)
+            detail_count = math.min(#self.decorations, (stage.detail_count or 8) + visible_restored * 2)
             gui.set_color(self.background, mix_color(COLOR_DORMANT, COLOR_GREEN,
-                math.max(stage.ground_mix or 0, (message.region_restored_count or 0) / 6 * 0.72)))
+                math.max(stage.ground_mix or 0, visible_progress * 0.72)))
         end
     else
         detail_count = dense and #self.decorations or 12
@@ -502,7 +569,8 @@ function on_message(self, message_id, message)
         local x, y = world_to_screen(decoration.x, decoration.y, camera_x, camera_y)
         set_xy(decoration.node, x, y)
         local enabled = index <= detail_count
-        if pollination_visible and active_region_id == "region_01" and decoration.golden then enabled = false end
+        if pollination_visible and visual_region_id == "region_01" and (decoration.golden or decoration.wetland) then enabled = false end
+        if pollination_visible and visual_region_id == "region_02" and decoration.wetland then enabled = false end
         gui.set_enabled(decoration.node, enabled)
     end
 
@@ -547,6 +615,29 @@ function on_message(self, message_id, message)
     gui.set_enabled(self.windmill_tower, pollination_visible)
     gui.set_enabled(self.windmill_blade_h, pollination_visible)
     gui.set_enabled(self.windmill_blade_v, pollination_visible)
+
+    local wetland_visible = pollination_visible and visual_region_id == "region_03"
+    local channel_a_x, channel_a_y = world_to_screen(5100, 920, camera_x, camera_y)
+    set_xy(self.wetland_channel_a, channel_a_x, channel_a_y)
+    local channel_b_x, channel_b_y = world_to_screen(5750, 660, camera_x, camera_y)
+    set_xy(self.wetland_channel_b, channel_b_x, channel_b_y)
+    local reed_x, reed_y = world_to_screen(4800, 560, camera_x, camera_y)
+    set_xy(self.reed_gate_left, reed_x - 78, reed_y)
+    set_xy(self.reed_gate_right, reed_x + 78, reed_y)
+    set_xy(self.reed_gate_top, reed_x, reed_y + 68)
+    local root_x, root_y = world_to_screen(5740, 780, camera_x, camera_y)
+    set_xy(self.rootwalk_h, root_x, root_y - 78)
+    set_xy(self.rootwalk_v, root_x + 105, root_y)
+    local basin_x, basin_y = world_to_screen(6060, 1540, camera_x, camera_y)
+    set_xy(self.dragonfly_pool, basin_x, basin_y - 88)
+    gui.set_enabled(self.wetland_channel_a, wetland_visible)
+    gui.set_enabled(self.wetland_channel_b, wetland_visible)
+    gui.set_enabled(self.reed_gate_left, wetland_visible)
+    gui.set_enabled(self.reed_gate_right, wetland_visible)
+    gui.set_enabled(self.reed_gate_top, wetland_visible)
+    gui.set_enabled(self.rootwalk_h, wetland_visible)
+    gui.set_enabled(self.rootwalk_v, wetland_visible)
+    gui.set_enabled(self.dragonfly_pool, wetland_visible)
 
     msg.post("/progression#view", "restoration_base", {
         contribution = status.contribution,
