@@ -39,7 +39,7 @@ return {
             id = "flower_iris",
             pollination_difficulty = 3,
         },
-    },
+        },
         {
             id = "flower_rose",
             pollination_difficulty = 3,
@@ -48,6 +48,7 @@ return {
             id = "flower_bluebell",
             pollination_difficulty = 3,
         },
+    },
     patches = {
         {
             id = "r01_m01_patch_01",
