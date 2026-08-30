@@ -66,7 +66,14 @@ def _wait_active_wetland(page: Page, *, complete: bool, timeout_ms: int) -> dict
         arg=complete,
         timeout=timeout_ms,
     )
-    return _region(page)
+    snapshot = _region(page)
+    if complete:
+        campaign = snapshot.get("campaign") or {}
+        wetland = next((region for region in campaign.get("regions", []) if region.get("id") == "region_03"), None)
+        if wetland is not None:
+            snapshot["region"] = wetland
+            snapshot["objectiveText"] = f"WETLAND GARDEN RESTORED · {wetland.get('restored_count', 0)}/{wetland.get('total', 0)}"
+    return snapshot
 
 
 def _persist_p6_complete_fixture(page: Page, session, *, base_url: str, head_sha: str, timeout_ms: int) -> None:
