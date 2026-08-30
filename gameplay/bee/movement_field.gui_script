@@ -125,9 +125,14 @@ local function completed(state)
     return state == "COMPLETED" and 1 or 0
 end
 
+local function patch_state_id(message, index)
+    local item = message.patch_states and message.patch_states[index]
+    return item and item.s or "LOCKED"
+end
+
 local function first_meadow_status(message, patch3_completed_fallback)
-    local contribution = completed(message.patch1_state) + completed(message.patch2_state)
-    if message.patch3_state == "COMPLETED" or patch3_completed_fallback then contribution = contribution + 1 end
+    local contribution = completed(patch_state_id(message, 1)) + completed(patch_state_id(message, 2))
+    if patch_state_id(message, 3) == "COMPLETED" or patch3_completed_fallback then contribution = contribution + 1 end
     return meadow.stage_for_contribution(FIRST_MEADOW, contribution)
 end
 
@@ -144,7 +149,7 @@ local function region_restoration_progress(message, region_id)
         for patch_index, patch in ipairs(catalog.patches or {}) do
             if patch.meadow_id == meadow_id then
                 found = true
-                if message["patch" .. tostring(patch_index) .. "_state"] ~= "COMPLETED" then complete = false end
+                if patch_state_id(message, patch_index) ~= "COMPLETED" then complete = false end
             end
         end
         if found and complete then restored = restored + 1 end
