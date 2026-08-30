@@ -64,20 +64,14 @@ end
 
 local function garden_text(message)
     local label = message.garden_label or "GARDEN SHOP"
-    if message.garden_purchased == true then return label .. "
-ALL HOME UPGRADES OWNED" end
+    if message.garden_purchased == true then return label .. " · ALL HOME UPGRADES OWNED" end
     if message.garden_available ~= true then
-        if message.garden_reason == "requires_patch" then return label .. "
-RESTORE MORE FLOWERS FIRST" end
-        if message.garden_reason == "insufficient_honey" then return label .. "
-NEED " .. tostring(message.garden_cost or 0) .. " HONEY" end
-        return label .. "
-LOCKED"
+        if message.garden_reason == "requires_patch" then return label .. " · RESTORE MORE FLOWERS FIRST" end
+        if message.garden_reason == "insufficient_honey" then return label .. " · NEED " .. tostring(message.garden_cost or 0) .. " HONEY" end
+        return label .. " · LOCKED"
     end
-    return label .. "
-" .. tostring(message.garden_cost or 0) .. " HONEY  ·  TAP TO BUY"
+    return label .. " · " .. tostring(message.garden_cost or 0) .. " HONEY · TAP TO BUY"
 end
-
 local function card_text(message, kind)
     local level = message[kind .. "_level"] or 1
     local cost = message[kind .. "_cost"] or 0
