@@ -13,6 +13,20 @@ local function stationary_inside_does_not_progress()
     test.assert_false(event.qualifying)
 end
 
+local function transient_qualification_is_sparse_when_inactive()
+    local definition = first_definition()
+    local state = flower_patch.new(definition, { eligible = true })
+    test.assert_equal(nil, state.qualifying)
+
+    local active = flower_patch.step(state, definition.x, definition.y, 20, 1)
+    test.assert_true(active.qualifying)
+    test.assert_true(state.qualifying)
+
+    local idle = flower_patch.step(state, definition.x, definition.y, 0, 1)
+    test.assert_false(idle.qualifying)
+    test.assert_equal(nil, state.qualifying)
+end
+
 local function movement_inside_activates_and_persists_work()
     local definition = first_definition()
     local state = flower_patch.new(definition, { eligible = true })
@@ -54,6 +68,7 @@ local function capability_gate_can_relock_incomplete_patch()
     test.assert_equal(flower_patch.STATE_ACTIVE, state.state)
     flower_patch.set_eligible(state, false)
     test.assert_equal(flower_patch.STATE_LOCKED, state.state)
+    test.assert_equal(nil, state.qualifying)
     local work = state.work
     flower_patch.step(state, definition.x, definition.y, 100, 1.35)
     test.assert_equal(work, state.work)
@@ -86,6 +101,7 @@ return {
     name = "flower_patch",
     cases = {
         { name = "stationary_inside_does_not_progress", run = stationary_inside_does_not_progress },
+        { name = "transient_qualification_is_sparse_when_inactive", run = transient_qualification_is_sparse_when_inactive },
         { name = "movement_inside_activates_and_persists_work", run = movement_inside_activates_and_persists_work },
         { name = "buzz_multiplier_scales_only_qualifying_movement", run = buzz_multiplier_scales_only_qualifying_movement },
         { name = "locked_patch_cannot_progress_until_unlocked", run = locked_patch_cannot_progress_until_unlocked },
