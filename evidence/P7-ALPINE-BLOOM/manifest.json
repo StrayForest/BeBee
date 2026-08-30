@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "ticket": "P7-ALPINE-BLOOM",
+  "change_class": "player-facing",
+  "problem": "Prove that BeBee can add a fifth authored highland region with Edelweiss/Anemone identity while reusing movement-through pollination, Honey, Flight/Buzz 3, restoration, save v4 and region analytics, without adding a new verb, currency, mandatory spend, lethal hazard or per-region lifecycle.",
+  "decision": {
+    "ids": [
+      "D-002",
+      "D-006",
+      "D-010",
+      "D-012",
+      "T-003",
+      "T-013",
+      "V-001"
+    ],
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "EXPERIMENT_RESULT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "continuous_authored_alpine_bloom_region_with_bounded_visual_pool",
+    "rationale": "The exact-head deterministic and Chromium journey validates Alpine Bloom as region_05 in the same continuous authored world. Four new Meadows complete through the existing movement-through pollination verb, reuse Honey and Buzz 3, reload through save v4, and retain the six-slot nearby-patch pool. Snowdrop Pass, Anemone Ridge, Wind Carve and Alpine Crown provide authored highland identity through cool palette, rock/snow/wind landmarks and route language without a new hazard or management layer. The independent evaluation accepts the slice with the explicit geometric-art deviation carried forward to P8."
+  },
+  "governance": {
+    "trust_boundary_change": "No governance-critical file, workflow, validator, ruleset, permission or trust-boundary behavior is changed by this player-facing slice. The manifest is ordinary same-PR feature evidence.",
+    "bypass_analysis": "No governance bypass is introduced or used. Exact-head CI, trusted evidence policy, diff classification, deterministic tests and retained artifacts remain the authority for this PR.",
+    "rollback": "Revert this feature PR to remove the Alpine content and bounds changes; save v4 and the existing adapters remain authoritative."
+  },
+  "research": {
+    "candidate_pool": [
+      {
+        "product_id": "a-short-hike",
+        "name": "A Short Hike",
+        "source": "https://ashorthike.com/",
+        "relevance": "Hand-authored traversal uses landmarks and environmental composition to orient players without a dense navigation layer."
+      },
+      {
+        "product_id": "alba",
+        "name": "Alba: A Wildlife Adventure",
+        "source": "https://www.albawildlife.com/",
+        "relevance": "Compact natural spaces differentiate habitats through local identity and low-pressure objectives."
+      },
+      {
+        "product_id": "garden-life",
+        "name": "Garden Life: A Cozy Simulator",
+        "source": "https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/",
+        "relevance": "Authored restoration areas coexist with seeds and player expression, making it a useful content-scaling comparison."
+      },
+      {
+        "product_id": "spiritfarer",
+        "name": "Spiritfarer",
+        "source": "https://thunderlotusgames.com/spiritfarer/",
+        "relevance": "A counter-model showing how adding management and relationship systems could overwhelm a small restoration slice."
+      },
+      {
+        "product_id": "yonder",
+        "name": "Yonder: The Cloud Catcher Chronicles",
+        "source": "https://www.yonderchronicles.com/",
+        "relevance": "A counter-model for broad biome exploration whose extra systems are intentionally outside the Alpine scope."
+      }
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {
+        "product_id": "a-short-hike",
+        "name": "A Short Hike / landmark-led authored traversal",
+        "source": "https://ashorthike.com/",
+        "platform_version_date": "Public shipped-product reference checked 2026-08-30",
+        "selection_reason": "Closest reference for making an authored highland route legible through local landmarks and traversal rhythm rather than a new map or management layer.",
+        "observed_behavior": "A compact handcrafted world stays readable through distinctive places, landmarks and relaxed exploration.",
+        "inference": "Alpine Bloom should use Snowdrop Pass, Anemone Ridge, Wind Carve and Alpine Crown as local route identities while preserving the sparse objective/Honey HUD.",
+        "measurements": {
+          "bebee_new_meadows": 4,
+          "bebee_new_navigation_screens": 0
+        }
+      },
+      {
+        "product_id": "alba",
+        "name": "Alba / authored habitat identity",
+        "source": "https://www.albawildlife.com/",
+        "platform_version_date": "Public shipped-product reference checked 2026-08-30",
+        "selection_reason": "Useful reference for natural habitat distinction through palette, silhouettes and local composition without introducing a new gameplay verb.",
+        "observed_behavior": "Hand-authored habitats and local objectives communicate place identity through environmental context.",
+        "inference": "Edelweiss and Anemone families plus rock, snow and wind landmarks can make the fifth region distinct while movement-through pollination remains the only restoration verb.",
+        "measurements": {
+          "bebee_new_core_verbs": 0,
+          "bebee_new_currencies": 0,
+          "bebee_new_lethal_hazards": 0
+        }
+      }
+    ],
+    "reference_exception": "",
+    "anti_pattern": {
+      "source": "https://thunderlotusgames.com/spiritfarer/",
+      "observation": "Spiritfarer combines exploration with a large management, crafting, building and relationship progression surface.",
+      "lesson": "Do not turn Alpine Bloom into a survival, weather, mountain-management or crafting layer; scale the authored restoration route with existing movement, pollination, Honey, upgrades and save state."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/collection-proxy/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Collection proxies create separate lifecycle surfaces; Alpine Bloom remains in the validated continuous gameplay world without a per-region or per-Meadow proxy."
+    },
+    {
+      "source": "https://defold.com/manuals/collection-factory/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "The authored data path avoids introducing a new runtime collection lifecycle before independent lifecycle or memory evidence requires it."
+    },
+    {
+      "source": "https://defold.com/manuals/gui/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Defold GUI Current Nodes and Max Nodes are bounded; Alpine retains max_nodes=512 and a six-slot nearby-patch presentation."
+    },
+    {
+      "source": "https://defold.com/manuals/optimization-memory/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Runtime resource and node usage must be measured and bounded; the accepted run retains compact patch serialization and no message-buffer regression."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "continuous_authored_alpine_bloom_region_with_bounded_visual_pool",
+      "disposition": "selected",
+      "reason": "Adds the requested highland content and traversal bounds while preserving the proven verb, save, analytics, current-world lifecycle and visible-complexity cap; exact-head Chromium evidence passes."
+    },
+    {
+      "id": "alpine_survival_hazard_layer",
+      "disposition": "rejected",
+      "reason": "Would add weather, cold, damage or survival rules beyond the validated restoration loop."
+    },
+    {
+      "id": "highland_management_layer",
+      "disposition": "rejected",
+      "reason": "Would add crafting, building, ownership or region-specific economy beyond the validated restoration loop."
+    },
+    {
+      "id": "collection_proxy_per_region",
+      "disposition": "rejected",
+      "reason": "No independent lifecycle or memory requirement was measured; per-region proxies would multiply lifecycle and input/focus surfaces."
+    },
+    {
+      "id": "procedural_mountain_generation",
+      "disposition": "rejected",
+      "reason": "The validated BeBee world remains authored for pacing, landmarks and deterministic evidence."
+    },
+    {
+      "id": "raise_gui_or_message_limits",
+      "disposition": "rejected",
+      "reason": "Would hide catalog growth rather than retaining bounded presentation and compact transient state."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Existing P1-P7 deterministic and browser regressions remain green on the accepted Alpine runtime head.",
+      "status": "pass",
+      "evidence": "Exact-head producer checks pass for Repository standards, Test/data, Pages preview and HTML5 CI; retained artifacts cover movement, storage, visual, playable and diagnostics."
+    },
+    {
+      "criterion": "Persisted regions 01-04 derive fresh region_05 at 0/4 through ordinary runtime state.",
+      "status": "pass",
+      "evidence": "Retained Alpine start state reports region_05 ALPINE BLOOM, restored_count 0, total 4, start_honey 2506 and campaign completed_regions 4 of 5."
+    },
+    {
+      "criterion": "Snowdrop Pass, Anemone Ridge, Wind Carve and Alpine Crown complete through existing movement-through pollination.",
+      "status": "pass",
+      "evidence": "Retained complete state contains four Alpine Meadows and patch IDs 21-24 in COMPLETED state through the existing pollination path."
+    },
+    {
+      "criterion": "Edelweiss/Anemone identity and highland composition are distinct without a new interaction or lethal hazard.",
+      "status": "pass",
+      "evidence": "Retained start/mid/complete/reload/mobile captures show the cool Alpine palette and rock/snow/wind landmarks; source and data contain no new core verb, currency or lethal hazard."
+    },
+    {
+      "criterion": "Alpine Bloom follows 2506 -> 3636 Honey from first-time rewards with no mandatory spend or replay.",
+      "status": "pass",
+      "evidence": "Retained journey reports start_honey 2506 and final_honey 3636 from the four authored rewards."
+    },
+    {
+      "criterion": "Save v4 reload preserves all five region completion states and Honey.",
+      "status": "pass",
+      "evidence": "Retained reload state reports Alpine Bloom 4/4, campaign 5/5 and Honey 3636; storage report passes save v4 recovery cases."
+    },
+    {
+      "criterion": "region_completed attributes Alpine Bloom to region_05 and campaign completion is durable.",
+      "status": "pass",
+      "evidence": "Retained analytics event names include region_completed with region_id region_05; reload preserves the completed five-region campaign."
+    },
+    {
+      "criterion": "Expanded traversal/camera bounds are finite and deterministically clamped.",
+      "status": "pass",
+      "evidence": "Movement tests and retained movement-qa show finite extended bounds; source keeps the validated camera/bee limits and exact repeated captures."
+    },
+    {
+      "criterion": "GUI remains max_nodes=512, PATCH_POOL_SIZE remains 6 and compact view_state avoids the 2040-byte regression.",
+      "status": "pass",
+      "evidence": "Accepted source retains both budgets; exact-head HTML5 CI completes without the previous message-buffer or GUI-node failure."
+    },
+    {
+      "criterion": "Desktop/mobile canvas, errors, external requests, FPS and bundle budgets pass.",
+      "status": "pass",
+      "evidence": "Retained journey covers desktop 1280x720 and mobile 844x390 with console/page errors 0/0 and external requests 0; release bundle and capture FPS remain within declared pipeline budgets."
+    },
+    {
+      "criterion": "Independent evaluation has no open ITERATE and carries the explicit art-direction limitation.",
+      "status": "pass",
+      "evidence": "evidence/P7-ALPINE-BLOOM/evaluation.md records independent_pass, PASS WITH DEVIATION and iteration_required=false."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Exact-head producer checks: Repository standards, Test/data, Pages preview and HTML5 CI all pass.",
+      "Retained exact-head artifacts: movement-qa-$PR_HEAD, storage-qa-$PR_HEAD, visual-qa-$PR_HEAD, html5-playable-$PR_HEAD and html5-ci-evidence-$PR_HEAD.",
+      "Final closeout head is bound to $PR_HEAD and must pass producer checks plus trusted validate-pr-evidence before merge."
+    ],
+    "manual": [
+      "Inspected retained Alpine start, midpoint, completion, reload and mobile-landscape stills; authored highland identity and objective progression remain readable.",
+      "Inspected retained motion-report: Alpine Bloom 0/4 -> 2/4 -> 4/4, reload 4/4, Honey 2506 -> 3636 and zero console/page/external errors.",
+      "Inspected retained storage-report and browser-smoke: save v4 recovery, WebAssembly/canvas readiness and input/modal checks pass."
+    ],
+    "runtime_errors": "No actionable runtime, console or page errors are reported by the retained exact-head browser, visual, movement or storage evidence; external runtime requests are zero.",
+    "save_data_impact": "No save schema change. Alpine Bloom uses save v4, stable patch IDs, existing campaign derivation and the existing A/B storage adapter; region completion, Honey and settings survive reload."
+  },
+  "visual_evidence": {
+    "required": true,
+    "artifacts": [
+      "html5-ci-evidence-$PR_HEAD",
+      "movement-qa-$PR_HEAD / p7_alpine_bloom",
+      "visual-qa-$PR_HEAD / foundation_probe",
+      "storage-qa-$PR_HEAD",
+      "html5-playable-$PR_HEAD"
+    ],
+    "states": [
+      "alpine_bloom_start_0_of_4",
+      "alpine_bloom_mid_2_of_4",
+      "alpine_bloom_complete_4_of_4",
+      "alpine_bloom_reloaded_4_of_4",
+      "alpine_bloom_complete_mobile_landscape",
+      "movement_dense",
+      "movement_empty"
+    ],
+    "viewports": [
+      "1280x720 desktop_reference",
+      "844x390 mobile_landscape",
+      "640x360 poki_small",
+      "836x470 poki_medium",
+      "1031x580 poki_large"
+    ],
+    "motion_evidence": [
+      "movement-qa-$PR_HEAD / p7_alpine_bloom still sequence",
+      "movement-qa-$PR_HEAD / movement_dense desktop_reference.webm and mobile_landscape.webm"
+    ],
+    "provenance": {
+      "capture_commit_sha": "$PR_HEAD",
+      "capture_mode": "ci",
+      "artifact_locator": "Latest exact-head GitHub Actions HTML5 CI retained artifacts: html5-ci-evidence-$PR_HEAD, movement-qa-$PR_HEAD, visual-qa-$PR_HEAD, storage-qa-$PR_HEAD and html5-playable-$PR_HEAD"
+    }
+  },
+  "comparison": {
+    "measurements": {
+      "alpine_meadows": 4,
+      "campaign_regions_completed": 5,
+      "start_honey": 2506,
+      "final_honey": 3636,
+      "first_time_honey_delta": 1130,
+      "desktop_canvas": "1280x720",
+      "mobile_canvas": "844x390",
+      "console_errors": 0,
+      "page_errors": 0,
+      "external_requests": 0,
+      "engine_fps": "retained exact-head capture approximately 49.95 fps in the desktop movement probe; browser pipeline passed its declared capture budget",
+      "min_engine_fps_budget": 45,
+      "release_bundle_bytes": "retained exact-head bundle remains below 12 MiB",
+      "release_bundle_budget_bytes": 12582912,
+      "patch_pool_size": 6,
+      "gui_max_nodes": 512
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": [
+      "Functional and runtime evidence pass for the fifth authored region, including completion, persistence, analytics, bounded traversal, canvas coverage, zero actionable errors and declared budgets.",
+      "PASS WITH DEVIATION: the geometric bee/flower illustration, typography, animation and full-scene polish remain below the long-term release-art direction. Alpine identity is readable through palette, silhouettes, landmarks and layout; this is carried to P8 rather than hidden."
+    ],
+    "verdict": "PASS WITH DEVIATION",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "p7-alpine-bloom-independent-evaluator-2026-08-30",
+      "implementation_author_id": "p7-alpine-bloom-implementation-agent",
+      "input_artifacts": [
+        "movement-qa-$PR_HEAD",
+        "visual-qa-$PR_HEAD",
+        "html5-ci-evidence-$PR_HEAD"
+      ],
+      "record_locator": "evidence/P7-ALPINE-BLOOM/evaluation.md in the same PR"
+    }
+  },
+  "known_limitations": [
+    "P7 remains IN PROGRESS after this Alpine Bloom slice; Moon Garden remains.",
+    "Rounded expressive bee art, stronger species silhouettes, final typography, animation and full-scene polish remain before release-candidate visual certification.",
+    "Later-region pacing, later Flight/Buzz curves and external novice comprehension remain open/tunable.",
+    "The retained browser log can include environment-level diagnostics, but structured runtime reports contain zero actionable errors."
+  ]
+}
