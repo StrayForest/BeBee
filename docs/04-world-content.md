@@ -4,7 +4,7 @@
 
 This document owns canonical region/meadow/flower content structure. Economy values belong in `02-progression-economy.md`; global decision status belongs in `DECISIONS.md`.
 
-Later-region content remains proposal-level until the vertical slice is validated.
+Later-region content remains proposal-level until its own P7 slice is accepted.
 
 ## 2. World structure
 
@@ -32,7 +32,7 @@ To resolve the previous documentation contradiction, the current canonical propo
 5. **Alpine Bloom** — rock/snow/wind, alpine flower identity;
 6. **Moon Garden** — glowing/exotic finale.
 
-This order is recorded in `DECISIONS.md` as the current canonical proposal. Only Region 1 is production-relevant before P6 passes.
+This order is recorded in `DECISIONS.md` as the current canonical proposal. Regions remain proposal-level until their own P7 slice is accepted; the accepted slices are tracked in `docs/06-production-roadmap.md`.
 
 ## 4. Region design rules
 
