@@ -631,6 +631,7 @@ end
 
 local function render_scent(self, message, camera_x, camera_y, visible)
     local target_x, target_y = message.guidance_x, message.guidance_y
+    local frame = self.qa_enabled and 0 or (message.frame or 0)
     local scent_visible = visible and target_x ~= nil and target_y ~= nil
     for index, node in ipairs(self.scent_nodes or {}) do
         gui.set_enabled(node, scent_visible)
@@ -638,7 +639,7 @@ local function render_scent(self, message, camera_x, camera_y, visible)
             local t = index / (#self.scent_nodes + 1)
             local wx = (message.bee_x or target_x) + (target_x - (message.bee_x or target_x)) * t
             local wy = (message.bee_y or target_y) + (target_y - (message.bee_y or target_y)) * t
-            wy = wy + math.sin((message.frame or 0) * 0.06 + index) * 12
+            wy = wy + math.sin(frame * 0.06 + index) * 12
             local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
             set_xy(node, sx, sy)
             gui.set_color(node, vmath.vector4(COLOR_SCENT.x, COLOR_SCENT.y, COLOR_SCENT.z, 0.34 + t * 0.46))
@@ -647,6 +648,7 @@ local function render_scent(self, message, camera_x, camera_y, visible)
 end
 
 local function render_pests(self, message, camera_x, camera_y, visible)
+    local frame = self.qa_enabled and 0 or (message.frame or 0)
     local base
     for _, definition in ipairs(catalog.patches or {}) do
         local meadow_definition
@@ -659,7 +661,7 @@ local function render_pests(self, message, camera_x, camera_y, visible)
         local enabled = visible and base ~= nil
         for _, node in pairs(marker) do gui.set_enabled(node, enabled) end
         if enabled then
-            local angle = (message.frame or 0) * (0.014 + index * 0.002) + index * 2.17
+            local angle = frame * (0.014 + index * 0.002) + index * 2.17
             local wx = base.x + math.cos(angle) * (190 + index * 42)
             local wy = base.y + math.sin(angle * 1.17) * (130 + index * 28)
             local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
