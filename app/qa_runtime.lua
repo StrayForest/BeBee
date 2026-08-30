@@ -20,6 +20,9 @@ M.REGION_START_STATE = "region_start"
 M.REGION_MID_STATE = "region_mid"
 M.REGION_COMPLETE_STATE = "region_complete"
 M.SETTINGS_ACCESSIBILITY_STATE = "settings_accessibility"
+M.ROSEWOOD_START_STATE = "rosewood_start"
+M.ROSEWOOD_MID_STATE = "rosewood_mid"
+M.ROSEWOOD_COMPLETE_STATE = "rosewood_complete"
 
 local SUPPORTED_STATES = {
     [M.FOUNDATION_STATE] = true,
@@ -40,6 +43,9 @@ local SUPPORTED_STATES = {
     [M.REGION_MID_STATE] = true,
     [M.REGION_COMPLETE_STATE] = true,
     [M.SETTINGS_ACCESSIBILITY_STATE] = true,
+    [M.ROSEWOOD_START_STATE] = true,
+    [M.ROSEWOOD_MID_STATE] = true,
+    [M.ROSEWOOD_COMPLETE_STATE] = true,
 }
 
 function M.normalize_seed(value)
@@ -93,6 +99,9 @@ function M.is_region_state(state_id)
         or state_id == M.REGION_MID_STATE
         or state_id == M.REGION_COMPLETE_STATE
         or state_id == M.SETTINGS_ACCESSIBILITY_STATE
+        or state_id == M.ROSEWOOD_START_STATE
+        or state_id == M.ROSEWOOD_MID_STATE
+        or state_id == M.ROSEWOOD_COMPLETE_STATE
 end
 
 function M.requires_gameplay_capture(state_id)
