@@ -779,7 +779,6 @@ return {
                 { id = "RESTORED", min_contribution = 3, ground_mix = 1.00, detail_count = 32, ambient_life_count = 12, celebration_seconds = 2.1 },
             },
         },
-    },
         {
             id = "r05_m01",
             region_id = "region_05",
@@ -840,4 +839,5 @@ return {
                 { id = "RESTORED", min_contribution = 3, ground_mix = 1.00, detail_count = 36, ambient_life_count = 13, celebration_seconds = 2.3 },
             },
         },
+    },
 }

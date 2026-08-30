@@ -35,7 +35,7 @@ return {
             name = "normal camera reaches Alpine and clamps at expanded edge",
             run = function()
                 local state = follow.new()
-                for _ = 1, 720 do follow.step(state, 12800, 2400, 1/60, false) end
+                for _ = 1, 960 do follow.step(state, 12800, 2400, 1/60, false) end
                 t.assert_true(near(12160, state.x, 0.01))
                 t.assert_true(near(2040, state.y, 0.01))
             end,
@@ -47,7 +47,7 @@ return {
                 follow.step(state, 1700, 1000, 1/60, true)
                 t.assert_equal(1700, state.x)
                 t.assert_equal(1000, state.y)
-                follow.step(state, 9600, 2400, 1/60, true)
+                follow.step(state, 12800, 2400, 1/60, true)
                 t.assert_equal(12160, state.x)
                 t.assert_equal(2040, state.y)
             end,

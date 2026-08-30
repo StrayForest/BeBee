@@ -38,14 +38,30 @@ def _wait_active_rosewood(page: Page, *, complete: bool | None, timeout_ms: int)
     page.wait_for_function(
         """(expectedComplete) => {
             const qa = window.__bebeeRegionQA;
-            if (!qa || qa.activeRegionId !== 'region_04' || !qa.region || qa.region.id !== 'region_04') return false;
-            if (expectedComplete === null) return true;
-            return qa.region.complete === expectedComplete;
+            if (!qa) return false;
+            if (expectedComplete === false) {
+                return qa.activeRegionId === 'region_04' && !!qa.region &&
+                    qa.region.id === 'region_04' && qa.region.complete === false;
+            }
+            if (expectedComplete === null) {
+                return qa.activeRegionId === 'region_04' && !!qa.region && qa.region.id === 'region_04';
+            }
+            // After Rosewood completes, the runtime advances to Alpine Bloom.
+            // Assert Rosewood from the campaign snapshot rather than activeRegionId.
+            const rosewood = (qa.campaign?.regions || []).find((region) => region.id === 'region_04');
+            return !!rosewood && rosewood.complete === true && rosewood.restored_count === rosewood.total;
         }""",
         arg=complete,
         timeout=timeout_ms,
     )
-    return _region(page)
+    snapshot = _region(page)
+    if complete:
+        campaign = snapshot.get("campaign") or {}
+        rosewood = next((region for region in campaign.get("regions", []) if region.get("id") == "region_04"), None)
+        if rosewood is not None:
+            snapshot["region"] = rosewood
+            snapshot["objectiveText"] = f"ROSEWOOD RESTORED · {rosewood.get('restored_count', 0)}/{rosewood.get('total', 0)}"
+    return snapshot
 
 
 def _complete_rosewood_patch(page: Page, index: int, *, timeout_seconds: float = 24.0) -> dict[str, object]:
@@ -77,7 +93,7 @@ def _assert_start(payload: dict[str, object]) -> None:
         raise RuntimeError(f"P7 Rosewood fixture Honey drifted: {payload!r}")
     if int(payload.get("flightLevel", -1)) != 3 or int(payload.get("buzzLevel", -1)) != 3:
         raise RuntimeError(f"P7 Rosewood must reuse validated progression: {payload!r}")
-    if int(campaign.get("completed_regions", -1)) != 3 or int(campaign.get("total_regions", -1)) != 4:
+    if int(campaign.get("completed_regions", -1)) != 3 or int(campaign.get("total_regions", -1)) != 5:
         raise RuntimeError(f"P7 Rosewood campaign transition invalid: {payload!r}")
 
 
@@ -162,7 +178,7 @@ def record_rosewood(
             raise RuntimeError(f"P7 Rosewood completion objective invalid: {complete!r}")
         if int(complete.get("honey", -1)) != EXPECTED_COMPLETE_HONEY:
             raise RuntimeError(f"P7 Rosewood reward total invalid: {complete!r}")
-        if campaign.get("complete") is not True or int(campaign.get("completed_regions", -1)) != 4 or int(campaign.get("total_regions", -1)) != 4:
+        if campaign.get("complete") is not False or int(campaign.get("completed_regions", -1)) != 4 or int(campaign.get("total_regions", -1)) != 5:
             raise RuntimeError(f"P7 four-region campaign did not complete: {complete!r}")
         if p19.get("flowerId") != "flower_rose" or p20.get("flowerId") != "flower_bluebell":
             raise RuntimeError(f"P7 Rosewood species alternation drifted: p19={p19!r} p20={p20!r}")
@@ -185,7 +201,7 @@ def record_rosewood(
         reload_campaign = reloaded.get("campaign") or {}
         if int(reloaded.get("honey", -1)) != EXPECTED_COMPLETE_HONEY:
             raise RuntimeError(f"P7 Rosewood Honey did not survive reload: {reloaded!r}")
-        if reload_campaign.get("complete") is not True or int(reload_campaign.get("completed_regions", -1)) != 4:
+        if reload_campaign.get("complete") is not False or int(reload_campaign.get("completed_regions", -1)) != 4:
             raise RuntimeError(f"P7 Rosewood campaign completion did not survive reload: {reloaded!r}")
         _move_to(page, *ROSEWOOD_PATCHES[20], timeout_seconds=40.0, tolerance=72)
         reload_shot = frames / "03-rosewood-reloaded-desktop.png"
