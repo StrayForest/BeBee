@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration, P5 Seed Ownership During Restoration and P6 First Region Vertical Slice are complete for milestone closeout. P7 — Production Expansion is IN PROGRESS: Golden Fields, Wetland Garden and Rosewood are accepted slices; Alpine Bloom is the next production handoff.**
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration, P5 Seed Ownership During Restoration, P6 First Region Vertical Slice and P7 Production Expansion are complete for milestone closeout. P8 — Release Candidate is IN PROGRESS.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -706,7 +706,7 @@ P6 has the complete playable journey, critical-surface captures, objective measu
 
 # P7 — Production Expansion
 
-**Status: IN PROGRESS — Golden Fields and Wetland Garden accepted; Rosewood in progress.**
+**Status: COMPLETE — Golden Fields, Wetland Garden, Rosewood, Alpine Bloom and Moon Garden accepted with PASS WITH DEVIATION.**
 
 Scale proven content/system patterns only.
 
@@ -849,7 +849,16 @@ Complete Rosewood records:
 
 The closeout head must repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted validate-pr-evidence, retaining non-N/A movement, storage, visual and playable artifacts before merge.
 
-**Rosewood slice: PASS WITH DEVIATION. P7 milestone remains IN PROGRESS. Alpine Bloom is the next production slice; Moon Garden follows.**
+**Rosewood slice: PASS WITH DEVIATION. Alpine Bloom and Moon Garden complete the authored P7 region sequence; P7 closeout is recorded below before the P8 release-candidate handoff.**
+
+---
+## Alpine Bloom and Moon Garden — ACCEPTED P7 SEQUENCE CLOSEOUT
+
+Alpine Bloom (`region_05`) and Moon Garden (`region_06`) complete the authored P7 sequence. Both slices reuse movement-through pollination, Honey, Flight/Buzz 3, restoration, save v4, platform-neutral analytics and the bounded six-slot patch presentation. Moon Garden adds Lumen Orchard, Starfall Glade, Comet Clearing and Moon Crown with Night Lily/Starflower identity, expands movement/camera bounds to the authored east edge, and completes the campaign from 5/6 to 6/6 without a new currency, verb, mandatory spend, lethal hazard or region lifecycle.
+
+The exact-head closeout records are `docs/research/P7-alpine-bloom-production-expansion.md`, `evidence/P7-ALPINE-BLOOM/manifest.json`, `evidence/P7-ALPINE-BLOOM/evaluation.md`, `docs/research/P7-moon-garden-production-expansion.md`, `evidence/P7-MOON-GARDEN/manifest.json` and `evidence/P7-MOON-GARDEN/evaluation.md`. The independent verdict for each is PASS WITH DEVIATION: authored content, progression reuse, persistence, analytics, bounds and browser evidence pass; the existing geometric illustration/animation/typography/full-scene deviation remains an explicit P8 certification gate.
+
+**P7 exit: PASS WITH DEVIATION. Production advances to P8 — Release Candidate.**
 
 ---
 # P8 — Release Candidate

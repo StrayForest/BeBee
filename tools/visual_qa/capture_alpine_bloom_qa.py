@@ -38,14 +38,25 @@ def _wait_active_alpine_bloom(page: Page, *, complete: bool | None, timeout_ms: 
     page.wait_for_function(
         """(expectedComplete) => {
             const qa = window.__bebeeRegionQA;
-            if (!qa || qa.activeRegionId !== 'region_05' || !qa.region || qa.region.id !== 'region_05') return false;
-            if (expectedComplete === null) return true;
-            return qa.region.complete === expectedComplete;
+            if (!qa) return false;
+            if (expectedComplete !== true) {
+                return qa.activeRegionId === 'region_05' && !!qa.region &&
+                    qa.region.id === 'region_05' && qa.region.complete === expectedComplete;
+            }
+            const alpine = (qa.campaign?.regions || []).find((region) => region.id === 'region_05');
+            return !!alpine && alpine.complete === true && alpine.restored_count === alpine.total;
         }""",
         arg=complete,
         timeout=timeout_ms,
     )
-    return _region(page)
+    snapshot = _region(page)
+    if complete:
+        campaign = snapshot.get("campaign") or {}
+        alpine = next((region for region in campaign.get("regions", []) if region.get("id") == "region_05"), None)
+        if alpine is not None:
+            snapshot["region"] = alpine
+            snapshot["objectiveText"] = f"ALPINE BLOOM RESTORED · {alpine.get('restored_count', 0)}/{alpine.get('total', 0)}"
+    return snapshot
 
 
 def _complete_alpine_patch(page: Page, index: int, *, timeout_seconds: float = 24.0) -> dict[str, object]:
@@ -77,7 +88,7 @@ def _assert_start(payload: dict[str, object]) -> None:
         raise RuntimeError(f"P7 Alpine Bloom fixture Honey drifted: {payload!r}")
     if int(payload.get("flightLevel", -1)) != 3 or int(payload.get("buzzLevel", -1)) != 3:
         raise RuntimeError(f"P7 Alpine Bloom must reuse validated progression: {payload!r}")
-    if int(campaign.get("completed_regions", -1)) != 4 or int(campaign.get("total_regions", -1)) != 5:
+    if int(campaign.get("completed_regions", -1)) != 4 or int(campaign.get("total_regions", -1)) != 6:
         raise RuntimeError(f"P7 Alpine Bloom campaign transition invalid: {payload!r}")
 
 
@@ -162,7 +173,7 @@ def record_alpine_bloom(
             raise RuntimeError(f"P7 Alpine Bloom completion objective invalid: {complete!r}")
         if int(complete.get("honey", -1)) != EXPECTED_COMPLETE_HONEY:
             raise RuntimeError(f"P7 Alpine Bloom reward total invalid: {complete!r}")
-        if campaign.get("complete") is not True or int(campaign.get("completed_regions", -1)) != 5 or int(campaign.get("total_regions", -1)) != 5:
+        if campaign.get("complete") is not False or int(campaign.get("completed_regions", -1)) != 5 or int(campaign.get("total_regions", -1)) != 6:
             raise RuntimeError(f"P7 four-region campaign did not complete: {complete!r}")
         if p19.get("flowerId") != "flower_edelweiss" or p20.get("flowerId") != "flower_anemone":
             raise RuntimeError(f"P7 Alpine Bloom species alternation drifted: p19={p19!r} p20={p20!r}")
@@ -185,7 +196,7 @@ def record_alpine_bloom(
         reload_campaign = reloaded.get("campaign") or {}
         if int(reloaded.get("honey", -1)) != EXPECTED_COMPLETE_HONEY:
             raise RuntimeError(f"P7 Alpine Bloom Honey did not survive reload: {reloaded!r}")
-        if reload_campaign.get("complete") is not True or int(reload_campaign.get("completed_regions", -1)) != 5:
+        if reload_campaign.get("complete") is not False or int(reload_campaign.get("completed_regions", -1)) != 5:
             raise RuntimeError(f"P7 Alpine Bloom campaign completion did not survive reload: {reloaded!r}")
         _move_to(page, *ALPINE_PATCHES[24], timeout_seconds=40.0, tolerance=72)
         reload_shot = frames / "03-alpine_bloom-reloaded-desktop.png"

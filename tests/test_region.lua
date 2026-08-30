@@ -168,15 +168,44 @@ local function alpine_bloom_is_content_chain_not_new_core_system()
     test.assert_true(eligible, tostring(reason))
 end
 
+local function alpine_completion_activates_moon_garden()
+    local save = progression.new_save()
+    for index = 1, 24 do
+        save.world.campaign_completion[catalog.patches[index].id] = true
+    end
+    test.assert_equal("region_06", region.active_id(save))
+    local summary = region.active_summary(save)
+    test.assert_equal("region_06", summary.id)
+    test.assert_equal(4, summary.total)
+    test.assert_equal(0, summary.restored_count)
+    test.assert_equal("r06_m01", summary.next_meadow_id)
+    test.assert_equal("RESTORE LUMEN ORCHARD · 0/4", region.active_objective_text(save))
+    test.assert_equal("region_06", region.region_id_for_meadow("r06_m03"))
+end
+
+local function moon_garden_is_content_chain_not_new_core_system()
+    local save = progression.new_save()
+    for index = 1, 24 do
+        save.world.campaign_completion[catalog.patches[index].id] = true
+    end
+    save.player.upgrades.upgrade_buzz = 3
+    local first = catalog.patches[25]
+    test.assert_equal("r05_m04_patch_01", first.requires_patch_id)
+    test.assert_equal("flower_night_lily", first.flower_id)
+    test.assert_equal(3, first.requires_buzz_level)
+    local eligible, reason = progression.patch_eligibility(save, first)
+    test.assert_true(eligible, tostring(reason))
+end
+
 local function completed_campaign_is_derived_across_regions()
     local save = progression.new_save()
     for _, patch in ipairs(catalog.patches) do save.world.campaign_completion[patch.id] = true end
     local campaign = region.campaign_summary(save)
     test.assert_true(campaign.complete)
-    test.assert_equal(5, campaign.completed_regions)
-    test.assert_equal(5, campaign.total_regions)
-    test.assert_equal("region_05", campaign.active_region_id)
-    test.assert_equal("ALPINE BLOOM RESTORED · 4/4", region.active_objective_text(save))
+    test.assert_equal(6, campaign.completed_regions)
+    test.assert_equal(6, campaign.total_regions)
+    test.assert_equal("region_06", campaign.active_region_id)
+    test.assert_equal("MOON GARDEN RESTORED · 4/4", region.active_objective_text(save))
     test.assert_equal(nil, save.world.region_completion)
 end
 
@@ -195,6 +224,8 @@ return {
         { name = "rosewood_is_content_chain_not_new_core_system", run = rosewood_is_content_chain_not_new_core_system },
         { name = "rosewood_completion_activates_alpine_bloom", run = rosewood_completion_activates_alpine_bloom },
         { name = "alpine_bloom_is_content_chain_not_new_core_system", run = alpine_bloom_is_content_chain_not_new_core_system },
+        { name = "alpine_completion_activates_moon_garden", run = alpine_completion_activates_moon_garden },
+        { name = "moon_garden_is_content_chain_not_new_core_system", run = moon_garden_is_content_chain_not_new_core_system },
         { name = "completed_campaign_is_derived_across_regions", run = completed_campaign_is_derived_across_regions },
     },
 }

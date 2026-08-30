@@ -174,12 +174,14 @@ P6 validates `D-011` as one continuous authored **six-Meadow Sunny Meadows** reg
 
 P7 Golden Fields validates the first **multi-region production-expansion seam**. A persisted P6-complete state derives `region_02` automatically, then the normal runtime restores Sun Gate, Poppy Run, Windmill Loop and Harvest Crown from 0/4 to 4/4 with the same movement-through pollination verb. Honey moves `346 → 891` with no new mandatory spend/replay, campaign state reloads at 2/2 regions complete, analytics stays platform-neutral, P7 browser errors/external requests are `0/0/0`, and current performance remains `59.87 fps` with a `2,815,539`-byte bundle. The first Golden Fields HTML5 run exposed `Out of nodes (max 512)`; the accepted architecture repair keeps `max_nodes: 512` and uses six reusable nearby-patch visual slots instead of permanent per-patch GUI trees. Independent verdict is **PASS WITH DEVIATION** for the Golden Fields slice; P7 as a milestone remains IN PROGRESS.
 
+P7 Moon Garden completes the authored chain as the sixth region: Lumen Orchard, Starfall Glade, Comet Clearing and Moon Crown restore from 0/4 to 4/4 through the existing movement-through pollination path. The exact journey starts at `3636 Honey` and ends at `4846 Honey`, derives the six-region campaign, preserves save v4 and the six-slot GUI pool, and carries only the documented geometric-art deviation into P8. Research and evidence are [`docs/research/P7-moon-garden-production-expansion.md`](docs/research/P7-moon-garden-production-expansion.md), [`evidence/P7-MOON-GARDEN/manifest.json`](evidence/P7-MOON-GARDEN/manifest.json) and [`evidence/P7-MOON-GARDEN/evaluation.md`](evidence/P7-MOON-GARDEN/evaluation.md).
+
 Still open/tunable before downstream milestones lock production values:
 
 - Honey rewards/cost tables and pacing beyond the accepted Golden Fields path;
 - later Flight/Buzz effect curves and gate cadence beyond Buzz 3;
 - later player-plot count/placement and seed catalog/pacing beyond the validated first-region topology;
-- Rosewood authored content/tuning and its exact-head browser/evidence closeout; Alpine Bloom and Moon Garden authored content/tuning;
+- exact-head P7 evidence and closeout records for the accepted Alpine Bloom and Moon Garden slices;
 - external novice comprehension/playtest evidence;
 - final production illustration/animation/typography and full-scene visual polish required to clear the P6/P7 art-direction deviation before release certification.
 
@@ -189,7 +191,7 @@ At P-1 closeout, repository enforcement was verified through ruleset `Protect ma
 
 ## Vertical-slice target
 
-P6 now proves the structural vertical-slice target: controllable movement, several flower difficulty tiers, one compact authored region, movement-through pollination, Honey economy, Flight/Buzz progression, seed ownership, visible restoration, save/reload, desktop + touch controls, local audio, accessibility settings, analytics abstraction and a production HTML5 build path. P7 Golden Fields and the active Rosewood implementation show that the same architecture can scale into authored regions without a new core system or per-region game-world lifecycle. Exact stat/pacing values remain runtime-validated tunings rather than immutable values simply because they appeared in an early GDD.
+P6 now proves the structural vertical-slice target: controllable movement, several flower difficulty tiers, one compact authored region, movement-through pollination, Honey economy, Flight/Buzz progression, seed ownership, visible restoration, save/reload, desktop + touch controls, local audio, accessibility settings, analytics abstraction and a production HTML5 build path. P7 Golden Fields, Wetland Garden, Rosewood, Alpine Bloom and Moon Garden prove that the same architecture scales into authored regions without a new core system or per-region game-world lifecycle. Exact stat/pacing values remain runtime-validated tunings rather than immutable values simply because they appeared in an early GDD.
 
 The remaining explicitly documented deviation is final illustration/animation/typography/full-scene polish; it does not invalidate the functional region architecture but must be resolved before release-candidate visual certification.
 

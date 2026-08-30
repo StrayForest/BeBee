@@ -33,6 +33,9 @@ local ROSEWOOD_COMPLETE = "rosewood_complete"
 local ALPINE_BLOOM_START = "alpine_bloom_start"
 local ALPINE_BLOOM_MID = "alpine_bloom_mid"
 local ALPINE_BLOOM_COMPLETE = "alpine_bloom_complete"
+local MOON_GARDEN_START = "moon_garden_start"
+local MOON_GARDEN_MID = "moon_garden_mid"
+local MOON_GARDEN_COMPLETE = "moon_garden_complete"
 
 local HIVE_X = 1120
 local HIVE_Y = 800
@@ -88,11 +91,16 @@ local function alpine_bloom_qa(state_id)
     return state_id == ALPINE_BLOOM_START or state_id == ALPINE_BLOOM_MID or state_id == ALPINE_BLOOM_COMPLETE
 end
 
+local function moon_garden_qa(state_id)
+    return state_id == MOON_GARDEN_START or state_id == MOON_GARDEN_MID or state_id == MOON_GARDEN_COMPLETE
+end
+
 local function region_qa(state_id)
-    return state_id == REGION_START or state_id == REGION_MID or state_id == REGION_COMPLETE or state_id == SETTINGS_ACCESSIBILITY or rosewood_qa(state_id) or alpine_bloom_qa(state_id)
+    return state_id == REGION_START or state_id == REGION_MID or state_id == REGION_COMPLETE or state_id == SETTINGS_ACCESSIBILITY or rosewood_qa(state_id) or alpine_bloom_qa(state_id) or moon_garden_qa(state_id)
 end
 
 local function runtime_region_id(self)
+    if moon_garden_qa(self.qa_state) then return "region_06" end
     if alpine_bloom_qa(self.qa_state) then return "region_05" end
     if rosewood_qa(self.qa_state) then return "region_04" end
     if region_qa(self.qa_state) then return P6_REGION_ID end
@@ -119,6 +127,7 @@ local function clean_progression(self, persistence_enabled)
 end
 
 local function lifecycle_value(self)
+    if moon_garden_qa(self.qa_state) then return query_value("moon_garden_storage_lifecycle") end
     if alpine_bloom_qa(self.qa_state) then return query_value("alpine_bloom_storage_lifecycle") end
     if rosewood_qa(self.qa_state) then return query_value("rosewood_storage_lifecycle") end
     if region_qa(self.qa_state) then return query_value("p6_storage_lifecycle") end
@@ -390,6 +399,12 @@ local function apply_visual_fixture(self)
         prepare_expansion_fixture(self, 20, 3041, 21)
     elseif self.qa_state == ALPINE_BLOOM_COMPLETE then
         prepare_expansion_fixture(self, 22, 3636, 22)
+    elseif self.qa_state == MOON_GARDEN_START then
+        prepare_expansion_fixture(self, 22, 3636, 23)
+    elseif self.qa_state == MOON_GARDEN_MID then
+        prepare_expansion_fixture(self, 24, 4211, 25)
+    elseif self.qa_state == MOON_GARDEN_COMPLETE then
+        prepare_expansion_fixture(self, 26, 4846, 26)
     end
 end
 
