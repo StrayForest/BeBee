@@ -43,6 +43,10 @@ local COLOR_ROOT = vmath.vector4(0.48, 0.35, 0.23, 0.86)
 local COLOR_REED = vmath.vector4(0.34, 0.58, 0.31, 0.90)
 local COLOR_WOOD = vmath.vector4(0.32, 0.20, 0.14, 0.90)
 local COLOR_CANOPY = vmath.vector4(0.20, 0.40, 0.24, 0.78)
+local COLOR_ALPINE_DORMANT = vmath.vector4(0.36, 0.43, 0.52, 1)
+local COLOR_ALPINE_FIELD = vmath.vector4(0.76, 0.86, 0.92, 1)
+local COLOR_ALPINE_ROCK = vmath.vector4(0.28, 0.35, 0.43, 0.90)
+local COLOR_ALPINE_SNOW = vmath.vector4(0.90, 0.96, 1.0, 0.95)
 
 local FLOWER_OFFSETS = {
     { -118, -54 }, { -102, 74 }, { 0, 118 }, { 104, 72 }, { 118, -56 },
