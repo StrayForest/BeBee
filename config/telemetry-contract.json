@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "ticket": "P8-RELEASE-CANDIDATE",
+  "status": "VALIDATED",
+  "provider_boundary": "adapters/portal",
+  "events": {
+    "session_start": ["region_id", "save_version"],
+    "first_input": ["input", "region_id"],
+    "gameplay_start": ["reason", "region_id"],
+    "gameplay_pause": ["reason", "region_id"],
+    "gameplay_resume": ["reason", "region_id"],
+    "gameplay_stop": ["reason", "region_id"],
+    "gameplay_complete": ["region_id", "honey_total"],
+    "patch_completed": ["patch_id", "meadow_id", "region_id", "honey_awarded", "honey_total"],
+    "meadow_restored": ["meadow_id", "region_id", "restored_count"],
+    "region_completed": ["region_id", "honey_total"],
+    "settings_changed": ["setting_id", "value"]
+  },
+  "privacy": {
+    "identity": "none",
+    "raw_input": "forbidden",
+    "location": "forbidden",
+    "remote_endpoint": "none_in_direct_web; portal_provider_only_when_consent_granted"
+  },
+  "failure_policy": "event rejection or provider failure never interrupts gameplay"
+}

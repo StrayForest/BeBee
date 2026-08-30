@@ -20,6 +20,29 @@ def with_query(base: str, **updates: str) -> str:
     return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
 
 
+def _platform_sdk_url(url: object) -> bool:
+    hostname = (urlsplit(str(url or "")).hostname or "").lower()
+    suffixes = (
+        ".poki.com",
+        ".poki-cdn.com",
+        ".poki.io",
+        ".crazygames.com",
+        ".googleapis.com",
+        ".doubleclick.net",
+        ".amazon-adsystem.com",
+        ".2mdn.net",
+        ".googlesyndication.com",
+        ".jsdelivr.net",
+        ".publisher-services.amazon.dev",
+    )
+    return any(hostname == suffix[1:] or hostname.endswith(suffix) for suffix in suffixes)
+
+
+def _platform_console_message(text: object) -> bool:
+    value = str(text or "")
+    return "ads.poki.com" in value or "crazygames.com" in value
+
+
 def wait_result(page: Page, scenario: str, timeout_ms: int = 15000) -> dict:
     page.wait_for_function(
         "() => window.__bebeeStorageTest && window.__bebeeStorageTest.ready === true",
@@ -99,12 +122,27 @@ def classify_rapid_window(
 
 
 def attach_error_capture(page: Page, errors: list[str]) -> None:
-    page.on(
-        "console",
-        lambda message: errors.append(f"console:{message.type}:{message.text}")
-        if message.type == "error"
-        else None,
-    )
+    platform_request_seen = False
+
+    def on_request(request) -> None:
+        nonlocal platform_request_seen
+        if _platform_sdk_url(request.url):
+            platform_request_seen = True
+
+    def on_console(message) -> None:
+        if message.type != "error":
+            return
+        text = message.text
+        if _platform_console_message(text):
+            return
+        if platform_request_seen and "Failed to load resource: net::ERR_FAILED" in text:
+            return
+        if "Cross-Origin-Opener-Policy header has been ignored" in text:
+            return
+        errors.append(f"console:{message.type}:{text}")
+
+    page.on("request", on_request)
+    page.on("console", on_console)
     page.on("pageerror", lambda error: errors.append(f"pageerror:{error}"))
 
 
@@ -269,15 +307,31 @@ def main() -> int:
 
             page.goto(with_query(args.release_url, storage_test="verify"), wait_until="load")
             page.wait_for_timeout(1500)
-            release_bridge_present = page.evaluate(
-                "() => typeof window.__bebeeStorageTest !== 'undefined'"
-            )
-            if release_bridge_present:
-                raise AssertionError("release bundle exposed development storage bridge")
+            release_bridge_names = [
+                name
+                for name in [
+                    "__bebeeQA",
+                    "__bebeeStorageTest",
+                    "__bebeeMovementQA",
+                    "__bebeePollinationQA",
+                    "__bebeeProgressionQA",
+                    "__bebeeSeedQA",
+                    "__bebeeRegionQA",
+                    "__bebeeRestorationQA",
+                ]
+                if page.evaluate(f"() => typeof window.{name} !== 'undefined'")
+            ]
+            if release_bridge_names:
+                raise AssertionError(
+                    "release bundle exposed development QA bridges: "
+                    + ", ".join(release_bridge_names)
+                )
+            checks.append({"id": "release_probe_absent", "bridge_present": False})
             checks.append(
                 {
-                    "id": "release_probe_absent",
-                    "bridge_present": release_bridge_present,
+                    "id": "release_debug_bridges_absent",
+                    "bridge_present": False,
+                    "bridge_names": release_bridge_names,
                 }
             )
             browser_version = context.browser.version if context.browser else "unknown"

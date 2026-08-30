@@ -6,3 +6,5 @@ show_made_with_defold = 0
 
 [bebee]
 qa_enabled = 0
+portal_target = poki
+telemetry_enabled = 0

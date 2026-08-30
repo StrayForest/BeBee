@@ -115,6 +115,12 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`config/visual-qa.json`](config/visual-qa.json) — canonical deterministic QA-state/capture contract
 - [`config/storage-contract.json`](config/storage-contract.json) — HTML5 persistence/recovery contract
 - [`tools/defold/toolchain.json`](tools/defold/toolchain.json) — pinned Defold/Bob/Java/HTML5 build contract
+- [`config/privacy-contract.json`](config/privacy-contract.json) — deny-by-default optional telemetry and release privacy boundary
+- [`config/telemetry-contract.json`](config/telemetry-contract.json) — platform lifecycle/optional telemetry field contract
+- [`config/release-qa.json`](config/release-qa.json) — bundle, startup, device and negative-release QA budgets
+- [`release/portal-metadata.json`](release/portal-metadata.json) — selected Poki/fallback CrazyGames launch metadata
+- [`docs/visual/P8-art-certification.md`](docs/visual/P8-art-certification.md) — scoped release-candidate art certification
+- [`evidence/P8-RELEASE-CANDIDATE/manifest.json`](evidence/P8-RELEASE-CANDIDATE/manifest.json) — exact-head release-candidate evidence
 
 ### Research/process
 

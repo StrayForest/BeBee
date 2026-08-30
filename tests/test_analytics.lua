@@ -33,6 +33,11 @@ local function p6_contract_events_are_registered()
     test.assert_true(joined:find("meadow_restored", 1, true) ~= nil)
     test.assert_true(joined:find("region_completed", 1, true) ~= nil)
     test.assert_true(joined:find("settings_changed", 1, true) ~= nil)
+    test.assert_true(joined:find("gameplay_start", 1, true) ~= nil)
+    test.assert_true(joined:find("gameplay_stop", 1, true) ~= nil)
+    test.assert_true(joined:find("gameplay_pause", 1, true) ~= nil)
+    test.assert_true(joined:find("gameplay_resume", 1, true) ~= nil)
+    test.assert_true(joined:find("gameplay_complete", 1, true) ~= nil)
 end
 
 return {

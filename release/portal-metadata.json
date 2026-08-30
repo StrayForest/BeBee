@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "ticket": "P8-RELEASE-CANDIDATE",
+  "title": "BeBee",
+  "short_description": "Fly a tiny bee through gentle meadows, pollinate flowers and bring a quiet planet back to life.",
+  "primary_target": "poki",
+  "fallback_target": "crazygames",
+  "owned_target": "direct_web",
+  "orientation": "landscape",
+  "aspect_ratio": "16:9 responsive",
+  "entry_requirement": "direct_gameplay_or_one_intentional_action",
+  "sdk": {
+    "primary": "Defold Poki SDK extension 4.0.0",
+    "lifecycle": ["gameplayStart_on_first_input", "gameplayStop_on_pause_or_menu", "gameplayStart_on_resume"],
+    "external_requests": "none_from_BeBee; portal_sdk_calls_only"
+  },
+  "privacy_policy": {
+    "repository_path": "release/privacy-policy.html",
+    "pages_path": "privacy-policy.html",
+    "public_url_template": "https://strayforest.github.io/BeBee/privacy-policy.html"
+  },
+  "capture_set": {
+    "required_viewports": ["1280x720", "1031x580", "836x470", "640x360", "844x390"],
+    "required_states": ["movement_empty", "movement_dense", "moon_garden_start", "moon_garden_mid", "moon_garden_complete", "moon_garden_reload"],
+    "browser": "Chromium pinned by tools/visual_qa/requirements.txt"
+  }
+}

@@ -42,6 +42,20 @@
       "runtime_included": false,
       "attribution": "Test/visual-QA tooling only. The Playwright-managed Chromium binary is installed transiently in CI and is not shipped with BeBee.",
       "reviewed_date": "2026-08-29"
+    },
+    {
+      "id": "poki-sdk-defold",
+      "name": "Defold Poki SDK extension",
+      "kind": "defold-library",
+      "source": "https://github.com/defold/extension-poki-sdk/archive/refs/tags/4.0.0.zip",
+      "version": "4.0.0",
+      "license": "MIT",
+      "license_source": "https://github.com/defold/extension-poki-sdk/blob/main/LICENSE",
+      "commercial_use_allowed": true,
+      "redistribution_allowed": true,
+      "runtime_included": true,
+      "attribution": "Poki SDK extension by Alexey Gulev; retain the MIT notice in shipped portal bundles.",
+      "reviewed_date": "2026-08-30"
     }
   ]
 }

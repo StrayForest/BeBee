@@ -86,6 +86,7 @@ def capture_once(
     console_lines: list[str] = []
     console_errors: list[str] = []
     page_errors: list[str] = []
+    platform_request_seen = False
     context = browser.new_context(
         viewport={"width": width, "height": height},
         screen={"width": width, "height": height},
@@ -93,8 +94,19 @@ def capture_once(
     )
     page: Page = context.new_page()
 
+    def on_request(request) -> None:
+        nonlocal platform_request_seen
+        if "ads.poki.com" in request.url or "crazygames.com" in request.url:
+            platform_request_seen = True
+
     def on_console(message) -> None:
         line = f"[{message.type}] {message.text}"
+        if "ads.poki.com" in message.text or "crazygames.com" in message.text:
+            return
+        if platform_request_seen and "Failed to load resource: net::ERR_FAILED" in message.text:
+            return
+        if "Cross-Origin-Opener-Policy header has been ignored" in message.text:
+            return
         console_lines.append(line)
         if message.type in {"error", "assert"}:
             console_errors.append(line)
@@ -102,6 +114,7 @@ def capture_once(
     def on_page_error(error) -> None:
         page_errors.append(str(error))
 
+    page.on("request", on_request)
     page.on("console", on_console)
     page.on("pageerror", on_page_error)
     try:

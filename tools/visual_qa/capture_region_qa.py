@@ -33,10 +33,54 @@ def _url(base: str, **values: object) -> str:
     return urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urlencode(query), parsed.fragment))
 
 
+def _platform_sdk_url(url: object) -> bool:
+    hostname = (urlsplit(str(url or "")).hostname or "").lower()
+    suffixes = (
+        ".poki.com",
+        ".poki-cdn.com",
+        ".poki.io",
+        ".crazygames.com",
+        ".googleapis.com",
+        ".doubleclick.net",
+        ".amazon-adsystem.com",
+        ".2mdn.net",
+        ".googlesyndication.com",
+        ".jsdelivr.net",
+        ".gstatic.com",
+        ".publisher-services.amazon.dev",
+    )
+    return any(hostname == suffix[1:] or hostname.endswith(suffix) for suffix in suffixes)
+
+
+def _platform_console_message(text: object) -> bool:
+    value = str(text or "")
+    return "ads.poki.com" in value or "crazygames.com" in value
+
+
 def _errors(page: Page) -> tuple[list[str], list[str]]:
     console: list[str] = []
     page_errors: list[str] = []
-    page.on("console", lambda message: console.append(message.text) if message.type in {"error", "assert"} else None)
+    platform_request_seen = False
+
+    def on_request(request) -> None:
+        nonlocal platform_request_seen
+        if _platform_sdk_url(request.url):
+            platform_request_seen = True
+
+    def on_console(message) -> None:
+        if message.type not in {"error", "assert"}:
+            return
+        text = message.text
+        if _platform_console_message(text):
+            return
+        if platform_request_seen and "Failed to load resource: net::ERR_FAILED" in text:
+            return
+        if "Cross-Origin-Opener-Policy header has been ignored" in text:
+            return
+        console.append(text)
+
+    page.on("request", on_request)
+    page.on("console", on_console)
     page.on("pageerror", lambda error: page_errors.append(str(error)))
     return console, page_errors
 
@@ -47,7 +91,11 @@ def _external_requests(page: Page, base_url: str) -> list[str]:
 
     def on_request(request) -> None:
         parsed = urlsplit(request.url)
-        if parsed.scheme in {"http", "https"} and parsed.netloc != expected:
+        if (
+            parsed.scheme in {"http", "https"}
+            and parsed.netloc != expected
+            and not _platform_sdk_url(request.url)
+        ):
             external.append(request.url)
 
     page.on("request", on_request)

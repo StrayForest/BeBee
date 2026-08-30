@@ -6,3 +6,5 @@ show_made_with_defold = 1
 
 [bebee]
 qa_enabled = 1
+portal_target = direct_web
+telemetry_enabled = 1

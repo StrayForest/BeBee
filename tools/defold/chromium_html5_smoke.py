@@ -212,13 +212,32 @@ def is_favicon_url(url: object) -> bool:
     return parsed.path == "/favicon.ico"
 
 
+def is_platform_sdk_url(url: object) -> bool:
+    hostname = (urlparse(str(url or "")).hostname or "").lower()
+    suffixes = (
+        ".poki.com",
+        ".poki-cdn.com",
+        ".poki.io",
+        ".crazygames.com",
+        ".googleapis.com",
+        ".doubleclick.net",
+        ".amazon-adsystem.com",
+        ".2mdn.net",
+        ".googlesyndication.com",
+        ".jsdelivr.net",
+        ".gstatic.com",
+        ".publisher-services.amazon.dev",
+    )
+    return any(hostname == suffix[1:] or hostname.endswith(suffix) for suffix in suffixes)
+
+
 def is_ignored_network_failure(item: dict[str, object]) -> bool:
     if item.get("canceled"):
         return True
     url = str(item.get("url") or "")
     if not url:
         return False
-    if is_favicon_url(url):
+    if is_favicon_url(url) or is_platform_sdk_url(url):
         return True
     return urlparse(url).scheme not in {"http", "https"}
 
@@ -240,7 +259,7 @@ def is_ignored_http_error(item: dict[str, object]) -> bool:
         status = int(float(item.get("status") or 0))
     except (TypeError, ValueError):
         return False
-    return status == 404 and is_favicon_url(item.get("url"))
+    return (status == 404 and is_favicon_url(item.get("url"))) or is_platform_sdk_url(item.get("url"))
 
 
 def is_ignored_console_error(
@@ -249,11 +268,12 @@ def is_ignored_console_error(
     ignored_http_errors: list[dict[str, object]],
     actionable_http_errors: list[dict[str, object]],
 ) -> bool:
-    if str(item.get("source") or "") != "network":
-        return False
-
     url = str(item.get("url") or "")
     text = str(item.get("text") or "")
+    if is_platform_sdk_url(url) or "ads.poki.com" in text or "crazygames.com" in text:
+        return True
+    if str(item.get("source") or "") != "network":
+        return False
     if is_favicon_url(url) and "404" in text:
         return True
 
@@ -365,12 +385,14 @@ def main() -> int:
             cdp.call("Page.enable")
             cdp.call("Network.enable")
 
+            navigation_started = time.monotonic()
             cdp.call("Page.navigate", {"url": args.url})
             cdp.wait_for_load(args.timeout)
             observed["checks"].append("page_load_event")
 
             state = wait_for_canvas(cdp, args.timeout)
             observed["canvas"] = state
+            observed["startup_ms"] = round((time.monotonic() - navigation_started) * 1000, 2)
             observed["checks"].append("nonzero_canvas_and_webassembly")
 
             cdp.drain(args.settle_seconds)

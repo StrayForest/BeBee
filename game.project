@@ -1,6 +1,7 @@
 [project]
 title = BeBee
 version = 0.0.1
+dependencies#1 = https://github.com/defold/extension-poki-sdk/archive/refs/tags/4.0.0.zip
 
 [bootstrap]
 main_collection = /app/bootstrap.collectionc

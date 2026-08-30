@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "ticket": "P8-RELEASE-CANDIDATE",
+  "change_class": "player-facing",
+  "problem": "Close the release-candidate boundary for the selected Poki distribution path while preserving a platform-neutral direct-web owner target, privacy-safe optional telemetry, exact-head evidence and a certified scoped visual direction.",
+  "decision": {
+    "ids": [
+      "P-001",
+      "P-002",
+      "P-003",
+      "T-005",
+      "T-006",
+      "T-009",
+      "T-012",
+      "V-001"
+    ],
+    "status_before": "OPEN",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "adapter_bound_poki_with_safe_direct_web_fallback",
+    "rationale": "The release candidate keeps portal APIs behind adapters, starts and stops gameplay at the selected portal lifecycle boundaries, defaults optional telemetry to denied, publishes a privacy policy and licenses the pinned Poki SDK, and certifies the current code-native art direction against measurable V-001 constraints. Direct web remains the deterministic owned target and CrazyGames remains a safe fallback adapter."
+  },
+  "governance": {
+    "trust_boundary_change": "Adds candidate-side release checks, privacy/telemetry contracts and portal metadata but does not change the trusted validator, required status checks, permissions or ruleset authority. The candidate release checker is a producer check; trusted validate-pr-evidence remains authoritative for evidence policy.",
+    "bypass_analysis": "The release checker rejects non-SHA heads, missing/oversized/empty bundles, missing wasm, failed browser smoke, startup over budget and any exposed debug bridge. The manifest remains exact-head bound through the trusted validator; no candidate workflow can self-approve its own governance policy.",
+    "rollback": "Revert the P8 release-candidate commits. Gameplay falls back to the direct-web adapter, save v4 remains unchanged, and the prior P7 content closeout remains the last accepted product state."
+  },
+  "research": {
+    "candidate_pool": [
+      {
+        "name": "A Short Hike",
+        "source": "https://ashorthike.com/",
+        "relevance": "Compact authored traversal and landmark language.",
+        "product_id": "a-short-hike"
+      },
+      {
+        "name": "Alba: A Wildlife Adventure",
+        "source": "https://www.albawildlife.com/",
+        "relevance": "Low-pressure habitat identity and approachable natural objectives.",
+        "product_id": "alba"
+      },
+      {
+        "name": "Mini Metro",
+        "source": "https://dinopoloclub.com/games/mini-metro/",
+        "relevance": "Readable interaction and composition under small-screen constraints.",
+        "product_id": "mini-metro"
+      },
+      {
+        "name": "Alto's Odyssey",
+        "source": "https://altosodyssey.com/",
+        "relevance": "High-contrast silhouette and motion readability benchmark.",
+        "product_id": "altos-odyssey"
+      },
+      {
+        "name": "Spiritfarer",
+        "source": "https://thunderlotusgames.com/spiritfarer/",
+        "relevance": "Anti-pattern: management surface area that exceeds this small restoration slice.",
+        "product_id": "spiritfarer"
+      }
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {
+        "name": "A Short Hike / compact authored route",
+        "source": "https://ashorthike.com/",
+        "platform_version_date": "web / observed 2026-08-30",
+        "selection_reason": "It demonstrates a compact authored world where local landmarks carry orientation.",
+        "observed_behavior": "Readable places and traversal rhythm do the navigation work without a dense map layer.",
+        "inference": "The release candidate should preserve named authored regions, landmarks and one readable objective.",
+        "measurements": {
+          "navigation_screens_added": 0,
+          "authored_region_flow": "continuous"
+        },
+        "product_id": "a-short-hike"
+      },
+      {
+        "name": "Alba: A Wildlife Adventure / habitat readability",
+        "source": "https://www.albawildlife.com/",
+        "platform_version_date": "web / observed 2026-08-30",
+        "selection_reason": "It differentiates natural spaces through gentle objectives and local visual context.",
+        "observed_behavior": "Habitat identity is carried by silhouettes, color grouping and low-pressure tasks.",
+        "inference": "Distinct BeBee region palettes, flower identities and state cues can remain readable without adding combat or management.",
+        "measurements": {
+          "new_core_verbs": 0,
+          "new_currencies": 0,
+          "lethal_hazards": 0
+        },
+        "product_id": "alba"
+      }
+    ],
+    "reference_exception": "",
+    "anti_pattern": {
+      "source": "https://thunderlotusgames.com/spiritfarer/",
+      "observation": "A broad management game joins progression to several additional relationship, crafting and planning surfaces.",
+      "lesson": "Do not expand the release candidate into a management layer; keep the core fantasy, one currency and existing save/progression loop."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://developers.poki.com/guide/requirements-quality",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Use gameplayStart on first input, gameplayStop on interruptions/completion and avoid duplicate lifecycle calls."
+    },
+    {
+      "source": "https://defold.com/extension-poki-sdk/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Pin the Defold Poki SDK extension and call its Lua lifecycle/measurement functions only through an adapter."
+    },
+    {
+      "source": "https://defold.com/extension-crazygames/crazygames_api/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Keep the secondary portal implementation optional and platform-neutral."
+    },
+    {
+      "source": "https://defold.com/manuals/html5/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Serve wasm with application/wasm, use an HTTP server and treat browser storage as asynchronous."
+    },
+    {
+      "source": "https://defold.com/manuals/application-lifecycle/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Platform lifecycle interruptions must stop gameplay timing cleanly."
+    },
+    {
+      "source": "https://defold.com/manuals/optimize-size/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Measure bundle size and retain a fixed release budget."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "adapter_bound_poki_with_safe_direct_web_fallback",
+      "disposition": "selected",
+      "reason": "Matches P-001 while keeping gameplay independent of portal SDK availability and preserving owned direct-web QA."
+    },
+    {
+      "id": "direct_poki_calls_from_gameplay",
+      "disposition": "rejected",
+      "reason": "Violates P-002/T-005 and makes local/test targets depend on external SDK globals."
+    },
+    {
+      "id": "always_on_remote_telemetry",
+      "disposition": "rejected",
+      "reason": "Conflicts with deny-by-default privacy and adds an unnecessary backend dependency."
+    },
+    {
+      "id": "polish_by_adding_external_art_assets",
+      "disposition": "rejected",
+      "reason": "Would add licensing, loading and style-system risk; the scoped code-native visual certification is explicit and measurable."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Poki lifecycle starts on first input, stops on interruption/completion, and duplicate calls are idempotent.",
+      "status": "pass",
+      "evidence": "portal adapters, test_portal.lua, movement_field.script"
+    },
+    {
+      "criterion": "Direct web remains safe without an installed SDK; CrazyGames is an optional safe fallback.",
+      "status": "pass",
+      "evidence": "portal service/adapters and deterministic adapter tests"
+    },
+    {
+      "criterion": "Optional telemetry is denied by default, contains no PII and has an explicit consent contract.",
+      "status": "pass",
+      "evidence": "systems/privacy_consent.lua, config/privacy-contract.json, config/telemetry-contract.json"
+    },
+    {
+      "criterion": "Release bundle has a pinned/licensed portal dependency, privacy policy and no unsafe development bridges.",
+      "status": "pass",
+      "evidence": "game.project, config/dependencies.json, THIRD_PARTY.md, release/privacy-policy.html, release checker and release negative smoke"
+    },
+    {
+      "criterion": "Release bundle/startup remain within the fixed candidate budgets.",
+      "status": "pass",
+      "evidence": "release checker, release QA config, exact-head HTML5 build report and browser startup measurement"
+    },
+    {
+      "criterion": "The current code-native illustrative visual direction is explicitly certified for this scoped release candidate.",
+      "status": "pass",
+      "evidence": "docs/visual/P8-art-certification.md and exact-head movement/visual artifacts"
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Repository standards exact-head producer PASS",
+      "Test/data exact-head producer PASS",
+      "Pages preview exact-head producer PASS",
+      "HTML5 CI exact-head producer PASS",
+      "trusted validate-pr-evidence PASS"
+    ],
+    "manual": [
+      "retained exact-head playable/visual/movement/storage artifact inspection",
+      "desktop and mobile release-candidate capture matrix",
+      "independent evaluation record"
+    ],
+    "runtime_errors": "exact-head Chromium journeys require console=0, page=0, network failures=0 and external requests=0; release negative check requires every known development bridge absent.",
+    "save_data_impact": "No save schema bump. Save v4 and existing migration/recovery matrix remain authoritative; portal lifecycle and optional telemetry are transient adapters only."
+  },
+  "visual_evidence": {
+    "required": true,
+    "artifacts": [
+      "movement-qa-$PR_HEAD",
+      "visual-qa-$PR_HEAD",
+      "html5-playable-$PR_HEAD",
+      "html5-ci-$PR_HEAD",
+      "storage-qa-$PR_HEAD"
+    ],
+    "states": [
+      "movement_empty",
+      "movement_dense",
+      "moon_garden_start",
+      "moon_garden_mid",
+      "moon_garden_complete",
+      "moon_garden_reload"
+    ],
+    "viewports": [
+      "1280x720 desktop",
+      "1031x580 Poki medium",
+      "836x470 Poki small",
+      "640x360 compact",
+      "844x390 mobile landscape"
+    ],
+    "motion_evidence": [
+      "Exact-head Chromium movement journey records real keyboard traversal, pollination sweeps, modal pause/resume, region completion and reload.",
+      "Capture manifest contains desktop/mobile stills plus motion-report.json and zero-error diagnostics."
+    ],
+    "provenance": {
+      "capture_commit_sha": "$PR_HEAD",
+      "capture_mode": "ci",
+      "artifact_locator": "GitHub Actions HTML5 CI retained artifacts named with the exact PR head"
+    }
+  },
+  "comparison": {
+    "measurements": {
+      "bundle_budget": "<= 8 MiB",
+      "file_budget": "<= 1500 files",
+      "startup_budget": "<= 10000 ms",
+      "wasm": "required application/wasm response",
+      "qa_bridges": "all known development bridges absent from release",
+      "save_version": "4",
+      "telemetry_default": "denied until explicit consent and release config",
+      "art_scale": "bee 12-15% of 720px reference viewport; persistent HUD clusters <= 2"
+    },
+    "subjective_scores": {
+      "objective_clarity": {
+        "score": 4,
+        "note": "The existing objective and world-space progress cues remain readable in retained desktop/mobile captures."
+      },
+      "state_readability": {
+        "score": 4,
+        "note": "Region palettes, named landmarks and non-color state cues provide a coherent scoped visual language."
+      },
+      "feedback_quality": {
+        "score": 4,
+        "note": "Movement, pollination, reward, lifecycle and reload feedback are coherent; final market-scale art quality is outside this scoped certification."
+      }
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "review_input": [
+      "problem",
+      "acceptance criteria",
+      "reference observations",
+      "rendered evidence",
+      "measurements",
+      "negative release checks"
+    ],
+    "findings": [
+      "No functional ITERATE finding is open. The release boundary, portal lifecycle, privacy defaults, bundle/startup budgets and scoped visual certification pass exact-head evidence.",
+      "Accepted scope note: external portal upload/player-fit and production ad configuration are launch operations after this repository release candidate; they are not hidden in-repo runtime dependencies."
+    ],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "p8-release-candidate-independent-evaluator-2026-08-30",
+      "implementation_author_id": "p8-release-candidate-implementation-agent",
+      "input_artifacts": [
+        "movement-qa-$PR_HEAD",
+        "visual-qa-$PR_HEAD",
+        "storage-qa-$PR_HEAD",
+        "html5-playable-$PR_HEAD"
+      ],
+      "record_locator": "evidence/P8-RELEASE-CANDIDATE/evaluation.md"
+    }
+  },
+  "known_limitations": [
+    "Poki Inspector upload, external portal player-fit and ad configuration remain a launch-operation gate, not an in-repository runtime dependency.",
+    "No account, cloud save or BeBee-owned remote analytics service is introduced; local save v4 remains the product data model."
+  ]
+}
