@@ -120,6 +120,15 @@ jobs:
             --development-url http://127.0.0.1:8000/development/BeBee/ \
             --release-url http://127.0.0.1:8000/release/BeBee/ \
             --report "artifacts/storage-qa/${head_sha}/storage-report.json"
+          if [ -f tools/release/check_release_candidate.py ]; then
+            python3 tools/release/check_release_candidate.py \
+              --head-sha "${head_sha}" \
+              --build-root build/html5/release/BeBee \
+              --build-report build/reports/release.json \
+              --browser-smoke html5-ci/browser-smoke.json \
+              --storage-report "artifacts/storage-qa/${head_sha}/storage-report.json" \
+              --output html5-ci/release-candidate.json
+          fi
 
           "${browser}" --headless=new --no-sandbox --disable-gpu --window-size=1280,720 --virtual-time-budget=5000 --screenshot=html5-ci/release-1280x720.png http://127.0.0.1:8000/release/BeBee/
 

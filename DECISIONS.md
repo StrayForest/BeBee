@@ -61,6 +61,10 @@ Substantial new decisions should also record evidence strength (`LOW`, `MEDIUM`,
 |---|---|---|---|
 | V-001 | VALIDATED | BB-P007 visual production baseline uses a 1280×720 / 16:9 landscape reference surface, an ordinary bee height of 12–15% of viewport height, orthographic Auto Cover camera semantics with a narrow zoom band, linear filtering, selective outlines, broad low-frequency terrain, and a default maximum of one objective + Honey as persistent HUD clusters. Canonical UI/motion/VFX tokens live in `config/visual-style.json`. | BB-P007 current Poki/Defold constraints + multi-product public visual benchmark + deterministic original BeBee blocking-frame generation. P1 applies bee-scale/camera, P2 validates sparse HUD/contextual world state, and P4 validates the 1.5 s major-reveal band plus HUD-hidden dormant/restored readability at desktop/Poki-small/mobile scope. Evidence strength MEDIUM; final font family and production illustration/animation/audio remain OPEN. |
 
+### P8 release-candidate visual certification
+
+V-001 remains VALIDATED. The P8 release candidate explicitly approves the current code-native illustrative geometry as the release-quality art direction for this scoped build: selective outlines, readable two-tone silhouettes, distinct flower families, region palettes and restrained motion/state redundancy. This is SUBJECTIVE_DIRECTION with MEDIUM evidence strength, supported by exact-head rendered captures and numeric V-001 constraints; it is not presented as an objective claim about market-wide art quality.
+
 ## Technical decisions
 
 | ID | Status | Decision | Evidence / next gate |
