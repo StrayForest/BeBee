@@ -22,6 +22,7 @@ from capture_golden_fields_qa import record_golden_fields
 from capture_wetland_garden_qa import record_wetland_garden
 from capture_rosewood_qa import record_rosewood
 from capture_alpine_bloom_qa import record_alpine_bloom
+from capture_moon_garden_qa import record_moon_garden
 
 
 def main() -> int:
@@ -54,12 +55,13 @@ def main() -> int:
             wetland_garden = record_wetland_garden(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=max(timeout_ms, 30000))
             rosewood = record_rosewood(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=max(timeout_ms, 30000))
             alpine_bloom = record_alpine_bloom(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=max(timeout_ms, 30000))
+            moon_garden = record_moon_garden(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=max(timeout_ms, 30000))
             browser_version = browser.version
         finally:
             browser.close()
 
     report = {
-        "schema_version": 9,
+        "schema_version": 10,
         "ticket": "P1-P7-RUNTIME",
         "head_sha": head_sha,
         "browser_name": "Playwright Chromium",
@@ -77,6 +79,7 @@ def main() -> int:
         "p7_wetland_garden": wetland_garden,
         "p7_rosewood": rosewood,
         "p7_alpine_bloom": alpine_bloom,
+        "p7_moon_garden": moon_garden,
         "result": "PASS",
     }
     report_path = output_root / "motion-report.json"
@@ -86,7 +89,7 @@ def main() -> int:
         f"(desktop movement {desktop['exercise_seconds']}s, touch movement {touch['exercise_seconds']}s, "
         f"desktop movement {desktop['observed_fps']} fps, P2={pollination['result']}, "
         f"P3={progression['result']}, P4={restoration['result']}, P5={seeds['result']}, "
-        f"P6={first_region['result']}, Golden={golden_fields['result']}, Wetland={wetland_garden['result']}, Rosewood={rosewood['result']}, Alpine={alpine_bloom['result']})"
+        f"P6={first_region['result']}, Golden={golden_fields['result']}, Wetland={wetland_garden['result']}, Rosewood={rosewood['result']}, Alpine={alpine_bloom['result']}, Moon={moon_garden['result']})"
     )
     return 0
 

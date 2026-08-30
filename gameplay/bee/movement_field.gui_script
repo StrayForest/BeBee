@@ -4,12 +4,12 @@ local meadow = require "gameplay.world.meadow"
 local DESIGN_W = 1280
 local DESIGN_H = 720
 local BEE_SCALE = 2.0
-local WORLD_W = 12800
+local WORLD_W = 14400
 local WORLD_H = 2400
 local FIRST_MEADOW = catalog.meadows[1]
 local PATCH_POOL_SIZE = 6
 local PATCH_VISIBILITY_MARGIN = 300
-local PATH_STEPS = 5
+local PATH_STEPS = 4
 
 local COLOR_GREEN = vmath.vector4(0.475, 0.788, 0.396, 1)
 local COLOR_DORMANT = vmath.vector4(0.588, 0.643, 0.478, 1)
@@ -47,6 +47,10 @@ local COLOR_ALPINE_DORMANT = vmath.vector4(0.36, 0.43, 0.52, 1)
 local COLOR_ALPINE_FIELD = vmath.vector4(0.76, 0.86, 0.92, 1)
 local COLOR_ALPINE_ROCK = vmath.vector4(0.28, 0.35, 0.43, 0.90)
 local COLOR_ALPINE_SNOW = vmath.vector4(0.90, 0.96, 1.0, 0.95)
+local COLOR_MOON_DORMANT = vmath.vector4(0.25, 0.28, 0.48, 1)
+local COLOR_MOON_FIELD = vmath.vector4(0.56, 0.48, 0.82, 1)
+local COLOR_MOON_ROCK = vmath.vector4(0.22, 0.18, 0.34, 0.90)
+local COLOR_MOON_GLOW = vmath.vector4(0.78, 0.82, 1.0, 0.92)
 
 local FLOWER_OFFSETS = {
     { -118, -54 }, { -102, 74 }, { 0, 118 }, { 104, 72 }, { 118, -56 },
@@ -79,6 +83,7 @@ local function world_to_screen(wx, wy, camera_x, camera_y)
 end
 
 local function camera_region_id(camera_x)
+    if camera_x > 11200 then return "region_06" end
     if camera_x > 8960 then return "region_05" end
     if camera_x > 6400 then return "region_04" end
     if camera_x > 4560 then return "region_03" end
@@ -118,6 +123,8 @@ local function flower_color(flower_id)
     if flower_id == "flower_bluebell" then return COLOR_BLUEBELL end
     if flower_id == "flower_edelweiss" then return COLOR_ALPINE_SNOW end
     if flower_id == "flower_anemone" then return vmath.vector4(0.74,0.34,0.46,1) end
+    if flower_id == "flower_night_lily" then return COLOR_MOON_GLOW end
+    if flower_id == "flower_starflower" then return COLOR_MOON_FIELD end
     return COLOR_DAISY
 end
 
@@ -282,6 +289,20 @@ local function set_flower_visual(flower, wx, wy, camera_x, camera_y, bloom, lock
         vertical_w, vertical_h = petal_size * 0.92, petal_size * 1.52
         center_size = 9
         center = locked and COLOR_LOCKED or vmath.vector4(0.22,0.32,0.56,1)
+    elseif flower_id == "flower_night_lily" then
+        spread_x = 13 + 9 * bloom
+        spread_y = 5 + 4 * bloom
+        side_w, side_h = petal_size * 1.70, petal_size * 0.62
+        vertical_w, vertical_h = petal_size * 1.20, petal_size * 0.82
+        center_size = 12 + 2 * bloom
+        center = locked and COLOR_LOCKED or COLOR_HONEY
+    elseif flower_id == "flower_starflower" then
+        spread_x = 9 + 7 * bloom
+        spread_y = spread_x
+        side_w, side_h = petal_size * 0.72, petal_size * 1.38
+        vertical_w, vertical_h = petal_size * 1.38, petal_size * 0.72
+        center_size = 10 + 3 * bloom
+        center = locked and COLOR_LOCKED or COLOR_MOON_GLOW
     end
 
     gui.set_color(flower.stem, stem)
@@ -403,6 +424,10 @@ local function render_meadow_marker(marker, index, restored, camera_x, camera_y)
         zone_color = restored and vmath.vector4(0.31,0.76,0.61,0.22) or vmath.vector4(0.31,0.52,0.55,0.18)
     elseif definition.region_id == "region_04" then
         zone_color = restored and vmath.vector4(0.55,0.74,0.43,0.22) or vmath.vector4(0.27,0.39,0.30,0.18)
+    elseif definition.region_id == "region_05" then
+        zone_color = restored and vmath.vector4(0.70,0.82,0.92,0.22) or vmath.vector4(0.36,0.43,0.52,0.18)
+    elseif definition.region_id == "region_06" then
+        zone_color = restored and vmath.vector4(0.68,0.58,0.94,0.24) or vmath.vector4(0.25,0.28,0.48,0.18)
     end
     gui.set_color(marker.zone, zone_color)
     gui.set_color(marker.ring, restored and vmath.vector4(COLOR_HONEY.x,COLOR_HONEY.y,COLOR_HONEY.z,0.56) or vmath.vector4(1,1,1,0.12))
@@ -520,13 +545,16 @@ function init(self)
         {12400,1380},
     }
     for index, point in ipairs(points) do
-        local alpine = point[1] > 8960
-        local rosewood = point[1] > 6400 and not alpine
-        local wetland = point[1] > 4560 and not rosewood and not alpine
-        local golden = point[1] > 2400 and not wetland and not rosewood and not alpine
+        local moon = point[1] > 11200
+        local alpine = point[1] > 8960 and not moon
+        local rosewood = point[1] > 6400 and not alpine and not moon
+        local wetland = point[1] > 4560 and not rosewood and not alpine and not moon
+        local golden = point[1] > 2400 and not wetland and not rosewood and not alpine and not moon
         local dark = index % 3 == 0
         local color
-        if alpine then
+        if moon then
+            color = dark and vmath.vector4(0.20,0.18,0.36,0.78) or vmath.vector4(0.72,0.70,0.96,0.66)
+        elseif alpine then
             color = dark and vmath.vector4(0.30,0.38,0.48,0.76) or vmath.vector4(0.78,0.90,0.96,0.68)
         elseif rosewood then
             color = dark and vmath.vector4(0.18,0.30,0.19,0.76) or vmath.vector4(0.58,0.78,0.48,0.62)
@@ -538,7 +566,7 @@ function init(self)
             color = dark and vmath.vector4(0.243,0.510,0.278,0.72) or vmath.vector4(1.0,0.969,0.91,0.55)
         end
         local node = box(0, 0, dark and 18 or 13, dark and 28 or 20, color)
-        self.decorations[index] = { node = node, x = point[1], y = point[2], golden = golden, wetland = wetland, rosewood = rosewood, alpine = alpine }
+        self.decorations[index] = { node = node, x = point[1], y = point[2], golden = golden, wetland = wetland, rosewood = rosewood, alpine = alpine, moon = moon }
     end
 
     self.edge_left = box(0, 0, 18, WORLD_H, vmath.vector4(0.243,0.510,0.278,0.75))
@@ -580,6 +608,9 @@ function init(self)
     self.alpine_peak = box(0, 0, 130, 260, COLOR_ALPINE_ROCK)
     self.alpine_snowcap = box(0, 0, 170, 70, COLOR_ALPINE_SNOW)
     self.alpine_wind_flag = box(0, 0, 220, 18, COLOR_ALPINE_SNOW)
+    self.moon_orb = box(0, 0, 180, 180, COLOR_MOON_GLOW)
+    self.moon_ring = box(0, 0, 250, 18, COLOR_MOON_GLOW)
+    self.moon_crystal = box(0, 0, 48, 170, COLOR_MOON_ROCK)
 
     self.patch_pool = {}
     for index = 1, PATCH_POOL_SIZE do self.patch_pool[index] = create_patch_visual() end
@@ -641,7 +672,10 @@ function on_message(self, message_id, message)
     if pollination_visible then
         local visible_restored, visible_total = region_restoration_progress(message, visual_region_id)
         local visible_progress = visible_restored / visible_total
-        if visual_region_id == "region_05" then
+        if visual_region_id == "region_06" then
+            detail_count = #self.decorations
+            gui.set_color(self.background, mix_color(COLOR_MOON_DORMANT, COLOR_MOON_FIELD, 0.30 + visible_progress * 0.70))
+        elseif visual_region_id == "region_05" then
             detail_count = #self.decorations
             gui.set_color(self.background, mix_color(COLOR_ALPINE_DORMANT, COLOR_ALPINE_FIELD, 0.30 + visible_progress * 0.70))
         elseif visual_region_id == "region_03" then
@@ -664,10 +698,11 @@ function on_message(self, message_id, message)
         local x, y = world_to_screen(decoration.x, decoration.y, camera_x, camera_y)
         set_xy(decoration.node, x, y)
         local enabled = index <= detail_count
-        if pollination_visible and visual_region_id == "region_01" and (decoration.golden or decoration.wetland or decoration.rosewood or decoration.alpine) then enabled = false end
-        if pollination_visible and visual_region_id == "region_02" and (decoration.wetland or decoration.rosewood or decoration.alpine) then enabled = false end
-        if pollination_visible and visual_region_id == "region_03" and (decoration.rosewood or decoration.alpine) then enabled = false end
-        if pollination_visible and visual_region_id == "region_04" and decoration.alpine then enabled = false end
+        if pollination_visible and visual_region_id == "region_01" and (decoration.golden or decoration.wetland or decoration.rosewood or decoration.alpine or decoration.moon) then enabled = false end
+        if pollination_visible and visual_region_id == "region_02" and (decoration.wetland or decoration.rosewood or decoration.alpine or decoration.moon) then enabled = false end
+        if pollination_visible and visual_region_id == "region_03" and (decoration.rosewood or decoration.alpine or decoration.moon) then enabled = false end
+        if pollination_visible and visual_region_id == "region_04" and (decoration.alpine or decoration.moon) then enabled = false end
+        if pollination_visible and visual_region_id == "region_05" and decoration.moon then enabled = false end
         gui.set_enabled(decoration.node, enabled)
     end
 
@@ -761,6 +796,17 @@ function on_message(self, message_id, message)
     gui.set_enabled(self.alpine_peak, alpine_visible)
     gui.set_enabled(self.alpine_snowcap, alpine_visible)
     gui.set_enabled(self.alpine_wind_flag, alpine_visible)
+
+    local moon_visible = pollination_visible and visual_region_id == "region_06"
+    local orb_x, orb_y = world_to_screen(11800, 680, camera_x, camera_y)
+    set_xy(self.moon_orb, orb_x + 150, orb_y + 110)
+    local ring_x, ring_y = world_to_screen(12400, 1420, camera_x, camera_y)
+    set_xy(self.moon_ring, ring_x, ring_y - 150)
+    local crystal_x, crystal_y = world_to_screen(13050, 760, camera_x, camera_y)
+    set_xy(self.moon_crystal, crystal_x, crystal_y)
+    gui.set_enabled(self.moon_orb, moon_visible)
+    gui.set_enabled(self.moon_ring, moon_visible)
+    gui.set_enabled(self.moon_crystal, moon_visible)
 
     msg.post("/progression#view", "restoration_base", {
         contribution = status.contribution,

@@ -42,14 +42,14 @@ return {
             end,
         },
         {
-            name = "five minute deterministic soak never escapes Alpine-expanded bounds or becomes non-finite",
+            name = "five minute deterministic soak never escapes Moon-expanded bounds or becomes non-finite",
             run = function()
                 local state = movement.new()
                 local intents = {{1,0},{1,1},{0,1},{-1,1},{-1,0},{-1,-1},{0,-1},{1,-1},{0,0}}
                 for frame = 1, 18000 do
                     local item = intents[(math.floor((frame - 1) / 240) % #intents) + 1]
                     movement.step(state, item[1], item[2], 1/60)
-                    t.assert_true(state.x >= 80 and state.x <= 12480)
+                    t.assert_true(state.x >= 80 and state.x <= 14080)
                     t.assert_true(state.y >= 80 and state.y <= 2040)
                     t.assert_true(state.x == state.x and state.y == state.y and state.speed == state.speed)
                 end
@@ -66,11 +66,11 @@ return {
             end,
         },
         {
-            name = "Alpine expanded edge is bounded without changing movement semantics",
+            name = "Moon expanded edge is bounded without changing movement semantics",
             run = function()
-                local state = movement.new({ start_x = 9000, start_y = 1900 })
+                local state = movement.new({ start_x = 12000, start_y = 1900 })
                 for _ = 1, 720 do movement.step(state, 1, 0, 1/60) end
-                t.assert_true(near(12480, state.x, 0.01))
+                t.assert_true(near(14080, state.x, 0.01))
                 t.assert_true(near(0, state.vx, 0.01))
                 for _ = 1, 120 do movement.step(state, 0, 1, 1/60) end
                 t.assert_true(near(2040, state.y, 0.01))

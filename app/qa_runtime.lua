@@ -26,6 +26,9 @@ M.ROSEWOOD_COMPLETE_STATE = "rosewood_complete"
 M.ALPINE_BLOOM_START_STATE = "alpine_bloom_start"
 M.ALPINE_BLOOM_MID_STATE = "alpine_bloom_mid"
 M.ALPINE_BLOOM_COMPLETE_STATE = "alpine_bloom_complete"
+M.MOON_GARDEN_START_STATE = "moon_garden_start"
+M.MOON_GARDEN_MID_STATE = "moon_garden_mid"
+M.MOON_GARDEN_COMPLETE_STATE = "moon_garden_complete"
 
 local SUPPORTED_STATES = {
     [M.FOUNDATION_STATE] = true,
@@ -52,6 +55,9 @@ local SUPPORTED_STATES = {
     [M.ALPINE_BLOOM_START_STATE] = true,
     [M.ALPINE_BLOOM_MID_STATE] = true,
     [M.ALPINE_BLOOM_COMPLETE_STATE] = true,
+    [M.MOON_GARDEN_START_STATE] = true,
+    [M.MOON_GARDEN_MID_STATE] = true,
+    [M.MOON_GARDEN_COMPLETE_STATE] = true,
 }
 
 function M.normalize_seed(value)
@@ -111,6 +117,9 @@ function M.is_region_state(state_id)
         or state_id == M.ALPINE_BLOOM_START_STATE
         or state_id == M.ALPINE_BLOOM_MID_STATE
         or state_id == M.ALPINE_BLOOM_COMPLETE_STATE
+        or state_id == M.MOON_GARDEN_START_STATE
+        or state_id == M.MOON_GARDEN_MID_STATE
+        or state_id == M.MOON_GARDEN_COMPLETE_STATE
 end
 
 function M.requires_gameplay_capture(state_id)

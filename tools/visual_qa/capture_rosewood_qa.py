@@ -93,7 +93,7 @@ def _assert_start(payload: dict[str, object]) -> None:
         raise RuntimeError(f"P7 Rosewood fixture Honey drifted: {payload!r}")
     if int(payload.get("flightLevel", -1)) != 3 or int(payload.get("buzzLevel", -1)) != 3:
         raise RuntimeError(f"P7 Rosewood must reuse validated progression: {payload!r}")
-    if int(campaign.get("completed_regions", -1)) != 3 or int(campaign.get("total_regions", -1)) != 5:
+    if int(campaign.get("completed_regions", -1)) != 3 or int(campaign.get("total_regions", -1)) != 6:
         raise RuntimeError(f"P7 Rosewood campaign transition invalid: {payload!r}")
 
 
@@ -178,7 +178,7 @@ def record_rosewood(
             raise RuntimeError(f"P7 Rosewood completion objective invalid: {complete!r}")
         if int(complete.get("honey", -1)) != EXPECTED_COMPLETE_HONEY:
             raise RuntimeError(f"P7 Rosewood reward total invalid: {complete!r}")
-        if campaign.get("complete") is not False or int(campaign.get("completed_regions", -1)) != 4 or int(campaign.get("total_regions", -1)) != 5:
+        if campaign.get("complete") is not False or int(campaign.get("completed_regions", -1)) != 4 or int(campaign.get("total_regions", -1)) != 6:
             raise RuntimeError(f"P7 four-region campaign did not complete: {complete!r}")
         if p19.get("flowerId") != "flower_rose" or p20.get("flowerId") != "flower_bluebell":
             raise RuntimeError(f"P7 Rosewood species alternation drifted: p19={p19!r} p20={p20!r}")
