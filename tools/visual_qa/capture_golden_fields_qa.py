@@ -48,7 +48,6 @@ def _complete_golden_patch(page: Page, index: int, *, timeout_seconds: float = 2
 
 
 def _wait_active_region(page: Page, *, complete: bool | None, timeout_ms: int) -> dict[str, object]:
-    expected_complete = "null" if complete is None else ("true" if complete else "false")
     page.wait_for_function(
         """(expectedComplete) => {
             const qa = window.__bebeeRegionQA;
@@ -56,7 +55,32 @@ def _wait_active_region(page: Page, *, complete: bool | None, timeout_ms: int) -
             if (expectedComplete === null) return true;
             return qa.region.complete === expectedComplete;
         }""",
-        arg=None if complete is None else complete,
+        arg=complete,
+        timeout=timeout_ms,
+    )
+    return _region(page)
+
+
+def _campaign_region(payload: dict[str, object], region_id: str) -> dict[str, object]:
+    campaign = payload.get("campaign") or {}
+    regions = campaign.get("regions") if isinstance(campaign, dict) else None
+    if isinstance(regions, list):
+        for item in regions:
+            if isinstance(item, dict) and item.get("id") == region_id:
+                return item
+    raise RuntimeError(f"campaign region {region_id} missing: {payload!r}")
+
+
+def _wait_wetland_handoff(page: Page, *, timeout_ms: int) -> dict[str, object]:
+    page.wait_for_function(
+        """() => {
+            const qa = window.__bebeeRegionQA;
+            if (!qa || qa.activeRegionId !== 'region_03' || !qa.region || qa.region.id !== 'region_03') return false;
+            const regions = qa.campaign && qa.campaign.regions;
+            if (!Array.isArray(regions)) return false;
+            const golden = regions.find(item => item && item.id === 'region_02');
+            return !!golden && golden.complete === true && golden.restored_count === 4;
+        }""",
         timeout=timeout_ms,
     )
     return _region(page)
@@ -73,14 +97,8 @@ def _assert_region_start(payload: dict[str, object]) -> None:
         raise RuntimeError(f"P7 fixture Honey drifted: {payload!r}")
     if int(payload.get("flightLevel", -1)) != 3 or int(payload.get("buzzLevel", -1)) != 3:
         raise RuntimeError(f"P7 must reuse P6 progression rather than introduce a new required branch: {payload!r}")
-    if int(campaign.get("completed_regions", -1)) != 1 or int(campaign.get("total_regions", -1)) != 2:
+    if int(campaign.get("completed_regions", -1)) != 1 or int(campaign.get("total_regions", -1)) != 3:
         raise RuntimeError(f"P7 campaign transition invalid: {payload!r}")
-    first = _patch_payload(payload=None)
-
-
-def _patch_payload(payload: object = None) -> None:
-    # Kept as a named seam for static readers: patch assertions are sourced from __bebeePollinationQA below.
-    return None
 
 
 def record_golden_fields(
@@ -161,23 +179,26 @@ def record_golden_fields(
 
         p11 = _complete_golden_patch(page, 11)
         p12 = _complete_golden_patch(page, 12)
-        complete = _wait_active_region(page, complete=True, timeout_ms=timeout_ms)
-        summary = complete.get("region") or {}
-        campaign = complete.get("campaign") or {}
-        if int(summary.get("restored_count", -1)) != 4 or int(summary.get("total", -1)) != 4:
-            raise RuntimeError(f"P7 Golden Fields did not complete: {complete!r}")
-        if complete.get("objectiveText") != "GOLDEN FIELDS RESTORED · 4/4":
-            raise RuntimeError(f"P7 completion objective invalid: {complete!r}")
-        if int(complete.get("honey", -1)) != EXPECTED_COMPLETE_HONEY:
-            raise RuntimeError(f"P7 Golden Fields reward total invalid: {complete!r}")
-        if campaign.get("complete") is not True or int(campaign.get("completed_regions", -1)) != 2:
-            raise RuntimeError(f"P7 campaign summary did not complete two authored regions: {complete!r}")
+        handoff = _wait_wetland_handoff(page, timeout_ms=timeout_ms)
+        golden_summary = _campaign_region(handoff, "region_02")
+        next_summary = handoff.get("region") or {}
+        campaign = handoff.get("campaign") or {}
+        if int(golden_summary.get("restored_count", -1)) != 4 or int(golden_summary.get("total", -1)) != 4 or golden_summary.get("complete") is not True:
+            raise RuntimeError(f"P7 Golden Fields did not complete before Wetland handoff: {handoff!r}")
+        if next_summary.get("id") != "region_03" or int(next_summary.get("restored_count", -1)) != 0:
+            raise RuntimeError(f"P7 did not hand off to a fresh Wetland Garden: {handoff!r}")
+        if handoff.get("objectiveText") != "RESTORE LOTUS LANDING · 0/4":
+            raise RuntimeError(f"P7 post-Golden objective invalid: {handoff!r}")
+        if int(handoff.get("honey", -1)) != EXPECTED_COMPLETE_HONEY:
+            raise RuntimeError(f"P7 Golden Fields reward total invalid: {handoff!r}")
+        if campaign.get("complete") is not False or int(campaign.get("completed_regions", -1)) != 2 or int(campaign.get("total_regions", -1)) != 3:
+            raise RuntimeError(f"P7 campaign summary did not expose Wetland continuation: {handoff!r}")
         if p11.get("flowerId") != "flower_sunflower" or p12.get("flowerId") != "flower_poppy":
             raise RuntimeError(f"P7 species alternation drifted: p11={p11!r} p12={p12!r}")
         complete_shot = frames / "02-golden-fields-complete-desktop.png"
         _shot(page, complete_shot)
 
-        events = complete.get("analyticsEvents") or []
+        events = handoff.get("analyticsEvents") or []
         names = [event.get("name") for event in events if isinstance(event, dict)]
         if "patch_completed" not in names or "meadow_restored" not in names or "region_completed" not in names:
             raise RuntimeError(f"P7 expansion analytics missing: {names!r}")
@@ -192,10 +213,13 @@ def record_golden_fields(
 
         page.wait_for_timeout(1600)
         page.goto(base_url, wait_until="load", timeout=timeout_ms)
-        reloaded = _wait_active_region(page, complete=True, timeout_ms=timeout_ms)
+        reloaded = _wait_wetland_handoff(page, timeout_ms=timeout_ms)
         reload_campaign = reloaded.get("campaign") or {}
-        if int(reloaded.get("honey", -1)) != EXPECTED_COMPLETE_HONEY or reload_campaign.get("complete") is not True:
+        reload_golden = _campaign_region(reloaded, "region_02")
+        if int(reloaded.get("honey", -1)) != EXPECTED_COMPLETE_HONEY or reload_golden.get("complete") is not True:
             raise RuntimeError(f"P7 Golden Fields completion did not survive reload: {reloaded!r}")
+        if int(reload_campaign.get("completed_regions", -1)) != 2 or int(reload_campaign.get("total_regions", -1)) != 3:
+            raise RuntimeError(f"P7 reload campaign transition invalid: {reloaded!r}")
         _move_to(page, *GOLDEN_PATCHES[12], timeout_seconds=20.0, tolerance=70)
         reload_shot = frames / "03-golden-fields-reloaded-desktop.png"
         _shot(page, reload_shot)
@@ -209,7 +233,7 @@ def record_golden_fields(
         _shot(page, mobile_shot)
 
         if not math.isfinite(float((_patch(page, 12).get("workTarget") or 0))) or float(_patch(page, 12).get("workTarget") or 0) <= 0:
-            raise RuntimeError("P7 final patch work target is invalid")
+            raise RuntimeError("P7 final Golden Fields patch work target is invalid")
         _assert_clean(console, page_errors, external, "P7 Golden Fields journey")
 
         return {
@@ -218,13 +242,15 @@ def record_golden_fields(
             "viewport": {"id": "desktop_reference", **viewport},
             "start_region": start.get("region"),
             "mid_region": mid.get("region"),
-            "complete_region": complete.get("region"),
-            "campaign": complete.get("campaign"),
+            "complete_region": golden_summary,
+            "next_active_region": next_summary,
+            "campaign": campaign,
             "start_honey": EXPECTED_START_HONEY,
             "final_honey": EXPECTED_COMPLETE_HONEY,
             "patches": {"9": p9, "10": p10, "11": p11, "12": p12},
             "analytics_event_names": names,
-            "reload_region": reloaded.get("region"),
+            "reload_region": reload_golden,
+            "reload_active_region": reloaded.get("region"),
             "desktop_canvas": start_metrics,
             "mobile_canvas": mobile_metrics,
             "screenshots": [
