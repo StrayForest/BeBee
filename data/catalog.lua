@@ -1,5 +1,5 @@
 -- Canonical production content catalog used by runtime and deterministic validation.
--- P7 expands the validated continuous-world campaign with Golden Fields and Wetland Garden while reusing the same systems.
+-- P7 expands the validated continuous-world campaign with Golden Fields, Wetland Garden and Rosewood while reusing the same systems.
 return {
     schema_version = 1,
     flowers = {
@@ -40,6 +40,14 @@ return {
             pollination_difficulty = 3,
         },
     },
+        {
+            id = "flower_rose",
+            pollination_difficulty = 3,
+        },
+        {
+            id = "flower_bluebell",
+            pollination_difficulty = 3,
+        },
     patches = {
         {
             id = "r01_m01_patch_01",
@@ -261,6 +269,62 @@ return {
             requires_buzz_level = 3,
         },
     },
+        {
+            id = "r04_m01_patch_01",
+            meadow_id = "r04_m01",
+            flower_id = "flower_rose",
+            x = 6800,
+            y = 620,
+            radius = 234,
+            edge_forgiveness = 46,
+            pollination_work = 1380,
+            honey_reward = 205,
+            restoration_contribution = 3,
+            requires_patch_id = "r03_m04_patch_01",
+            requires_buzz_level = 3,
+        },
+        {
+            id = "r04_m02_patch_01",
+            meadow_id = "r04_m02",
+            flower_id = "flower_bluebell",
+            x = 7350,
+            y = 1380,
+            radius = 240,
+            edge_forgiveness = 48,
+            pollination_work = 1460,
+            honey_reward = 220,
+            restoration_contribution = 3,
+            requires_patch_id = "r04_m01_patch_01",
+            requires_buzz_level = 3,
+        },
+        {
+            id = "r04_m03_patch_01",
+            meadow_id = "r04_m03",
+            flower_id = "flower_rose",
+            x = 8020,
+            y = 860,
+            radius = 246,
+            edge_forgiveness = 50,
+            pollination_work = 1540,
+            honey_reward = 235,
+            restoration_contribution = 3,
+            requires_patch_id = "r04_m02_patch_01",
+            requires_buzz_level = 3,
+        },
+        {
+            id = "r04_m04_patch_01",
+            meadow_id = "r04_m04",
+            flower_id = "flower_bluebell",
+            x = 8750,
+            y = 1500,
+            radius = 252,
+            edge_forgiveness = 52,
+            pollination_work = 1640,
+            honey_reward = 250,
+            restoration_contribution = 3,
+            requires_patch_id = "r04_m03_patch_01",
+            requires_buzz_level = 3,
+        },
     upgrades = {
         {
             id = "upgrade_flight",
@@ -360,6 +424,16 @@ return {
             },
         },
     },
+        {
+            id = "region_04",
+            label = "ROSEWOOD",
+            meadow_ids = {
+                "r04_m01",
+                "r04_m02",
+                "r04_m03",
+                "r04_m04",
+            },
+        },
     meadows = {
         {
             id = "r01_m01",
