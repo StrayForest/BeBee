@@ -7,7 +7,7 @@ local BEE_SCALE = 2.0
 local WORLD_W = 14400
 local WORLD_H = 2400
 local FIRST_MEADOW = catalog.meadows[1]
-local PATCH_POOL_SIZE = 6
+local PATCH_POOL_SIZE = 4
 local PATCH_VISIBILITY_MARGIN = 300
 local PATH_STEPS = 4
 
