@@ -2,7 +2,6 @@
   "schema_version": 1,
   "ticket": "P7-MOON-GARDEN",
   "change_class": "player-facing",
-  "head_sha": "$PR_HEAD",
   "problem": "Prove that BeBee can add a sixth authored Moon Garden region with a distinct night-garden identity while reusing movement-through pollination, Honey, Flight/Buzz 3, restoration, save v4 and region analytics, without adding a new verb, currency, mandatory spend, lethal hazard or per-region lifecycle.",
   "decision": {
     "ids": [
@@ -19,41 +18,36 @@
     "provenance_type": "EXPERIMENT_RESULT",
     "evidence_strength": "MEDIUM",
     "selected_alternative": "continuous_authored_moon_garden_region_with_bounded_visual_pool",
-    "rationale": "The exact-head deterministic and Chromium journey validates Moon Garden as region_06 in the same continuous authored world. Four new Meadows complete through the existing movement-through pollination verb, reuse Honey and Buzz 3, persist through save v4, and retain the six-slot nearby-patch visual pool. Night Lily, Starflower, moonlit palette and orbital/crystal landmarks provide authored identity without adding a hazard or management layer. The independent evaluation accepts the functional slice while carrying the existing geometric-art deviation to P8 visual certification."
+    "rationale": "Exact-head deterministic and Chromium evidence validates Moon Garden as region_06 in the same continuous authored world. Four new Meadows complete through the existing movement-through pollination verb, reuse Honey and Buzz 3, persist through save v4, and retain the six-slot nearby-patch visual pool. Night Lily, Starflower, moonlit palette and orbital/crystal landmarks provide authored identity without adding a hazard or management layer. The independent evaluation accepts the functional slice while carrying the geometric-art deviation to P8 visual certification."
   },
   "governance": {
     "trust_boundary_change": "No governance-critical file, workflow, validator, ruleset, permission or trust-boundary behavior is changed by this player-facing slice.",
     "bypass_analysis": "No governance bypass is introduced or used. Exact-head CI, trusted evidence policy, deterministic tests and retained artifacts remain authoritative.",
-    "rollback": "Revert the Moon Garden feature commit to remove region_06 content and bounds while leaving save v4 and existing adapters authoritative."
+    "rollback": "Revert the Moon Garden feature commits to remove region_06 content and bounds while leaving save v4 and existing adapters authoritative."
   },
   "research": {
     "candidate_pool": [
       {
-        "product_id": "a-short-hike",
         "name": "A Short Hike",
         "source": "https://ashorthike.com/",
         "relevance": "Hand-authored traversal uses landmarks and environmental composition to orient players without a dense navigation layer."
       },
       {
-        "product_id": "alba",
         "name": "Alba: A Wildlife Adventure",
         "source": "https://www.albawildlife.com/",
         "relevance": "Compact natural spaces differentiate habitats through local identity and low-pressure objectives."
       },
       {
-        "product_id": "garden-life",
         "name": "Garden Life: A Cozy Simulator",
         "source": "https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/",
         "relevance": "Authored restoration areas make a useful comparison for content scaling and player expression."
       },
       {
-        "product_id": "spiritfarer",
         "name": "Spiritfarer",
         "source": "https://thunderlotusgames.com/spiritfarer/",
         "relevance": "Counter-model showing how management and relationship systems could overwhelm a small restoration slice."
       },
       {
-        "product_id": "yonder",
         "name": "Yonder: The Cloud Catcher Chronicles",
         "source": "https://www.yonderchronicles.com/",
         "relevance": "Counter-model for broad biome exploration whose extra systems are intentionally outside this slice."
@@ -62,92 +56,106 @@
     "candidate_pool_exception": "",
     "selected_references": [
       {
-        "product_id": "a-short-hike",
+        "name": "A Short Hike / authored route and landmarks",
         "source": "https://ashorthike.com/",
-        "checked": "2026-08-30",
-        "observation": "A compact handcrafted world stays legible through recognizable local places and traversal rhythm.",
-        "inference": "Moon Garden should use Lumen Orchard, Starfall Glade, Comet Clearing and Moon Crown as the route language without a new navigation screen."
+        "platform_version_date": "web / observed 2026-08-30",
+        "selection_reason": "It solves the same orientation problem under a compact authored-world constraint.",
+        "observed_behavior": "A compact handcrafted world stays legible through recognizable local places and traversal rhythm.",
+        "inference": "Moon Garden should use Lumen Orchard, Starfall Glade, Comet Clearing and Moon Crown as route language without adding a navigation screen.",
+        "measurements": {
+          "authored_meadows": 4,
+          "navigation_screens_added": 0
+        }
       },
       {
-        "product_id": "alba",
+        "name": "Alba: A Wildlife Adventure / habitat distinction",
         "source": "https://www.albawildlife.com/",
-        "checked": "2026-08-30",
-        "observation": "Authored habitats communicate identity through environmental context, silhouettes and local objectives.",
-        "inference": "Night Lily/Starflower families, moonlit palette and orbital/crystal landmarks can distinguish Moon Garden while pollination remains the sole restoration verb."
+        "platform_version_date": "web / observed 2026-08-30",
+        "selection_reason": "It differentiates natural habitats through local context and low-pressure objectives.",
+        "observed_behavior": "Authored habitats communicate identity through environmental context, silhouettes and local objectives.",
+        "inference": "Night Lily/Starflower families, moonlit accents and orbital/crystal landmarks can distinguish Moon Garden while pollination remains the sole restoration verb.",
+        "measurements": {
+          "new_core_verbs": 0,
+          "new_currencies": 0,
+          "lethal_hazards": 0
+        }
       }
     ],
-    "official_technical_documentation": [
-      {
-        "title": "Defold GUI manual",
-        "url": "https://defold.com/manuals/gui/",
-        "checked": "2026-08-30",
-        "constraint": "Keep max_nodes at 512 and reuse a six-slot nearby-patch visual pool."
-      },
-      {
-        "title": "Defold optimization and memory",
-        "url": "https://defold.com/manuals/optimization-memory/",
-        "checked": "2026-08-30",
-        "constraint": "Measure catalog growth, serialized view state and release/browser behavior."
-      },
-      {
-        "title": "Defold collection proxy manual",
-        "url": "https://defold.com/manuals/collection-proxy/",
-        "checked": "2026-08-30",
-        "constraint": "No per-region proxy lifecycle is introduced for authored content expansion."
-      }
-    ],
-    "alternatives": [
-      {
-        "id": "continuous_authored_moon_garden_region_with_bounded_visual_pool",
-        "selected": true,
-        "summary": "Add four authored Meadows and reuse the proven data, progression, save, analytics and pooled-rendering contracts."
-      },
-      {
-        "id": "procedural_night_biome",
-        "selected": false,
-        "summary": "Generate a broad night biome; rejected because it weakens authored pacing, deterministic evidence and landmark readability."
-      },
-      {
-        "id": "separate_region_collection_proxy",
-        "selected": false,
-        "summary": "Load Moon Garden as a second game world; rejected because measured P7 evidence does not require a new lifecycle."
-      }
-    ]
+    "reference_exception": "",
+    "anti_pattern": {
+      "source": "https://thunderlotusgames.com/spiritfarer/",
+      "observation": "A management-heavy counter-model combines crafting, building and relationship surfaces around progression.",
+      "lesson": "Do not turn a regional content expansion into a new management layer; Moon Garden must reuse the existing patch, Honey, upgrade, save and analytics contracts."
+    }
   },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/gui/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Retain max_nodes at 512 and reuse six nearby-patch visual slots."
+    },
+    {
+      "source": "https://defold.com/manuals/optimization-memory/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Measure catalog growth, serialized view state and release/browser behavior."
+    },
+    {
+      "source": "https://defold.com/manuals/collection-proxy/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "No per-region proxy lifecycle is introduced for authored content expansion."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "continuous_authored_moon_garden_region_with_bounded_visual_pool",
+      "disposition": "selected",
+      "reason": "Four authored Meadows reuse the proven content, progression, save, analytics and pooled-rendering contracts and pass exact-head evidence."
+    },
+    {
+      "id": "procedural_night_biome",
+      "disposition": "rejected",
+      "reason": "It weakens authored pacing, deterministic evidence and landmark readability."
+    },
+    {
+      "id": "separate_region_collection_proxy",
+      "disposition": "rejected",
+      "reason": "Measured P7 evidence does not require a new game-world lifecycle; T-013 favors one continuous authored world."
+    }
+  ],
   "acceptance_criteria": [
     {
-      "id": "moon-garden-authored-chain",
-      "status": "PASS",
-      "statement": "region_06 contains Lumen Orchard, Starfall Glade, Comet Clearing and Moon Crown with Night Lily/Starflower authored identities."
+      "criterion": "region_06 contains Lumen Orchard, Starfall Glade, Comet Clearing and Moon Crown with Night Lily/Starflower authored identities.",
+      "status": "pass",
+      "evidence": "catalog.lua, region tests, exact-head Moon Garden motion report"
     },
     {
-      "id": "core-contract-reuse",
-      "status": "PASS",
-      "statement": "The journey uses movement-through pollination, Honey, Flight/Buzz 3, no new spend, no lethal hazard and no new core verb."
+      "criterion": "Moon Garden completes 0/4 to 2/4 to 4/4 through movement-through pollination with Honey and Buzz 3, without new spend, verb or hazard.",
+      "status": "pass",
+      "evidence": "exact-head movement report and retained patch payloads 25-28"
     },
     {
-      "id": "campaign-continuation",
-      "status": "PASS",
-      "statement": "Persisted Alpine completion derives Moon Garden at 0/4, reaches 4/4, records region_06 analytics and completes the six-region campaign."
+      "criterion": "Persisted Alpine completion derives Moon Garden, completes the six-region campaign and records region_06 analytics.",
+      "status": "pass",
+      "evidence": "exact-head motion report campaign 5/6 to 6/6 and region_completed event"
     },
     {
-      "id": "save-and-browser-proof",
-      "status": "PASS",
-      "statement": "Save v4 reload, desktop/mobile canvas coverage and zero console/page/external errors are retained from exact-head Chromium evidence."
+      "criterion": "Save v4 reload, desktop/mobile coverage and zero console/page/external errors pass.",
+      "status": "pass",
+      "evidence": "HTML5 CI 33317110615, storage artifact 9733923630, movement artifact 9733923503"
     },
     {
-      "id": "bounded-rendering",
-      "status": "PASS",
-      "statement": "GUI max_nodes remains 512, PATCH_POOL_SIZE remains 6 and view_state stays under the Defold msg.post buffer."
+      "criterion": "GUI max_nodes remains 512, PATCH_POOL_SIZE remains 6 and no view_state buffer overflow occurs.",
+      "status": "pass",
+      "evidence": "HTML5 CI 33317110615 and deterministic bounded-renderer regression"
     }
   ],
   "verification": {
     "automated": [
-      "deterministic Lua tests for catalog/order/eligibility/campaign derivation, movement bounds and camera bounds",
-      "Repository standards",
-      "Test/data",
-      "Pages preview",
-      "HTML5 CI",
+      "Repository standards 33317110573 PASS",
+      "Test/data 33317110576 PASS",
+      "Pages preview 33317110592 PASS",
+      "HTML5 CI 33317110615 PASS",
       "trusted PR evidence validation"
     ],
     "manual": [
@@ -156,16 +164,16 @@
       "mobile-landscape still",
       "independent evaluation"
     ],
-    "runtime_errors": {
-      "console": 0,
-      "page": 0,
-      "external_requests": 0
-    },
-    "save_data_impact": "No save schema bump; save v4 remains authoritative. Moon completion is derived from existing campaign_completion patch IDs and survives real settings save/reload.",
-    "expected_economy": "3636 → 4846 Honey from four first-time rewards 280 + 295 + 310 + 325; no mandatory spend or replay."
+    "runtime_errors": "console=0, page=0, external_requests=0 in exact-head Chromium journey",
+    "save_data_impact": "No save schema bump; save v4 remains authoritative. Moon completion is derived from campaign_completion patch IDs and survives real settings save/reload."
   },
   "visual_evidence": {
     "required": true,
+    "artifacts": [
+      "movement-qa-ff3dc0d5109816e298438f5ffe4799aefeb38ed2",
+      "visual-qa-ff3dc0d5109816e298438f5ffe4799aefeb38ed2",
+      "html5-playable-ff3dc0d5109816e298438f5ffe4799aefeb38ed2"
+    ],
     "states": [
       "moon_garden_start",
       "moon_garden_mid",
@@ -176,36 +184,68 @@
       "1280x720 desktop",
       "844x390 mobile landscape"
     ],
-    "motion": "desktop keyboard journey and mobile canvas coverage; movement-through pollination completes all four Moon Garden patches"
+    "motion_evidence": [
+      "movement-qa artifact with real keyboard journey and four pollination sweeps"
+    ],
+    "provenance": {
+      "capture_commit_sha": "$PR_HEAD",
+      "capture_mode": "ci",
+      "artifact_locator": "GitHub Actions HTML5 CI run 33317110615 and retained movement/visual artifacts"
+    }
   },
   "comparison": {
-    "measurements": [
-      {
-        "metric": "Moon Garden progression",
-        "expected": "0/4 → 2/4 → 4/4",
-        "source": "exact-head Chromium motion report"
+    "measurements": {
+      "moon_progression": "0/4 → 2/4 → 4/4",
+      "honey": "3636 → 4846",
+      "campaign": "5/6 → 6/6 after Moon Garden",
+      "gui_budget": "max_nodes 512; PATCH_POOL_SIZE 6; no view_state buffer overflow",
+      "browser_errors": "console 0; page 0; external requests 0",
+      "save_version": "4"
+    },
+    "subjective_scores": {
+      "objective_clarity": {
+        "score": 4,
+        "note": "Objective names and 0/4, 2/4, 4/4 state cues are readable in retained desktop/mobile stills."
       },
-      {
-        "metric": "Honey economy",
-        "expected": "3636 → 4846",
-        "source": "exact-head Chromium motion report"
+      "state_readability": {
+        "score": 3,
+        "note": "Moon palette and landmarks distinguish the region, while the documented geometric art deviation remains."
       },
-      {
-        "metric": "campaign completion",
-        "expected": "5/6 → 6/6 after Moon Garden",
-        "source": "exact-head Chromium region snapshot"
-      },
-      {
-        "metric": "bounded rendering",
-        "expected": "max_nodes 512; pooled patch slots 6; no view_state buffer overflow",
-        "source": "HTML5 CI and regression test"
+      "feedback_quality": {
+        "score": 3,
+        "note": "Existing pollination/reward/reload feedback is coherent; final expressive polish remains P8 work."
       }
+    }
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "review_input": [
+      "problem",
+      "acceptance criteria",
+      "reference observations",
+      "rendered evidence",
+      "measurements"
     ],
-    "conclusion": "PASS WITH DEVIATION: functional Moon Garden content and continuous-world architecture pass; the pre-existing geometric illustration/typography/full-scene polish deviation is explicitly carried to P8."
+    "findings": [
+      "No functional ITERATE finding; authored content, continuous-world architecture, persistence, analytics and browser budgets pass.",
+      "Accepted deviation: geometric bee/flower illustration, typography, animation and full-scene polish remain a P8 visual-certification gate."
+    ],
+    "verdict": "PASS WITH DEVIATION",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "p7-moon-garden-independent-evaluator-2026-08-30",
+      "implementation_author_id": "p7-moon-garden-implementation-agent",
+      "input_artifacts": [
+        "movement-qa-ff3dc0d5109816e298438f5ffe4799aefeb38ed2",
+        "storage-qa-ff3dc0d5109816e298438f5ffe4799aefeb38ed2",
+        "visual-qa-ff3dc0d5109816e298438f5ffe4799aefeb38ed2"
+      ],
+      "record_locator": "evidence/P7-MOON-GARDEN/evaluation.md"
+    }
   },
   "known_limitations": [
     "The existing geometric bee/flower illustration, animation, typography and full-scene polish remain below the long-term release-art target; this is a documented non-blocking P7 deviation and a P8 certification gate.",
     "Moon Garden adds authored content only and intentionally does not introduce a new currency, verb, lethal hazard or region lifecycle."
-  ],
-  "final_status": "PASS WITH DEVIATION"
+  ]
 }
