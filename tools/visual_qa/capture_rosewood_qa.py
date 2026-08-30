@@ -20,6 +20,7 @@ from capture_region_qa import (
     _shot,
     _url,
     _wait,
+    _movement,
 )
 
 
@@ -49,7 +50,11 @@ def _wait_active_rosewood(page: Page, *, complete: bool | None, timeout_ms: int)
 
 def _complete_rosewood_patch(page: Page, index: int, *, timeout_seconds: float = 24.0) -> dict[str, object]:
     x, y = ROSEWOOD_PATCHES[index]
-    _move_to(page, x, y, timeout_seconds=40.0, tolerance=72)
+    start_movement = _movement(page)
+    try:
+        _move_to(page, x, y, timeout_seconds=40.0, tolerance=72)
+    except RuntimeError as exc:
+        raise RuntimeError(f"P7 Rosewood patch {index} navigation failed: start={start_movement!r}; {exc}") from exc
     deadline = time.monotonic() + timeout_seconds
     direction_right = True
     while time.monotonic() < deadline:
