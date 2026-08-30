@@ -207,22 +207,19 @@
   ],
   "verification": {
     "automated": [
-      "Exact head 40019b8b253e6de27ad8de121e74ad67b146dfb0: Repository standards run 33304395136 PASS.",
-      "Exact head 40019b8b253e6de27ad8de121e74ad67b146dfb0: Test/data run 33304395104 PASS; retained artifact test-data-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:aee0a64a84e4af3bef21e253b72b8ff3ca8993b69158248b0a2adaf891219be2.",
-      "Exact head 40019b8b253e6de27ad8de121e74ad67b146dfb0: Pages preview run 33304395199 PASS; artifact github-pages-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:4c2e2d74e5b2ac416e91fd72452fdc06f21ee4c2bcb344755cab591a116cf27.",
-      "Exact head 40019b8b253e6de27ad8de121e74ad67b146dfb0: HTML5 CI run 33304395113 PASS; html5 job 99238231831 completed every build/smoke/evidence/upload step.",
-      "Retained html5-ci-evidence artifact 9730052600 name html5-ci-evidence-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:fdb3b431a25bb76865b33878c45e820dfa1f3ca9f49674173f09da7ba5124700.",
-      "Retained movement artifact 9730052313 name movement-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:0ebc56d4e37ff77ef2fe086c1f83f84aca6b70ec9b1375d7dfe4c3e25e055a7b.",
-      "Retained storage artifact 9730052468 name storage-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:352298d935a808576fbbac138de724b1daf71ac5fcd554ce76ffdf65329720f9.",
-      "Retained visual artifact 9730052105 name visual-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:f872bf172ee8b98b1ac85a319c595525288922e207115969d7517a12c69e1b8a.",
-      "Retained playable artifact 9730051946 name html5-playable-40019b8b253e6de27ad8de121e74ad67b146dfb0 digest sha256:dc4db8d7328bd53a5544ac91f32b4c7774508d1ce77eeea3dbf90c874f4b1e7e."
+      "Exact PR head $PR_HEAD: Repository standards check passes.",
+      "Exact PR head $PR_HEAD: Test/data check passes; retained test-data-$PR_HEAD artifact.",
+      "Exact PR head $PR_HEAD: Pages preview check passes; retained github-pages artifact.",
+      "Exact PR head $PR_HEAD: HTML5 CI check passes with completed build, smoke, deterministic capture and evidence upload steps.",
+      "Retained exact-head HTML5 artifacts: html5-ci-evidence-$PR_HEAD, movement-qa-$PR_HEAD, storage-qa-$PR_HEAD, visual-qa-$PR_HEAD and html5-playable-$PR_HEAD.",
+      "The accepted exact-head run has no 2040-byte view_state failure and retains PATCH_POOL_SIZE=6 and max_nodes=512."
     ],
     "manual": [
-      "Inspected retained Wetland start, mid, complete, reload and mobile-landscape stills; Lotus/Iris, water/root/island composition, objective progression and Honey are readable.",
-      "Inspected retained p7_wetland_garden motion-report: exact head binding, 0/4 start, 2/4 midpoint, 4/4 completion, region_03 reload and 891 -> 1596 Honey.",
-      "Inspected retained storage-report.json: save_version 4 remains valid across clean start, save/reload, immediate refresh, delete persistence, quick checkpoints and corrupt-newest recovery.",
-      "Inspected retained browser-smoke.json and input-proxy-smoke.json: WebAssembly/canvas smoke and input-proxy/modal checks pass with no actionable errors.",
-      "Inspected retained movement capture reports: repeated captures have stable exact SHA-256 hashes, release QA bridge/probe are absent, and desktop/mobile movement evidence has zero console/page errors."
+      "Inspected retained exact-head Wetland start, mid, complete, reload and mobile-landscape stills; Lotus/Iris, water/root/island composition, objective progression and Honey are readable.",
+      "Inspected retained exact-head p7_wetland_garden motion-report: 0/4 start, 2/4 midpoint, 4/4 completion, region_03 reload and 891 -> 1596 Honey.",
+      "Inspected retained exact-head storage-report.json: save_version 4 remains valid across clean start, save/reload, immediate refresh, delete persistence, quick checkpoints and corrupt-newest recovery.",
+      "Inspected retained exact-head browser-smoke.json and input-proxy-smoke.json: WebAssembly/canvas smoke and input-proxy/modal checks pass with no actionable errors.",
+      "Inspected retained exact-head movement capture reports: repeated captures have stable exact SHA-256 hashes, release QA bridge/probe are absent, and desktop/mobile movement evidence has zero console/page errors."
     ],
     "runtime_errors": "No actionable runtime, console or page errors observed in the retained exact-head browser-smoke, movement, visual or storage reports; browser log contains only environment-level Chromium/driver diagnostics.",
     "save_data_impact": "No save schema change. Wetland uses existing save v4, stable campaign patch IDs, existing A/B storage adapter and derived region/meadow state; storage evidence confirms save_version 4 through reload/recovery."
@@ -230,10 +227,10 @@
   "visual_evidence": {
     "required": true,
     "artifacts": [
-      "HTML5 CI run 33304395113 / artifact html5-ci-evidence-40019b8b253e6de27ad8de121e74ad67b146dfb0",
-      "movement-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 / p7_wetland_garden",
-      "visual-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 / foundation_probe",
-      "storage-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0"
+      "HTML5 CI exact-head retained artifact: html5-ci-evidence-$PR_HEAD",
+      "movement-qa-$PR_HEAD / p7_wetland_garden",
+      "visual-qa-$PR_HEAD / foundation_probe",
+      "storage-qa-$PR_HEAD"
     ],
     "states": [
       "wetland_start_0_of_4",
@@ -252,13 +249,13 @@
       "1031x580 poki_large"
     ],
     "motion_evidence": [
-      "movement-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 / p7_wetland_garden still sequence",
-      "movement-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0 / movement_dense desktop_reference.webm and mobile_landscape.webm"
+      "movement-qa-$PR_HEAD / p7_wetland_garden still sequence",
+      "movement-qa-$PR_HEAD / movement_dense desktop_reference.webm and mobile_landscape.webm"
     ],
     "provenance": {
       "capture_commit_sha": "$PR_HEAD",
       "capture_mode": "ci",
-      "artifact_locator": "GitHub Actions HTML5 CI run 33304395113, retained artifacts 9730052600/9730052313/9730052105/9730052468/9730051946"
+      "artifact_locator": "Latest exact-head GitHub Actions HTML5 CI retained artifacts: html5-ci-evidence-$PR_HEAD, movement-qa-$PR_HEAD, visual-qa-$PR_HEAD, storage-qa-$PR_HEAD and html5-playable-$PR_HEAD"
     }
   },
   "comparison": {
@@ -273,9 +270,9 @@
       "console_errors": 0,
       "page_errors": 0,
       "external_requests": 0,
-      "engine_fps": 59.94,
+      "engine_fps": 59.95,
       "min_engine_fps_budget": 50,
-      "release_bundle_bytes": 2817172,
+      "release_bundle_bytes": 2817173,
       "release_bundle_budget_bytes": 12582912,
       "patch_pool_size": 6,
       "gui_max_nodes": 512
@@ -293,9 +290,9 @@
       "evaluator_id": "p7-wetland-garden-independent-evaluator-2026-08-30",
       "implementation_author_id": "p7-wetland-garden-implementation-agent",
       "input_artifacts": [
-        "movement-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0",
-        "visual-qa-40019b8b253e6de27ad8de121e74ad67b146dfb0",
-        "html5-ci-evidence-40019b8b253e6de27ad8de121e74ad67b146dfb0"
+        "movement-qa-$PR_HEAD",
+        "visual-qa-$PR_HEAD",
+        "html5-ci-evidence-$PR_HEAD"
       ],
       "record_locator": "evidence/P7-WETLAND-GARDEN/evaluation.md in the same PR"
     }
