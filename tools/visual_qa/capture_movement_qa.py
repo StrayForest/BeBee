@@ -19,6 +19,7 @@ from capture_restoration_qa import record_restoration
 from capture_seed_qa import record_seed_ownership
 from capture_region_qa import record_region
 from capture_golden_fields_qa import record_golden_fields
+from capture_wetland_garden_qa import record_wetland_garden
 
 
 def main() -> int:
@@ -48,12 +49,13 @@ def main() -> int:
             seeds = record_seed_ownership(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=timeout_ms)
             first_region = record_region(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=timeout_ms)
             golden_fields = record_golden_fields(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=max(timeout_ms, 30000))
+            wetland_garden = record_wetland_garden(browser, base_url=args.url, head_sha=head_sha, output_root=output_root, timeout_ms=max(timeout_ms, 30000))
             browser_version = browser.version
         finally:
             browser.close()
 
     report = {
-        "schema_version": 6,
+        "schema_version": 7,
         "ticket": "P1-P7-RUNTIME",
         "head_sha": head_sha,
         "browser_name": "Playwright Chromium",
@@ -68,6 +70,7 @@ def main() -> int:
         "p5_seed_ownership": seeds,
         "p6_first_region": first_region,
         "p7_golden_fields": golden_fields,
+        "p7_wetland_garden": wetland_garden,
         "result": "PASS",
     }
     report_path = output_root / "motion-report.json"
@@ -77,7 +80,7 @@ def main() -> int:
         f"(desktop movement {desktop['exercise_seconds']}s, touch movement {touch['exercise_seconds']}s, "
         f"desktop movement {desktop['observed_fps']} fps, P2={pollination['result']}, "
         f"P3={progression['result']}, P4={restoration['result']}, P5={seeds['result']}, "
-        f"P6={first_region['result']}, P7={golden_fields['result']})"
+        f"P6={first_region['result']}, Golden={golden_fields['result']}, Wetland={wetland_garden['result']})"
     )
     return 0
 
