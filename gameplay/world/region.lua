@@ -18,6 +18,11 @@ function M.meadow_definition(meadow_id)
     return definition_by_id(catalog.meadows, meadow_id)
 end
 
+function M.region_id_for_meadow(meadow_id)
+    local definition = M.meadow_definition(meadow_id)
+    return definition and definition.region_id or nil
+end
+
 function M.patches_for_meadow(meadow_id)
     local result = {}
     for _, patch in ipairs(catalog.patches or {}) do
@@ -70,6 +75,39 @@ function M.summary(save, region_id)
     }
 end
 
+function M.active_id(save)
+    local fallback = nil
+    for _, definition in ipairs(catalog.regions or {}) do
+        fallback = definition.id
+        local summary = M.summary(save, definition.id)
+        if summary and not summary.complete then return definition.id end
+    end
+    return fallback
+end
+
+function M.active_summary(save)
+    local region_id = M.active_id(save)
+    if not region_id then return nil end
+    return M.summary(save, region_id)
+end
+
+function M.campaign_summary(save)
+    local completed_regions = 0
+    local regions = {}
+    for index, definition in ipairs(catalog.regions or {}) do
+        local summary = M.summary(save, definition.id)
+        regions[index] = summary
+        if summary and summary.complete then completed_regions = completed_regions + 1 end
+    end
+    return {
+        completed_regions = completed_regions,
+        total_regions = #(catalog.regions or {}),
+        complete = #(catalog.regions or {}) > 0 and completed_regions == #(catalog.regions or {}),
+        active_region_id = M.active_id(save),
+        regions = regions,
+    }
+end
+
 function M.objective_text(save, region_id)
     local summary = M.summary(save, region_id)
     if not summary then return "RESTORE THE MEADOW" end
@@ -79,6 +117,12 @@ function M.objective_text(save, region_id)
     local next_definition = M.meadow_definition(summary.next_meadow_id)
     local label = next_definition and next_definition.label or "NEXT MEADOW"
     return string.format("RESTORE %s · %d/%d", label, summary.restored_count, summary.total)
+end
+
+function M.active_objective_text(save)
+    local region_id = M.active_id(save)
+    if not region_id then return "RESTORE THE MEADOW" end
+    return M.objective_text(save, region_id)
 end
 
 return M

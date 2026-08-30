@@ -42,18 +42,28 @@ return {
             end,
         },
         {
-            name = "five minute deterministic soak never escapes bounds or becomes non-finite",
+            name = "five minute deterministic soak never escapes expanded bounds or becomes non-finite",
             run = function()
                 local state = movement.new()
                 local intents = {{1,0},{1,1},{0,1},{-1,1},{-1,0},{-1,-1},{0,-1},{1,-1},{0,0}}
                 for frame = 1, 18000 do
                     local item = intents[(math.floor((frame - 1) / 240) % #intents) + 1]
                     movement.step(state, item[1], item[2], 1/60)
-                    t.assert_true(state.x >= 80 and state.x <= 2320)
+                    t.assert_true(state.x >= 80 and state.x <= 4480)
                     t.assert_true(state.y >= 80 and state.y <= 1520)
                     t.assert_true(state.x == state.x and state.y == state.y and state.speed == state.speed)
                 end
                 t.assert_true(state.distance_travelled > 1000)
+            end,
+        },
+        {
+            name = "golden fields horizontal extent is reachable without changing movement semantics",
+            run = function()
+                local state = movement.new({ start_x = 4300, start_y = 900 })
+                for _ = 1, 120 do movement.step(state, 1, 0, 1/60) end
+                t.assert_true(near(4480, state.x, 0.01))
+                t.assert_true(near(0, state.vx, 0.01))
+                t.assert_true(state.bound_hits > 0)
             end,
         },
     },

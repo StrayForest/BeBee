@@ -143,6 +143,8 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`evidence/P5-SEED-OWNERSHIP/manifest.json`](evidence/P5-SEED-OWNERSHIP/manifest.json) — P5 economy/runtime/visual closeout evidence and independent evaluation provenance
 - [`docs/research/P6-first-region-vertical-slice.md`](docs/research/P6-first-region-vertical-slice.md) — P6 six-Meadow region, platform, settings, analytics and performance contract
 - [`evidence/P6-FIRST-REGION-VERTICAL-SLICE/manifest.json`](evidence/P6-FIRST-REGION-VERTICAL-SLICE/manifest.json) — P6 full-region runtime/visual closeout evidence and independent evaluation provenance
+- [`docs/research/P7-golden-fields-production-expansion.md`](docs/research/P7-golden-fields-production-expansion.md) — P7 Golden Fields content-scaling research, initial node-budget failure and bounded-renderer repair
+- [`evidence/P7-GOLDEN-FIELDS/manifest.json`](evidence/P7-GOLDEN-FIELDS/manifest.json) — first P7 region-expansion runtime/economy/visual closeout evidence and independent evaluation provenance
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -169,13 +171,16 @@ P5 adds player ownership without weakening that restoration contract. Its determ
 
 P6 validates `D-011` as one continuous authored **six-Meadow Sunny Meadows** region rather than six collection-proxy screens. The exact-head clean-save proof restores 6/6 Meadows, reaches Flight/Buzz 3, exercises seed ownership, settings, analytics and save-v4 reload, keeps browser errors and external requests at zero, measures `59.92 fps` against the `≥50` budget and packages a `2,813,096`-byte release bundle against the 12 MiB budget. Desktop canvas coverage is exactly `1280×720`, with retained 844×390 mobile and 640×360 / 836×470 / 1031×580 Poki checks. The independent closeout verdict is **PASS WITH DEVIATION**: the region/system structure is validated, while final rounded bee/species-silhouette/typography illustration polish remains below the long-term art-direction target and is explicitly carried into P7/P8.
 
+P7 Golden Fields validates the first **multi-region production-expansion seam**. A persisted P6-complete state derives `region_02` automatically, then the normal runtime restores Sun Gate, Poppy Run, Windmill Loop and Harvest Crown from 0/4 to 4/4 with the same movement-through pollination verb. Honey moves `346 → 891` with no new mandatory spend/replay, campaign state reloads at 2/2 regions complete, analytics stays platform-neutral, P7 browser errors/external requests are `0/0/0`, and current performance remains `59.87 fps` with a `2,815,539`-byte bundle. The first Golden Fields HTML5 run exposed `Out of nodes (max 512)`; the accepted architecture repair keeps `max_nodes: 512` and uses six reusable nearby-patch visual slots instead of permanent per-patch GUI trees. Independent verdict is **PASS WITH DEVIATION** for the Golden Fields slice; P7 as a milestone remains IN PROGRESS.
+
 Still open/tunable before downstream milestones lock production values:
 
-- later-region Honey rewards/cost tables and pacing beyond the validated first-region no-replay path;
+- Honey rewards/cost tables and pacing beyond the accepted Golden Fields path;
 - later Flight/Buzz effect curves and gate cadence beyond Buzz 3;
 - later player-plot count/placement and seed catalog/pacing beyond the validated first-region topology;
+- Wetland Garden, Rosewood, Alpine Bloom and Moon Garden authored content/tuning;
 - external novice comprehension/playtest evidence;
-- final production illustration/animation/typography and full-scene visual polish required to clear the P6 art-direction deviation before release certification.
+- final production illustration/animation/typography and full-scene visual polish required to clear the P6/P7 art-direction deviation before release certification.
 
 The objective-evidence hardening in `BB-P013`–`BB-P017` is in place. `BB-P006` validated Poki as the primary external target, `BB-P007` defined V-001, `BB-P008` defined the deterministic visual-QA runtime contract, and `BB-P009` defined the HTML5 A/B generation storage/recovery contract.
 
@@ -183,9 +188,9 @@ At P-1 closeout, repository enforcement was verified through ruleset `Protect ma
 
 ## Vertical-slice target
 
-P6 now proves the structural vertical-slice target: controllable movement, several flower difficulty tiers, one compact authored region, movement-through pollination, Honey economy, Flight/Buzz progression, seed ownership, visible restoration, save/reload, desktop + touch controls, local audio, accessibility settings, analytics abstraction and a production HTML5 build path. Exact stat/pacing values remain runtime-validated tunings rather than immutable values simply because they appeared in an early GDD.
+P6 now proves the structural vertical-slice target: controllable movement, several flower difficulty tiers, one compact authored region, movement-through pollination, Honey economy, Flight/Buzz progression, seed ownership, visible restoration, save/reload, desktop + touch controls, local audio, accessibility settings, analytics abstraction and a production HTML5 build path. P7 Golden Fields shows that the same architecture can scale into a second authored region without a new core system or per-region game-world lifecycle. Exact stat/pacing values remain runtime-validated tunings rather than immutable values simply because they appeared in an early GDD.
 
-The remaining explicitly documented deviation is final illustration/animation/typography polish; it does not invalidate the functional vertical-slice architecture but must be resolved before release-candidate visual certification.
+The remaining explicitly documented deviation is final illustration/animation/typography/full-scene polish; it does not invalidate the functional region architecture but must be resolved before release-candidate visual certification.
 
 ## Non-goals for the vertical slice
 
@@ -199,7 +204,7 @@ BB-001 establishes a minimal `app/` bootstrap, explicit development/release sett
 
 BB-002 adds Defold-aware generated-file rules, explicit text/Lua conventions, canonical production resource roots, machine-readable dependency/license inventory, a dependency-free repository validator and PR/main CI enforcement. It does not claim semantic input, proxy lifecycle, storage, gameplay, UI, test/data harness or deterministic gameplay QA.
 
-BB-003 replaces the empty binding with device-independent semantic actions, proves keyboard and HTML5 single-touch/pointer paths, explicitly owns collection-proxy input focus, and retains an exact-head Chromium proof that unconsumed actions traverse the proxy world while an open modal consumes them before proxied gameplay and lower main-world listeners. `T-010` remains a hypothesis because proxy memory/full lifecycle are still unproven.
+BB-003 replaces the empty binding with device-independent semantic actions, proves keyboard and HTML5 single-touch/pointer paths, explicitly owns collection-proxy input focus, and retains an exact-head Chromium proof that unconsumed actions traverse the proxy world while an open modal consumes them before proxied gameplay and lower main-world listeners. That input/focus contract remains valid; the older separate-region proxy hypothesis `T-010` is later deprecated by the P6/P7 multi-region evidence in favor of `T-013`.
 
 BB-004 adds a dependency-free deterministic Lua test runner, a dedicated Defold headless test bootstrap, a canonical content catalog plus stable-ID/reference validation, and initial deterministic cases. The editor-independent runner verifies the pinned Bob/Java toolchain, requires a structured suite completion event, propagates failures through process exit status and retains diagnostic output. Subsequent work extends the suite without changing the BB-004 harness contract.
 
@@ -247,4 +252,14 @@ Accepted runtime evidence head before closeout-only source-of-truth changes is `
 
 The independent evaluator records **PASS WITH DEVIATION**, not plain PASS: the current original geometric runtime presentation is coherent/readable but still falls short of the long-term rounded bee, species-silhouette and final typography/illustration direction. That deviation is explicit P7/P8 work and may not be silently treated as release-candidate art. Complete evidence is in [`evidence/P6-FIRST-REGION-VERTICAL-SLICE/manifest.json`](evidence/P6-FIRST-REGION-VERTICAL-SLICE/manifest.json) and `evaluation.md`.
 
-**Next production task after P6 merge: `P7 — Production Expansion`.**
+**P7 — Production Expansion is IN PROGRESS; Golden Fields is accepted as the first P7 slice with independent verdict `PASS WITH DEVIATION`.**
+
+Golden Fields adds `region_02` with Sun Gate, Poppy Run, Windmill Loop and Harvest Crown, plus Sunflower/Poppy presentation and authored landmarks, while reusing the existing movement/pollination/Honey/Flight/Buzz/restoration/save/analytics systems. The active region is data-driven from the first incomplete campaign region; P6 QA fixtures remain explicitly pinned to `region_01`.
+
+Accepted runtime evidence head before closeout-only source-of-truth changes is `8d9640522ffc742ffe79178718fa2df0517dd6bc`. It passed Repository standards (`33271607224`), Test/data (`33271607179`, `108/108`), Pages preview (`33271607241`) and HTML5 CI (`33271607193`). Retained movement/P7 artifact `9720322590`, digest `sha256:b58dc0c217aa1845a3f42a2b1cf2fcb4685f2a548f452d09be50d00cbeb0fd80`, starts from persisted P6 completion, removes the QA route, derives Golden Fields at 0/4, completes 4/4, moves Honey `346→891`, records 11 P7 analytics events, reloads at 2/2 campaign regions complete, and reports browser errors `0/0` plus external requests `0`. Current combined performance is `59.87 fps` and a `2,815,539`-byte release bundle.
+
+The first P7 HTML5 attempt failed with `Out of nodes (max 512)`. That failure was treated as a real scalability defect: the accepted implementation keeps the GUI budget at `512` and replaces permanent per-authored-patch flower trees with a six-slot nearby-patch visual pool. The independent evaluator records **PASS WITH DEVIATION** because the multi-region architecture is validated but rounded character/species illustration, typography and full-scene polish are still below release-art target.
+
+Complete evidence is in [`docs/research/P7-golden-fields-production-expansion.md`](docs/research/P7-golden-fields-production-expansion.md), [`evidence/P7-GOLDEN-FIELDS/manifest.json`](evidence/P7-GOLDEN-FIELDS/manifest.json) and `evaluation.md`.
+
+**Next P7 production slice after Golden Fields merge: `Wetland Garden`. P7 remains IN PROGRESS.**

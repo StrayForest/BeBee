@@ -126,7 +126,7 @@ def _move_to(page: Page, x: float, y: float, *, timeout_seconds: float = 16.0, t
                 page.wait_for_timeout(100)
                 return _movement(page)
             keys: list[str] = []
-            deadband = 18.0
+            deadband = min(18.0, tolerance / math.sqrt(2.0))
             if dx > deadband:
                 keys.append("d")
             elif dx < -deadband:
