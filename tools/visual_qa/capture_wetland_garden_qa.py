@@ -133,7 +133,7 @@ def record_wetland_garden(
             raise RuntimeError(f"P7 Wetland start objective invalid: {start!r}")
         if int(start.get("flightLevel", -1)) != 3 or int(start.get("buzzLevel", -1)) != 3:
             raise RuntimeError(f"P7 Wetland must reuse Flight/Buzz 3: {start!r}")
-        if int(campaign.get("completed_regions", -1)) != 2 or int(campaign.get("total_regions", -1)) != 3 or campaign.get("complete") is not False:
+        if int(campaign.get("completed_regions", -1)) != 2 or int(campaign.get("total_regions", -1)) != 4 or campaign.get("complete") is not False:
             raise RuntimeError(f"P7 Wetland campaign handoff invalid: {start!r}")
 
         first = _patch(page, 13)
@@ -175,7 +175,7 @@ def record_wetland_garden(
             raise RuntimeError(f"P7 Wetland completion objective invalid: {complete!r}")
         if int(complete.get("honey", -1)) != EXPECTED_COMPLETE_HONEY:
             raise RuntimeError(f"P7 Wetland reward total invalid: {complete!r}")
-        if complete_campaign.get("complete") is not True or int(complete_campaign.get("completed_regions", -1)) != 3 or int(complete_campaign.get("total_regions", -1)) != 3:
+        if complete_campaign.get("complete") is not True or int(complete_campaign.get("completed_regions", -1)) != 3 or int(complete_campaign.get("total_regions", -1)) != 4:
             raise RuntimeError(f"P7 three-region campaign did not complete: {complete!r}")
         if p15.get("flowerId") != "flower_lotus" or p16.get("flowerId") != "flower_iris":
             raise RuntimeError(f"P7 Wetland species alternation drifted: p15={p15!r} p16={p16!r}")
@@ -199,7 +199,7 @@ def record_wetland_garden(
         reload_campaign = reloaded.get("campaign") or {}
         if int(reloaded.get("honey", -1)) != EXPECTED_COMPLETE_HONEY:
             raise RuntimeError(f"P7 Wetland Honey did not survive reload: {reloaded!r}")
-        if reload_campaign.get("complete") is not True or int(reload_campaign.get("completed_regions", -1)) != 3:
+        if reload_campaign.get("complete") is not True or int(reload_campaign.get("completed_regions", -1)) != 3 or int(reload_campaign.get("total_regions", -1)) != 4:
             raise RuntimeError(f"P7 Wetland campaign completion did not survive reload: {reloaded!r}")
         _move_to(page, *WETLAND_PATCHES[16], timeout_seconds=22.0, tolerance=72)
         reload_shot = frames / "03-wetland-reloaded-desktop.png"
