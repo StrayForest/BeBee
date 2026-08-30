@@ -42,15 +42,15 @@ return {
             end,
         },
         {
-            name = "five minute deterministic soak never escapes Wetland-expanded bounds or becomes non-finite",
+            name = "five minute deterministic soak never escapes Rosewood-expanded bounds or becomes non-finite",
             run = function()
                 local state = movement.new()
                 local intents = {{1,0},{1,1},{0,1},{-1,1},{-1,0},{-1,-1},{0,-1},{1,-1},{0,0}}
                 for frame = 1, 18000 do
                     local item = intents[(math.floor((frame - 1) / 240) % #intents) + 1]
                     movement.step(state, item[1], item[2], 1/60)
-                    t.assert_true(state.x >= 80 and state.x <= 6640)
-                    t.assert_true(state.y >= 80 and state.y <= 2020)
+                    t.assert_true(state.x >= 80 and state.x <= 9360)
+                    t.assert_true(state.y >= 80 and state.y <= 2040)
                     t.assert_true(state.x == state.x and state.y == state.y and state.speed == state.speed)
                 end
                 t.assert_true(state.distance_travelled > 1000)
@@ -66,14 +66,14 @@ return {
             end,
         },
         {
-            name = "Wetland Garden expanded edge is bounded without changing movement semantics",
+            name = "Rosewood expanded edge is bounded without changing movement semantics",
             run = function()
                 local state = movement.new({ start_x = 6400, start_y = 1900 })
                 for _ = 1, 120 do movement.step(state, 1, 0, 1/60) end
-                t.assert_true(near(6640, state.x, 0.01))
+                t.assert_true(near(9360, state.x, 0.01))
                 t.assert_true(near(0, state.vx, 0.01))
                 for _ = 1, 120 do movement.step(state, 0, 1, 1/60) end
-                t.assert_true(near(2020, state.y, 0.01))
+                t.assert_true(near(2040, state.y, 0.01))
                 t.assert_true(near(0, state.vy, 0.01))
                 t.assert_true(state.bound_hits > 0)
             end,
