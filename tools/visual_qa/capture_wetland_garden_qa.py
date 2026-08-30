@@ -52,8 +52,16 @@ def _wait_active_wetland(page: Page, *, complete: bool, timeout_ms: int) -> dict
     page.wait_for_function(
         """(expectedComplete) => {
             const qa = window.__bebeeRegionQA;
-            return !!qa && qa.activeRegionId === 'region_03' && !!qa.region &&
-                qa.region.id === 'region_03' && qa.region.complete === expectedComplete;
+            if (!qa) return false;
+            if (!expectedComplete) {
+                return qa.activeRegionId === 'region_03' && !!qa.region &&
+                    qa.region.id === 'region_03' && qa.region.complete === false;
+            }
+            // On a four-region campaign the runtime advances to Rosewood
+            // immediately after Wetland completes, so completion must be
+            // asserted from the campaign snapshot rather than activeRegionId.
+            const wetland = (qa.campaign?.regions || []).find((region) => region.id === 'region_03');
+            return !!wetland && wetland.complete === true && wetland.restored_count === wetland.total;
         }""",
         arg=complete,
         timeout=timeout_ms,
