@@ -32,24 +32,24 @@ return {
             end,
         },
         {
-            name = "normal camera reaches Wetland Garden and clamps at expanded edge",
+            name = "normal camera reaches Rosewood and clamps at expanded edge",
             run = function()
                 local state = follow.new()
-                for _ = 1, 720 do follow.step(state, 6720, 2100, 1/60, false) end
-                t.assert_true(near(6080, state.x, 0.01))
-                t.assert_true(near(1740, state.y, 0.01))
+                for _ = 1, 720 do follow.step(state, 9600, 2400, 1/60, false) end
+                t.assert_true(near(8960, state.x, 0.01))
+                t.assert_true(near(2040, state.y, 0.01))
             end,
         },
         {
-            name = "reduced motion removes follow lag while preserving Wetland-expanded bounds",
+            name = "reduced motion removes follow lag while preserving Rosewood-expanded bounds",
             run = function()
                 local state = follow.new()
                 follow.step(state, 1700, 1000, 1/60, true)
                 t.assert_equal(1700, state.x)
                 t.assert_equal(1000, state.y)
-                follow.step(state, 6720, 2100, 1/60, true)
-                t.assert_equal(6080, state.x)
-                t.assert_equal(1740, state.y)
+                follow.step(state, 9600, 2400, 1/60, true)
+                t.assert_equal(8960, state.x)
+                t.assert_equal(2040, state.y)
             end,
         },
     },

@@ -9,6 +9,7 @@ local function supported_runtime_states()
         "meadow_dormant", "meadow_mid", "meadow_restored",
         "seed_locked", "seed_unlocked",
         "region_start", "region_mid", "region_complete", "settings_accessibility",
+        "rosewood_start", "rosewood_mid", "rosewood_complete",
     }) do test.assert_true(qa.is_supported_state(state), state) end
     test.assert_false(qa.is_supported_state("not_a_state"))
 end
@@ -56,6 +57,11 @@ local function supported_request()
     local settings_request = qa.resolve_request("settings_accessibility", "88008")
     test.assert_true(settings_request.supported)
     test.assert_true(qa.is_region_state(settings_request.state_id))
+
+    local rosewood_request = qa.resolve_request("rosewood_complete", "88008")
+    test.assert_true(rosewood_request.supported)
+    test.assert_true(qa.is_region_state(rosewood_request.state_id))
+    test.assert_true(qa.requires_gameplay_capture(rosewood_request.state_id))
 end
 
 local function unknown_state_fails_closed()

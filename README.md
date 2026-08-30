@@ -145,6 +145,7 @@ Use [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-ma
 - [`evidence/P6-FIRST-REGION-VERTICAL-SLICE/manifest.json`](evidence/P6-FIRST-REGION-VERTICAL-SLICE/manifest.json) — P6 full-region runtime/visual closeout evidence and independent evaluation provenance
 - [`docs/research/P7-golden-fields-production-expansion.md`](docs/research/P7-golden-fields-production-expansion.md) — P7 Golden Fields content-scaling research, initial node-budget failure and bounded-renderer repair
 - [`evidence/P7-GOLDEN-FIELDS/manifest.json`](evidence/P7-GOLDEN-FIELDS/manifest.json) — first P7 region-expansion runtime/economy/visual closeout evidence and independent evaluation provenance
+- [`docs/research/P7-rosewood-production-expansion.md`](docs/research/P7-rosewood-production-expansion.md) — P7 Rosewood woodland expansion research and bounded content-scaling contract
 - [`docs/templates/feature-research.md`](docs/templates/feature-research.md)
 - [`docs/templates/evidence-manifest.example.json`](docs/templates/evidence-manifest.example.json)
 - [`.agents/skills/`](.agents/skills/) — reusable agent execution checklists
@@ -178,7 +179,7 @@ Still open/tunable before downstream milestones lock production values:
 - Honey rewards/cost tables and pacing beyond the accepted Golden Fields path;
 - later Flight/Buzz effect curves and gate cadence beyond Buzz 3;
 - later player-plot count/placement and seed catalog/pacing beyond the validated first-region topology;
-- Wetland Garden, Rosewood, Alpine Bloom and Moon Garden authored content/tuning;
+- Rosewood authored content/tuning and its exact-head browser/evidence closeout; Alpine Bloom and Moon Garden authored content/tuning;
 - external novice comprehension/playtest evidence;
 - final production illustration/animation/typography and full-scene visual polish required to clear the P6/P7 art-direction deviation before release certification.
 
@@ -188,7 +189,7 @@ At P-1 closeout, repository enforcement was verified through ruleset `Protect ma
 
 ## Vertical-slice target
 
-P6 now proves the structural vertical-slice target: controllable movement, several flower difficulty tiers, one compact authored region, movement-through pollination, Honey economy, Flight/Buzz progression, seed ownership, visible restoration, save/reload, desktop + touch controls, local audio, accessibility settings, analytics abstraction and a production HTML5 build path. P7 Golden Fields shows that the same architecture can scale into a second authored region without a new core system or per-region game-world lifecycle. Exact stat/pacing values remain runtime-validated tunings rather than immutable values simply because they appeared in an early GDD.
+P6 now proves the structural vertical-slice target: controllable movement, several flower difficulty tiers, one compact authored region, movement-through pollination, Honey economy, Flight/Buzz progression, seed ownership, visible restoration, save/reload, desktop + touch controls, local audio, accessibility settings, analytics abstraction and a production HTML5 build path. P7 Golden Fields and the active Rosewood implementation show that the same architecture can scale into authored regions without a new core system or per-region game-world lifecycle. Exact stat/pacing values remain runtime-validated tunings rather than immutable values simply because they appeared in an early GDD.
 
 The remaining explicitly documented deviation is final illustration/animation/typography/full-scene polish; it does not invalidate the functional region architecture but must be resolved before release-candidate visual certification.
 
@@ -262,4 +263,8 @@ The first P7 HTML5 attempt failed with `Out of nodes (max 512)`. That failure wa
 
 Complete evidence is in [`docs/research/P7-golden-fields-production-expansion.md`](docs/research/P7-golden-fields-production-expansion.md), [`evidence/P7-GOLDEN-FIELDS/manifest.json`](evidence/P7-GOLDEN-FIELDS/manifest.json) and `evaluation.md`.
 
-**Next P7 production slice after Golden Fields merge: `Wetland Garden`. P7 remains IN PROGRESS.**
+**P7 — Production Expansion is IN PROGRESS; Golden Fields, Wetland Garden and Rosewood are accepted with independent verdict `PASS WITH DEVIATION`.**
+
+Rosewood adds `region_04` with Rose Glade, Bluebell Hollow, Cedar Turn and Woodland Crown. It reuses movement-through pollination, Honey, Flight/Buzz 3, restoration, save v4 and platform-neutral analytics. Exact retained evidence derives Rosewood at `0/4` from persisted regions 01–03, completes `4/4`, reloads all four campaign regions, moves Honey `1596→2506`, and records zero browser/page/external errors. The GUI budget remains `max_nodes: 512`, the nearby patch pool remains six slots, movement reaches the expanded bounds and the release bundle remains `2,818,788` bytes under the 12 MiB budget.
+
+The Rosewood research, manifest and independent evaluation are [docs/research/P7-rosewood-production-expansion.md](docs/research/P7-rosewood-production-expansion.md), [evidence/P7-ROSEWOOD/manifest.json](evidence/P7-ROSEWOOD/manifest.json) and [evidence/P7-ROSEWOOD/evaluation.md](evidence/P7-ROSEWOOD/evaluation.md). The remaining P7 region sequence is Alpine Bloom, then Moon Garden; final geometric illustration/animation/typography certification remains P8 work.

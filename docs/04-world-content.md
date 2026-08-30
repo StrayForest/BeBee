@@ -4,7 +4,7 @@
 
 This document owns canonical region/meadow/flower content structure. Economy values belong in `02-progression-economy.md`; global decision status belongs in `DECISIONS.md`.
 
-Later-region content remains proposal-level until the vertical slice is validated.
+Regions without an accepted P7 slice remain proposal-level; accepted slices are recorded in the production roadmap and their evidence manifests.
 
 ## 2. World structure
 
@@ -21,7 +21,7 @@ Planet
 
 Authoring gives better pacing, visual composition, tutorial control and performance predictability than an infinite procedural world.
 
-## 3. Canonical proposed region order
+## 3. Canonical region order
 
 To resolve the previous documentation contradiction, the current canonical proposal is:
 
@@ -32,8 +32,11 @@ To resolve the previous documentation contradiction, the current canonical propo
 5. **Alpine Bloom** — rock/snow/wind, alpine flower identity;
 6. **Moon Garden** — glowing/exotic finale.
 
-This order is recorded in `DECISIONS.md` as the current canonical proposal. Only Region 1 is production-relevant before P6 passes.
+This order is recorded in `DECISIONS.md` as the canonical production order. Sunny Meadows, Golden Fields, Wetland Garden and Rosewood are accepted authored slices; Alpine Bloom and Moon Garden remain proposal-level until their own P7 evidence is accepted.
 
+### Accepted Rosewood slice — region_04
+
+Rosewood is the accepted fourth region in the same continuous authored world. Its four Meadows are Rose Glade, Bluebell Hollow, Cedar Turn and Woodland Crown. Rose and Bluebell provide distinct species silhouettes; canopy, trunk, roots and arch landmarks provide woodland orientation; restoration remains the existing movement-through pollination loop with Buzz 3. No new currency, verb, lethal hazard, mandatory spend, procedural generation or per-region lifecycle is introduced. The slice evidence records 0/4 → 4/4, 1596 → 2506 Honey, save-v4 reload, region-scoped analytics, bounded movement/camera and six-slot patch presentation.
 ## 4. Region design rules
 
 A region should have:
