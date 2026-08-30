@@ -101,7 +101,7 @@ def record_rosewood(
         _assert_start(start)
 
         first = _patch(page, 17)
-        if first.get("state") != "AVAILABLE" or first.get("eligible") is not True:
+        if first.get("state") not in {"AVAILABLE", "ACTIVE"} or first.get("eligible") is not True:
             raise RuntimeError(f"P7 Rosewood first patch is not available: {first!r}")
         if first.get("flowerId") != "flower_rose" or int(first.get("requiresBuzzLevel", -1)) != 3:
             raise RuntimeError(f"P7 Rose Glade authored identity/gate invalid: {first!r}")
