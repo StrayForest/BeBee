@@ -226,6 +226,7 @@ def is_platform_sdk_url(url: object) -> bool:
         ".googlesyndication.com",
         ".jsdelivr.net",
         ".gstatic.com",
+        ".publishers.advertising.a2z.com",
         ".publisher-services.amazon.dev",
     )
     return any(hostname == suffix[1:] or hostname.endswith(suffix) for suffix in suffixes)
