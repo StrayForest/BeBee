@@ -170,7 +170,7 @@ end
 
 local function alpine_completion_activates_moon_garden()
     local save = progression.new_save()
-    for index = 1, 22 do
+    for index = 1, 24 do
         save.world.campaign_completion[catalog.patches[index].id] = true
     end
     test.assert_equal("region_06", region.active_id(save))
@@ -185,11 +185,11 @@ end
 
 local function moon_garden_is_content_chain_not_new_core_system()
     local save = progression.new_save()
-    for index = 1, 22 do
+    for index = 1, 24 do
         save.world.campaign_completion[catalog.patches[index].id] = true
     end
     save.player.upgrades.upgrade_buzz = 3
-    local first = catalog.patches[23]
+    local first = catalog.patches[25]
     test.assert_equal("r05_m04_patch_01", first.requires_patch_id)
     test.assert_equal("flower_night_lily", first.flower_id)
     test.assert_equal(3, first.requires_buzz_level)

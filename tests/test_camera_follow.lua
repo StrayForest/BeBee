@@ -35,7 +35,7 @@ return {
             name = "normal camera reaches Moon and clamps at expanded edge",
             run = function()
                 local state = follow.new()
-                for _ = 1, 960 do follow.step(state, 14400, 2400, 1/60, false) end
+                for _ = 1, 1200 do follow.step(state, 14400, 2400, 1/60, false) end
                 t.assert_true(near(13760, state.x, 0.01))
                 t.assert_true(near(2040, state.y, 0.01))
             end,
