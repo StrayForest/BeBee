@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "ticket": "P8-WORKFLOW-PROCESS",
+  "change_class": "process",
+  "problem": "Move the release-candidate workflow and decision-registry governance updates through the trusted process boundary without changing runtime behavior.",
+  "decision": {
+    "status_before": "OPEN",
+    "status_after": "VALIDATED",
+    "provenance_type": "TECH_CONSTRAINT",
+    "evidence_strength": "MEDIUM",
+    "selected_alternative": "trusted-governance-process-pr",
+    "rationale": "Governance-critical workflow and decision-registry changes are isolated from the player-facing release implementation and validated by the trusted base policy."
+  },
+  "governance": {
+    "trust_boundary_change": "Adds release-candidate evidence orchestration and records the P8 decision update while leaving trusted policy authority on the base branch.",
+    "bypass_analysis": "The process PR changes only governance-critical workflow/decision files and is classified process; the trusted workflow validates this manifest and the exact changed-file boundary.",
+    "rollback": "Revert the process PR to restore the prior P7 workflow and decision-registry state."
+  },
+  "official_docs": [
+    {
+      "source": "https://docs.github.com/en/actions",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Workflow files are repository-governed automation and must remain auditable."
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "trusted-governance-process-pr",
+      "disposition": "selected",
+      "reason": "Keeps governance changes in the process class required by the trusted boundary."
+    },
+    {
+      "id": "mix-governance-with-runtime-pr",
+      "disposition": "rejected",
+      "reason": "Would conflate process authority with player-facing runtime evidence."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Release workflow changes are isolated to governance-critical files.",
+      "status": "pass",
+      "evidence": ".github/workflows/defold-runtime-evidence.yml and pages-preview.yml diff"
+    },
+    {
+      "criterion": "Decision-registry governance is recorded with rollback and bypass analysis.",
+      "status": "pass",
+      "evidence": "DECISIONS.md and governance object in this manifest"
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Repository standards, Test/data, Pages preview and HTML5 CI run on the exact process head.",
+      "Trusted adversarial policy, evidence and trust-boundary checks run against the base policy."
+    ],
+    "manual": [
+      "Review changed-file boundary and rollback statement."
+    ],
+    "runtime_errors": "No runtime behavior changes are included in this process PR.",
+    "save_data_impact": "None; no save/data/runtime files are changed."
+  }
+}

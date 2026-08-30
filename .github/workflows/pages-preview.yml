@@ -36,6 +36,7 @@ jobs:
           python3 tools/defold/bundle_html5.py --mode release
           test -s build/html5/release/BeBee/index.html
           find build/html5/release/BeBee -type f -name '*.wasm' -print -quit | grep -q .
+          cp release/privacy-policy.html build/html5/release/BeBee/privacy-policy.html
           if find build/html5/release/BeBee -type l -print -quit | grep -q .; then
             echo "GitHub Pages artifact must not contain symbolic links" >&2
             exit 1
