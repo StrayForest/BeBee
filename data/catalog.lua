@@ -332,7 +332,6 @@ return {
             requires_patch_id = "r04_m03_patch_01",
             requires_buzz_level = 3,
         },
-    },
         {
             id = "r05_m01_patch_01",
             meadow_id = "r05_m01",
@@ -389,6 +388,7 @@ return {
             requires_patch_id = "r05_m03_patch_01",
             requires_buzz_level = 3,
         },
+    },
     upgrades = {
         {
             id = "upgrade_flight",
