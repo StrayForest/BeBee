@@ -9,6 +9,7 @@ local WORLD_H = 2400
 local FIRST_MEADOW = catalog.meadows[1]
 local PATCH_POOL_SIZE = 6
 local PATCH_VISIBILITY_MARGIN = 300
+local PATH_STEPS = 5
 
 local COLOR_GREEN = vmath.vector4(0.475, 0.788, 0.396, 1)
 local COLOR_DORMANT = vmath.vector4(0.588, 0.643, 0.478, 1)
@@ -359,8 +360,7 @@ local function create_meadow_marker(definition, index)
         definition = definition,
         zone = box(0, 0, index == 1 and 560 or 390, index == 1 and 470 or 340, vmath.vector4(0.90,0.85,0.55,0.10)),
         ring = box(0, 0, 250, 18, vmath.vector4(1,1,1,0.10)),
-        title_bg = box(0, 0, 240, 36, vmath.vector4(0.12,0.18,0.12,0.46)),
-        title = text_node(0, 0, definition.label or definition.id, 0.72),
+                title = text_node(0, 0, definition.label or definition.id, 0.72),
         landmark = text_node(0, 0, definition.landmark or "", 0.56),
     }
     gui.set_color(marker.landmark, vmath.vector4(1.0,0.90,0.66,0.86))
@@ -396,14 +396,13 @@ local function render_meadow_marker(marker, index, restored, camera_x, camera_y)
     gui.set_color(marker.ring, restored and vmath.vector4(COLOR_HONEY.x,COLOR_HONEY.y,COLOR_HONEY.z,0.56) or vmath.vector4(1,1,1,0.12))
     set_xy(marker.zone, sx, sy)
     set_xy(marker.ring, sx, sy - 145)
-    set_xy(marker.title_bg, sx, sy + 150)
     set_xy(marker.title, sx, sy + 150)
     set_xy(marker.landmark, sx, sy + 116)
 end
 
 local function create_path_nodes()
     local nodes = {}
-    for index = 1, (#catalog.meadows - 1) * 7 do nodes[index] = box(0, 0, 22, 12, COLOR_PATH) end
+    for index = 1, (#catalog.meadows - 1) * PATH_STEPS do nodes[index] = box(0, 0, 22, 12, COLOR_PATH) end
     return nodes
 end
 
@@ -412,8 +411,8 @@ local function render_paths(self, camera_x, camera_y)
     for meadow_index = 1, #catalog.meadows - 1 do
         local a = catalog.meadows[meadow_index]
         local b = catalog.meadows[meadow_index + 1]
-        for step = 1, 7 do
-            local t = step / 8
+        for step = 1, PATH_STEPS do
+            local t = step / (PATH_STEPS + 1)
             local wx = a.center_x + (b.center_x - a.center_x) * t
             local wy = a.center_y + (b.center_y - a.center_y) * t
             local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
