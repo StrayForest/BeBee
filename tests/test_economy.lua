@@ -50,6 +50,30 @@ local function golden_fields_requires_no_new_mandatory_spend_or_replay()
     test.assert_equal(3, save.player.upgrades.upgrade_buzz)
 end
 
+local function wetland_garden_requires_no_new_mandatory_spend_or_replay()
+    local save = progression.new_save()
+    for index = 1, 12 do save.world.campaign_completion[catalog.patches[index].id] = true end
+    save.player.upgrades.upgrade_flight = 3
+    save.player.upgrades.upgrade_buzz = 3
+    save.player.honey = 891 -- accepted Golden Fields max-first-sink end state
+
+    local expected = 891
+    for index = 13, 16 do
+        local patch = catalog.patches[index]
+        local eligible, reason = progression.patch_eligibility(save, patch)
+        test.assert_true(eligible, tostring(reason))
+        local completed = progression.complete_patch(save, patch)
+        test.assert_true(completed.ok)
+        expected = expected + patch.honey_reward
+        test.assert_equal(expected, save.player.honey)
+    end
+
+    test.assert_equal(1596, save.player.honey)
+    test.assert_true(region.summary(save, "region_03").complete)
+    test.assert_equal(3, save.player.upgrades.upgrade_flight)
+    test.assert_equal(3, save.player.upgrades.upgrade_buzz)
+end
+
 return {
     name = "economy",
     cases = {
@@ -57,5 +81,6 @@ return {
         { name = "negative_credit_is_rejected", run = negative_credit_is_rejected },
         { name = "spend_never_goes_negative", run = spend_never_goes_negative },
         { name = "golden_fields_requires_no_new_mandatory_spend_or_replay", run = golden_fields_requires_no_new_mandatory_spend_or_replay },
+        { name = "wetland_garden_requires_no_new_mandatory_spend_or_replay", run = wetland_garden_requires_no_new_mandatory_spend_or_replay },
     },
 }
