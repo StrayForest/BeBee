@@ -81,15 +81,44 @@ local function golden_fields_is_content_chain_not_new_core_system()
     test.assert_true(eligible, tostring(reason))
 end
 
+local function golden_fields_completion_activates_wetland_garden()
+    local save = progression.new_save()
+    for index = 1, 12 do
+        save.world.campaign_completion[catalog.patches[index].id] = true
+    end
+    test.assert_equal("region_03", region.active_id(save))
+    local summary = region.active_summary(save)
+    test.assert_equal("region_03", summary.id)
+    test.assert_equal(4, summary.total)
+    test.assert_equal(0, summary.restored_count)
+    test.assert_equal("r03_m01", summary.next_meadow_id)
+    test.assert_equal("RESTORE LOTUS LANDING · 0/4", region.active_objective_text(save))
+    test.assert_equal("region_03", region.region_id_for_meadow("r03_m03"))
+end
+
+local function wetland_garden_is_content_chain_not_new_core_system()
+    local save = progression.new_save()
+    for index = 1, 12 do
+        save.world.campaign_completion[catalog.patches[index].id] = true
+    end
+    save.player.upgrades.upgrade_buzz = 3
+    local first = catalog.patches[13]
+    test.assert_equal("r02_m04_patch_01", first.requires_patch_id)
+    test.assert_equal("flower_lotus", first.flower_id)
+    test.assert_equal(3, first.requires_buzz_level)
+    local eligible, reason = progression.patch_eligibility(save, first)
+    test.assert_true(eligible, tostring(reason))
+end
+
 local function completed_campaign_is_derived_across_regions()
     local save = progression.new_save()
     for _, patch in ipairs(catalog.patches) do save.world.campaign_completion[patch.id] = true end
     local campaign = region.campaign_summary(save)
     test.assert_true(campaign.complete)
-    test.assert_equal(2, campaign.completed_regions)
-    test.assert_equal(2, campaign.total_regions)
-    test.assert_equal("region_02", campaign.active_region_id)
-    test.assert_equal("GOLDEN FIELDS RESTORED · 4/4", region.active_objective_text(save))
+    test.assert_equal(3, campaign.completed_regions)
+    test.assert_equal(3, campaign.total_regions)
+    test.assert_equal("region_03", campaign.active_region_id)
+    test.assert_equal("WETLAND GARDEN RESTORED · 4/4", region.active_objective_text(save))
     test.assert_equal(nil, save.world.region_completion)
 end
 
@@ -102,6 +131,8 @@ return {
         { name = "completed_region_is_derived_not_saved_twice", run = completed_region_is_derived_not_saved_twice },
         { name = "sunny_meadows_completion_activates_golden_fields", run = sunny_meadows_completion_activates_golden_fields },
         { name = "golden_fields_is_content_chain_not_new_core_system", run = golden_fields_is_content_chain_not_new_core_system },
+        { name = "golden_fields_completion_activates_wetland_garden", run = golden_fields_completion_activates_wetland_garden },
+        { name = "wetland_garden_is_content_chain_not_new_core_system", run = wetland_garden_is_content_chain_not_new_core_system },
         { name = "completed_campaign_is_derived_across_regions", run = completed_campaign_is_derived_across_regions },
     },
 }
