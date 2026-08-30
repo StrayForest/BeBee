@@ -270,9 +270,9 @@
       "console_errors": 0,
       "page_errors": 0,
       "external_requests": 0,
-      "engine_fps": "59.92-59.95 observed across retained exact-head runs",
+      "engine_fps": ">=50 budget; 59.92-59.96 observed across retained exact-head runs",
       "min_engine_fps_budget": 50,
-      "release_bundle_bytes": "2817173-2817176 observed across retained exact-head runs",
+      "release_bundle_bytes": "<12582912 budget; 2817173-2817176 observed across retained exact-head runs",
       "release_bundle_budget_bytes": 12582912,
       "patch_pool_size": 6,
       "gui_max_nodes": 512
