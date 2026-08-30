@@ -30,27 +30,32 @@
       {
         "name": "A Short Hike",
         "source": "https://ashorthike.com/",
-        "relevance": "Hand-authored traversal uses landmarks and environmental composition to orient players without a dense navigation layer."
+        "relevance": "Hand-authored traversal uses landmarks and environmental composition to orient players without a dense navigation layer.",
+        "product_id": "a-short-hike"
       },
       {
         "name": "Alba: A Wildlife Adventure",
         "source": "https://www.albawildlife.com/",
-        "relevance": "Compact natural spaces differentiate habitats through local identity and low-pressure objectives."
+        "relevance": "Compact natural spaces differentiate habitats through local identity and low-pressure objectives.",
+        "product_id": "alba"
       },
       {
         "name": "Garden Life: A Cozy Simulator",
         "source": "https://store.steampowered.com/app/1915380/Garden_Life_A_Cozy_Simulator/",
-        "relevance": "Authored restoration areas make a useful comparison for content scaling and player expression."
+        "relevance": "Authored restoration areas make a useful comparison for content scaling and player expression.",
+        "product_id": "garden-life"
       },
       {
         "name": "Spiritfarer",
         "source": "https://thunderlotusgames.com/spiritfarer/",
-        "relevance": "Counter-model showing how management and relationship systems could overwhelm a small restoration slice."
+        "relevance": "Counter-model showing how management and relationship systems could overwhelm a small restoration slice.",
+        "product_id": "spiritfarer"
       },
       {
         "name": "Yonder: The Cloud Catcher Chronicles",
         "source": "https://www.yonderchronicles.com/",
-        "relevance": "Counter-model for broad biome exploration whose extra systems are intentionally outside this slice."
+        "relevance": "Counter-model for broad biome exploration whose extra systems are intentionally outside this slice.",
+        "product_id": "yonder"
       }
     ],
     "candidate_pool_exception": "",
@@ -65,7 +70,8 @@
         "measurements": {
           "authored_meadows": 4,
           "navigation_screens_added": 0
-        }
+        },
+        "product_id": "a-short-hike"
       },
       {
         "name": "Alba: A Wildlife Adventure / habitat distinction",
@@ -78,7 +84,8 @@
           "new_core_verbs": 0,
           "new_currencies": 0,
           "lethal_hazards": 0
-        }
+        },
+        "product_id": "alba"
       }
     ],
     "reference_exception": "",
