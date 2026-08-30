@@ -65,7 +65,7 @@ A materially different alternative considered was a combat-first zone loop with 
 
 The runtime loop is now:
 
-`home hive ightarrow active portal ightarrow compact zone ightarrow 3-beacon route ightarrow fenced flower pens ightarrow restore zone ightarrow timed return home`
+`home hive ightarrow active portal ightarrow compact zone ightarrow 3-beacon route ightarrow fenced flower pens ightarrow restore zone ightarrow timed return home`
 
 - The home garden exposes six portals. Only the next playable portal is active; later portals stay locked until the previous region is complete.
 - A zone starts with a three-checkpoint route puzzle. The checkpoints are ordered, wrong attempts have no penalty, and successful completion enables pollination.

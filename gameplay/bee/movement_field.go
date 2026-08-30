@@ -39,27 +39,27 @@ embedded_components {
 embedded_components {
   id: "pollen_chime"
   type: "sound"
-  data: "sound: "/assets/audio/pollen_chime.wav"\n"
+  data: "sound: \"/assets/audio/pollen_chime.wav\"\n"
   "looping: 0\n"
-  "group: "master"\n"
+  "group: \"master\"\n"
   "gain: 0.62\n"
   ""
 }
 embedded_components {
   id: "portal_whoosh"
   type: "sound"
-  data: "sound: "/assets/audio/portal_whoosh.wav"\n"
+  data: "sound: \"/assets/audio/portal_whoosh.wav\"\n"
   "looping: 0\n"
-  "group: "master"\n"
+  "group: \"master\"\n"
   "gain: 0.58\n"
   ""
 }
 embedded_components {
   id: "pest_alert"
   type: "sound"
-  data: "sound: "/assets/audio/pest_alert.wav"\n"
+  data: "sound: \"/assets/audio/pest_alert.wav\"\n"
   "looping: 0\n"
-  "group: "master"\n"
+  "group: \"master\"\n"
   "gain: 0.45\n"
   ""
 }
