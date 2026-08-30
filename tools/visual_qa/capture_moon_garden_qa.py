@@ -88,7 +88,7 @@ def _assert_start(payload: dict[str, object]) -> None:
         raise RuntimeError(f"P7 Moon Garden fixture Honey drifted: {payload!r}")
     if int(payload.get("flightLevel", -1)) != 3 or int(payload.get("buzzLevel", -1)) != 3:
         raise RuntimeError(f"P7 Moon Garden must reuse validated progression: {payload!r}")
-    if int(campaign.get("completed_regions", -1)) != 4 or int(campaign.get("total_regions", -1)) != 6:
+    if int(campaign.get("completed_regions", -1)) != 5 or int(campaign.get("total_regions", -1)) != 6:
         raise RuntimeError(f"P7 Moon Garden campaign transition invalid: {payload!r}")
 
 
