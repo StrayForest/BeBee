@@ -268,7 +268,6 @@ return {
             requires_patch_id = "r03_m03_patch_01",
             requires_buzz_level = 3,
         },
-    },
         {
             id = "r04_m01_patch_01",
             meadow_id = "r04_m01",
@@ -325,6 +324,7 @@ return {
             requires_patch_id = "r04_m03_patch_01",
             requires_buzz_level = 3,
         },
+    },
     upgrades = {
         {
             id = "upgrade_flight",
@@ -423,7 +423,6 @@ return {
                 "r03_m04",
             },
         },
-    },
         {
             id = "region_04",
             label = "ROSEWOOD",
@@ -434,6 +433,7 @@ return {
                 "r04_m04",
             },
         },
+    },
     meadows = {
         {
             id = "r01_m01",
