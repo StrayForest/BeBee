@@ -69,7 +69,7 @@ return {
             name = "Rosewood expanded edge is bounded without changing movement semantics",
             run = function()
                 local state = movement.new({ start_x = 6400, start_y = 1900 })
-                for _ = 1, 120 do movement.step(state, 1, 0, 1/60) end
+                for _ = 1, 720 do movement.step(state, 1, 0, 1/60) end
                 t.assert_true(near(9360, state.x, 0.01))
                 t.assert_true(near(0, state.vx, 0.01))
                 for _ = 1, 120 do movement.step(state, 0, 1, 1/60) end
