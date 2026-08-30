@@ -7,6 +7,11 @@ local ALLOWED = {
     meadow_restored = true,
     region_completed = true,
     settings_changed = true,
+    gameplay_start = true,
+    gameplay_stop = true,
+    gameplay_pause = true,
+    gameplay_resume = true,
+    gameplay_complete = true,
 }
 
 local function shallow_copy(source)

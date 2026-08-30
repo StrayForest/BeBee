@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "ticket": "P8-RELEASE-CANDIDATE",
+  "status": "VALIDATED",
+  "budgets": {
+    "poki_guidance_total_bundle_bytes": 8388608,
+    "crazygames_mobile_initial_bytes": 20971520,
+    "crazygames_total_bytes": 262144000,
+    "max_files": 1500,
+    "startup_ms": 10000
+  },
+  "required_checks": [
+    "release_bundle_exists",
+    "wasm_present",
+    "bundle_size",
+    "file_count",
+    "browser_smoke_pass",
+    "startup_budget",
+    "storage_release_bridges_absent",
+    "zero_console_page_network_errors",
+    "save_matrix_reported"
+  ],
+  "capture_matrix": {
+    "desktop_reference": [1280, 720],
+    "portal_large": [1031, 580],
+    "portal_medium": [836, 470],
+    "portal_small": [640, 360],
+    "mobile_landscape": [844, 390]
+  }
+}

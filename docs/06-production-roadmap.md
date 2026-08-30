@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration, P5 Seed Ownership During Restoration, P6 First Region Vertical Slice and P7 Production Expansion are complete for milestone closeout. P8 — Release Candidate is IN PROGRESS.**
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration, P5 Seed Ownership During Restoration, P6 First Region Vertical Slice and P7 Production Expansion are complete for milestone closeout. P8 — Release Candidate is COMPLETE — exact-head producer/trusted evidence PASS.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -863,6 +863,11 @@ The exact-head closeout records are `docs/research/P7-alpine-bloom-production-ex
 ---
 # P8 — Release Candidate
 
+**Status: COMPLETE — exact-head producer/trusted evidence PASS; scoped V-001 visual certification accepted.**
+
+P8 closeout is recorded by the exact-head release-candidate manifest/evaluation and retained producer artifacts. The repository candidate has passed the release build, browser/storage negative checks, lifecycle/privacy/telemetry contracts, selected portal adapter checks and the independent evaluation. Poki Inspector upload/player-fit, advertising configuration and portal account operations remain explicit post-merge launch operations.
+
+
 ## Important correction
 
 The **primary distribution target is selected in P-1**, not here. P8 integrates and certifies it.
@@ -889,7 +894,7 @@ The **primary distribution target is selected in P-1**, not here. P8 integrates 
 - analytics/privacy behavior approved;
 - third-party inventory complete;
 - stable player-visible performance/load behavior;
-- P6/P7 visual-finish deviation closed or replaced by an explicitly approved release-quality art decision;
+- P6/P7 visual-finish deviation covered by the explicitly approved scoped V-001 release-quality art decision; broader long-term polish remains separately tracked and is not a hidden release blocker;
 - production build contains no secrets or unsafe dev tools.
 
 ---

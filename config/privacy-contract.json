@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "ticket": "P8-RELEASE-CANDIDATE",
+  "status": "APPROVED_FOR_RELEASE_CANDIDATE",
+  "consent": {
+    "optional_telemetry": "deny_by_default",
+    "runtime_default": "denied",
+    "grant_api": "systems.privacy_consent.set_consent",
+    "no_personal_data": true
+  },
+  "operational_platform_events": {
+    "allowed_without_optional_telemetry_consent": true,
+    "events": ["gameplayStart", "gameplayStop"],
+    "reason": "Poki/CrazyGames gameplay lifecycle calls are platform operational events and contain no player identity or gameplay payload."
+  },
+  "optional_telemetry": {
+    "enabled_only_when": ["explicit_consent_granted", "provider_configuration_enabled"],
+    "provider": "platform_sdk_measure_only",
+    "payload_fields": ["category", "what", "action"],
+    "forbidden_fields": ["name", "email", "precise_location", "device_identifier", "raw_input", "auth_token"],
+    "retention": "provider_policy; BeBee stores no remote telemetry database"
+  },
+  "release_behavior": {
+    "release_settings_telemetry_enabled": false,
+    "release_without_consent_remains_playable": true,
+    "analytics_failure_does_not_block_gameplay": true,
+    "network_requests": "platform SDK only; no BeBee analytics endpoint"
+  }
+}

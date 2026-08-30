@@ -22,7 +22,17 @@ If license status is unclear, commercial use is not allowed, redistribution requ
 
 ## Incorporated / required third-party technology
 
-### Defold Engine
+#### Defold Poki SDK extension
+
+- Source: https://github.com/defold/extension-poki-sdk/archive/refs/tags/4.0.0.zip
+- Version: 4.0.0
+- Role: optional Poki HTML5 platform adapter and lifecycle integration
+- License: MIT — https://github.com/defold/extension-poki-sdk/blob/main/LICENSE
+- Commercial use: allowed under the license
+- Redistribution: allowed under MIT; retain the copyright and permission notice in portal bundles
+- Compliance note: BeBee keeps all Poki calls behind adapters/portal/poki.lua; direct-web and CrazyGames paths do not require the SDK.
+
+## Defold Engine
 
 - Source: https://github.com/defold/defold/releases/tag/1.13.1
 - Version: `1.13.1`

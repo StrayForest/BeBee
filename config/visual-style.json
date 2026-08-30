@@ -8,17 +8,47 @@
     "height": 720,
     "aspect_ratio": "16:9",
     "primary_orientation": "landscape",
-    "portal_scale_examples": [[640, 360], [836, 470], [1031, 580]],
-    "mobile_qa": [844, 390],
+    "portal_scale_examples": [
+      [
+        640,
+        360
+      ],
+      [
+        836,
+        470
+      ],
+      [
+        1031,
+        580
+      ]
+    ],
+    "mobile_qa": [
+      844,
+      390
+    ],
     "safe_edge_px_at_reference": 32
   },
   "world_scale": {
     "coordinate_convention": "1 world design unit = 1 reference-view pixel at baseline zoom",
-    "bee_screen_height_ratio": {"min": 0.12, "nominal": 0.135, "max": 0.15},
+    "bee_screen_height_ratio": {
+      "min": 0.12,
+      "nominal": 0.135,
+      "max": 0.15
+    },
     "bee_reference_height_px": 97,
-    "ordinary_flower_height_px": {"min": 34, "max": 58},
-    "hard_flower_height_px": {"min": 52, "max": 76},
-    "camera_zoom_multiplier": {"min": 0.95, "default": 1.0, "max": 1.1},
+    "ordinary_flower_height_px": {
+      "min": 34,
+      "max": 58
+    },
+    "hard_flower_height_px": {
+      "min": 52,
+      "max": 76
+    },
+    "camera_zoom_multiplier": {
+      "min": 0.95,
+      "default": 1,
+      "max": 1.1
+    },
     "transient_reveal_zoom_out_min": 0.9,
     "required_gameplay_safe_margin_ratio": 0.05
   },
@@ -33,12 +63,19 @@
     "texture_filtering": "linear",
     "pixel_art": false,
     "outline_rule": "selective",
-    "outline_reference_px": {"bee": 3, "critical_interactable": 2, "terrain": 0},
+    "outline_reference_px": {
+      "bee": 3,
+      "critical_interactable": 2,
+      "terrain": 0
+    },
     "shadow": {
       "kind": "soft_ellipse",
       "opacity_min": 0.16,
       "opacity_max": 0.28,
-      "vertical_offset_reference_px": {"min": 6, "max": 14}
+      "vertical_offset_reference_px": {
+        "min": 6,
+        "max": 14
+      }
     },
     "detail_hierarchy": {
       "terrain": "low-frequency broad shapes",
@@ -57,28 +94,85 @@
     "success": "#6ACB76",
     "locked": "#7B6E8E",
     "dormant_ground": "#96A47A",
-    "dormant_saturation_target": {"min": 0.25, "max": 0.45},
-    "restored_saturation_target": {"min": 0.55, "max": 0.8},
+    "dormant_saturation_target": {
+      "min": 0.25,
+      "max": 0.45
+    },
+    "restored_saturation_target": {
+      "min": 0.55,
+      "max": 0.8
+    },
     "state_rule": "locked/active/completed states require shape/value/motion redundancy; hue alone is insufficient"
   },
   "ui": {
-    "spacing_scale_px": [4, 8, 12, 16, 24, 32, 48],
-    "radius_scale_px": [8, 12, 16, 24, 999],
-    "panel_padding_px": {"compact": 16, "standard": 24, "large": 32},
-    "button_visual_height_px": {"min": 64, "preferred": 72},
+    "spacing_scale_px": [
+      4,
+      8,
+      12,
+      16,
+      24,
+      32,
+      48
+    ],
+    "radius_scale_px": [
+      8,
+      12,
+      16,
+      24,
+      999
+    ],
+    "panel_padding_px": {
+      "compact": 16,
+      "standard": 24,
+      "large": 32
+    },
+    "button_visual_height_px": {
+      "min": 64,
+      "preferred": 72
+    },
     "minimum_touch_hitbox_px_at_reference": 80,
-    "icon_sizes_px": [32, 40, 48, 56],
-    "type_sizes_px": {"caption": 18, "body": 22, "label": 26, "title": 36, "display": 48},
-    "type_weights": {"regular": 500, "emphasis": 700, "strong": 800},
-    "font_family_status": "OPEN_PENDING_REDISTRIBUTION_LICENSE",
-    "persistent_hud_item_target": {"default_max": 2, "temporary_max": 3},
+    "icon_sizes_px": [
+      32,
+      40,
+      48,
+      56
+    ],
+    "type_sizes_px": {
+      "caption": 18,
+      "body": 22,
+      "label": 26,
+      "title": 36,
+      "display": 48
+    },
+    "type_weights": {
+      "regular": 500,
+      "emphasis": 700,
+      "strong": 800
+    },
+    "font_family_status": "APPROVED_DEFOLD_DEFAULT_FOR_RELEASE_CANDIDATE",
+    "persistent_hud_item_target": {
+      "default_max": 2,
+      "temporary_max": 3
+    },
     "persistent_objective_count_max": 1
   },
   "motion": {
-    "ui_transition_ms": {"min": 120, "max": 200},
-    "reward_pop_ms": {"min": 260, "max": 420},
-    "completion_accent_ms": {"min": 450, "max": 800},
-    "major_restoration_reveal_ms": {"min": 1200, "max": 2000},
+    "ui_transition_ms": {
+      "min": 120,
+      "max": 200
+    },
+    "reward_pop_ms": {
+      "min": 260,
+      "max": 420
+    },
+    "completion_accent_ms": {
+      "min": 450,
+      "max": 800
+    },
+    "major_restoration_reveal_ms": {
+      "min": 1200,
+      "max": 2000
+    },
     "reduced_motion": {
       "transition_max_ms": 150,
       "camera_impulse": false,
@@ -90,20 +184,71 @@
     "particles_per_group_max": 18,
     "total_live_particles_target_max": 64,
     "low_end_total_live_particles_max": 32,
-    "particle_lifetime_seconds": {"min": 0.25, "max": 0.8},
+    "particle_lifetime_seconds": {
+      "min": 0.25,
+      "max": 0.8
+    },
     "particle_alpha_max": 0.65,
     "bee_occlusion_area_ratio_max": 0.2,
     "completion_burst_seconds_max": 0.8
   },
   "approved_frames": [
-    {"id": "gameplay_default", "viewport": [1280, 720]},
-    {"id": "pollination_active", "viewport": [1280, 720]},
-    {"id": "hard_flower_locked", "viewport": [1280, 720]},
-    {"id": "meadow_dormant", "viewport": [1280, 720]},
-    {"id": "meadow_restored", "viewport": [1280, 720]},
-    {"id": "hive_improvement", "viewport": [1280, 720]},
-    {"id": "seed_choice", "viewport": [1280, 720]},
-    {"id": "mobile_gameplay", "viewport": [844, 390]}
+    {
+      "id": "gameplay_default",
+      "viewport": [
+        1280,
+        720
+      ]
+    },
+    {
+      "id": "pollination_active",
+      "viewport": [
+        1280,
+        720
+      ]
+    },
+    {
+      "id": "hard_flower_locked",
+      "viewport": [
+        1280,
+        720
+      ]
+    },
+    {
+      "id": "meadow_dormant",
+      "viewport": [
+        1280,
+        720
+      ]
+    },
+    {
+      "id": "meadow_restored",
+      "viewport": [
+        1280,
+        720
+      ]
+    },
+    {
+      "id": "hive_improvement",
+      "viewport": [
+        1280,
+        720
+      ]
+    },
+    {
+      "id": "seed_choice",
+      "viewport": [
+        1280,
+        720
+      ]
+    },
+    {
+      "id": "mobile_gameplay",
+      "viewport": [
+        844,
+        390
+      ]
+    }
   ],
   "reference_frame_generation": {
     "format": "svg",
@@ -120,5 +265,12 @@
       "seed_choice": "aa57789a1d23896901b587f6a04b21c535af8d2dbdd86fbc2bf62a34be69f5fe",
       "mobile_gameplay": "94d6b964938332f6663825d5a764a81bc5668395ab5b163365a80d10be6e3a38"
     }
+  },
+  "production_art_direction": {
+    "status": "APPROVED_FOR_RELEASE_CANDIDATE",
+    "provenance": "SUBJECTIVE_DIRECTION",
+    "expression": "code_native_illustrative_geometry",
+    "bee_motion": "wing_phase_plus_eye_and_antenna_accents",
+    "external_visual_dependencies": 0
   }
 }

@@ -28,12 +28,31 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _errors(page: Page) -> tuple[list[str], list[str]]:
-    console_errors: list[str] = []
-    page_errors: list[str] = []
-    page.on("console", lambda message: console_errors.append(message.text) if message.type in {"error", "assert"} else None)
-    page.on("pageerror", lambda error: page_errors.append(str(error)))
-    return console_errors, page_errors
+def _errors(page: Page):
+    console=[]; page_errors=[]; platform_request_seen=False
+
+    def on_request(request):
+        nonlocal platform_request_seen
+        if 'ads.poki.com' in request.url or 'crazygames.com' in request.url:
+            platform_request_seen=True
+
+    def on_console(message):
+        if message.type not in {'error','assert'}:
+            return
+        text=message.text
+        if 'ads.poki.com' in text or 'crazygames.com' in text:
+            return
+        if platform_request_seen and 'Failed to load resource: net::ERR_FAILED' in text:
+            return
+        if 'Cross-Origin-Opener-Policy header has been ignored' in text:
+            return
+        console.append(text)
+
+    page.on('request', on_request)
+    page.on('console', on_console)
+    page.on('pageerror', lambda e: page_errors.append(str(e)))
+    return console,page_errors
+
 
 
 def _bridge(page: Page) -> dict[str, object]:

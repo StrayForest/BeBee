@@ -9,6 +9,8 @@ local progression = require "systems.progression"
 local analytics = require "systems.analytics"
 local analytics_adapter = require "adapters.analytics.console_adapter"
 local storage_service = require "systems.storage.storage_service"
+local portal = require "adapters.portal.service"
+local privacy = require "systems.privacy_consent"
 
 local MOVEMENT_EMPTY = "movement_empty"
 local MOVEMENT_DENSE = "movement_dense"
@@ -202,10 +204,20 @@ local function track(self, name, properties)
     if error_code then print("BEBEE_ANALYTICS rejected=" .. tostring(error_code)) end
 end
 
+local function portal_event(self, method, reason)
+    if not self.portal or type(portal[method]) ~= "function" then return end
+    local result = portal[method](self.portal, reason)
+    if result and result.ok == false then
+        print("BEBEE_PORTAL rejected=" .. tostring(result.code))
+    end
+end
+
 local function mark_first_input(self, input_name)
     if self.first_input_seen then return end
     self.first_input_seen = true
+    portal_event(self, "gameplay_start", input_name or "first_input")
     track(self, "first_input", { input = input_name or "unknown", region_id = runtime_region_id(self) })
+    track(self, "gameplay_start", { reason = input_name or "first_input", region_id = runtime_region_id(self) })
 end
 
 local function build_patch_states(self)
@@ -463,6 +475,8 @@ local function complete_patch(self, state)
     end
     if region_before and region_after and not region_before.complete and region_after.complete then
         track(self, "region_completed", { region_id = completed_region_id, honey_total = result.honey })
+        portal_event(self, "gameplay_complete", completed_region_id)
+        track(self, "gameplay_complete", { region_id = completed_region_id, honey_total = result.honey })
         pcall(sound.play, "#region_complete")
     else
         pcall(sound.play, "#pollination_complete")
@@ -806,6 +820,10 @@ local function update_runtime_bridge(self, force)
             analyticsEvents = analytics.snapshot(self.analytics),
             saveCode = self.last_save_code,
             saveDurability = self.last_save_durability,
+            portalTarget = self.portal and self.portal.target or "direct_web",
+            portalSdkAvailable = self.portal and self.portal.sdk_available == true or false,
+            portalLifecycleState = self.portal and portal.lifecycle_state(self.portal) or "unknown",
+            optionalTelemetryAllowed = self.privacy and privacy.telemetry_allowed(self.privacy) or false,
         }))
     end
 end
@@ -829,6 +847,8 @@ end
 local function open_progression(self)
     if self.progression_open or self.settings_open or not hive_nearby(self) then return false end
     self.progression_open = true
+    portal_event(self, "gameplay_stop", "progression_menu")
+    track(self, "gameplay_pause", { reason = "progression_menu", region_id = runtime_region_id(self) })
     self.selected_upgrade = "flight"
     input_model.clear(self.input)
     self.motion.vx = 0
@@ -924,6 +944,8 @@ local function open_settings(self)
     if self.settings_open or self.progression_open then return false end
     mark_first_input(self, "modal_toggle")
     self.settings_open = true
+    portal_event(self, "gameplay_stop", "settings_menu")
+    track(self, "gameplay_pause", { reason = "settings_menu", region_id = runtime_region_id(self) })
     self.selected_setting = "reduced_motion"
     input_model.clear(self.input)
     self.motion.vx = 0
@@ -979,6 +1001,13 @@ function init(self)
     self.first_input_seen = false
     self.pollination_enabled = not movement_only_qa(self.qa_state) and query_value("storage_test") == ""
     self.analytics = analytics.new(analytics_adapter)
+    self.privacy = privacy.new({
+        telemetry_enabled = sys.get_config_boolean("bebee.telemetry_enabled", false),
+    })
+    self.portal = portal.new({
+        target = sys.get_config_string("bebee.portal_target", "direct_web"),
+        telemetry_enabled = privacy.telemetry_allowed(self.privacy),
+    })
 
     load_progression(self)
 
@@ -1005,6 +1034,7 @@ function init(self)
 end
 
 function final(self)
+    portal_event(self, "gameplay_stop", "application_end")
     if self.qa_enabled and html5_available() then
         html5.run("delete window.__bebeeMovementQA; delete window.__bebeePollinationQA; delete window.__bebeeProgressionQA; delete window.__bebeeSeedQA; delete window.__bebeeRegionQA")
     end
@@ -1084,6 +1114,8 @@ function on_message(self, message_id, message)
     end
     if message_id == hash("settings_modal_closed") then
         self.settings_open = false
+        portal_event(self, "gameplay_start", "settings_resume")
+        track(self, "gameplay_resume", { reason = "settings_resume", region_id = runtime_region_id(self) })
         input_model.clear(self.input)
         send_view(self)
         update_runtime_bridge(self, true)
@@ -1114,6 +1146,8 @@ function on_message(self, message_id, message)
     end
     if message_id == hash("progression_modal_closed") then
         self.progression_open = false
+        portal_event(self, "gameplay_start", "progression_resume")
+        track(self, "gameplay_resume", { reason = "progression_resume", region_id = runtime_region_id(self) })
         input_model.clear(self.input)
         send_progression_view(self)
         send_seed_view(self)

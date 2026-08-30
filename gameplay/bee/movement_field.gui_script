@@ -623,7 +623,6 @@ function init(self)
     self.stripe_left = box(627, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, COLOR_DARK)
     self.stripe_right = box(648, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, COLOR_DARK)
     self.head = box(674, 360, 27 * BEE_SCALE, 42 * BEE_SCALE, COLOR_DARK)
-
     self.objective_bg = box(258, 664, 450, 48, vmath.vector4(0.12,0.18,0.12,0.58))
     self.objective = text_node(258, 664, "RESTORE FIRST PATCH · 0/6", 0.76)
     self.honey_bg = box(1120, 664, 220, 48, vmath.vector4(0.12,0.18,0.12,0.58))
@@ -887,15 +886,21 @@ function on_message(self, message_id, message)
     local speed_ratio = math.min(1, (message.speed or 0) / 360)
     local wing_lift = (10 + speed_ratio * 10) * BEE_SCALE
     local facing_left = (message.facing_x or 1) < 0
-    local head_offset = (facing_left and -35 or 35) * BEE_SCALE
+    local heading = facing_left and -1 or 1
+    local head_offset = heading * 35 * BEE_SCALE
+    local wing_phase = self.qa_enabled and 0 or math.sin((message.frame or 0) * 0.38)
+    local wing_sway = wing_phase * (3 + speed_ratio * 5) * BEE_SCALE
     set_xy(self.shadow, bee_x, bee_y - 31 * BEE_SCALE)
-    set_xy(self.wing_left, bee_x - 27 * BEE_SCALE, bee_y + wing_lift)
-    set_xy(self.wing_right, bee_x + 27 * BEE_SCALE, bee_y + wing_lift)
+    set_xy(self.wing_left, bee_x - 27 * BEE_SCALE, bee_y + wing_lift + wing_sway)
+    set_xy(self.wing_right, bee_x + 27 * BEE_SCALE, bee_y + wing_lift - wing_sway)
+    gui.set_rotation(self.wing_left, vmath.quat_rotation_z(-0.10 * wing_phase))
+    gui.set_rotation(self.wing_right, vmath.quat_rotation_z(0.10 * wing_phase))
+    gui.set_scale(self.wing_left, vmath.vector3(1, 1 + math.abs(wing_phase) * 0.10, 1))
+    gui.set_scale(self.wing_right, vmath.vector3(1, 1 + math.abs(wing_phase) * 0.10, 1))
     set_xy(self.body, bee_x, bee_y)
     set_xy(self.stripe_left, bee_x - 13 * BEE_SCALE, bee_y)
     set_xy(self.stripe_right, bee_x + 8 * BEE_SCALE, bee_y)
     set_xy(self.head, bee_x + head_offset, bee_y)
-
     local touch_active = message.touch_active == true
     gui.set_enabled(self.joy_base, touch_active)
     gui.set_enabled(self.joy_knob, touch_active)
