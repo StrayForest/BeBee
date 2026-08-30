@@ -4,7 +4,7 @@
 
 Do not advance because the calendar says so. Advance only when the milestone exit criteria pass.
 
-The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration, P5 Seed Ownership During Restoration and P6 First Region Vertical Slice are complete for milestone closeout. P7 — Production Expansion is IN PROGRESS: Golden Fields is the first accepted slice and Wetland Garden is the next production handoff.**
+The roadmap started with **P-1 Blueprint Hardening** because the audit found several early design assumptions that were written before the repository adopted research-first development. **P-1, P0 Foundation, P1 Bee Movement, P2 Pollination Core Loop, P3 Progression, P4 First Meadow Restoration, P5 Seed Ownership During Restoration and P6 First Region Vertical Slice are complete for milestone closeout. P7 — Production Expansion is IN PROGRESS: Golden Fields and Wetland Garden are accepted slices, and Rosewood is the active production handoff.**
 
 All milestone and merge gates are autonomous by default. No human review, approval, second GitHub account or manual action is required for phase progression.
 
@@ -706,7 +706,7 @@ P6 has the complete playable journey, critical-surface captures, objective measu
 
 # P7 — Production Expansion
 
-**Status: IN PROGRESS — Golden Fields accepted; Wetland Garden next.**
+**Status: IN PROGRESS — Golden Fields and Wetland Garden accepted; Rosewood in progress.**
 
 Scale proven content/system patterns only.
 
@@ -796,14 +796,13 @@ Complete Golden Fields records:
 
 The accepted runtime evidence is complete. The final closeout PR head must still repeat Repository standards, Test/data, Pages preview, HTML5 CI and trusted `validate-pr-evidence`, and retain a non-N/A `movement-qa-$PR_HEAD`, before merge.
 
-**Golden Fields slice: PASS WITH DEVIATION. P7 milestone remains IN PROGRESS. Next production slice after merge: Wetland Garden.**
+**Golden Fields slice: PASS WITH DEVIATION. P7 milestone remains IN PROGRESS. Wetland Garden is the second accepted slice; Rosewood is the active production handoff.**
 
 Remaining P7 region sequence:
 
-1. Wetland Garden;
-2. Rosewood;
-3. Alpine Bloom;
-4. Moon Garden.
+1. Rosewood — active;
+2. Alpine Bloom;
+3. Moon Garden.
 
 ---
 
