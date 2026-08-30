@@ -32,7 +32,7 @@ To resolve the previous documentation contradiction, the current canonical propo
 5. **Alpine Bloom** — rock/snow/wind, alpine flower identity;
 6. **Moon Garden** — glowing/exotic finale.
 
-This order is recorded in `DECISIONS.md` as the canonical production order. Sunny Meadows, Golden Fields, Wetland Garden and Rosewood are accepted authored slices; Alpine Bloom and Moon Garden remain proposal-level until their own P7 evidence is accepted.
+This order is recorded in `DECISIONS.md` as the canonical production order. Sunny Meadows, Golden Fields, Wetland Garden, Rosewood, Alpine Bloom and Moon Garden are accepted authored slices; their P7 evidence records the same continuous-world contract.
 
 ### Accepted Rosewood slice — region_04
 
