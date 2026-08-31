@@ -62,6 +62,16 @@ local function stage_definition(stage_id)
     return FIRST_MEADOW.restoration_stages[1]
 end
 
+local function garden_text(message)
+    local label = message.garden_label or "GARDEN SHOP"
+    if message.garden_purchased == true then return label .. " · ALL HOME UPGRADES OWNED" end
+    if message.garden_available ~= true then
+        if message.garden_reason == "requires_patch" then return label .. " · RESTORE MORE FLOWERS FIRST" end
+        if message.garden_reason == "insufficient_honey" then return label .. " · NEED " .. tostring(message.garden_cost or 0) .. " HONEY" end
+        return label .. " · LOCKED"
+    end
+    return label .. " · " .. tostring(message.garden_cost or 0) .. " HONEY · TAP TO BUY"
+end
 local function card_text(message, kind)
     local level = message[kind .. "_level"] or 1
     local cost = message[kind .. "_cost"] or 0
@@ -201,7 +211,7 @@ function init(self)
     self.panel = box(640, 360, 820, 430, DARK)
     self.title = text(640, 535, "HIVE IMPROVEMENTS", 1.28)
     self.balance = text(640, 493, "HONEY 0", 0.92)
-    self.help = text(640, 188, "A/D SELECT  ·  SPACE / ENTER BUY\nTAP CARD  ·  ESC CLOSE", 0.84)
+    self.help = text(640, 112, "A/D SELECT  ·  SPACE / ENTER BUY\nTAP CARD  ·  ESC CLOSE", 0.84)
     self.flight_card = box(435, 350, 330, 230, vmath.vector4(0.22,0.25,0.26,0.96))
     self.flight_title = text(435, 420, "FLIGHT", 1.15)
     self.flight_body = text(435, 350, "LEVEL 1", 1.00)
@@ -210,10 +220,14 @@ function init(self)
     self.buzz_title = text(845, 420, "BUZZ", 1.15)
     self.buzz_body = text(845, 350, "LEVEL 1", 1.00)
     self.buzz_note = text(845, 278, "POLLINATE HARDER FLOWERS", 0.82)
+    self.garden_card = box(640, 205, 700, 78, vmath.vector4(0.22,0.25,0.26,0.96))
+    self.garden_title = text(430, 222, "GARDEN SHOP", 0.92)
+    self.garden_body = text(745, 202, "SCENT LANTERN", 0.72)
     self.modal_nodes = {
         self.dim, self.panel, self.title, self.balance, self.help,
         self.flight_card, self.flight_title, self.flight_body, self.flight_note,
         self.buzz_card, self.buzz_title, self.buzz_body, self.buzz_note,
+        self.garden_card, self.garden_title, self.garden_body,
     }
     enable(self.modal_nodes, false)
     gui.set_enabled(self.hive_hint_bg, false)
@@ -276,8 +290,11 @@ function on_message(self, message_id, message)
     gui.set_text(self.balance, "HONEY " .. tostring(math.floor(message.honey or 0)))
     gui.set_text(self.flight_body, card_text(message, "flight"))
     gui.set_text(self.buzz_body, card_text(message, "buzz"))
+    gui.set_text(self.garden_body, garden_text(message))
     local selected = message.selected_upgrade or "flight"
     gui.set_color(self.flight_card, selected == "flight" and vmath.vector4(ACTIVE.x,ACTIVE.y,ACTIVE.z,0.42) or vmath.vector4(0.22,0.25,0.26,0.96))
     gui.set_color(self.buzz_card, selected == "buzz" and vmath.vector4(ACTIVE.x,ACTIVE.y,ACTIVE.z,0.42) or vmath.vector4(0.22,0.25,0.26,0.96))
+    gui.set_color(self.garden_card, selected == "garden" and vmath.vector4(HONEY.x,HONEY.y,HONEY.z,0.34) or vmath.vector4(0.22,0.25,0.26,0.96))
+    gui.set_color(self.garden_body, message.garden_available == true and CREAM or LOCKED)
     apply_restoration(self)
 end

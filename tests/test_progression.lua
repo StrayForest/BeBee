@@ -282,6 +282,39 @@ local function clean_save_can_reach_lily_without_replay_while_buying_every_p6_si
     test.assert_equal(3, save.player.upgrades.upgrade_buzz)
 end
 
+
+local function honey_sink_spend_is_persistent_and_safe()
+    local save = progression.new_save()
+    save.world.campaign_completion.r01_m01_patch_03 = true
+    save.player.honey = 100
+    local available, reason = progression.honey_sink_availability(save, "sink_scent_lantern")
+    test.assert_true(available)
+    test.assert_equal("available", reason)
+    local purchase = progression.purchase_honey_sink(save, "sink_scent_lantern")
+    test.assert_true(purchase.ok)
+    test.assert_equal(20, save.player.honey)
+    test.assert_true(progression.is_honey_sink_purchased(save, "sink_scent_lantern"))
+    local duplicate = progression.purchase_honey_sink(save, "sink_scent_lantern")
+    test.assert_false(duplicate.ok)
+    test.assert_equal("already_purchased", duplicate.code)
+    local valid, error_code = progression.validate_save(save)
+    test.assert_true(valid, error_code)
+end
+
+local function honey_sink_never_spends_when_locked_or_unaffordable()
+    local save = progression.new_save()
+    save.player.honey = 79
+    local locked = progression.purchase_honey_sink(save, "sink_scent_lantern")
+    test.assert_false(locked.ok)
+    test.assert_equal("requires_patch", locked.code)
+    test.assert_equal(79, save.player.honey)
+    save.world.campaign_completion.r01_m01_patch_03 = true
+    local poor = progression.purchase_honey_sink(save, "sink_scent_lantern")
+    test.assert_false(poor.ok)
+    test.assert_equal("insufficient_honey", poor.code)
+    test.assert_equal(79, save.player.honey)
+end
+
 local function settings_are_explicit_boolean_state()
     local save = progression.new_save()
     local reduced = progression.toggle_setting(save, "reduced_motion")
@@ -331,6 +364,8 @@ return {
         { name = "planted_species_requires_owned_seed", run = planted_species_requires_owned_seed },
         { name = "production_balance_preserves_p5_inputs_and_adds_p6_levels", run = production_balance_preserves_p5_inputs_and_adds_p6_levels },
         { name = "clean_save_can_reach_lily_without_replay_while_buying_every_p6_sink", run = clean_save_can_reach_lily_without_replay_while_buying_every_p6_sink },
+        { name = "honey_sink_spend_is_persistent_and_safe", run = honey_sink_spend_is_persistent_and_safe },
+        { name = "honey_sink_never_spends_when_locked_or_unaffordable", run = honey_sink_never_spends_when_locked_or_unaffordable },
         { name = "settings_are_explicit_boolean_state", run = settings_are_explicit_boolean_state },
         { name = "invalid_negative_honey_is_rejected", run = invalid_negative_honey_is_rejected },
         { name = "invalid_completion_value_is_rejected", run = invalid_completion_value_is_rejected },

@@ -29,6 +29,13 @@ local function player_plot_by_id(plot_id)
     return nil
 end
 
+local function honey_sink_by_id(sink_id)
+    for _, definition in ipairs(catalog.honey_sinks or {}) do
+        if definition.id == sink_id then return definition end
+    end
+    return nil
+end
+
 local function flower_exists(flower_id)
     for _, definition in ipairs(catalog.flowers or {}) do
         if definition.id == flower_id then return true end
@@ -77,6 +84,7 @@ function M.new_save()
         world = {
             campaign_completion = {},
             player_plants = {},
+            honey_spends = {},
         },
     }
 end
@@ -132,6 +140,15 @@ function M.validate_save(payload)
 
     local player_plants = payload.world.player_plants
     if type(player_plants) ~= "table" then return false, "player_plants_missing" end
+    if payload.world.honey_spends ~= nil then
+        if type(payload.world.honey_spends) ~= "table" then return false, "honey_spends_invalid" end
+        for sink_id, purchased in pairs(payload.world.honey_spends) do
+            if type(sink_id) ~= "string" or not honey_sink_by_id(sink_id) then
+                return false, "honey_spend_id_invalid"
+            end
+            if purchased ~= true then return false, "honey_spend_value_invalid" end
+        end
+    end
     for plot_id, flower_id in pairs(player_plants) do
         if type(plot_id) ~= "string" or not plot_id:match(PLAYER_PLOT_ID_PATTERN) or not player_plot_by_id(plot_id) then
             return false, "player_plant_plot_invalid"
@@ -209,6 +226,38 @@ function M.purchase_upgrade(save, upgrade_id)
         cost = next_level.cost,
         honey = save.player.honey,
     }
+end
+
+
+function M.is_honey_sink_purchased(save, sink_id)
+    return save and save.world and save.world.honey_spends and save.world.honey_spends[sink_id] == true
+end
+
+function M.honey_sink_availability(save, sink_id)
+    local sink = honey_sink_by_id(sink_id)
+    if not sink then return false, "sink_unknown" end
+    if M.is_honey_sink_purchased(save, sink_id) then return false, "already_purchased" end
+    if sink.available_after_patch_id and not M.is_patch_completed(save, sink.available_after_patch_id) then
+        return false, "requires_patch", sink.available_after_patch_id
+    end
+    if (save.player.honey or 0) < (sink.cost or 0) then
+        return false, "insufficient_honey", sink.cost
+    end
+    return true, "available", sink.cost
+end
+
+function M.purchase_honey_sink(save, sink_id)
+    local sink = honey_sink_by_id(sink_id)
+    if not sink then return { ok = false, code = "sink_unknown", honey = save.player.honey } end
+    local available, code, requirement = M.honey_sink_availability(save, sink_id)
+    if not available then
+        return { ok = false, code = code, requirement = requirement, honey = save.player.honey, cost = sink.cost }
+    end
+    local transaction = economy.spend(save.player, sink.cost, "honey_sink:" .. sink_id)
+    if not transaction.ok then return { ok = false, code = transaction.code, honey = save.player.honey, cost = sink.cost } end
+    save.world.honey_spends = save.world.honey_spends or {}
+    save.world.honey_spends[sink_id] = true
+    return { ok = true, code = "honey_sink_purchased", sink_id = sink_id, cost = sink.cost, honey = save.player.honey }
 end
 
 function M.flight_max_speed(save)

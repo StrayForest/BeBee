@@ -518,6 +518,81 @@ return {
             available_after_patch_id = "r01_m01_patch_02",
         },
     },
+    portals = {
+        { id = "portal_01", region_id = "region_01", label = "SUNNY MEADOWS", x = 840, y = 560, color = "sunny" },
+        { id = "portal_02", region_id = "region_02", label = "GOLDEN FIELDS", x = 1120, y = 560, color = "golden" },
+        { id = "portal_03", region_id = "region_03", label = "WETLAND GARDEN", x = 1400, y = 560, color = "wetland" },
+        { id = "portal_04", region_id = "region_04", label = "ROSEWOOD", x = 840, y = 1060, color = "rosewood" },
+        { id = "portal_05", region_id = "region_05", label = "ALPINE BLOOM", x = 1120, y = 1060, color = "alpine" },
+        { id = "portal_06", region_id = "region_06", label = "MOON GARDEN", x = 1400, y = 1060, color = "moon" },
+    },
+    puzzles = {
+        {
+            id = "puzzle_region_01", region_id = "region_01", label = "FOLLOW THE FIREFLIES",
+            hint = "FOLLOW THE THREE FIREFLIES", sequence = {
+                { x = 1370, y = 700, radius = 92 },
+                { x = 1760, y = 650, radius = 92 },
+                { x = 1610, y = 1000, radius = 92 },
+            },
+        },
+        {
+            id = "puzzle_region_02", region_id = "region_02", label = "TRACE THE SUN PATH",
+            hint = "TRACE THE SUN PATH", sequence = {
+                { x = 2500, y = 1170, radius = 96 },
+                { x = 2940, y = 1060, radius = 96 },
+                { x = 2860, y = 1440, radius = 96 },
+            },
+        },
+        {
+            id = "puzzle_region_03", region_id = "region_03", label = "WAKE THE WATER LANTERNS",
+            hint = "WAKE THE WATER LANTERNS", sequence = {
+                { x = 4580, y = 600, radius = 100 },
+                { x = 5010, y = 420, radius = 100 },
+                { x = 4940, y = 760, radius = 100 },
+            },
+        },
+        {
+            id = "puzzle_region_04", region_id = "region_04", label = "FOLLOW THE ROSE WIND",
+            hint = "FOLLOW THE ROSE WIND", sequence = {
+                { x = 6580, y = 680, radius = 104 },
+                { x = 7000, y = 420, radius = 104 },
+                { x = 7150, y = 820, radius = 104 },
+            },
+        },
+        {
+            id = "puzzle_region_05", region_id = "region_05", label = "READ THE SNOW FLAGS",
+            hint = "READ THE SNOW FLAGS", sequence = {
+                { x = 9400, y = 620, radius = 108 },
+                { x = 9800, y = 380, radius = 108 },
+                { x = 10020, y = 860, radius = 108 },
+            },
+        },
+        {
+            id = "puzzle_region_06", region_id = "region_06", label = "FOLLOW THE MOON MOTES",
+            hint = "FOLLOW THE MOON MOTES", sequence = {
+                { x = 11600, y = 700, radius = 112 },
+                { x = 12080, y = 420, radius = 112 },
+                { x = 12320, y = 840, radius = 112 },
+            },
+        },
+    },
+    honey_sinks = {
+        {
+            id = "sink_scent_lantern", label = "SCENT LANTERN", cost = 80,
+            description = "A brighter aromatic thread reaches farther pens.",
+            available_after_patch_id = "r01_m01_patch_03",
+        },
+        {
+            id = "sink_hive_garden", label = "HIVE GARDEN", cost = 120,
+            description = "Bring color and life back to the home garden.",
+            available_after_patch_id = "r01_m06_patch_01",
+        },
+        {
+            id = "sink_wildflower_bundle", label = "WILDFLOWER BUNDLE", cost = 160,
+            description = "Add a rotating wildflower bed to the hive.",
+            available_after_patch_id = "r02_m04_patch_01",
+        },
+    },
     regions = {
         {
             id = "region_01",

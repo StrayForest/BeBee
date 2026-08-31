@@ -3,11 +3,11 @@ local meadow = require "gameplay.world.meadow"
 
 local DESIGN_W = 1280
 local DESIGN_H = 720
-local BEE_SCALE = 2.0
+local BEE_SCALE = 1.4
 local WORLD_W = 14400
 local WORLD_H = 2400
 local FIRST_MEADOW = catalog.meadows[1]
-local PATCH_POOL_SIZE = 6
+local PATCH_POOL_SIZE = 2
 local PATCH_VISIBILITY_MARGIN = 300
 local PATH_STEPS = 4
 
@@ -51,6 +51,14 @@ local COLOR_MOON_DORMANT = vmath.vector4(0.25, 0.28, 0.48, 1)
 local COLOR_MOON_FIELD = vmath.vector4(0.56, 0.48, 0.82, 1)
 local COLOR_MOON_ROCK = vmath.vector4(0.22, 0.18, 0.34, 0.90)
 local COLOR_MOON_GLOW = vmath.vector4(0.78, 0.82, 1.0, 0.92)
+local COLOR_WOOD_LIGHT = vmath.vector4(0.58, 0.38, 0.20, 0.92)
+local COLOR_WOOD_DARK = vmath.vector4(0.24, 0.16, 0.12, 0.94)
+local COLOR_SCENT = vmath.vector4(1.0, 0.86, 0.36, 0.88)
+local COLOR_PUZZLE = vmath.vector4(0.58, 0.88, 1.0, 0.92)
+local COLOR_PEST = vmath.vector4(0.34, 0.22, 0.28, 0.94)
+local COLOR_PEST_EYE = vmath.vector4(1.0, 0.78, 0.32, 1)
+local COLOR_HOME_GROUND = vmath.vector4(0.42, 0.70, 0.36, 0.48)
+local COLOR_HOME_ROOF = vmath.vector4(0.45, 0.26, 0.18, 0.94)
 
 local FLOWER_OFFSETS = {
     { -118, -54 }, { -102, 74 }, { 0, 118 }, { 104, 72 }, { 118, -56 },
@@ -59,6 +67,14 @@ local FLOWER_OFFSETS = {
 local function box(x, y, w, h, color)
     local node = gui.new_box_node(vmath.vector3(x, y, 0), vmath.vector3(w, h, 0))
     gui.set_color(node, color)
+    return node
+end
+
+local function circle(x, y, w, h, color)
+    local node = gui.new_pie_node(vmath.vector3(x, y, 0), vmath.vector3(w, h, 0))
+    gui.set_color(node, color)
+    gui.set_outer_bounds(node, gui.PIEBOUNDS_ELLIPSE)
+    gui.set_perimeter_vertices(node, 20)
     return node
 end
 
@@ -191,7 +207,8 @@ end
 local function create_flower()
     return {
         stem = box(0, 0, 6, 34, vmath.vector4(0.243,0.510,0.278,0.92)),
-        center = box(0, 0, 13, 13, COLOR_HONEY),
+        leaf = box(0, 0, 20, 8, COLOR_GREEN),
+        center = circle(0, 0, 13, 13, COLOR_HONEY),
         petal_left = box(0, 0, 9, 12, COLOR_DAISY),
         petal_right = box(0, 0, 9, 12, COLOR_DAISY),
         petal_top = box(0, 0, 12, 9, COLOR_DAISY),
@@ -201,10 +218,19 @@ end
 
 local function create_patch_visual()
     local patch = {
-        halo = box(0, 0, 300, 260, vmath.vector4(1,1,1,0.05)),
-        progress_bg = box(0, 0, 184, 16, vmath.vector4(0.12,0.18,0.12,0.36)),
+        pen_ground = circle(0, 0, 330, 230, vmath.vector4(0.30,0.50,0.28,0.26)),
+        halo = circle(0, 0, 360, 260, vmath.vector4(1,1,1,0.05)),
+        progress_bg = box(0, 0, 184, 16, vmath.vector4(0.12,0.18,0.12,0.58)),
         progress_fill = box(0, 0, 180, 10, COLOR_ACTIVE),
         lock_text = text_node(0, 0, "LOCKED", 0.82),
+        fence = {
+            left = box(0, 0, 10, 170, COLOR_WOOD_DARK),
+            right = box(0, 0, 10, 170, COLOR_WOOD_DARK),
+            top = box(0, 0, 350, 10, COLOR_WOOD_LIGHT),
+            bottom = box(0, 0, 350, 10, COLOR_WOOD_LIGHT),
+            post_left = box(0, 0, 16, 198, COLOR_WOOD_DARK),
+            post_right = box(0, 0, 16, 198, COLOR_WOOD_DARK),
+        },
         flowers = {},
     }
     for index = 1, #FLOWER_OFFSETS do patch.flowers[index] = create_flower() end
@@ -313,12 +339,18 @@ local function set_flower_visual(flower, wx, wy, camera_x, camera_y, bloom, lock
     gui.set_color(flower.petal_bottom, petal)
 
     set_xy(flower.stem, sx, sy - 18)
+    set_xy(flower.leaf, sx + 9, sy - 18)
+    gui.set_rotation(flower.leaf, vmath.quat_rotation_z(0.36))
     set_xy(flower.center, sx, sy)
     set_xy(flower.petal_left, sx - spread_x, sy)
     set_xy(flower.petal_right, sx + spread_x, sy)
     set_xy(flower.petal_top, sx, sy + spread_y)
     set_xy(flower.petal_bottom, sx, sy - spread_y)
 
+    gui.set_rotation(flower.petal_left, vmath.quat_rotation_z(-0.34))
+    gui.set_rotation(flower.petal_right, vmath.quat_rotation_z(0.34))
+    gui.set_rotation(flower.petal_top, vmath.quat_rotation_z(0))
+    gui.set_rotation(flower.petal_bottom, vmath.quat_rotation_z(0))
     set_size(flower.center, center_size, center_size)
     set_size(flower.petal_left, side_w, side_h)
     set_size(flower.petal_right, side_w, side_h)
@@ -331,10 +363,12 @@ local function set_flower_visual(flower, wx, wy, camera_x, camera_y, bloom, lock
 end
 
 local function render_patch(patch, definition, state, progress, camera_x, camera_y, visible)
+    gui.set_enabled(patch.pen_ground, visible)
     gui.set_enabled(patch.halo, visible)
     gui.set_enabled(patch.progress_bg, visible and state == "ACTIVE")
     gui.set_enabled(patch.progress_fill, visible and state == "ACTIVE")
-    gui.set_enabled(patch.lock_text, visible and state == "LOCKED")
+    gui.set_enabled(patch.lock_text, visible and (state == "LOCKED" or state == "COMPLETED"))
+    for _, rail in pairs(patch.fence) do gui.set_enabled(rail, visible) end
     for _, flower in ipairs(patch.flowers) do
         for _, node in pairs(flower) do gui.set_enabled(node, visible) end
     end
@@ -356,28 +390,57 @@ local function render_patch(patch, definition, state, progress, camera_x, camera
     end
     gui.set_color(patch.halo, halo_color)
     set_xy(patch.halo, sx, sy)
-
+    local pen_w = math.min(420, (definition.radius or 180) * 1.55)
+    local pen_h = pen_w * 0.68
+    gui.set_color(patch.pen_ground, completed_state and vmath.vector4(COLOR_HOME_GROUND.x,COLOR_HOME_GROUND.y,COLOR_HOME_GROUND.z,0.56)
+        or locked and vmath.vector4(0.28,0.30,0.36,0.34)
+        or vmath.vector4(0.33,0.58,0.32,0.42))
+    set_xy(patch.pen_ground, sx, sy - 12)
+    set_size(patch.pen_ground, pen_w, pen_h)
+    set_size(patch.fence.left, 10, pen_h)
+    set_size(patch.fence.right, 10, pen_h)
+    set_size(patch.fence.top, pen_w, 10)
+    set_size(patch.fence.bottom, pen_w, 10)
+    set_size(patch.fence.post_left, 16, pen_h + 28)
+    set_size(patch.fence.post_right, 16, pen_h + 28)
+    set_xy(patch.fence.left, sx - pen_w * 0.5, sy - 12)
+    set_xy(patch.fence.right, sx + pen_w * 0.5, sy - 12)
+    set_xy(patch.fence.top, sx, sy + pen_h * 0.5 - 12)
+    set_xy(patch.fence.bottom, sx, sy - pen_h * 0.5 - 12)
+    set_xy(patch.fence.post_left, sx - pen_w * 0.42, sy - 12)
+    set_xy(patch.fence.post_right, sx + pen_w * 0.42, sy - 12)
     local petal_color = flower_color(definition.flower_id)
-    for index, offset in ipairs(FLOWER_OFFSETS) do
-        set_flower_visual(
-            patch.flowers[index], definition.x + offset[1], definition.y + offset[2], camera_x, camera_y,
-            bloom, locked, petal_color, definition.flower_id
-        )
+    local flower_count = 3 + (math.abs(math.floor((definition.x or 0) * 3 + (definition.y or 0))) % 3)
+    for index, flower in ipairs(patch.flowers) do
+        local flower_visible = index <= flower_count
+        for _, node in pairs(flower) do gui.set_enabled(node, visible and flower_visible) end
+        if flower_visible then
+            local angle = (index - 1) * (math.pi * 2 / flower_count) + (math.abs(definition.y or 0) % 17) * 0.03
+            local fx = definition.x + math.cos(angle) * pen_w * 0.27
+            local fy = definition.y + math.sin(angle) * pen_h * 0.27
+            set_flower_visual(flower, fx, fy, camera_x, camera_y, bloom, locked, petal_color, definition.flower_id)
+        end
     end
 
-    local bar_y = sy + 146
+    local bar_y = sy - pen_h * 0.66
     local width = 180 * math.max(0, math.min(1, progress))
     set_xy(patch.progress_bg, sx, bar_y)
     set_size(patch.progress_fill, math.max(1, width), 10)
     set_xy(patch.progress_fill, sx - 90 + math.max(1, width) * 0.5, bar_y)
-    set_xy(patch.lock_text, sx, bar_y)
+    set_xy(patch.lock_text, sx, bar_y - 30)
+    gui.set_text(patch.lock_text, locked and "LOCKED" or completed_state and "BLOOMED" or "")
 end
 
-local function nearby_patch_indices(camera_x, camera_y)
+local function nearby_patch_indices(camera_x, camera_y, region_id)
     local candidates = {}
     for index, definition in ipairs(catalog.patches) do
+        local patch_region_id
+        for _, meadow_definition in ipairs(catalog.meadows or {}) do
+            if meadow_definition.id == definition.meadow_id then patch_region_id = meadow_definition.region_id break end
+        end
+        local region_match = not region_id or patch_region_id == region_id
         local sx, sy = world_to_screen(definition.x, definition.y, camera_x, camera_y)
-        if sx >= -PATCH_VISIBILITY_MARGIN and sx <= DESIGN_W + PATCH_VISIBILITY_MARGIN
+        if region_match and sx >= -PATCH_VISIBILITY_MARGIN and sx <= DESIGN_W + PATCH_VISIBILITY_MARGIN
             and sy >= -PATCH_VISIBILITY_MARGIN and sy <= DESIGN_H + PATCH_VISIBILITY_MARGIN then
             local dx = sx - DESIGN_W * 0.5
             local dy = sy - DESIGN_H * 0.5
@@ -391,9 +454,9 @@ end
 local function create_meadow_marker(definition, index)
     local marker = {
         definition = definition,
-        zone = box(0, 0, index == 1 and 560 or 390, index == 1 and 470 or 340, vmath.vector4(0.90,0.85,0.55,0.10)),
-        ring = box(0, 0, 250, 18, vmath.vector4(1,1,1,0.10)),
-                title = text_node(0, 0, definition.label or definition.id, 0.72),
+        zone = circle(0, 0, index == 1 and 560 or 390, index == 1 and 470 or 340, vmath.vector4(0.90,0.85,0.55,0.10)),
+        ring = circle(0, 0, 250, 18, vmath.vector4(1,1,1,0.10)),
+        title = text_node(0, 0, definition.label or definition.id, 0.72),
         landmark = text_node(0, 0, definition.landmark or "", 0.56),
     }
     gui.set_color(marker.landmark, vmath.vector4(1.0,0.90,0.66,0.86))
@@ -434,6 +497,7 @@ local function render_meadow_marker(marker, index, restored, camera_x, camera_y)
     set_xy(marker.zone, sx, sy)
     set_xy(marker.ring, sx, sy - 145)
     set_xy(marker.title, sx, sy + 150)
+    gui.set_text(marker.landmark, (definition.landmark or "") ~= (definition.label or "") and (definition.landmark or "") or "")
     set_xy(marker.landmark, sx, sy + 116)
 end
 
@@ -487,11 +551,139 @@ local function render_settings(self, message)
         message.selected_setting == "audio_muted" and vmath.vector4(COLOR_HONEY.x,COLOR_HONEY.y,COLOR_HONEY.z,0.24) or vmath.vector4(1,1,1,0.06))
 end
 
+
+local function portal_state_at(message, index)
+    local states = message.portal_states or ""
+    return string.sub(states, index, index)
+end
+
+local function render_home(self, visible, camera_x, camera_y)
+    gui.set_enabled(self.home_ground, visible)
+    gui.set_enabled(self.home_path, visible)
+    gui.set_enabled(self.home_house, visible)
+    gui.set_enabled(self.home_roof, visible)
+    gui.set_enabled(self.home_hive, visible)
+    if not visible then return end
+    local hx, hy = world_to_screen(1120, 800, camera_x, camera_y)
+    set_xy(self.home_ground, hx, hy)
+    set_xy(self.home_path, hx, hy - 16)
+    set_xy(self.home_house, hx, hy + 20)
+    set_xy(self.home_roof, hx, hy + 96)
+    set_xy(self.home_hive, hx, hy - 68)
+end
+
+local function render_portals(self, message, camera_x, camera_y, visible)
+    for index, marker in ipairs(self.portal_markers or {}) do
+        local definition = catalog.portals and catalog.portals[index]
+        local state = portal_state_at(message, index)
+        local enabled = visible and definition ~= nil
+        for _, node in pairs(marker) do gui.set_enabled(node, enabled) end
+        if enabled then
+            local sx, sy = world_to_screen(definition.x, definition.y, camera_x, camera_y)
+            local active = state == "A"
+            local restored = state == "R"
+            local color = restored and COLOR_SUCCESS or active and COLOR_HONEY or COLOR_LOCKED
+            set_xy(marker.halo, sx, sy)
+            set_xy(marker.core, sx, sy)
+            set_xy(marker.gate_left, sx - 62, sy)
+            set_xy(marker.gate_right, sx + 62, sy)
+            set_xy(marker.gate_top, sx, sy + 52)
+            set_size(marker.gate_left, 10, 96)
+            set_size(marker.gate_right, 10, 96)
+            set_size(marker.gate_top, 134, 10)
+            gui.set_color(marker.halo, vmath.vector4(color.x, color.y, color.z, active and 0.26 or 0.13))
+            gui.set_color(marker.core, vmath.vector4(color.x, color.y, color.z, active and 0.90 or 0.52))
+            gui.set_color(marker.gate_left, active and COLOR_WOOD_LIGHT or COLOR_WOOD_DARK)
+            gui.set_color(marker.gate_right, active and COLOR_WOOD_LIGHT or COLOR_WOOD_DARK)
+            gui.set_color(marker.gate_top, active and COLOR_WOOD_LIGHT or COLOR_WOOD_DARK)
+            gui.set_text(marker.label, definition.label .. (active and " · ENTER" or restored and " · RESTORED" or " · LOCKED"))
+            set_xy(marker.label, sx, sy + 78)
+        end
+    end
+end
+
+local function render_puzzle(self, message, camera_x, camera_y, visible)
+    local definition
+    for _, candidate in ipairs(catalog.puzzles or {}) do
+        if candidate.region_id == message.zone_region_id then definition = candidate break end
+    end
+    local sequence = definition and definition.sequence or {}
+    local completed_count = math.floor(((message.zone_puzzle_progress or 0) / 100) * #sequence + 0.01)
+    local puzzle_visible = visible and message.zone_puzzle_solved ~= true and definition ~= nil
+    for index, marker in ipairs(self.puzzle_markers or {}) do
+        local point = sequence[index]
+        local enabled = puzzle_visible and point ~= nil
+        for _, node in pairs(marker) do gui.set_enabled(node, enabled) end
+        if enabled then
+            local sx, sy = world_to_screen(point.x, point.y, camera_x, camera_y)
+            local current = index == completed_count + 1
+            set_xy(marker.ring, sx, sy)
+            set_xy(marker.core, sx, sy)
+            gui.set_color(marker.ring, current and COLOR_PUZZLE or vmath.vector4(COLOR_PUZZLE.x,COLOR_PUZZLE.y,COLOR_PUZZLE.z,0.26))
+            gui.set_color(marker.core, current and COLOR_HONEY or vmath.vector4(COLOR_PUZZLE.x,COLOR_PUZZLE.y,COLOR_PUZZLE.z,0.62))
+        end
+    end
+    gui.set_enabled(self.puzzle_label, puzzle_visible)
+    if puzzle_visible then
+        set_xy(self.puzzle_label, DESIGN_W * 0.5, 94)
+        gui.set_text(self.puzzle_label, definition.label .. " · " .. tostring(math.min(completed_count + 1, #sequence)) .. "/" .. tostring(#sequence))
+    end
+end
+
+local function render_scent(self, message, camera_x, camera_y, visible)
+    local target_x, target_y = message.guidance_x, message.guidance_y
+    local frame = self.qa_enabled and 0 or (message.frame or 0)
+    local scent_visible = visible and target_x ~= nil and target_y ~= nil
+    for index, node in ipairs(self.scent_nodes or {}) do
+        gui.set_enabled(node, scent_visible)
+        if scent_visible then
+            local t = index / (#self.scent_nodes + 1)
+            local wx = (message.bee_x or target_x) + (target_x - (message.bee_x or target_x)) * t
+            local wy = (message.bee_y or target_y) + (target_y - (message.bee_y or target_y)) * t
+            wy = wy + math.sin(frame * 0.06 + index) * 12
+            local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
+            set_xy(node, sx, sy)
+            gui.set_color(node, vmath.vector4(COLOR_SCENT.x, COLOR_SCENT.y, COLOR_SCENT.z, 0.34 + t * 0.46))
+        end
+    end
+end
+
+local function render_pests(self, message, camera_x, camera_y, visible)
+    local frame = self.qa_enabled and 0 or (message.frame or 0)
+    local base
+    for _, definition in ipairs(catalog.patches or {}) do
+        local meadow_definition
+        for _, candidate in ipairs(catalog.meadows or {}) do
+            if candidate.id == definition.meadow_id then meadow_definition = candidate break end
+        end
+        if meadow_definition and meadow_definition.region_id == message.zone_region_id then base = definition break end
+    end
+    for index, marker in ipairs(self.pest_nodes or {}) do
+        local enabled = visible and base ~= nil
+        for _, node in pairs(marker) do gui.set_enabled(node, enabled) end
+        if enabled then
+            local angle = frame * (0.014 + index * 0.002) + index * 2.17
+            local wx = base.x + math.cos(angle) * (190 + index * 42)
+            local wy = base.y + math.sin(angle * 1.17) * (130 + index * 28)
+            local sx, sy = world_to_screen(wx, wy, camera_x, camera_y)
+            set_xy(marker.body, sx, sy)
+            set_xy(marker.eye, sx + 6, sy + 3)
+            gui.set_color(marker.body, message.pest_alert == true and COLOR_HONEY or COLOR_PEST)
+        end
+    end
+end
+
 function init(self)
     self.qa_enabled = sys.get_config_boolean("bebee.qa_enabled", false)
     self.hud_hidden = self.qa_enabled and query_value("hud_hidden") == "1"
     self.patch3_completed = false
     self.background = box(640, 360, 1280, 720, COLOR_GREEN)
+    self.home_ground = circle(0, 0, 760, 500, COLOR_HOME_GROUND)
+    self.home_path = box(0, 0, 560, 34, COLOR_PATH)
+    self.home_house = box(0, 0, 220, 132, vmath.vector4(0.78,0.62,0.38,0.94))
+    self.home_roof = box(0, 0, 270, 44, COLOR_HOME_ROOF)
+    self.home_hive = circle(0, 0, 94, 76, COLOR_HONEY)
+    for _, node in ipairs({self.home_ground, self.home_path, self.home_house, self.home_roof, self.home_hive}) do gui.set_enabled(node, false) end
 
     self.decorations = {}
     local points = {
@@ -554,19 +746,20 @@ function init(self)
         local dark = index % 3 == 0
         local color
         if moon then
-            color = dark and vmath.vector4(0.20,0.18,0.36,0.78) or vmath.vector4(0.72,0.70,0.96,0.66)
+            color = dark and vmath.vector4(0.20,0.18,0.36,0.18) or vmath.vector4(0.72,0.70,0.96,0.13)
         elseif alpine then
-            color = dark and vmath.vector4(0.30,0.38,0.48,0.76) or vmath.vector4(0.78,0.90,0.96,0.68)
+            color = dark and vmath.vector4(0.30,0.38,0.48,0.20) or vmath.vector4(0.78,0.90,0.96,0.14)
         elseif rosewood then
-            color = dark and vmath.vector4(0.18,0.30,0.19,0.76) or vmath.vector4(0.58,0.78,0.48,0.62)
+            color = dark and vmath.vector4(0.18,0.30,0.19,0.18) or vmath.vector4(0.58,0.78,0.48,0.13)
         elseif wetland then
-            color = dark and vmath.vector4(0.20,0.46,0.42,0.72) or vmath.vector4(0.70,0.90,0.76,0.60)
+            color = dark and vmath.vector4(0.20,0.46,0.42,0.18) or vmath.vector4(0.70,0.90,0.76,0.13)
         elseif golden then
-            color = dark and vmath.vector4(0.48,0.38,0.18,0.68) or vmath.vector4(1.0,0.88,0.48,0.62)
+            color = dark and vmath.vector4(0.48,0.38,0.18,0.18) or vmath.vector4(1.0,0.88,0.48,0.13)
         else
-            color = dark and vmath.vector4(0.243,0.510,0.278,0.72) or vmath.vector4(1.0,0.969,0.91,0.55)
+            color = dark and vmath.vector4(0.243,0.510,0.278,0.18) or vmath.vector4(1.0,0.969,0.91,0.12)
         end
-        local node = box(0, 0, dark and 18 or 13, dark and 28 or 20, color)
+        local node = circle(0, 0, dark and 120 or 74, dark and 72 or 42, color)
+        gui.set_rotation(node, vmath.quat_rotation_z(((index % 5) - 2) * 0.12))
         self.decorations[index] = { node = node, x = point[1], y = point[2], golden = golden, wetland = wetland, rosewood = rosewood, alpine = alpine, moon = moon }
     end
 
@@ -613,18 +806,57 @@ function init(self)
     self.moon_ring = box(0, 0, 250, 18, COLOR_MOON_GLOW)
     self.moon_crystal = box(0, 0, 48, 170, COLOR_MOON_ROCK)
 
+    self.portal_markers = {}
+    for index = 1, #(catalog.portals or {}) do
+        self.portal_markers[index] = {
+            halo = circle(0, 0, 170, 170, COLOR_HONEY),
+            core = circle(0, 0, 74, 74, COLOR_HONEY),
+            gate_left = box(0, 0, 10, 96, COLOR_WOOD_DARK),
+            gate_right = box(0, 0, 10, 96, COLOR_WOOD_DARK),
+            gate_top = box(0, 0, 134, 10, COLOR_WOOD_LIGHT),
+            label = text_node(0, 0, "PORTAL", 0.54),
+        }
+        for _, node in pairs(self.portal_markers[index]) do gui.set_enabled(node, false) end
+    end
+    self.puzzle_markers = {}
+    for index = 1, 3 do
+        self.puzzle_markers[index] = {
+            ring = circle(0, 0, 64, 64, COLOR_PUZZLE),
+            core = circle(0, 0, 22, 22, COLOR_HONEY),
+        }
+        for _, node in pairs(self.puzzle_markers[index]) do gui.set_enabled(node, false) end
+    end
+    self.puzzle_label = text_node(DESIGN_W * 0.5, 94, "ROUTE", 0.66)
+    gui.set_color(self.puzzle_label, COLOR_PUZZLE)
+    gui.set_enabled(self.puzzle_label, false)
+    self.scent_nodes = {}
+    for index = 1, 6 do
+        self.scent_nodes[index] = circle(0, 0, 12, 12, COLOR_SCENT)
+        gui.set_enabled(self.scent_nodes[index], false)
+    end
+    self.pest_nodes = {}
+    for index = 1, 3 do
+        self.pest_nodes[index] = {
+            body = circle(0, 0, 30, 22, COLOR_PEST),
+            eye = circle(0, 0, 7, 7, COLOR_PEST_EYE),
+        }
+        for _, node in pairs(self.pest_nodes[index]) do gui.set_enabled(node, false) end
+    end
+
     self.patch_pool = {}
     for index = 1, PATCH_POOL_SIZE do self.patch_pool[index] = create_patch_visual() end
 
     self.shadow = box(640, 340, 76 * BEE_SCALE, 22 * BEE_SCALE, vmath.vector4(0.12,0.18,0.12,0.20))
     self.wing_left = box(612, 375, 38 * BEE_SCALE, 34 * BEE_SCALE, vmath.vector4(1.0,0.969,0.91,0.70))
     self.wing_right = box(668, 375, 38 * BEE_SCALE, 34 * BEE_SCALE, vmath.vector4(1.0,0.969,0.91,0.70))
-    self.body = box(640, 360, 66 * BEE_SCALE, 54 * BEE_SCALE, COLOR_HONEY)
+    self.body = circle(640, 360, 66 * BEE_SCALE, 54 * BEE_SCALE, COLOR_HONEY)
     self.stripe_left = box(627, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, COLOR_DARK)
     self.stripe_right = box(648, 360, 10 * BEE_SCALE, 54 * BEE_SCALE, COLOR_DARK)
-    self.head = box(674, 360, 27 * BEE_SCALE, 42 * BEE_SCALE, COLOR_DARK)
-    self.objective_bg = box(258, 664, 450, 48, vmath.vector4(0.12,0.18,0.12,0.58))
-    self.objective = text_node(258, 664, "RESTORE FIRST PATCH · 0/6", 0.76)
+    self.head = circle(674, 360, 27 * BEE_SCALE, 42 * BEE_SCALE, COLOR_DARK)
+    self.bee_eye = circle(0, 0, 8, 8, COLOR_CREAM)
+    self.bee_stinger = box(0, 0, 14, 8, COLOR_DARK)
+    self.objective_bg = box(350, 664, 640, 48, vmath.vector4(0.12,0.18,0.12,0.58))
+    self.objective = text_node(350, 664, "HOME GARDEN · ENTER NEXT PORTAL", 0.68)
     self.honey_bg = box(1120, 664, 220, 48, vmath.vector4(0.12,0.18,0.12,0.58))
     self.honey_icon = box(1048, 664, 24, 24, COLOR_HONEY)
     self.honey_text = text_node(1135, 664, "HONEY 0", 1.0)
@@ -662,6 +894,7 @@ function on_message(self, message_id, message)
     local camera_y = message.camera_y or 800
     local dense = message.dense == true
     local pollination_visible = message.pollination_visible == true
+    local world_mode = message.world_mode or (pollination_visible and "z" or "h")
     local active_region_id = message.active_region_id or "region_01"
     local visual_region_id = camera_region_id(camera_x)
     local status = first_meadow_status(message, self.patch3_completed)
@@ -716,6 +949,12 @@ function on_message(self, message_id, message)
     for _, marker in ipairs(self.meadow_markers) do
         for key, node in pairs(marker) do if key ~= "definition" then gui.set_enabled(node, pollination_visible) end end
     end
+
+    render_home(self, world_mode == "h", camera_x, camera_y)
+    render_portals(self, message, camera_x, camera_y, world_mode == "h")
+    render_puzzle(self, message, camera_x, camera_y, world_mode == "z")
+    render_scent(self, message, camera_x, camera_y, world_mode == "z")
+    render_pests(self, message, camera_x, camera_y, world_mode == "z")
 
     local creek_x, creek_y = world_to_screen(730, 430, camera_x, camera_y)
     set_xy(self.creek, creek_x, creek_y - 78)
@@ -830,7 +1069,8 @@ function on_message(self, message_id, message)
         if patch_state and patch_state.q == true then any_qualifying = true end
     end
 
-    local nearby = pollination_visible and nearby_patch_indices(camera_x, camera_y) or {}
+    local nearby_region = world_mode == "z" and (message.zone_region_id or active_region_id) or nil
+    local nearby = pollination_visible and nearby_patch_indices(camera_x, camera_y, nearby_region) or {}
     for slot = 1, PATCH_POOL_SIZE do
         local candidate = nearby[slot]
         if candidate then
@@ -855,7 +1095,9 @@ function on_message(self, message_id, message)
     gui.set_enabled(self.honey_text, hud_visible)
     if hud_visible then
         gui.set_text(self.honey_text, "HONEY " .. tostring(math.floor(message.honey or 0)))
-        if any_qualifying then
+        if world_mode == "h" then
+            objective_text = "HOME GARDEN · ENTER NEXT PORTAL"
+        elseif any_qualifying then
             objective_text = string.format("POLLINATION IN PROGRESS · %d/%d", message.region_restored_count or 0, message.region_total or 0)
         end
         gui.set_text(self.objective, objective_text)
@@ -901,6 +1143,10 @@ function on_message(self, message_id, message)
     set_xy(self.stripe_left, bee_x - 13 * BEE_SCALE, bee_y)
     set_xy(self.stripe_right, bee_x + 8 * BEE_SCALE, bee_y)
     set_xy(self.head, bee_x + head_offset, bee_y)
+    set_xy(self.bee_eye, bee_x + head_offset + heading * 7, bee_y + 8)
+    set_xy(self.bee_stinger, bee_x - heading * 38 * BEE_SCALE, bee_y)
+    gui.set_enabled(self.bee_eye, true)
+    gui.set_enabled(self.bee_stinger, true)
     local touch_active = message.touch_active == true
     gui.set_enabled(self.joy_base, touch_active)
     gui.set_enabled(self.joy_knob, touch_active)

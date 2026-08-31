@@ -1,6 +1,7 @@
 local catalog = require "data.catalog"
 local progression = require "systems.progression"
 local region = require "gameplay.world.region"
+local puzzle = require "gameplay.world.puzzle"
 local test = require "tests.testlib"
 
 local function fresh_region_points_to_first_patch()
@@ -197,6 +198,38 @@ local function moon_garden_is_content_chain_not_new_core_system()
     test.assert_true(eligible, tostring(reason))
 end
 
+
+local function portal_chain_exposes_only_the_next_playable_zone()
+    local save = progression.new_save()
+    local first, first_reason = region.portal_status(save, "portal_01")
+    test.assert_true(first)
+    test.assert_equal("available", first_reason)
+    local second, second_reason = region.portal_status(save, "portal_02")
+    test.assert_false(second)
+    test.assert_equal("requires_region", second_reason)
+
+    for index = 1, 8 do save.world.campaign_completion[catalog.patches[index].id] = true end
+    local opened, opened_reason = region.portal_status(save, "portal_02")
+    test.assert_true(opened)
+    test.assert_equal("available", opened_reason)
+    test.assert_equal("portal_02", region.active_portal(save).id)
+end
+
+local function route_puzzle_requires_order_without_penalty()
+    local definition = region.puzzle_for_region("region_01")
+    local state = puzzle.new(definition)
+    local wrong = puzzle.step(state, definition.sequence[2].x, definition.sequence[2].y)
+    test.assert_true(wrong.wrong)
+    test.assert_equal(0, puzzle.progress_ratio(state))
+    local first = puzzle.step(state, definition.sequence[1].x, definition.sequence[1].y)
+    test.assert_true(first.advanced)
+    test.assert_equal(1 / 3, puzzle.progress_ratio(state))
+    puzzle.step(state, definition.sequence[2].x, definition.sequence[2].y)
+    local final = puzzle.step(state, definition.sequence[3].x, definition.sequence[3].y)
+    test.assert_true(final.solved)
+    test.assert_equal(1, puzzle.progress_ratio(state))
+end
+
 local function completed_campaign_is_derived_across_regions()
     local save = progression.new_save()
     for _, patch in ipairs(catalog.patches) do save.world.campaign_completion[patch.id] = true end
@@ -226,6 +259,8 @@ return {
         { name = "alpine_bloom_is_content_chain_not_new_core_system", run = alpine_bloom_is_content_chain_not_new_core_system },
         { name = "alpine_completion_activates_moon_garden", run = alpine_completion_activates_moon_garden },
         { name = "moon_garden_is_content_chain_not_new_core_system", run = moon_garden_is_content_chain_not_new_core_system },
+        { name = "portal_chain_exposes_only_the_next_playable_zone", run = portal_chain_exposes_only_the_next_playable_zone },
+        { name = "route_puzzle_requires_order_without_penalty", run = route_puzzle_requires_order_without_penalty },
         { name = "completed_campaign_is_derived_across_regions", run = completed_campaign_is_derived_across_regions },
     },
 }

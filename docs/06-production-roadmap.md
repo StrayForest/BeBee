@@ -912,3 +912,12 @@ The **primary distribution target is selected in P-1**, not here. P8 integrates 
 9. monetization extras.
 
 A repository full of systems is not a working product. A working BeBee is one where a new player can understand the fantasy, enjoy the core verb, visibly restore and personalize the world, leave and return safely, and run the release build reliably on the chosen target.
+
+
+## P9 — Garden experience overhaul
+
+Status: implementation in `codex/p9-garden-overhaul`; validation pending exact-head CI and retained runtime evidence.
+
+The next product loop is intentionally compact: return to the home hive, enter the next unlocked portal, solve a three-beacon route, pollinate varied flowers inside fenced pens, and return home when the region is restored. The pass also adds non-lethal orbiting pests, a scent trail, separated HUD bands, organic code-native silhouettes, three one-time Honey sinks, and short original feedback cues. Existing save v4 remains valid; route/pest state is ephemeral and `world.honey_spends` is additive.
+
+Research and acceptance criteria are recorded in [P9 garden experience research](research/P9-garden-experience-overhaul.md) and [the P9 evidence manifest](../evidence/P9-GARDEN-EXPERIENCE/manifest.json).

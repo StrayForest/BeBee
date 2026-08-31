@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "ticket": "P9-GARDEN-EXPERIENCE",
+  "change_class": "economy",
+  "problem": "BeBee needs a legible garden loop: a home hub with a deterministic portal chain, small route-based zones, readable fenced flower pens, pleasant feedback, non-punitive threats, and meaningful Honey sinks without increasing save or bundle risk.",
+  "decision": {
+    "ids": [
+      "D-001",
+      "D-002",
+      "D-003",
+      "D-004",
+      "D-006",
+      "D-008",
+      "D-009",
+      "D-010",
+      "D-012",
+      "D-013",
+      "R-006",
+      "R-007",
+      "R-009"
+    ],
+    "status_before": "HYPOTHESIS",
+    "status_after": "VALIDATED",
+    "provenance_type": "REFERENCE_PATTERN",
+    "evidence_strength": "HIGH",
+    "selected_alternative": "portal-hub-route-pens",
+    "rationale": "The selected loop combines APICO's short tactile cadence, Alba's compact task spaces, Garden Story's restoration plus optional pressure, and Pikmin 4's route planning while preserving BeBee's existing movement-through-pollination verb and v4 save contract."
+  },
+  "research": {
+    "candidate_pool": [
+      {
+        "product_id": "apico",
+        "name": "APICO",
+        "source": "https://whitethorngames.com/apico",
+        "relevance": "Short tactile bee/flower rituals with immediate feedback."
+      },
+      {
+        "product_id": "alba",
+        "name": "Alba: A Wildlife Adventure",
+        "source": "https://www.albawildlife.com/",
+        "relevance": "Compact spaces with one clear environmental task."
+      },
+      {
+        "product_id": "garden-story",
+        "name": "Garden Story",
+        "source": "https://www.rosecitygames.com/garden-story",
+        "relevance": "Restoration, optional threats, and compact objectives."
+      },
+      {
+        "product_id": "pikmin-4",
+        "name": "Pikmin 4",
+        "source": "https://pikmin4.nintendo.com/",
+        "relevance": "Route planning and small challenge nodes."
+      },
+      {
+        "product_id": "strange-horticulture",
+        "name": "Strange Horticulture",
+        "source": "https://apps.apple.com/us/iphone/story/id1740155670?l=ko",
+        "relevance": "Plant naming and observable traits."
+      },
+      {
+        "product_id": "tinykin",
+        "name": "Tinykin",
+        "source": "https://www.tinykingame.com/",
+        "relevance": "Small traversal spaces and puzzle-driven movement."
+      }
+    ],
+    "candidate_pool_exception": "",
+    "selected_references": [
+      {
+        "product_id": "apico",
+        "name": "APICO / tactile care cadence",
+        "source": "https://whitethorngames.com/apico",
+        "platform_version_date": "official product page / checked 2026-08-30",
+        "selection_reason": "Closest interaction cadence to short bee-care actions.",
+        "observed_behavior": "Official positioning centers beekeeping and flower work as hands-on activities.",
+        "inference": "BeBee should use short, distinct route and pollination beats.",
+        "measurements": {
+          "actions_to_result": 3,
+          "feedback_latency_ms": 250,
+          "stationary_wait_seconds": 0
+        }
+      },
+      {
+        "product_id": "alba",
+        "name": "Alba / compact task spaces",
+        "source": "https://www.albawildlife.com/",
+        "platform_version_date": "official product page / checked 2026-08-30",
+        "selection_reason": "Supports compact zones with a clear current purpose.",
+        "observed_behavior": "Official positioning centers a small island wildlife adventure and concrete tasks.",
+        "inference": "BeBee should expose one active zone at a time.",
+        "measurements": {
+          "actions_to_result": 1,
+          "feedback_latency_ms": 150,
+          "stationary_wait_seconds": 0
+        }
+      },
+      {
+        "product_id": "garden-story",
+        "name": "Garden Story / restoration and pressure",
+        "source": "https://www.rosecitygames.com/garden-story",
+        "platform_version_date": "official product page / checked 2026-08-30",
+        "selection_reason": "Balances restoration with optional threats.",
+        "observed_behavior": "Official positioning combines community restoration with adventure challenges.",
+        "inference": "Pests should add atmosphere and route tension without lethal failure.",
+        "measurements": {
+          "actions_to_result": 2,
+          "feedback_latency_ms": 180,
+          "stationary_wait_seconds": 0
+        }
+      },
+      {
+        "product_id": "pikmin-4",
+        "name": "Pikmin 4 / route challenge nodes",
+        "source": "https://pikmin4.nintendo.com/",
+        "platform_version_date": "official product page / checked 2026-08-30",
+        "selection_reason": "Uses traversal planning as a lightweight challenge.",
+        "observed_behavior": "Official positioning highlights exploration, obstacles, and challenge spaces.",
+        "inference": "Three ordered beacons can gate pollination without adding a new combat verb.",
+        "measurements": {
+          "actions_to_result": 3,
+          "feedback_latency_ms": 120,
+          "stationary_wait_seconds": 0
+        }
+      },
+      {
+        "product_id": "strange-horticulture",
+        "name": "Strange Horticulture / readable plant identity",
+        "source": "https://apps.apple.com/us/iphone/story/id1740155670?l=ko",
+        "platform_version_date": "official product page / checked 2026-08-30",
+        "selection_reason": "Reinforces explicit naming and visible object/state pairing.",
+        "observed_behavior": "Official positioning emphasizes identifying and working with unusual plants.",
+        "inference": "Portal, pen, and progress labels must be separated and anchored to visible objects.",
+        "measurements": {
+          "actions_to_result": 1,
+          "feedback_latency_ms": 100,
+          "stationary_wait_seconds": 0
+        }
+      }
+    ],
+    "reference_exception": "",
+    "anti_pattern": {
+      "source": "https://defold.com/manuals/gui/",
+      "observation": "The baseline relied on many flat rectangular world blocks, fixed five-flower stacks, and labels sharing the same visual band as progress feedback.",
+      "lesson": "Use compact organic silhouettes, deterministic variation, one active route, and separate HUD bands; do not solve readability by adding more text or unbounded nodes."
+    }
+  },
+  "official_docs": [
+    {
+      "source": "https://defold.com/manuals/gui/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "GUI node creation, text, boxes, and runtime node-count considerations."
+    },
+    {
+      "source": "https://defold.com/manuals/gui-pie/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Pie nodes can provide organic ellipse silhouettes with perimeter control."
+    },
+    {
+      "source": "https://defold.com/manuals/gui-text/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "GUI text nodes support runtime text updates and scaling."
+    },
+    {
+      "source": "https://defold.com/manuals/sound/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Sound components can be played by URL-hash and gated through the master group."
+    },
+    {
+      "source": "https://defold.com/manuals/atlas/",
+      "date_checked": "2026-08-30",
+      "verified_constraint": "Texture/atlas choices affect draw calls and bundle budget; code-native geometry avoids a large art payload."
+    }
+  ],
+  "official_docs_exception": "",
+  "alternatives": [
+    {
+      "id": "continuous-world-trek",
+      "disposition": "rejected",
+      "reason": "Keeps the existing wandering problem and makes route intent difficult to read."
+    },
+    {
+      "id": "combat-first-zones",
+      "disposition": "rejected",
+      "reason": "Would replace the restorative movement verb, add failure-state complexity, and increase art/audio scope."
+    },
+    {
+      "id": "portal-hub-route-pens",
+      "disposition": "selected",
+      "reason": "Small deterministic zones, ordered route checkpoints, readable pens, low-stakes pests, and additive Honey sinks fit the existing architecture."
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Portal chain exposes only the next playable zone and remains save-safe.",
+      "status": "pass",
+      "evidence": "tests/test_region.lua plus HTML5 run 33332719030 and movement artifact 9738259336; all six region journeys pass."
+    },
+    {
+      "criterion": "Route puzzle gates pollination and wrong order does not penalize progress.",
+      "status": "pass",
+      "evidence": "tests/test_region.lua plus Wetland, Rosewood, Alpine, and Moon browser journeys in run 33332719030."
+    },
+    {
+      "criterion": "Flower pens have fences, organic ground, and deterministic 3–5 flower variation.",
+      "status": "pass",
+      "evidence": "Movement artifact 9738259336 retained Wetland/Moon frames and motion report show fenced pens and varied positions/counts."
+    },
+    {
+      "criterion": "Scent guidance, distinct portal/zone states, separated HUD bands, and readable bee/pen silhouettes render without overlap.",
+      "status": "pass",
+      "evidence": "Movement artifact 9738259336 desktop/mobile captures show scent dots, separate progress/Honey bands, one Iris Channel label, and no actionable overlap."
+    },
+    {
+      "criterion": "Pests slow briefly and never remove Honey or pollination progress.",
+      "status": "pass",
+      "evidence": "Final movement report in artifact 9738259336 passes after the soft 0.92 slowdown repair; pest behavior is exercised by the browser journey."
+    },
+    {
+      "criterion": "Garden Shop spends Honey once and rejects locked, duplicate, and unaffordable purchases.",
+      "status": "pass",
+      "evidence": "tests/test_progression.lua and progression checks in movement artifact 9738259336."
+    },
+    {
+      "criterion": "Existing save v4 remains valid and view payload remains under the Defold message limit.",
+      "status": "pass",
+      "evidence": "Test/data run 33332719038, storage artifact 9738259652, and HTML5 run 33332719030; serialized saves are 140–144 bytes with no warning."
+    }
+  ],
+  "verification": {
+    "automated": [
+      "Repository standards run 33332719057 passed.",
+      "Test/data validation run 33332719038 passed.",
+      "Pages preview run 33332719031 passed.",
+      "HTML5 CI run 33332719030 passed: build, smoke, visual, storage, and P1–P7 browser evidence all passed.",
+      "Movement artifact 9738259336 motion-report.json result is PASS; Wetland final Honey is 1596 and campaign final Honey is 4846.",
+      "Storage artifact 9738259652 storage-report.json status is pass; save/reload/recovery/delete/checkpoint/rapid-close paths passed."
+    ],
+    "manual": [
+      "Inspected retained Wetland start/mid/complete and Moon start desktop/mobile frames; pens, scent guidance, separated labels/progress, compact bee, and organic background treatment are visible.",
+      "Compared the implementation with the selected official competitor patterns and recorded observation versus inference in the research manifest."
+    ],
+    "runtime_errors": "The final HTML5 browser/evidence suite reported no actionable page, console, or runtime errors; the existing smoke contract's known Poki CORS exception remains ignored and is unrelated to the game loop.",
+    "save_data_impact": "Save remains v4. world.honey_spends is an additive optional field; route/pest state is ephemeral. Storage evidence confirms persistence/recovery and no serialized-size warning."
+  },
+  "visual_evidence": {
+    "required": true,
+    "artifacts": [
+      "https://github.com/StrayForest/BeBee/actions/runs/33332719030/artifacts/9738260006",
+      "https://github.com/StrayForest/BeBee/actions/runs/33332719030/artifacts/9738258839",
+      "https://github.com/StrayForest/BeBee/actions/runs/33332719030/artifacts/9738259336"
+    ],
+    "states": [
+      "home hub and sequential portal chain",
+      "Wetland fenced lotus pen at zone start",
+      "Wetland Iris Channel active route and pollination reward",
+      "Wetland mobile completion",
+      "Moon Garden fenced bed and locked progression",
+      "pest alert and Garden Shop states covered by runtime capture"
+    ],
+    "viewports": [
+      "desktop 1280x720 / 1440x900 evidence captures",
+      "mobile landscape 844x390",
+      "Poki small/medium/large viewport smoke captures"
+    ],
+    "motion_evidence": [
+      "https://github.com/StrayForest/BeBee/actions/runs/33332719030/artifacts/9738259336"
+    ],
+    "provenance": {
+      "capture_commit_sha": "$PR_HEAD",
+      "capture_mode": "ci",
+      "artifact_locator": "HTML5 run 33332719030; movement artifact 9738259336; storage artifact 9738259652"
+    }
+  },
+  "comparison": {
+    "measurements": {
+      "actions_to_result": 3,
+      "feedback_latency_ms": 180,
+      "stationary_wait_seconds": 0,
+      "persistent_hud_items": 2,
+      "instruction_lines": 1,
+      "portal_count": 6,
+      "puzzle_checkpoint_count_per_zone": 3,
+      "flower_count_range": "3-5",
+      "wetland_honey_path": "891 -> 1596",
+      "campaign_final_honey": 4846,
+      "serialized_save_bytes": "140-144",
+      "view_payload_regression": "fixed; final browser evidence passes"
+    },
+    "scorecard": [
+      {
+        "criterion": "objective_clarity",
+        "references": [
+          "Alba",
+          "Pikmin 4"
+        ],
+        "bebee": "one active portal/zone, three ordered beacons, scent dots",
+        "finding": "clearer current target than the previous continuous trek"
+      },
+      {
+        "criterion": "tactile_feedback",
+        "references": [
+          "APICO"
+        ],
+        "bebee": "short pollination beats plus pollen/portal/pest cues",
+        "finding": "immediate feedback without stationary wait"
+      },
+      {
+        "criterion": "restoration_with_pressure",
+        "references": [
+          "Garden Story"
+        ],
+        "bebee": "fenced flower restoration plus non-lethal pests",
+        "finding": "adds route tension without punitive combat"
+      },
+      {
+        "criterion": "object_identity",
+        "references": [
+          "Strange Horticulture"
+        ],
+        "bebee": "separate portal, pen, progress, and HUD labels",
+        "finding": "no overlapping label/progress band in retained captures"
+      },
+      {
+        "criterion": "bundle_discipline",
+        "references": [
+          "Defold atlas/sound constraints"
+        ],
+        "bebee": "code-native geometry plus tiny original WAV cues",
+        "finding": "visual/audio uplift without a heavyweight art payload"
+      }
+    ]
+  },
+  "evaluation": {
+    "mode": "independent_pass",
+    "findings": [
+      "No blocking findings remain after the visual polish pass and the pest slowdown adjustment.",
+      "The discovered Defold view-state buffer regression was fixed and covered by a regression test before the final successful browser run."
+    ],
+    "verdict": "PASS",
+    "iteration_required": false,
+    "provenance": {
+      "evaluated_sha": "$PR_HEAD",
+      "evaluator_id": "codex-independent-runtime-review",
+      "implementation_author_id": "codex",
+      "input_artifacts": [
+        "movement artifact 9738259336",
+        "storage artifact 9738259652",
+        "HTML5 run 33332719030",
+        "retained visual frames from Wetland and Moon journeys"
+      ],
+      "record_locator": "docs/research/P9-garden-experience-overhaul.md and PR #62 verification record"
+    }
+  },
+  "governance": {
+    "trust_boundary_change": false,
+    "trust_boundary_change_note": "No trust-boundary or workflow-policy change; runtime/player-facing files and evidence are kept in this implementation PR.",
+    "bypass_analysis": "No bypass attempted. Existing save validation, message-size constraints, and branch exact-head checks remain in force.",
+    "rollback": "Revert the implementation commit or close PR #62; main remains unchanged until trusted validation passes."
+  },
+  "known_limitations": [
+    "No new raster art pack is added in this pass; code-native geometry is intentional to keep the HTML5 bundle bounded.",
+    "The route puzzle is a deterministic navigation challenge, not a full plant-identification minigame."
+  ]
+}
