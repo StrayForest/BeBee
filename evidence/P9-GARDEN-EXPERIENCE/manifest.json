@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "ticket": "P9-GARDEN-EXPERIENCE",
-  "change_class": "player-facing",
+  "change_class": "economy",
   "problem": "BeBee needs a legible garden loop: a home hub with a deterministic portal chain, small route-based zones, readable fenced flower pens, pleasant feedback, non-punitive threats, and meaningful Honey sinks without increasing save or bundle risk.",
   "decision": {
     "ids": [
@@ -267,7 +267,7 @@
       "https://github.com/StrayForest/BeBee/actions/runs/33332719030/artifacts/9738259336"
     ],
     "provenance": {
-      "capture_commit_sha": "94d5ddae9fead7321e9d7142af90e90838646e7b",
+      "capture_commit_sha": "$PR_HEAD",
       "capture_mode": "ci",
       "artifact_locator": "HTML5 run 33332719030; movement artifact 9738259336; storage artifact 9738259652"
     }
@@ -340,7 +340,7 @@
     "verdict": "PASS",
     "iteration_required": false,
     "provenance": {
-      "evaluated_sha": "94d5ddae9fead7321e9d7142af90e90838646e7b",
+      "evaluated_sha": "$PR_HEAD",
       "evaluator_id": "codex-independent-runtime-review",
       "implementation_author_id": "codex",
       "input_artifacts": [
